@@ -1,3 +1,79 @@
-'use client'; import { useMemo, useState } from 'react'; import { generateWaferMap, type Die, type DieStatus } from '@/lib/wafer';
-export default function Map(){const [v,setV]=useState({diameter:300,edge:3,width:10,height:10,xPitch:10.1,yPitch:10.1,xOffset:0,yOffset:0});const [dies,setDies]=useState<Die[]>([]);const [selected,setSelected]=useState<Die|null>(null);const set=(k:string,n:number)=>setV({...v,[k]:n});const generate=()=>setDies(generateWaferMap(v.diameter,v.edge,v.width,v.height,v.xPitch,v.yPitch,v.xOffset,v.yOffset));const counts=useMemo(()=>dies.reduce((a,d)=>(a[d.status]++,a),{Good:0,Defect:0,Skip:0,Edge:0} as Record<DieStatus,number>),[dies]);const update=(status:DieStatus)=>{if(!selected)return;const next={...selected,status};setSelected(next);setDies(dies.map(d=>d.dieNumber===next.dieNumber?next:d))};return <main className="calculator-page"><div className="page-title"><div className="eyebrow">WAFER / VISUALIZER</div><h1>Wafer Map Generator</h1><p>Generate a clickable SVG die map with row, column, coordinates and defect status.</p></div><div className="calc-grid"><section className="panel"><h2>Map inputs</h2><Num label="Wafer diameter" value={v.diameter} unit="mm" onChange={n=>set('diameter',n)}/><Num label="Edge exclusion" value={v.edge} unit="mm" onChange={n=>set('edge',n)}/><div className="form-row"><Num label="Die width" value={v.width} unit="mm" onChange={n=>set('width',n)}/><Num label="Die height" value={v.height} unit="mm" onChange={n=>set('height',n)}/></div><div className="form-row"><Num label="X pitch" value={v.xPitch} unit="mm" onChange={n=>set('xPitch',n)}/><Num label="Y pitch" value={v.yPitch} unit="mm" onChange={n=>set('yPitch',n)}/></div><div className="form-row"><Num label="X offset" value={v.xOffset} unit="mm" onChange={n=>set('xOffset',n)}/><Num label="Y offset" value={v.yOffset} unit="mm" onChange={n=>set('yOffset',n)}/></div><button className="button primary" onClick={generate}>Generate wafer map</button>{selected&&<div className="die-info"><strong>Die #{selected.dieNumber}</strong><br/>Center: ({selected.centerX.toFixed(2)}, {selected.centerY.toFixed(2)}) mm<br/>Row {selected.row} / Column {selected.column}<div className="action-row">{(['Good','Defect','Skip','Edge'] as DieStatus[]).map(s=><button className="button secondary" key={s} onClick={()=>update(s)}>{s}</button>)}</div></div>}</section><section className="panel"><h2>Map preview</h2>{dies.length===0?<p className="note">Set parameters and generate a map. Click any die to inspect it.</p>:<><div className="map-wrap"><svg viewBox="0 0 500 500" role="img" aria-label="Generated wafer die map"><circle cx="250" cy="250" r="235" fill="#fff" stroke="#18222d" strokeWidth="2"/><circle cx="250" cy="250" r={235*(v.diameter/2-v.edge)/(v.diameter/2)} fill="none" stroke="#e1a33a" strokeDasharray="5 5"/>{dies.map(d=>{const x=250+d.centerX/v.diameter*470,y=250-d.centerY/v.diameter*470;const color=d.status==='Good'?'#8cc9ce':d.status==='Defect'?'#d46a61':d.status==='Skip'?'#b6bec5':'#e1a33a';return <rect key={d.dieNumber} x={x-v.width/v.diameter*470/2} y={y-v.height/v.diameter*470/2} width={v.width/v.diameter*470} height={v.height/v.diameter*470} fill={color} stroke="#fff" strokeWidth=".6" onClick={()=>setSelected(d)} style={{cursor:'pointer'}}/>})}</svg></div><div className="metric-grid" style={{marginTop:14}}>{Object.entries(counts).map(([k,n])=><div className="metric" key={k}><span>{k} dies</span><strong>{n}</strong></div>)}</div></>}</section></div></main>}
-function Num({label,value,unit,onChange}:{label:string;value:number;unit:string;onChange:(n:number)=>void}){return <div className="field"><label>{label}<span className="unit">{unit}</span></label><input type="number" step="any" value={value} onChange={e=>onChange(Number(e.target.value))}/></div>}
+import type { Metadata } from 'next';
+import ToolPageShell from '@/components/tools/ToolPageShell';
+import WaferMapGenerator from '@/tools/wafer-map-generator/Calculator';
+import { tool } from '@/tools/wafer-map-generator';
+import { absoluteUrl } from '@/lib/site';
+
+export const metadata: Metadata = {
+  title: tool.name,
+  description: tool.description,
+  keywords: tool.keywords,
+  alternates: { canonical: tool.path },
+  openGraph: {
+    title: `${tool.name} — SemiTools`,
+    description: tool.description,
+    url: absoluteUrl(tool.path),
+    type: 'website',
+  },
+};
+
+export default function WaferMapGeneratorPage() {
+  return (
+    <ToolPageShell
+      tool={tool}
+      formula={
+        <>
+          <p>
+            Die centres are generated on a pitch grid (X pitch and Y pitch, plus optional X/Y offsets) and placed only when
+            the centre is inside the effective radius:
+          </p>
+          <p className="formula-expression">centerX² + centerY² ≤ (D / 2 − E)²</p>
+          <ul className="info-list">
+            <li>Each die keeps dieNumber, row, column, x/y grid index, centerX, centerY and status.</li>
+            <li>
+              A die is automatically flagged <strong>Edge</strong> when its outer boundary reaches the effective radius,
+              i.e. when it sits in the last placement ring.
+            </li>
+            <li>
+              Row and column are 1-based grid indices counted from the lower-left placed die; the origin (0, 0) is the wafer
+              centre.
+            </li>
+            <li>
+              Statuses: Good, Defect, Skip, Edge. Exports: CSV and JSON, both in millimetres.
+            </li>
+          </ul>
+        </>
+      }
+      notes={[
+        'The map is generated in the browser; die coordinates are never uploaded.',
+        'The renderer scales die rectangles for readability, so on-screen pixels are not a metrology reference — use the exported coordinates.',
+        'Statuses are manual labels for planning or test-data review. This tool does not read prober, AOI or bin files.',
+        'This is a generic calculation and may not match a specific fab, customer, equipment or MES specification.',
+      ]}
+      faq={[
+        {
+          question: 'What do the four die statuses mean?',
+          answer:
+            'Good is a die that passed, Defect is a die known to be bad (often replaced by a bin number in real data), Skip is a position intentionally not tested or populated, and Edge is a die placed in the outer ring of the effective radius where yield and processing are typically less uniform.',
+        },
+        {
+          question: 'How do I select and reclassify a single die?',
+          answer:
+            'Click a die on the map, or type its die number in the die inspector and press Enter. The inspector shows the die centre coordinates, row and column, then offers a status button for each of the four statuses. Everything is keyboard reachable: the die number field accepts Enter to select.',
+        },
+        {
+          question: 'What is in the CSV and JSON export?',
+          answer:
+            'The CSV has the header dieNumber,x,y,row,column,centerX,centerY,status and one line per placed die, which opens directly in a spreadsheet. The JSON export contains the same records as an array of objects, ready to feed into a script or a plotting library.',
+        },
+        {
+          question: 'Why do some wafer edge positions have no die?',
+          answer:
+            'Die are only placed when their centre lies inside the effective radius (wafer radius minus edge exclusion). Positions outside that circle are intentionally empty rather than drawn as partial die, so the statistics always refer to fully placed die.',
+        },
+      ]}
+    >
+      <WaferMapGenerator />
+    </ToolPageShell>
+  );
+}
