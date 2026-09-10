@@ -1,2 +1,10 @@
 import { NextResponse } from 'next/server';
-export function GET(){return new NextResponse(`User-agent: *\nAllow: /\nSitemap: https://semitools.dev/sitemap.xml\n`,{headers:{'content-type':'text/plain'}})}
+import { absoluteUrl } from '@/lib/site';
+
+export function GET(): NextResponse {
+  const body = ['User-agent: *', 'Allow: /', '', `Sitemap: ${absoluteUrl('/sitemap.xml')}`, ''].join('\n');
+
+  return new NextResponse(body, {
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
+  });
+}

@@ -1,4 +1,78 @@
-'use client'; import { useMemo, useState } from 'react'; import { Copy, RotateCcw } from 'lucide-react'; import { generateMark, type DateFormat } from '@/lib/marking';
-const initial={lotId:'ABC123',waferNumber:'7',productId:'XYZ001',layer:'M5',date:'2026-09-10',digits:2,dateFormat:'YYMMDD' as DateFormat,separator:'-',uppercase:true};
-export default function Mark(){const [v,setV]=useState(initial); const [copied,setCopied]=useState(false); const r=useMemo(()=>generateMark(v),[v]); const set=(k:string,x:string|boolean|number)=>setV({...v,[k]:x}); return <ToolLayout title="Wafer Mark Calculator" desc="Generate, validate and format semiconductor wafer marking codes."><div className="calc-grid"><section className="panel"><h2>Basic information</h2>{[['lotId','Lot ID'],['waferNumber','Wafer number'],['productId','Product ID'],['layer','Layer'],['date','Date']].map(([k,l])=><div className="field" key={k}><label htmlFor={k}>{l}</label><input id={k} type={k==='date'?'date':'text'} value={v[k as keyof typeof v] as string} onChange={e=>set(k,e.target.value)}/></div>)}<h2>Format</h2><div className="form-row"><div className="field"><label>Digits</label><input type="number" min="1" max="6" value={v.digits} onChange={e=>set('digits',+e.target.value)}/></div><div className="field"><label>Separator</label><input value={v.separator} maxLength={2} onChange={e=>set('separator',e.target.value)}/></div></div><div className="field"><label>Date format</label><select value={v.dateFormat} onChange={e=>set('dateFormat',e.target.value)}><option>YYMMDD</option><option>YYMM</option><option>YYYYMMDD</option></select></div><label className="field"><input type="checkbox" checked={v.uppercase} onChange={e=>set('uppercase',e.target.checked)}/> Uppercase output</label><button className="button secondary" onClick={()=>setV(initial)}><RotateCcw size={14}/> Reset</button></section><section className="panel"><h2>Generated mark</h2>{r.errors.length>0&&<div className="error" role="alert">{r.errors.map(e=><div key={e}>{e}</div>)}</div>}<div className="result-value" aria-live="polite">{r.mark||'—'}</div><div className="metric"><span>Characters</span><strong>{r.characters}</strong></div><div className="action-row"><button className="button primary" disabled={!!r.errors.length} onClick={()=>{navigator.clipboard?.writeText(r.mark);setCopied(true)}}><Copy size={15}/> {copied?'Copied':'Copy mark'}</button></div><div className="formula"><strong>Format</strong><br/>LOT + wafer number (zero padded) + date code + layer, joined by your separator.</div><p className="note">Custom formatting utility only. Verify compatibility with your manufacturing or MES specification.</p></section></div><Faq items={['How is the wafer number formatted?','Why does the date code change?']}/></ToolLayout>}
-function ToolLayout({title,desc,children}:{title:string;desc:string;children:React.ReactNode}){return <main className="calculator-page"><div className="page-title"><div className="eyebrow">MARK &amp; ID / CALCULATOR</div><h1>{title}</h1><p>{desc}</p></div>{children}</main>}; function Faq({items}:{items:string[]}){return <section className="faq"><h2>FAQ</h2>{items.map(x=><details key={x}><summary>{x}</summary><p>Review the inputs and the formula shown above. This tool provides a transparent generic calculation, not a fab-specific standard.</p></details>)}</section>}
+import type { Metadata } from 'next';
+import ToolPageShell from '@/components/tools/ToolPageShell';
+import WaferMarkCalculator from '@/tools/wafer-mark-calculator/Calculator';
+import { tool } from '@/tools/wafer-mark-calculator';
+import { absoluteUrl } from '@/lib/site';
+
+export const metadata: Metadata = {
+  title: tool.name,
+  description: tool.description,
+  keywords: tool.keywords,
+  alternates: { canonical: tool.path },
+  openGraph: {
+    title: `${tool.name} — SemiTools`,
+    description: tool.description,
+    url: absoluteUrl(tool.path),
+    type: 'website',
+  },
+};
+
+export default function WaferMarkCalculatorPage() {
+  return (
+    <ToolPageShell
+      tool={tool}
+      formula={
+        <>
+          <p>The mark is assembled from four fields, joined by your separator:</p>
+          <p className="formula-expression">LOT_ID + SEPARATOR + WAFER_NO + SEPARATOR + DATE_CODE + SEPARATOR + LAYER</p>
+          <ul className="info-list">
+            <li>
+              <strong>Wafer number</strong> — leading zeros are stripped, then the value is left-padded to the chosen digit
+              count: wafer 7 with 2 digits becomes <code>07</code>.
+            </li>
+            <li>
+              <strong>Date code</strong> — <code>YYMMDD</code>, <code>YYMM</code> or <code>YYYYMMDD</code>, built from the
+              selected calendar date.
+            </li>
+            <li>
+              <strong>Uppercase</strong> — the whole mark is upper-cased after assembly when enabled.
+            </li>
+            <li>
+              <strong>Validation</strong> — lot ID and wafer number are required, the wafer number must be alphanumeric, and
+              lot/product/layer accept letters and digits only, so the mark stays safe for dot-peen or laser marking.
+            </li>
+          </ul>
+        </>
+      }
+      notes={[
+        'This is a formatting utility, not a marking standard. Field order, allowed characters and date encoding are defined by each fab, customer or MES specification.',
+        'Character-length budgets for laser or dot-peen marking are set by your equipment; the character counter here only reports the generated string length.',
+        'The displayed example values are placeholders — replace them with real lot data before use.',
+      ]}
+      faq={[
+        {
+          question: 'How is the wafer number zero-padded?',
+          answer:
+            'Leading zeros are first stripped from your input, then the number is left-padded with zeros until it reaches the configured digit count. Wafer 7 with 2 digits gives 07, with 4 digits gives 0007. The accepted range is 1 to 6 digits.',
+        },
+        {
+          question: 'Which date format should I use?',
+          answer:
+            'YYMMDD is the most common choice for compact marks because it stays short while keeping day-level traceability. YYMM keeps the mark shorter when a monthly grouping is enough, and YYYYMMDD avoids century ambiguity for documentation or data exports.',
+        },
+        {
+          question: 'Which characters are rejected, and why?',
+          answer:
+            'Lot ID and wafer number cannot be empty, the wafer number must contain letters and digits only, and lot, product and layer fields accept letters and digits only. Separators, spaces and punctuation are dropped from those fields so the produced mark cannot break a marking recipe or a downstream parser.',
+        },
+        {
+          question: 'Does this match my fab marking standard?',
+          answer:
+            'No, and it does not claim to. It is a transparent formatter for the common lot / wafer / date / layer pattern. Many fabs add product revision, fab code, check digits or a fixed prefix. Verify the generated string against your own specification before it is used on hardware.',
+        },
+      ]}
+    >
+      <WaferMarkCalculator />
+    </ToolPageShell>
+  );
+}

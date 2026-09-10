@@ -1,3 +1,47 @@
-import type { Metadata } from 'next'; import Link from 'next/link'; import { Wrench, Menu } from 'lucide-react'; import './globals.css';
-export const metadata:Metadata={title:{default:'SemiTools — Semiconductor Engineering Tools',template:'%s — SemiTools'},description:'Free, transparent semiconductor engineering calculators for wafer marks, die count, wafer maps and yield.'};
-export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><body><header className="template-nav"><Link className="template-brand" href="/"><span className="template-brand-mark"><Wrench size={15}/></span>SemiTools</Link><nav><Link href="/tools">Tools</Link><Link href="/about">About</Link><Link href="/contact">Contact</Link></nav><Link className="nav-cta" href="/tools">Open toolbox <span>↗</span></Link><button className="mobile-menu" aria-label="Open navigation"><Menu size={20}/></button></header>{children}<footer className="template-footer"><Link className="template-brand" href="/"><span className="template-brand-mark"><Wrench size={14}/></span>SemiTools</Link><span>Semiconductor engineering tools, made clear.</span><div><Link href="/privacy">Privacy</Link><Link href="/contact">Contact</Link></div></footer></body></html>}
+import type { Metadata } from 'next';
+import AppShell from '@/components/shell/AppShell';
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
+import './globals.css';
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — Semiconductor Engineering Tools`,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    'semiconductor calculator',
+    'wafer map',
+    'gross die per wafer',
+    'wafer mark',
+    'yield calculator',
+    'edge exclusion',
+    'die per wafer estimate',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    url: SITE_URL,
+    title: `${SITE_NAME} — Semiconductor Engineering Tools`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} — Semiconductor Engineering Tools`,
+    description: SITE_DESCRIPTION,
+  },
+  robots: { index: true, follow: true },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <AppShell>{children}</AppShell>
+      </body>
+    </html>
+  );
+}
