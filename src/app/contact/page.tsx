@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function Contact() {
   return (
-    <main className="prose-page">
+    <div className="prose-page">
       <div className="eyebrow">CONTACT</div>
       <h1>Contact {SITE_NAME}</h1>
       <p>
@@ -39,6 +39,6 @@ export default function Contact() {
         formula or specification you are comparing against. That is usually enough to fix the tool without a follow-up
         question.
       </p>
-    </main>
+    </div>
   );
 }

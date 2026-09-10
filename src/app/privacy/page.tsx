@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function Privacy() {
   return (
-    <main className="prose-page">
+    <div className="prose-page">
       <div className="eyebrow">PRIVACY</div>
       <h1>Privacy</h1>
       <p>
@@ -32,6 +32,6 @@ export default function Privacy() {
       <p>
         No third-party analytics, advertising or tracking scripts are loaded by these calculator pages.
       </p>
-    </main>
+    </div>
   );
 }
