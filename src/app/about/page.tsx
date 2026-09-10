@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function About() {
   return (
-    <main className="prose-page">
+    <div className="prose-page">
       <div className="eyebrow">ABOUT</div>
       <h1>Engineering tools, without the friction.</h1>
       <p>
@@ -35,6 +35,6 @@ export default function About() {
         </a>
         .
       </p>
-    </main>
+    </div>
   );
 }
