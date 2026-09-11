@@ -21,6 +21,10 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Sheet Resistance Calculator | `/tools/sheet-resistance-calculator` | Sheet resistance, resistivity and conductivity from a four-point probe measurement, plus a sheet resistance / resistivity converter |
 | Wafer Area Calculator | `/tools/wafer-area-calculator` | Wafer area, usable area after edge exclusion, die area and the area-only die count upper bound, with utilisation against a measured count |
 | Reticle Field Calculator | `/tools/reticle-field-calculator` | Dice per field, field utilisation and scribe-lane effect, plus shots per wafer and the dice they can carry |
+| Thickness Converter | `/tools/thickness-converter` | Film thickness and length between ångström, nm, µm, mil, mm, cm, inch and m, with the exact inch and mil definitions |
+| Pressure & Vacuum Converter | `/tools/pressure-converter` | Pressure and vacuum between Pa, kPa, MPa, bar, mbar, Torr, mTorr, atm and psi, with the Torr defined as 1/760 atm |
+| Gas Flow Converter | `/tools/gas-flow-converter` | Gas flow between sccm, slm, m³/h, cfm, mol/min, mol/h and g/min, with the reference temperature and the gas as explicit inputs |
+| Temperature Converter | `/tools/temperature-converter` | Temperature and temperature difference between Celsius, Fahrenheit, kelvin and Rankine, with absolute-zero checking |
 
 ## Stack
 
@@ -36,13 +40,16 @@ src/
     tools/<slug>/page.tsx   server component: per-tool metadata + SEO content, renders the calculator
   components/
     shell/                  AppShell, ToolSidebar, CommandPalette (layout around every page)
-    tools/                  ToolCard, FavoriteButton, ToolPageShell, ToolExplorer, FavoritesSection
+    tools/                  ToolCard, FavoriteButton, ToolPageShell, ToolExplorer, FavoritesSection, UnitConverter
   lib/                      pure calculation + platform logic (no React)
-    units.ts                shared length units (nm, um, mm, cm, mil, inch) and their conversions
+    units.ts                shared length units (angstrom, nm, um, mil, mm, cm, inch, m) and their conversions
     wafer.ts                die estimation, wafer map generation, geometry validation
     wafer-area.ts           wafer / usable area, edge-exclusion loss, area-only die count, utilisation
     sheet-resistance.ts     four-point probe sheet resistance, resistivity, conductivity, converter
     reticle.ts              die pitch, dice per field, field utilisation, shots per wafer
+    pressure.ts             pressure and vacuum units (Pa, bar, mbar, Torr, mTorr, atm, psi)
+    gas-flow.ts             gas flow units, molar volume at a stated standard, gas molar masses
+    temperature.ts          Celsius / Fahrenheit / kelvin / Rankine, absolute and difference modes
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
     yield-model.ts          Poisson / Murphy / Seeds yield models and their inverses
@@ -73,7 +80,10 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 
 ## Accuracy policy
 
-- Units are always visible in the UI (`nm`, `µm`, `mm`, `cm`, `mil`, `inch`); a bare number is never shown, and every length conversion goes through one shared table in `src/lib/units.ts`.
+- Units are always visible in the UI (`Å`, `nm`, `µm`, `mil`, `mm`, `cm`, `inch`, `m`); a bare number is never shown, and every length conversion goes through one shared table in `src/lib/units.ts`.
+- The conversion tools state where a factor comes from: the Torr is exactly 1/760 atm, the inch is exactly 25.4 mm, the Celsius offset is exactly 273.15 K.
+- Gas flow treats the reference temperature as an input rather than a hidden constant, because sccm and slm mean nothing without the standard they refer to; molar and mass rows are shown separately from the volumetric ones.
+- Temperature separates an absolute reading from a temperature difference, because a difference converts without the offset (10 °C is 50 °F, but a 10 °C rise is an 18 °F rise).
 - Wafer die counts are labelled *Estimated usable die* and are **not** a fab cutting result.
 - Generic geometry is labelled as generic: results may not match a specific fab, customer, equipment or MES specification.
 - Invalid input produces a specific message (`Wafer diameter must be greater than 0.`), never a generic "Invalid input".

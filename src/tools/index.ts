@@ -1,8 +1,12 @@
 import { tool as defectDensityCalculator } from './defect-density-calculator';
 import { tool as dieCostCalculator } from './die-cost-calculator';
+import { tool as gasFlowConverter } from './gas-flow-converter';
+import { tool as pressureConverter } from './pressure-converter';
 import { tool as processCapabilityCalculator } from './process-capability-calculator';
 import { tool as reticleFieldCalculator } from './reticle-field-calculator';
 import { tool as sheetResistanceCalculator } from './sheet-resistance-calculator';
+import { tool as temperatureConverter } from './temperature-converter';
+import { tool as thicknessConverter } from './thickness-converter';
 import { tool as throughputCalculator } from './throughput-calculator';
 import { tool as waferAreaCalculator } from './wafer-area-calculator';
 import { tool as waferDieCalculator } from './wafer-die-calculator';
@@ -35,6 +39,10 @@ export const tools: Tool[] = [
   sheetResistanceCalculator,
   waferAreaCalculator,
   reticleFieldCalculator,
+  thicknessConverter,
+  pressureConverter,
+  gasFlowConverter,
+  temperatureConverter,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];
