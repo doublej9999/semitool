@@ -14,5 +14,4 @@ export const tool = defineTool({
   category: 'Thin Film & Deposition',
   icon: LayoutGrid,
   createdAt: '2026-09-11',
-  isNew: true,
 });
