@@ -40,6 +40,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Bin Yield Calculator | `/tools/bin-yield-calculator` | Roll up wafer-sort bin counts into per-bin share, cumulative yield, the pass fraction and the measured defect rate in DPPM |
 | FIT & MTBF Calculator | `/tools/fit-mtbf-calculator` | Failure rate, FIT and MTBF from a life test, with the DPPM over a mission time and the time to a 1% or 10% failing fraction |
 | Yield ⇄ DPPM Calculator | `/tools/yield-dppm-calculator` | Convert between yield, DPPM, DPB and the equivalent one-sided sigma and Cpk, in any direction |
+| L-Network Impedance Match Calculator | `/tools/impedance-matching-calculator` | Match two real resistances with an L network: loaded Q, shunt side, and the series and shunt L and C values for the low-pass and high-pass builds |
+| Microstrip Calculator | `/tools/microstrip-calculator` | Trace impedance, effective permittivity, guided wavelength and delay per millimetre from the geometry, or the width that reaches a target impedance |
+| Shunt Stub Match Calculator | `/tools/stub-matching-calculator` | Both single-stub distances for a complex load with the short and open stub lengths, each re-simulated against the transmission-line equations |
 
 ## Stack
 
@@ -78,6 +81,9 @@ src/
     reliability.ts          failure rate, FIT, MTBF and the DPPM implied over a mission time
     dppm.ts                 yield / DPPM / DPB / sigma conversions, reusing the normal helpers
     bin.ts                  wafer-sort bin parsing and the per-bin / cumulative yield rollup
+    impedance.ts            L-network matching from the resistance ratio
+    tline.ts                guided wavelength and the Hammerstad-Jensen microstrip model
+    stub.ts                 single shunt-stub matching of a complex load, with a re-simulation check
     format.ts               shared result-panel number formatting
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
@@ -140,6 +146,9 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - The bin rollup is exact arithmetic on real counts and marks the pass bin: when no bin is starred it says the largest bin was assumed to be the pass bin, and it rejects a malformed line by number instead of skipping it and understating the total die.
 - The yield / DPPM tool converts a figure already in hand and says so; the sigma and Cpk columns are one-sided normal equivalents, and a 100% yield reports 0 DPPM with a blank sigma because no finite z gives zero defects.
 - The normal-distribution helpers are shared, not re-derived: the yield tools reuse erfc / normalCdf from lib/capability.ts and inverseNormalCdf from lib/confidence.ts.
+- The microstrip synthesis starts from the Hammerstad fit and then bisects the forward model, so the width that is quoted reproduces the requested impedance instead of carrying the fit's own ~1% error into the answer.
+- The stub match prints a re-simulation column: the reported distance and stub length are pushed back through the transmission-line equations and the resulting normalised admittance is compared with 1, so the placement is checked rather than asserted.
+- The L-network tool says outright that Q is set by the resistance ratio and that a complex load cannot be matched by an L network alone, instead of accepting a load reactance it would silently ignore.
 
 ## Scripts
 
