@@ -4,6 +4,7 @@ import { ArrowRight, Keyboard, Layers, MonitorSmartphone } from 'lucide-react';
 import FavoritesSection from '@/components/tools/FavoritesSection';
 import ToolCard from '@/components/tools/ToolCard';
 import { tools, toolsByCategory } from '@/tools';
+import { LENGTH_UNITS } from '@/lib/units';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -23,7 +24,7 @@ const HOME_FAQ = [
   {
     question: 'Which units are used?',
     answer:
-      'Lengths are millimetres and every field carries its unit. Die counts are integers. Percentages are computed from die counts and shown with the exact denominator.',
+      'Every field carries its unit. Lengths can be entered in nanometres, micrometres, millimetres, centimetres, mils or inches and are converted exactly, so a result cannot be misread. Die counts are integers, and percentages are computed from the counts and shown with the exact denominator.',
   },
 ];
 
@@ -34,11 +35,11 @@ export default function HomePage() {
     <div className="page">
       <header className="page-hero">
         <p className="kicker">Semiconductor engineering tools</p>
-        <h1>Wafer calculators that show their work.</h1>
+        <h1>Wafer tools that show their work.</h1>
         <p className="lead">
-          Wafer marks, gross die estimates, interactive wafer maps, yield, capability, throughput and cost: focused tools
-          with explicit units, the formula on the page and no server round trip. Nothing is uploaded, and no result is
-          dressed up as an industry standard it is not.
+          Wafer marks, gross die estimates, interactive wafer maps, yield, capability, throughput, cost, films and layout:
+          focused tools with explicit units, the formula on the page and no server round trip. Nothing is uploaded, and no
+          result is dressed up as an industry standard it is not.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href="/tools">
@@ -58,8 +59,8 @@ export default function HomePage() {
             <span>client-side</span>
           </div>
           <div>
-            <strong>mm</strong>
-            <span>units stated per field</span>
+            <strong>{LENGTH_UNITS.length}</strong>
+            <span>length units, nm to inch</span>
           </div>
           <div>
             <strong>0</strong>
@@ -132,8 +133,8 @@ export default function HomePage() {
             </div>
             <h3>Units or it does not ship</h3>
             <p>
-              Every input and output carries its unit — mm, percentage, die count — so a result cannot be misread as
-              micrometres or inches by whoever picks it up next.
+              Every input and output carries its unit — length, percentage, die count — and a length can be typed in nm
+              through to inches, so a result cannot be misread by whoever picks it up next.
             </p>
           </article>
           <article className="tool-card">

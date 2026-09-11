@@ -12,5 +12,4 @@ export const tool = defineTool({
   category: 'Mark & Traceability',
   icon: ScanLine,
   createdAt: '2026-09-10',
-  isNew: true,
 });
