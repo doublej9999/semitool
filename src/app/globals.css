@@ -1428,3 +1428,66 @@ kbd {
     display: none;
   }
 }
+
+/* Comparison table used by the yield-model and defect-density tools. */
+.mono {
+  font-family: var(--font-mono);
+}
+
+.model-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2px 0 16px;
+  font-size: 12.5px;
+}
+
+.model-table th,
+.model-table td {
+  text-align: left;
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.model-table thead th {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.model-table tbody th {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.model-table td.mono {
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.model-table tbody tr:last-child th,
+.model-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.result-value .result-suffix {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
