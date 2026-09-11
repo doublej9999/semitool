@@ -18,6 +18,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Process Capability Calculator | `/tools/process-capability-calculator` | Cp, Cpk, CPU and CPL plus the out-of-spec fraction from spec limits, a process mean and a sigma |
 | Yield Confidence Interval Calculator | `/tools/yield-confidence-calculator` | Wilson and Clopper-Pearson intervals for a measured yield, plus sample-size planning |
 | Throughput & OEE Calculator | `/tools/throughput-calculator` | Wafers per hour and OEE from process time, chamber count and availability / performance / quality |
+| Sheet Resistance Calculator | `/tools/sheet-resistance-calculator` | Sheet resistance, resistivity and conductivity from a four-point probe measurement, plus a sheet resistance / resistivity converter |
+| Wafer Area Calculator | `/tools/wafer-area-calculator` | Wafer area, usable area after edge exclusion, die area and the area-only die count upper bound, with utilisation against a measured count |
+| Reticle Field Calculator | `/tools/reticle-field-calculator` | Dice per field, field utilisation and scribe-lane effect, plus shots per wafer and the dice they can carry |
 
 ## Stack
 
@@ -35,7 +38,11 @@ src/
     shell/                  AppShell, ToolSidebar, CommandPalette (layout around every page)
     tools/                  ToolCard, FavoriteButton, ToolPageShell, ToolExplorer, FavoritesSection
   lib/                      pure calculation + platform logic (no React)
+    units.ts                shared length units (nm, um, mm, cm, mil, inch) and their conversions
     wafer.ts                die estimation, wafer map generation, geometry validation
+    wafer-area.ts           wafer / usable area, edge-exclusion loss, area-only die count, utilisation
+    sheet-resistance.ts     four-point probe sheet resistance, resistivity, conductivity, converter
+    reticle.ts              die pitch, dice per field, field utilisation, shots per wafer
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
     yield-model.ts          Poisson / Murphy / Seeds yield models and their inverses
@@ -66,7 +73,7 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 
 ## Accuracy policy
 
-- Units are always visible in the UI (`nm`, `µm`, `mm`, `inch`); a bare number is never shown.
+- Units are always visible in the UI (`nm`, `µm`, `mm`, `cm`, `mil`, `inch`); a bare number is never shown, and every length conversion goes through one shared table in `src/lib/units.ts`.
 - Wafer die counts are labelled *Estimated usable die* and are **not** a fab cutting result.
 - Generic geometry is labelled as generic: results may not match a specific fab, customer, equipment or MES specification.
 - Invalid input produces a specific message (`Wafer diameter must be greater than 0.`), never a generic "Invalid input".
@@ -75,6 +82,9 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - Cp/Cpk are computed from the sigma you enter. Whether that sigma makes them Cp/Cpk (short-term) or Pp/Ppk (long-term) is not guessed, and no 1.5σ shift is applied; the out-of-spec fraction is a normal-distribution tail with the mean and sigma given.
 - Confidence intervals are binomial sampling intervals for a measured pass rate; they are not a statement about systematic or clustered loss, and the sample-size figure is a normal-approximation planning value.
 - Throughput and OEE model one process step; line output is set by the bottleneck step, and the availability / performance / quality factors are inputs you supply rather than assumed defaults.
+- Sheet resistance uses the thin-film four-point probe relation with the geometric factor pi / ln 2. The tool prints the thickness / spacing ratio it relied on and warns when the ratio leaves the thin-film regime, and it never claims compliance with a metrology standard.
+- The wafer area tool prints the area-only die count as an explicit upper bound (it divides one area by another and cannot tile a circle), not as a die-per-wafer count.
+- The reticle field tool counts shots by stepping whole fields and keeping those whose centre lands inside the usable circle. Dice per wafer is therefore an upper bound, and no particular stepper, scanner or field size is assumed.
 
 ## Scripts
 

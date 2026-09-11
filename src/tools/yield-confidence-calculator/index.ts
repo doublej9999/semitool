@@ -12,5 +12,4 @@ export const tool = defineTool({
   category: 'Yield & Quality',
   icon: Activity,
   createdAt: '2026-09-11',
-  isNew: true,
 });
