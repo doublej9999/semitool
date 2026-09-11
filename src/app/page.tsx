@@ -38,7 +38,7 @@ export default function HomePage() {
         <h1>Wafer tools that show their work.</h1>
         <p className="lead">
           Wafer marks, gross die estimates, interactive wafer maps, yield, capability, throughput, cost, films, layout,
-          lithography, etch, thin films, diffusion, power, RF and unit conversion:
+          lithography, etch, thin films, diffusion, power, RF, yield and unit conversion:
           focused tools with explicit units, the formula on the page and no server round trip. Nothing is uploaded, and no
           result is dressed up as an industry standard it is not.
         </p>

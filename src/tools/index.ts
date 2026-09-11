@@ -1,4 +1,5 @@
 import { tool as arrheniusCalculator } from './arrhenius-calculator';
+import { tool as binYieldCalculator } from './bin-yield-calculator';
 import { tool as cdUniformityCalculator } from './cd-uniformity-calculator';
 import { tool as defectDensityCalculator } from './defect-density-calculator';
 import { tool as dieCostCalculator } from './die-cost-calculator';
@@ -6,6 +7,7 @@ import { tool as diffusionLengthCalculator } from './diffusion-length-calculator
 import { tool as etchRateCalculator } from './etch-rate-calculator';
 import { tool as filmStressCalculator } from './film-stress-calculator';
 import { tool as filmUniformityCalculator } from './film-uniformity-calculator';
+import { tool as fitMtbfCalculator } from './fit-mtbf-calculator';
 import { tool as gasFlowConverter } from './gas-flow-converter';
 import { tool as lithographyResolutionCalculator } from './lithography-resolution-calculator';
 import { tool as powerConverter } from './power-converter';
@@ -26,6 +28,7 @@ import { tool as waferMapGenerator } from './wafer-map-generator';
 import { tool as waferMarkCalculator } from './wafer-mark-calculator';
 import { tool as yieldCalculator } from './yield-calculator';
 import { tool as yieldConfidenceCalculator } from './yield-confidence-calculator';
+import { tool as yieldDppmCalculator } from './yield-dppm-calculator';
 import { tool as yieldModelCalculator } from './yield-model-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
@@ -67,6 +70,9 @@ export const tools: Tool[] = [
   timeConstantCalculator,
   rfPowerCalculator,
   returnLossCalculator,
+  binYieldCalculator,
+  fitMtbfCalculator,
+  yieldDppmCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];
