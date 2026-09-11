@@ -37,6 +37,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | RC Time Constant Calculator | `/tools/time-constant-calculator` | RC time constant with the exact 10-90% rise, 1% and 0.1% settling, the -3 dB corner frequency and tau in every time unit |
 | RF Power Calculator | `/tools/rf-power-calculator` | RF power between dBm, dBW, W and mW and the RMS, peak and peak-to-peak voltage it drives into a chosen system impedance |
 | Return Loss & VSWR Calculator | `/tools/return-loss-calculator` | Return loss, reflection coefficient, VSWR, mismatch loss and the reflected and delivered power fractions, any one from the others |
+| Bin Yield Calculator | `/tools/bin-yield-calculator` | Roll up wafer-sort bin counts into per-bin share, cumulative yield, the pass fraction and the measured defect rate in DPPM |
+| FIT & MTBF Calculator | `/tools/fit-mtbf-calculator` | Failure rate, FIT and MTBF from a life test, with the DPPM over a mission time and the time to a 1% or 10% failing fraction |
+| Yield ⇄ DPPM Calculator | `/tools/yield-dppm-calculator` | Convert between yield, DPPM, DPB and the equivalent one-sided sigma and Cpk, in any direction |
 
 ## Stack
 
@@ -72,6 +75,9 @@ src/
     power.ts                power units including dBm / dBW and the power-voltage-impedance link
     rf.ts                   return loss, reflection coefficient, VSWR and mismatch loss
     time.ts                 time units, the RC time constant, rise / settling and the corner frequency
+    reliability.ts          failure rate, FIT, MTBF and the DPPM implied over a mission time
+    dppm.ts                 yield / DPPM / DPB / sigma conversions, reusing the normal helpers
+    bin.ts                  wafer-sort bin parsing and the per-bin / cumulative yield rollup
     format.ts               shared result-panel number formatting
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
@@ -130,6 +136,10 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - Return loss uses the 20 log10 amplitude convention and mismatch loss the 10 log10 power convention, stated on the page because confusing them is a factor-of-two error in dB; a reflection coefficient of 1 or a return loss of 0 dB is rejected as not a passive load.
 - The RF power tool asks for the system impedance instead of assuming 50 ohm, and treats the wave as a sine, so its peak and peak-to-peak rows describe a CW sine and not the envelope of a modulated signal.
 - The time constant tool uses the exact ln factors (2.197, 4.605, 6.908 tau) rather than the rounded rules of thumb, and states that the single-pole RC model breaks down once a real network has more than one pole.
+- The FIT and MTBF tool evaluates 1 - exp(-rate t) as -expm1(-rate t) so a low rate keeps its significant digits, and reports zero failures as "no failures" rather than printing an unbounded MTBF that would look like a measured number.
+- The bin rollup is exact arithmetic on real counts and marks the pass bin: when no bin is starred it says the largest bin was assumed to be the pass bin, and it rejects a malformed line by number instead of skipping it and understating the total die.
+- The yield / DPPM tool converts a figure already in hand and says so; the sigma and Cpk columns are one-sided normal equivalents, and a 100% yield reports 0 DPPM with a blank sigma because no finite z gives zero defects.
+- The normal-distribution helpers are shared, not re-derived: the yield tools reuse erfc / normalCdf from lib/capability.ts and inverseNormalCdf from lib/confidence.ts.
 
 ## Scripts
 
