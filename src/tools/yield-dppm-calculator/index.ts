@@ -19,5 +19,4 @@ export const tool = defineTool({
     'parts per billion',
   ],
   createdAt: '2026-09-11',
-  isNew: true,
 });

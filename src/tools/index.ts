@@ -9,7 +9,9 @@ import { tool as filmStressCalculator } from './film-stress-calculator';
 import { tool as filmUniformityCalculator } from './film-uniformity-calculator';
 import { tool as fitMtbfCalculator } from './fit-mtbf-calculator';
 import { tool as gasFlowConverter } from './gas-flow-converter';
+import { tool as impedanceMatchingCalculator } from './impedance-matching-calculator';
 import { tool as lithographyResolutionCalculator } from './lithography-resolution-calculator';
+import { tool as microstripCalculator } from './microstrip-calculator';
 import { tool as powerConverter } from './power-converter';
 import { tool as pressureConverter } from './pressure-converter';
 import { tool as processCapabilityCalculator } from './process-capability-calculator';
@@ -17,6 +19,7 @@ import { tool as reticleFieldCalculator } from './reticle-field-calculator';
 import { tool as returnLossCalculator } from './return-loss-calculator';
 import { tool as rfPowerCalculator } from './rf-power-calculator';
 import { tool as sheetResistanceCalculator } from './sheet-resistance-calculator';
+import { tool as stubMatchingCalculator } from './stub-matching-calculator';
 import { tool as temperatureConverter } from './temperature-converter';
 import { tool as thermalOxideCalculator } from './thermal-oxide-calculator';
 import { tool as thicknessConverter } from './thickness-converter';
@@ -70,6 +73,9 @@ export const tools: Tool[] = [
   timeConstantCalculator,
   rfPowerCalculator,
   returnLossCalculator,
+  impedanceMatchingCalculator,
+  microstripCalculator,
+  stubMatchingCalculator,
   binYieldCalculator,
   fitMtbfCalculator,
   yieldDppmCalculator,
