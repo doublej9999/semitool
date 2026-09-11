@@ -24,7 +24,7 @@ const HOME_FAQ = [
   {
     question: 'Which units are used?',
     answer:
-      'Every field carries its unit. Lengths can be entered in nanometres, micrometres, millimetres, centimetres, mils or inches and are converted exactly, so a result cannot be misread. Die counts are integers, and percentages are computed from the counts and shown with the exact denominator.',
+      'Every field carries its unit. Lengths can be entered in ångström, nanometres, micrometres, mils, millimetres, centimetres, inches or metres and are converted exactly, so a result cannot be misread. Pressure, gas flow and temperature have dedicated converters that state their reference conditions. Die counts are integers, and percentages are computed from the counts and shown with the exact denominator.',
   },
 ];
 
@@ -37,7 +37,8 @@ export default function HomePage() {
         <p className="kicker">Semiconductor engineering tools</p>
         <h1>Wafer tools that show their work.</h1>
         <p className="lead">
-          Wafer marks, gross die estimates, interactive wafer maps, yield, capability, throughput, cost, films and layout:
+          Wafer marks, gross die estimates, interactive wafer maps, yield, capability, throughput, cost, films, layout and
+          unit conversion:
           focused tools with explicit units, the formula on the page and no server round trip. Nothing is uploaded, and no
           result is dressed up as an industry standard it is not.
         </p>
@@ -60,7 +61,7 @@ export default function HomePage() {
           </div>
           <div>
             <strong>{LENGTH_UNITS.length}</strong>
-            <span>length units, nm to inch</span>
+            <span>length units, Å to m</span>
           </div>
           <div>
             <strong>0</strong>
@@ -133,8 +134,8 @@ export default function HomePage() {
             </div>
             <h3>Units or it does not ship</h3>
             <p>
-              Every input and output carries its unit — length, percentage, die count — and a length can be typed in nm
-              through to inches, so a result cannot be misread by whoever picks it up next.
+              Every input and output carries its unit — length, pressure, flow, temperature, percentage, die count — and a
+              length can be typed in ångström through to metres, so a result cannot be misread by whoever picks it up next.
             </p>
           </article>
           <article className="tool-card">

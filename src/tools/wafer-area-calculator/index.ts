@@ -14,5 +14,4 @@ export const tool = defineTool({
   category: 'Wafer & Die',
   icon: Circle,
   createdAt: '2026-09-11',
-  isNew: true,
 });

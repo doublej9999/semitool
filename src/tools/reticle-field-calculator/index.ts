@@ -14,5 +14,4 @@ export const tool = defineTool({
   category: 'Metrology & Layout',
   icon: Grid3x3,
   createdAt: '2026-09-11',
-  isNew: true,
 });
