@@ -25,6 +25,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Pressure & Vacuum Converter | `/tools/pressure-converter` | Pressure and vacuum between Pa, kPa, MPa, bar, mbar, Torr, mTorr, atm and psi, with the Torr defined as 1/760 atm |
 | Gas Flow Converter | `/tools/gas-flow-converter` | Gas flow between sccm, slm, m³/h, cfm, mol/min, mol/h and g/min, with the reference temperature and the gas as explicit inputs |
 | Temperature Converter | `/tools/temperature-converter` | Temperature and temperature difference between Celsius, Fahrenheit, kelvin and Rankine, with absolute-zero checking |
+| Lithography Resolution Calculator | `/tools/lithography-resolution-calculator` | Rayleigh resolution and depth of focus from wavelength, numerical aperture and k1 / k2, with the 0.25 diffraction limit flagged |
+| Etch Rate & Selectivity Calculator | `/tools/etch-rate-calculator` | Etch rate and remaining fraction from before / after thickness and time, plus selectivity and overetch when those were measured |
+| CD Uniformity Calculator | `/tools/cd-uniformity-calculator` | Mean, range, 3 sigma and all three uniformity percentages (range/mean, half range/mean, CV) from a pasted list of CD readings |
 
 ## Stack
 
@@ -40,7 +43,7 @@ src/
     tools/<slug>/page.tsx   server component: per-tool metadata + SEO content, renders the calculator
   components/
     shell/                  AppShell, ToolSidebar, CommandPalette (layout around every page)
-    tools/                  ToolCard, FavoriteButton, ToolPageShell, ToolExplorer, FavoritesSection, UnitConverter
+    tools/                  ToolCard, FavoriteButton, ToolPageShell, ToolExplorer, FavoritesSection, UnitConverter, SeriesField
   lib/                      pure calculation + platform logic (no React)
     units.ts                shared length units (angstrom, nm, um, mil, mm, cm, inch, m) and their conversions
     wafer.ts                die estimation, wafer map generation, geometry validation
@@ -50,6 +53,10 @@ src/
     pressure.ts             pressure and vacuum units (Pa, bar, mbar, Torr, mTorr, atm, psi)
     gas-flow.ts             gas flow units, molar volume at a stated standard, gas molar masses
     temperature.ts          Celsius / Fahrenheit / kelvin / Rankine, absolute and difference modes
+    lithography.ts          Rayleigh resolution and depth of focus from wavelength, NA, k1 and k2
+    etch.ts                 etch rate, selectivity, overetch and remaining fraction
+    series.ts               measurement-list parsing and mean / range / sigma / uniformity statistics
+    format.ts               shared result-panel number formatting
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
     yield-model.ts          Poisson / Murphy / Seeds yield models and their inverses
@@ -95,6 +102,9 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - Sheet resistance uses the thin-film four-point probe relation with the geometric factor pi / ln 2. The tool prints the thickness / spacing ratio it relied on and warns when the ratio leaves the thin-film regime, and it never claims compliance with a metrology standard.
 - The wafer area tool prints the area-only die count as an explicit upper bound (it divides one area by another and cannot tile a circle), not as a die-per-wafer count.
 - The reticle field tool counts shots by stepping whole fields and keeping those whose centre lands inside the usable circle. Dice per wafer is therefore an upper bound, and no particular stepper, scanner or field size is assumed.
+- The lithography tool prints the Rayleigh half pitch and the paraxial depth of focus, and flags a k1 below 0.25 rather than presenting it as reachable by plain illumination. Numerical apertures above the practical 193 nm immersion ceiling are rejected.
+- Etch selectivity is a ratio for one set of conditions and is labelled as such; a blank or zero mask loss is treated as not measured instead of returning an infinite selectivity.
+- The uniformity tools name all three numbers the industry calls uniformity (range/mean, half range/mean, coefficient of variation) instead of printing one unlabelled percentage, and they use the n-1 sample standard deviation. With one site the spread is reported as undefined, never as zero.
 
 ## Scripts
 
