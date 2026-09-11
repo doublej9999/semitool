@@ -43,6 +43,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | L-Network Impedance Match Calculator | `/tools/impedance-matching-calculator` | Match two real resistances with an L network: loaded Q, shunt side, and the series and shunt L and C values for the low-pass and high-pass builds |
 | Microstrip Calculator | `/tools/microstrip-calculator` | Trace impedance, effective permittivity, guided wavelength and delay per millimetre from the geometry, or the width that reaches a target impedance |
 | Shunt Stub Match Calculator | `/tools/stub-matching-calculator` | Both single-stub distances for a complex load with the short and open stub lengths, each re-simulated against the transmission-line equations |
+| Weibull Life Calculator | `/tools/weibull-life-calculator` | Weibull fit by median rank: shape and scale, the fit correlation, B1 / B10 / B50 life, MTBF and the reliability at a mission time |
+| SPC Control Chart Calculator | `/tools/spc-control-chart-calculator` | X-bar and R control limits, out-of-limit points, seven-in-a-row runs and the within-subgroup sigma |
+| Acceptance Sampling Calculator | `/tools/acceptance-sampling-calculator` | The operating characteristic of a sample plan, and the zero acceptance sample size that rejects a lot as bad as a stated fraction |
 
 ## Stack
 
@@ -84,6 +87,9 @@ src/
     impedance.ts            L-network matching from the resistance ratio
     tline.ts                guided wavelength and the Hammerstad-Jensen microstrip model
     stub.ts                 single shunt-stub matching of a complex load, with a re-simulation check
+    weibull.ts              log gamma, median-rank Weibull fitting and B life
+    spc.ts                  X-bar and R control charts with the Shewhart constants
+    sampling.ts             binomial and hypergeometric acceptance probabilities
     format.ts               shared result-panel number formatting
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
@@ -149,6 +155,10 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - The microstrip synthesis starts from the Hammerstad fit and then bisects the forward model, so the width that is quoted reproduces the requested impedance instead of carrying the fit's own ~1% error into the answer.
 - The stub match prints a re-simulation column: the reported distance and stub length are pushed back through the transmission-line equations and the resulting normalised admittance is compared with 1, so the placement is checked rather than asserted.
 - The L-network tool says outright that Q is set by the resistance ratio and that a complex load cannot be matched by an L network alone, instead of accepting a load reactance it would silently ignore.
+- The Weibull fit reports its own correlation coefficient and warns when the data does not support the assumption, because a line through six points can look convincing and still be meaningless; it also states that run-out units would need a censored estimator.
+- The Weibull page notes that eta is the 63.2 percentile and not the mean, since quoting eta as MTBF overstates life whenever beta is above 1.
+- The acceptance sampling tool reports which distribution it used. The binomial and the hypergeometric share a mean but not a spread, so the finite lot is stricter below the mean and more forgiving above it, and leaving that implicit would make the probability look arbitrary.
+- The control chart tool states that an in-control chart is a stability claim, not a capability one, and refuses mixed subgroup sizes rather than averaging ranges over different sizes.
 
 ## Scripts
 
