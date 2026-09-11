@@ -30,6 +30,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Film Stress Calculator | `/tools/film-stress-calculator` | Stoney film stress from curvature or bow, with the substrate biaxial modulus and a thickness-ratio validity check |
 | Film Thickness Uniformity Calculator | `/tools/film-uniformity-calculator` | Across-wafer thickness uniformity from a list of readings: mean, range, sample sigma, three sigma and the percentage conventions |
 | CD Uniformity Calculator | `/tools/cd-uniformity-calculator` | Mean, range, 3 sigma and all three uniformity percentages (range/mean, half range/mean, CV) from a pasted list of CD readings |
+| Diffusion Length Calculator | `/tools/diffusion-length-calculator` | Diffusion length and thermal budget from a diffusivity and a time, with the characteristic, erfc and Gaussian length scales labelled separately |
+| Arrhenius Rate Calculator | `/tools/arrhenius-calculator` | Arrhenius rate from a prefactor and an activation energy, and the activation energy and prefactor extracted from two rates at two temperatures |
+| Deal-Grove Thermal Oxide Calculator | `/tools/thermal-oxide-calculator` | Oxide thickness from an oxidation time or the time to a target thickness, with an initial oxide, the linear / parabolic regime and the silicon consumed |
 
 ## Stack
 
@@ -59,6 +62,9 @@ src/
     etch.ts                 etch rate, selectivity, overetch and remaining fraction
     stress.ts               Stoney film stress, biaxial modulus, curvature from bow
     series.ts               measurement-list parsing and mean / range / sigma / uniformity statistics
+    diffusion.ts            diffusion length, thermal budget and its length scales
+    arrhenius.ts            Arrhenius rate, Ea extraction and the Boltzmann constant
+    oxide.ts                Deal-Grove linear-parabolic oxidation and the silicon consumed
     format.ts               shared result-panel number formatting
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
@@ -110,6 +116,9 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - The uniformity tools name all three numbers the industry calls uniformity (range/mean, half range/mean, coefficient of variation) instead of printing one unlabelled percentage, and they use the n-1 sample standard deviation. With one site the spread is reported as undefined, never as zero.
 - Film stress uses the Stoney relation with the substrate biaxial modulus, prints the film-to-substrate thickness ratio it relied on and warns above one percent where Stoney underestimates a stiff film. The type of stress (tensile / compressive) is a selection, not derived from a signed curvature, because curvature sign conventions differ between tools.
 - The bow-to-curvature conversion uses the exact chord-and-sagitta relation rather than the small-deflection form L squared over 8 d, so a strongly bowed wafer is not turned into a falsely high curvature.
+- The diffusion tool prints all three length scales (root D t, 2 root D t and root 2 D t) with the boundary condition each belongs to, because quoting one as another is a quiet factor-of-two error; the thermal budget is reported as a length squared and is described as additive while the lengths are not.
+- Deal-Grove A and B are inputs at the process temperature, not constants: only the classic (100) 1000 C dry and steam pairs ship as presets, and the tool says the model under-predicts growth below roughly 30 nm and ignores the furnace ramp.
+- The Arrhenius extractor is a two-parameter fit through two points, so it is exact by construction and says nothing about scatter; temperatures are converted to kelvin with the 273.15 offset and absolute zero is rejected.
 
 ## Scripts
 
