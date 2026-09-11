@@ -875,6 +875,7 @@ code {
 .field input[type="text"],
 .field input[type="number"],
 .field input[type="date"],
+.field textarea,
 .field select {
   width: 100%;
   padding: 8px 10px;
@@ -887,10 +888,18 @@ code {
 }
 
 .field input:focus,
+.field textarea:focus,
 .field select:focus {
   border-color: var(--teal);
   outline: 2px solid var(--teal-soft);
   outline-offset: 0;
+}
+
+.field textarea {
+  min-height: 96px;
+  resize: vertical;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
 }
 
 .field-inline {
