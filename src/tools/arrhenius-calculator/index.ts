@@ -14,5 +14,4 @@ export const tool = defineTool({
   category: 'Thermal & Diffusion',
   icon: Activity,
   createdAt: '2026-09-11',
-  isNew: true,
 });

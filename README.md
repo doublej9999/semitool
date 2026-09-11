@@ -33,6 +33,10 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Diffusion Length Calculator | `/tools/diffusion-length-calculator` | Diffusion length and thermal budget from a diffusivity and a time, with the characteristic, erfc and Gaussian length scales labelled separately |
 | Arrhenius Rate Calculator | `/tools/arrhenius-calculator` | Arrhenius rate from a prefactor and an activation energy, and the activation energy and prefactor extracted from two rates at two temperatures |
 | Deal-Grove Thermal Oxide Calculator | `/tools/thermal-oxide-calculator` | Oxide thickness from an oxidation time or the time to a target thickness, with an initial oxide, the linear / parabolic regime and the silicon consumed |
+| Power Converter | `/tools/power-converter` | Power between W, mW, µW, kW, hp, BTU/h, cal/s, ft·lbf/s and the decibel units dBm and dBW, from exact unit definitions |
+| RC Time Constant Calculator | `/tools/time-constant-calculator` | RC time constant with the exact 10-90% rise, 1% and 0.1% settling, the -3 dB corner frequency and tau in every time unit |
+| RF Power Calculator | `/tools/rf-power-calculator` | RF power between dBm, dBW, W and mW and the RMS, peak and peak-to-peak voltage it drives into a chosen system impedance |
+| Return Loss & VSWR Calculator | `/tools/return-loss-calculator` | Return loss, reflection coefficient, VSWR, mismatch loss and the reflected and delivered power fractions, any one from the others |
 
 ## Stack
 
@@ -65,6 +69,9 @@ src/
     diffusion.ts            diffusion length, thermal budget and its length scales
     arrhenius.ts            Arrhenius rate, Ea extraction and the Boltzmann constant
     oxide.ts                Deal-Grove linear-parabolic oxidation and the silicon consumed
+    power.ts                power units including dBm / dBW and the power-voltage-impedance link
+    rf.ts                   return loss, reflection coefficient, VSWR and mismatch loss
+    time.ts                 time units, the RC time constant, rise / settling and the corner frequency
     format.ts               shared result-panel number formatting
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
@@ -119,6 +126,10 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - The diffusion tool prints all three length scales (root D t, 2 root D t and root 2 D t) with the boundary condition each belongs to, because quoting one as another is a quiet factor-of-two error; the thermal budget is reported as a length squared and is described as additive while the lengths are not.
 - Deal-Grove A and B are inputs at the process temperature, not constants: only the classic (100) 1000 C dry and steam pairs ship as presets, and the tool says the model under-predicts growth below roughly 30 nm and ignores the furnace ramp.
 - The Arrhenius extractor is a two-parameter fit through two points, so it is exact by construction and says nothing about scatter; temperatures are converted to kelvin with the 273.15 offset and absolute zero is rejected.
+- The power converter keeps the linear units (W, hp, BTU/h) and the logarithmic decibel units (dBm, dBW) in one table but never mixes the maths: a zero watt reading has no finite decibel value and is shown as a dash, not as a large negative number.
+- Return loss uses the 20 log10 amplitude convention and mismatch loss the 10 log10 power convention, stated on the page because confusing them is a factor-of-two error in dB; a reflection coefficient of 1 or a return loss of 0 dB is rejected as not a passive load.
+- The RF power tool asks for the system impedance instead of assuming 50 ohm, and treats the wave as a sine, so its peak and peak-to-peak rows describe a CW sine and not the envelope of a modulated signal.
+- The time constant tool uses the exact ln factors (2.197, 4.605, 6.908 tau) rather than the rounded rules of thumb, and states that the single-pole RC model breaks down once a real network has more than one pole.
 
 ## Scripts
 

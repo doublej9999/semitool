@@ -8,14 +8,18 @@ import { tool as filmStressCalculator } from './film-stress-calculator';
 import { tool as filmUniformityCalculator } from './film-uniformity-calculator';
 import { tool as gasFlowConverter } from './gas-flow-converter';
 import { tool as lithographyResolutionCalculator } from './lithography-resolution-calculator';
+import { tool as powerConverter } from './power-converter';
 import { tool as pressureConverter } from './pressure-converter';
 import { tool as processCapabilityCalculator } from './process-capability-calculator';
 import { tool as reticleFieldCalculator } from './reticle-field-calculator';
+import { tool as returnLossCalculator } from './return-loss-calculator';
+import { tool as rfPowerCalculator } from './rf-power-calculator';
 import { tool as sheetResistanceCalculator } from './sheet-resistance-calculator';
 import { tool as temperatureConverter } from './temperature-converter';
 import { tool as thermalOxideCalculator } from './thermal-oxide-calculator';
 import { tool as thicknessConverter } from './thickness-converter';
 import { tool as throughputCalculator } from './throughput-calculator';
+import { tool as timeConstantCalculator } from './time-constant-calculator';
 import { tool as waferAreaCalculator } from './wafer-area-calculator';
 import { tool as waferDieCalculator } from './wafer-die-calculator';
 import { tool as waferMapGenerator } from './wafer-map-generator';
@@ -59,6 +63,10 @@ export const tools: Tool[] = [
   diffusionLengthCalculator,
   arrheniusCalculator,
   thermalOxideCalculator,
+  powerConverter,
+  timeConstantCalculator,
+  rfPowerCalculator,
+  returnLossCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];
