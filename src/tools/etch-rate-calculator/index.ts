@@ -14,5 +14,4 @@ export const tool = defineTool({
   category: 'Lithography & Etch',
   icon: Layers,
   createdAt: '2026-09-11',
-  isNew: true,
 });

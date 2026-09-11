@@ -2,6 +2,8 @@ import { tool as cdUniformityCalculator } from './cd-uniformity-calculator';
 import { tool as defectDensityCalculator } from './defect-density-calculator';
 import { tool as dieCostCalculator } from './die-cost-calculator';
 import { tool as etchRateCalculator } from './etch-rate-calculator';
+import { tool as filmStressCalculator } from './film-stress-calculator';
+import { tool as filmUniformityCalculator } from './film-uniformity-calculator';
 import { tool as gasFlowConverter } from './gas-flow-converter';
 import { tool as lithographyResolutionCalculator } from './lithography-resolution-calculator';
 import { tool as pressureConverter } from './pressure-converter';
@@ -49,6 +51,8 @@ export const tools: Tool[] = [
   lithographyResolutionCalculator,
   etchRateCalculator,
   cdUniformityCalculator,
+  filmStressCalculator,
+  filmUniformityCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

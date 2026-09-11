@@ -14,5 +14,4 @@ export const tool = defineTool({
   category: 'Lithography & Etch',
   icon: Aperture,
   createdAt: '2026-09-11',
-  isNew: true,
 });

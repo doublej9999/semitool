@@ -27,6 +27,8 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Temperature Converter | `/tools/temperature-converter` | Temperature and temperature difference between Celsius, Fahrenheit, kelvin and Rankine, with absolute-zero checking |
 | Lithography Resolution Calculator | `/tools/lithography-resolution-calculator` | Rayleigh resolution and depth of focus from wavelength, numerical aperture and k1 / k2, with the 0.25 diffraction limit flagged |
 | Etch Rate & Selectivity Calculator | `/tools/etch-rate-calculator` | Etch rate and remaining fraction from before / after thickness and time, plus selectivity and overetch when those were measured |
+| Film Stress Calculator | `/tools/film-stress-calculator` | Stoney film stress from curvature or bow, with the substrate biaxial modulus and a thickness-ratio validity check |
+| Film Thickness Uniformity Calculator | `/tools/film-uniformity-calculator` | Across-wafer thickness uniformity from a list of readings: mean, range, sample sigma, three sigma and the percentage conventions |
 | CD Uniformity Calculator | `/tools/cd-uniformity-calculator` | Mean, range, 3 sigma and all three uniformity percentages (range/mean, half range/mean, CV) from a pasted list of CD readings |
 
 ## Stack
@@ -55,6 +57,7 @@ src/
     temperature.ts          Celsius / Fahrenheit / kelvin / Rankine, absolute and difference modes
     lithography.ts          Rayleigh resolution and depth of focus from wavelength, NA, k1 and k2
     etch.ts                 etch rate, selectivity, overetch and remaining fraction
+    stress.ts               Stoney film stress, biaxial modulus, curvature from bow
     series.ts               measurement-list parsing and mean / range / sigma / uniformity statistics
     format.ts               shared result-panel number formatting
     marking.ts              wafer mark formatting
@@ -105,6 +108,8 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - The lithography tool prints the Rayleigh half pitch and the paraxial depth of focus, and flags a k1 below 0.25 rather than presenting it as reachable by plain illumination. Numerical apertures above the practical 193 nm immersion ceiling are rejected.
 - Etch selectivity is a ratio for one set of conditions and is labelled as such; a blank or zero mask loss is treated as not measured instead of returning an infinite selectivity.
 - The uniformity tools name all three numbers the industry calls uniformity (range/mean, half range/mean, coefficient of variation) instead of printing one unlabelled percentage, and they use the n-1 sample standard deviation. With one site the spread is reported as undefined, never as zero.
+- Film stress uses the Stoney relation with the substrate biaxial modulus, prints the film-to-substrate thickness ratio it relied on and warns above one percent where Stoney underestimates a stiff film. The type of stress (tensile / compressive) is a selection, not derived from a signed curvature, because curvature sign conventions differ between tools.
+- The bow-to-curvature conversion uses the exact chord-and-sagitta relation rather than the small-deflection form L squared over 8 d, so a strongly bowed wafer is not turned into a falsely high curvature.
 
 ## Scripts
 
