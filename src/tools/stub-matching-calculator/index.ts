@@ -21,5 +21,4 @@ export const tool = defineTool({
   category: 'RF & Signal',
   icon: Antenna,
   createdAt: '2026-09-11',
-  isNew: true,
 });

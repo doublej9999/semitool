@@ -1,3 +1,4 @@
+import { tool as acceptanceSamplingCalculator } from './acceptance-sampling-calculator';
 import { tool as arrheniusCalculator } from './arrhenius-calculator';
 import { tool as binYieldCalculator } from './bin-yield-calculator';
 import { tool as cdUniformityCalculator } from './cd-uniformity-calculator';
@@ -19,6 +20,7 @@ import { tool as reticleFieldCalculator } from './reticle-field-calculator';
 import { tool as returnLossCalculator } from './return-loss-calculator';
 import { tool as rfPowerCalculator } from './rf-power-calculator';
 import { tool as sheetResistanceCalculator } from './sheet-resistance-calculator';
+import { tool as spcControlChartCalculator } from './spc-control-chart-calculator';
 import { tool as stubMatchingCalculator } from './stub-matching-calculator';
 import { tool as temperatureConverter } from './temperature-converter';
 import { tool as thermalOxideCalculator } from './thermal-oxide-calculator';
@@ -27,6 +29,7 @@ import { tool as throughputCalculator } from './throughput-calculator';
 import { tool as timeConstantCalculator } from './time-constant-calculator';
 import { tool as waferAreaCalculator } from './wafer-area-calculator';
 import { tool as waferDieCalculator } from './wafer-die-calculator';
+import { tool as weibullLifeCalculator } from './weibull-life-calculator';
 import { tool as waferMapGenerator } from './wafer-map-generator';
 import { tool as waferMarkCalculator } from './wafer-mark-calculator';
 import { tool as yieldCalculator } from './yield-calculator';
@@ -79,6 +82,9 @@ export const tools: Tool[] = [
   binYieldCalculator,
   fitMtbfCalculator,
   yieldDppmCalculator,
+  weibullLifeCalculator,
+  spcControlChartCalculator,
+  acceptanceSamplingCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];
