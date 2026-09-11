@@ -36,7 +36,7 @@ export default function HomePage() {
         <p className="kicker">Semiconductor engineering tools</p>
         <h1>Wafer calculators that show their work.</h1>
         <p className="lead">
-          Wafer marks, gross die estimates, interactive wafer maps and yield: four focused tools with explicit units, the
+          Wafer marks, gross die estimates, interactive wafer maps, yield and cost: focused tools with explicit units, the
           formula on the page and no server round trip. Nothing is uploaded, and no result is dressed up as an industry
           standard it is not.
         </p>
@@ -83,7 +83,7 @@ export default function HomePage() {
           <div className="section-head">
             <div>
               <h2 id="new-heading">New in this release</h2>
-              <p>The first four tools of the SemiTools launch set.</p>
+              <p>The newest tools in the SemiTools launch set.</p>
             </div>
           </div>
           <div className="tool-grid">

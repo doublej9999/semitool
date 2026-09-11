@@ -12,6 +12,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Wafer Map Generator | `/tools/wafer-map-generator` | SVG wafer map with die coordinates, row/column, Good / Defect / Skip / Edge status, CSV and JSON export |
 | Wafer Mark Calculator | `/tools/wafer-mark-calculator` | Builds and validates wafer mark codes from lot, wafer number, product, layer and date |
 | Yield Calculator | `/tools/yield-calculator` | Yield and reject rate from gross, good and defect die counts |
+| Yield Model Calculator | `/tools/yield-model-calculator` | Poisson, Murphy and Seeds (Moore) yield models from defect density and critical area |
+| Defect Density Calculator | `/tools/defect-density-calculator` | Back-calculates defect density D0 from a measured yield and critical area, per model |
+| Die Cost Calculator | `/tools/die-cost-calculator` | Cost per gross die, cost per good die, scrap cost and cost multiplier from wafer cost and die counts |
 
 ## Stack
 
@@ -32,6 +35,8 @@ src/
     wafer.ts                die estimation, wafer map generation, geometry validation
     marking.ts              wafer mark formatting
     yield.ts                yield / reject rate
+    yield-model.ts          Poisson / Murphy / Seeds yield models and their inverses
+    die-cost.ts             cost per gross die, cost per good die, scrap cost
     search.ts               Fuse.js wrapper used by the palette and the toolbox page
     favorites.ts            favourite tools store (localStorage, useSyncExternalStore)
     preferences.ts          persisted UI preferences (collapsed categories / rail)
@@ -60,6 +65,7 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - Generic geometry is labelled as generic: results may not match a specific fab, customer, equipment or MES specification.
 - Invalid input produces a specific message (`Wafer diameter must be greater than 0.`), never a generic "Invalid input".
 - Yield is `Good die / Gross die × 100%`, reject rate is `Defect die / Gross die × 100%`; good + defect die are allowed to be less than gross.
+- Yield models (Poisson, Murphy, Seeds) and the defect density derived from them are labelled as model outputs, not measurements, and never as a fab-, customer- or equipment-specific specification. The model shown is named, and it is stated that a real yield can be lower than the model because systematic loss is not modelled.
 
 ## Scripts
 
