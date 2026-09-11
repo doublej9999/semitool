@@ -15,6 +15,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Yield Model Calculator | `/tools/yield-model-calculator` | Poisson, Murphy and Seeds (Moore) yield models from defect density and critical area |
 | Defect Density Calculator | `/tools/defect-density-calculator` | Back-calculates defect density D0 from a measured yield and critical area, per model |
 | Die Cost Calculator | `/tools/die-cost-calculator` | Cost per gross die, cost per good die, scrap cost and cost multiplier from wafer cost and die counts |
+| Process Capability Calculator | `/tools/process-capability-calculator` | Cp, Cpk, CPU and CPL plus the out-of-spec fraction from spec limits, a process mean and a sigma |
+| Yield Confidence Interval Calculator | `/tools/yield-confidence-calculator` | Wilson and Clopper-Pearson intervals for a measured yield, plus sample-size planning |
+| Throughput & OEE Calculator | `/tools/throughput-calculator` | Wafers per hour and OEE from process time, chamber count and availability / performance / quality |
 
 ## Stack
 
@@ -37,6 +40,9 @@ src/
     yield.ts                yield / reject rate
     yield-model.ts          Poisson / Murphy / Seeds yield models and their inverses
     die-cost.ts             cost per gross die, cost per good die, scrap cost
+    capability.ts           Cp / Cpk and the normal-distribution out-of-spec fraction
+    confidence.ts           Wilson and Clopper-Pearson binomial intervals, sample size
+    throughput.ts           single-step wafers per hour and OEE
     search.ts               Fuse.js wrapper used by the palette and the toolbox page
     favorites.ts            favourite tools store (localStorage, useSyncExternalStore)
     preferences.ts          persisted UI preferences (collapsed categories / rail)
@@ -66,6 +72,9 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 - Invalid input produces a specific message (`Wafer diameter must be greater than 0.`), never a generic "Invalid input".
 - Yield is `Good die / Gross die × 100%`, reject rate is `Defect die / Gross die × 100%`; good + defect die are allowed to be less than gross.
 - Yield models (Poisson, Murphy, Seeds) and the defect density derived from them are labelled as model outputs, not measurements, and never as a fab-, customer- or equipment-specific specification. The model shown is named, and it is stated that a real yield can be lower than the model because systematic loss is not modelled.
+- Cp/Cpk are computed from the sigma you enter. Whether that sigma makes them Cp/Cpk (short-term) or Pp/Ppk (long-term) is not guessed, and no 1.5σ shift is applied; the out-of-spec fraction is a normal-distribution tail with the mean and sigma given.
+- Confidence intervals are binomial sampling intervals for a measured pass rate; they are not a statement about systematic or clustered loss, and the sample-size figure is a normal-approximation planning value.
+- Throughput and OEE model one process step; line output is set by the bottleneck step, and the availability / performance / quality factors are inputs you supply rather than assumed defaults.
 
 ## Scripts
 

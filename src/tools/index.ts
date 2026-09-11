@@ -1,9 +1,12 @@
 import { tool as defectDensityCalculator } from './defect-density-calculator';
 import { tool as dieCostCalculator } from './die-cost-calculator';
+import { tool as processCapabilityCalculator } from './process-capability-calculator';
+import { tool as throughputCalculator } from './throughput-calculator';
 import { tool as waferDieCalculator } from './wafer-die-calculator';
 import { tool as waferMapGenerator } from './wafer-map-generator';
 import { tool as waferMarkCalculator } from './wafer-mark-calculator';
 import { tool as yieldCalculator } from './yield-calculator';
+import { tool as yieldConfidenceCalculator } from './yield-confidence-calculator';
 import { tool as yieldModelCalculator } from './yield-model-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
@@ -23,6 +26,9 @@ export const tools: Tool[] = [
   yieldModelCalculator,
   defectDensityCalculator,
   dieCostCalculator,
+  processCapabilityCalculator,
+  yieldConfidenceCalculator,
+  throughputCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];
