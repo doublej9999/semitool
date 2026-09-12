@@ -1,6 +1,7 @@
 import { tool as acceptanceSamplingCalculator } from './acceptance-sampling-calculator';
 import { tool as arrheniusCalculator } from './arrhenius-calculator';
 import { tool as binYieldCalculator } from './bin-yield-calculator';
+import { tool as carrierMobilityCalculator } from './carrier-mobility-calculator';
 import { tool as cdUniformityCalculator } from './cd-uniformity-calculator';
 import { tool as defectDensityCalculator } from './defect-density-calculator';
 import { tool as dieCostCalculator } from './die-cost-calculator';
@@ -10,10 +11,12 @@ import { tool as filmStressCalculator } from './film-stress-calculator';
 import { tool as filmUniformityCalculator } from './film-uniformity-calculator';
 import { tool as fitMtbfCalculator } from './fit-mtbf-calculator';
 import { tool as gasFlowConverter } from './gas-flow-converter';
+import { tool as cleanroomCalculator } from './cleanroom-converter';
 import { tool as impedanceMatchingCalculator } from './impedance-matching-calculator';
 import { tool as ionImplantationCalculator } from './ion-implantation-calculator';
 import { tool as lithographyResolutionCalculator } from './lithography-resolution-calculator';
 import { tool as microstripCalculator } from './microstrip-calculator';
+import { tool as mosfetThresholdCalculator } from './mosfet-threshold-calculator';
 import { tool as powerConverter } from './power-converter';
 import { tool as pressureConverter } from './pressure-converter';
 import { tool as processCapabilityCalculator } from './process-capability-calculator';
@@ -89,6 +92,9 @@ export const tools: Tool[] = [
   acceptanceSamplingCalculator,
   ionImplantationCalculator,
   semiconductorDepletionCalculator,
+  cleanroomCalculator,
+  mosfetThresholdCalculator,
+  carrierMobilityCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

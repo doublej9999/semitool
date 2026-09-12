@@ -48,6 +48,9 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Acceptance Sampling Calculator | `/tools/acceptance-sampling-calculator` | The operating characteristic of a sample plan, and the zero acceptance sample size that rejects a lot as bad as a stated fraction |
 | Ion Implantation & Doping Calculator | `/tools/ion-implantation-calculator` | Projected range Rp, straggle delta Rp, peak concentration and junction depth from implant energy, species and dose in silicon |
 | PN Junction Depletion Calculator | `/tools/semiconductor-depletion-calculator` | Built-in potential, depletion width, electric field, junction capacitance and breakdown voltage under reverse bias for PN junctions |
+| Cleanroom Classification & Airflow Calculator | `/tools/cleanroom-converter` | ISO 14644-1 and FED-STD-209E cleanroom particle limits, required air change rates (ACH), total airflow (CFM / m³/h) and FFU ceiling coverage |
+| MOSFET Threshold & Gate Oxide Calculator | `/tools/mosfet-threshold-calculator` | Threshold voltage, equivalent oxide thickness (EOT), gate capacitance, flatband voltage, body effect and subthreshold swing for NMOS and PMOS transistors |
+| Carrier Mobility & Silicon Resistivity Calculator | `/tools/carrier-mobility-calculator` | Caughey-Thomas electron and hole mobility, bulk silicon resistivity, conductivity and dopant concentration bisection solver |
 ## Stack
 
 Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-react · Fuse.js · Vitest
