@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import FourPointProbeCalculator from '@/tools/four-point-probe-calculator/Calculator';
 import { tool } from '@/tools/four-point-probe-calculator';
@@ -23,9 +24,17 @@ export default function FourPointProbeCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">R_s = (π / ln 2) × (V / I) × F(t / s) × F_2(D / s)</p>
-          <p className="formula-expression">ρ = R_s × t = 1 / (q × N × μ(N))</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Four-Point Sheet Resistance"
+            math="R_s = \frac{\pi}{\ln 2} \left( \frac{V}{I} \right) F(t/s) \cdot F_2(D/s)"
+          />
+          <MathFormula
+            block
+            label="Bulk Electrical Resistivity"
+            math="\rho = R_s \cdot t = \frac{1}{q \cdot N \cdot \mu(N)}"
+          />
+<ul className="info-list">
             <li>
               <strong>π / ln 2 ≈ 4.53236</strong> — the theoretical geometric factor for a collinear equidistant probe array on an infinitely extended thin conductive sheet.
             </li>

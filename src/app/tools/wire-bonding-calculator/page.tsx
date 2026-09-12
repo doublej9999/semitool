@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import WireBondingCalculator from '@/tools/wire-bonding-calculator/Calculator';
 import { tool } from '@/tools/wire-bonding-calculator';
@@ -23,19 +24,27 @@ export default function WireBondingCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Lwire = 2e-7 × L × [ ln(4L / d) - 1 + µr / 4 ]
-          </p>
-          <p className="formula-expression">
-            δ = √[ ρ / (π × f × µ0) ], &nbsp; Rdc = ρ × L / A
-          </p>
-          <p className="formula-expression">
-            Ifuse = k × (dinches)^1.5 &nbsp; (Preece Equation)
-          </p>
-          <p className="formula-expression">
-            I_safe = Jmax × Acm² &nbsp; (JEDEC Continuous Limit)
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Bond Wire Loop Inductance (Rosa Formulation)"
+            math="L_{\text{wire}} = 2 \times 10^{-7} \cdot L \cdot \left[ \ln\left(\frac{4L}{d}\right) - 1 + \frac{\mu_r}{4} \right]"
+          />
+          <MathFormula
+            block
+            label="Skin Depth & DC Resistance"
+            math="\delta = \sqrt{\frac{\rho}{\pi f \mu_0}}, \quad R_{\text{dc}} = \frac{\rho \cdot L}{A}"
+          />
+          <MathFormula
+            block
+            label="Preece Fusing Burnout Current"
+            math="I_{\text{fuse}} = k \cdot d_{\text{inches}}^{1.5}"
+          />
+          <MathFormula
+            block
+            label="JEDEC Continuous Safe Operating Current"
+            math="I_{\text{safe}} = J_{\max} \cdot A_{\text{cm}^2}"
+          />
+<ul className="info-list">
             <li>
               <strong>L_wire</strong> — Self-inductance of straight circular bond wire loop according to the Rosa formulation.
             </li>

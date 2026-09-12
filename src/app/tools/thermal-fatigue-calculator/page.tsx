@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ThermalFatigueCalculator from '@/tools/thermal-fatigue-calculator/Calculator';
 import { tool } from '@/tools/thermal-fatigue-calculator';
@@ -23,22 +24,32 @@ export default function ThermalFatigueCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            &Delta;&alpha; = |&alpha;_{'{substrate}'} - &alpha;_{'{die}'}| &nbsp; [ppm/&deg;C]
-          </p>
-          <p className="formula-expression">
-            DNP = (1/2) &times; &radic;(W_{'{die}'}&sup2; + H_{'{die}'}&sup2;) &nbsp; [mm]
-          </p>
-          <p className="formula-expression">
-            &Delta;&gamma; = (DNP &times; 10&sup3; &times; &Delta;&alpha; &times; 10⁻⁶ &times; &Delta;T) / h_{'{bump}'} = (DNP &times; &Delta;&alpha; &times; &Delta;T) / (10&sup3; &times; h_{'{bump}'})
-          </p>
-          <p className="formula-expression">
-            N_f = 0.5 &times; (&Delta;&gamma; / (2 &times; &epsilon;_f))^(1 / c)
-          </p>
-          <p className="formula-expression">
-            AF = (&Delta;T_{'{test}'} / &Delta;T_{'{field}'})^m, &nbsp; Field Life (Years) = (N_f &times; AF) / (CyclesPerDay &times; 365)
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Thermal Expansion Mismatch Strain"
+            math="\Delta \varepsilon_{\text{th}} = |\alpha_1 - \alpha_2| \cdot \Delta T"
+          />
+          <MathFormula
+            block
+            label="Solder Joint Shear Strain"
+            math="\Delta \gamma \approx \frac{\text{DNP} \cdot \Delta \alpha \cdot \Delta T}{h_{\text{joint}}}"
+          />
+          <MathFormula
+            block
+            label="Coffin-Manson Thermal Fatigue Life"
+            math="N_f = \frac{1}{2} \left( \frac{\Delta \gamma}{2 \varepsilon_f'} \right)^{1/c}"
+          />
+          <MathFormula
+            block
+            label="Modified Engelmaier Frequency Model"
+            math="c = -0.442 - 6 \times 10^{-4} \bar{T} + 1.74 \times 10^{-2} \ln(1 + f)"
+          />
+          <MathFormula
+            block
+            label="Norris-Landzberg Solder Acceleration Factor"
+            math="\text{AF} = \left( \frac{\Delta T_{\text{stress}}}{\Delta T_{\text{use}}} \right)^m \left( \frac{f_{\text{use}}}{f_{\text{stress}}} \right)^n \exp\left( \frac{E_a}{k_B} \left[ \frac{1}{T_{\max,\text{use}}} - \frac{1}{T_{\max,\text{stress}}} \right] \right)"
+          />
+<ul className="info-list">
             <li>
               <strong>Δα (Delta CTE)</strong> — Absolute difference in coefficient of thermal expansion between package substrate and semiconductor die (ppm/°C).
             </li>

@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import MicrostripCalculator from '@/tools/microstrip-calculator/Calculator';
 import { tool } from '@/tools/microstrip-calculator';
@@ -24,11 +25,27 @@ export default function MicrostripCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Z₀ = (η₀ / 2π) · ln(F(u)/u + √(1 + (2/u)²)) / √ε_eff</p>
-          <p className="formula-expression">F(u) = 6 + (2π − 6)·exp(−(30.666/u)^0.7528)</p>
-          <p className="formula-expression">ε_eff = (εr+1)/2 + (εr−1)/2 · (1 + 10/u)^(−a·b)</p>
-          <p className="formula-expression">λ_g = c / (f · √ε_eff)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Characteristic Impedance (Hammerstad-Jensen)"
+            math="Z_0 = \frac{\eta_0}{2\pi \sqrt{\varepsilon_{\text{eff}}}} \ln\left( \frac{F(u)}{u} + \sqrt{1 + \left(\frac{2}{u}\right)^2} \right)"
+          />
+          <MathFormula
+            block
+            label="Geometry Correction Factor"
+            math="F(u) = 6 + (2\pi - 6) \exp\left( -\left[\frac{30.666}{u}\right]^{0.7528} \right), \quad u = \frac{w}{h}"
+          />
+          <MathFormula
+            block
+            label="Effective Dielectric Constant"
+            math="\varepsilon_{\text{eff}} = \frac{\varepsilon_r + 1}{2} + \frac{\varepsilon_r - 1}{2} \left( 1 + \frac{10}{u} \right)^{-a \cdot b}"
+          />
+          <MathFormula
+            block
+            label="Guided Wavelength"
+            math="\lambda_g = \frac{c}{f \sqrt{\varepsilon_{\text{eff}}}}"
+          />
+<ul className="info-list">
             <li>
               <strong>u</strong> — the trace width divided by the substrate height, which is the only geometric
               ratio the model uses.

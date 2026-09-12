@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import BinYieldCalculator from '@/tools/bin-yield-calculator/Calculator';
 import { tool } from '@/tools/bin-yield-calculator';
@@ -24,10 +25,22 @@ export default function BinYieldCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">bin share = count / total</p>
-          <p className="formula-expression">cumulative = Σ share, top bin first</p>
-          <p className="formula-expression">fail DPPM = (1 − pass fraction) × 1e6</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Bin Share"
+            math="\text{Bin Share} = \frac{\text{Count}_i}{N_{\text{total}}} \times 100\%"
+          />
+          <MathFormula
+            block
+            label="Cumulative Yield"
+            math="Y_{\text{cum}} = \sum_{i \in \text{Pass}} \frac{\text{Count}_i}{N_{\text{total}}} \times 100\%"
+          />
+          <MathFormula
+            block
+            label="Defect DPPM"
+            math="\text{DPPM} = (1 - Y_{\text{pass fraction}}) \times 10^6"
+          />
+<ul className="info-list">
             <li>
               <strong>Per-bin share</strong> — each bin as a fraction of all die tested, which is what a sort yield
               actually reports.

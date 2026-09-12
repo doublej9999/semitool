@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import DefectDensityCalculator from '@/tools/defect-density-calculator/Calculator';
 import { tool } from '@/tools/defect-density-calculator';
@@ -23,11 +24,27 @@ export default function DefectDensityCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Poisson: D0 = -ln(Y) / A</p>
-          <p className="formula-expression">Seeds (Moore): D0 = (1 / Y - 1) / A</p>
-          <p className="formula-expression">Murphy: solve Y = ((1 - exp(-AD)) / AD)² for AD, then D0 = AD / A</p>
-          <p className="formula-expression">AD = D0 × A</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Poisson Yield Model"
+            math="D_0 = -\frac{\ln(Y)}{A}"
+          />
+          <MathFormula
+            block
+            label="Seeds (Moore) Yield Model"
+            math="D_0 = \frac{1/Y - 1}{A}"
+          />
+          <MathFormula
+            block
+            label="Murphy Triangular Defect Model"
+            math="Y = \left[ \frac{1 - \exp(-A D_0)}{A D_0} \right]^2"
+          />
+          <MathFormula
+            block
+            label="Defect Clustering Area Factor"
+            math="A D_0 = D_0 \times A"
+          />
+<ul className="info-list">
             <li>
               <strong>Y</strong> — measured yield as a fraction, entered here in percent.
             </li>

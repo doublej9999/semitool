@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import StubMatchingCalculator from '@/tools/stub-matching-calculator/Calculator';
 import { tool } from '@/tools/stub-matching-calculator';
@@ -24,12 +25,32 @@ export default function StubMatchingCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">t = tan(βd) = (−x ± √(x² + (1 − r)(r − r² − x²))) / (1 − r)</p>
-          <p className="formula-expression">y_in = (1 + j t z) / (z + j t) = 1 + j b</p>
-          <p className="formula-expression">Short stub: cot(βl) = b</p>
-          <p className="formula-expression">Open stub: tan(βl) = −b</p>
-          <p className="formula-expression">λ_g = c / (f · √εr)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Normalized Line-Length Tan Parameter"
+            math="t = \tan(\beta d) = \frac{-x \pm \sqrt{x^2 + (1 - r)(r - r^2 - x^2)}}{1 - r}"
+          />
+          <MathFormula
+            block
+            label="Input Admittance Transformation"
+            math="y_{\text{in}} = \frac{1 + j t z}{z + j t} = 1 + j b"
+          />
+          <MathFormula
+            block
+            label="Short-Circuited Stub Length"
+            math="\cot(\beta l) = b \implies l_{\text{short}} = \frac{\lambda_g}{2\pi} \operatorname{arccot}(b)"
+          />
+          <MathFormula
+            block
+            label="Open-Circuited Stub Length"
+            math="\tan(\beta l) = -b \implies l_{\text{open}} = \frac{\lambda_g}{2\pi} \arctan(-b)"
+          />
+          <MathFormula
+            block
+            label="Guided Wavelength in Microstrip"
+            math="\lambda_g = \frac{c}{f \sqrt{\varepsilon_r}}"
+          />
+<ul className="info-list">
             <li>
               <strong>r, x</strong> — the load resistance and reactance normalised to Z₀.
             </li>

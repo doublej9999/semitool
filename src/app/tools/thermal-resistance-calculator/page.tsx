@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ChipThermalCalculator from '@/tools/thermal-resistance-calculator/Calculator';
 import { tool } from '@/tools/thermal-resistance-calculator';
@@ -23,22 +24,32 @@ export default function ThermalResistanceCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            T_j = T_a + P &times; &theta;_{'{JA}'}
-          </p>
-          <p className="formula-expression">
-            &theta;_{'{JA}'} = &theta;_{'{JC}'} + &theta;_{'{TIM}'} + &theta;_{'{SA}'}
-          </p>
-          <p className="formula-expression">
-            &theta;_{'{TIM}'} = \frac{'{BLT_{m}}'}{'{k_{TIM} &times; A_{die,m^2}}'} = \frac{'{BLT_{\\mu m}}'}{'{k_{TIM} &times; A_{die,mm^2}}'} \quad [&deg;\text{'{C/W}'}]
-          </p>
-          <p className="formula-expression">
-            T_{'{case}'} = T_j - P &times; &theta;_{'{JC}'}, \quad T_{'{sink}'} = T_{'{case}'} - P &times; &theta;_{'{TIM}'}
-          </p>
-          <p className="formula-expression">
-            P_{'{max}'} = \frac{'{T_{j,max} - T_a}'}{'{\\theta_{JA}}'}
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Total Thermal Resistance Junction-to-Ambient"
+            math="\theta_{JA} = \theta_{JC} + \theta_{CS} + \theta_{SA}"
+          />
+          <MathFormula
+            block
+            label="Semiconductor Junction Temperature"
+            math="T_J = T_A + P_{\text{dissipated}} \times \theta_{JA}"
+          />
+          <MathFormula
+            block
+            label="Case Surface Temperature"
+            math="T_C = T_J - P_{\text{dissipated}} \times \theta_{JC}"
+          />
+          <MathFormula
+            block
+            label="Heatsink Thermal Dissipation Limit"
+            math="\theta_{SA,\max} = \frac{T_{J,\max} - T_{A,\max}}{P_{\text{dissipated}}} - (\theta_{JC} + \theta_{CS})"
+          />
+          <MathFormula
+            block
+            label="Maximum Allowable Power Dissipation"
+            math="P_{\max} = \frac{T_{J,\max} - T_A}{\theta_{JA}}"
+          />
+<ul className="info-list">
             <li>
               <strong>Tj</strong> — Junction temperature at the active silicon hot spot (&deg;C).
             </li>

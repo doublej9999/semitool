@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import FilmColorCalculator from '@/tools/film-color-calculator/Calculator';
 import { tool } from '@/tools/film-color-calculator';
@@ -23,19 +24,27 @@ export default function FilmColorCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            R(λ) = (r₀₁² + r₁₂² + 2 r₀₁ r₁₂ cos δ) / (1 + r₀₁² r₁₂² + 2 r₀₁ r₁₂ cos δ)
-          </p>
-          <p className="formula-expression">
-            δ = 4 π n₁ d / λ
-          </p>
-          <p className="formula-expression">
-            r₀₁ = (1 - n₁) / (1 + n₁), &emsp; r₁₂(λ) = (n₁ - n_Si(λ)) / (n₁ + n_Si(λ))
-          </p>
-          <p className="formula-expression">
-            n_Si(λ) = 3.5 + 2.0 × 10⁵ / λ²
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Constructive Thin-Film Interference Condition"
+            math="2 n d \cos(\theta_t) = \left(m + \frac{1}{2}\right) \lambda"
+          />
+          <MathFormula
+            block
+            label="Refraction Angle (Snell's Law)"
+            math="\sin(\theta_t) = \frac{\sin(\theta_i)}{n}"
+          />
+          <MathFormula
+            block
+            label="Optical Phase Shift per Pass"
+            math="\delta = \frac{2\pi}{\lambda} n d \cos(\theta_t)"
+          />
+          <MathFormula
+            block
+            label="Normal Incidence Reflectance"
+            math="R = \left| \frac{r_1 + r_2 e^{-2j\delta}}{1 + r_1 r_2 e^{-2j\delta}} \right|^2"
+          />
+<ul className="info-list">
             <li>
               <strong>R(λ)</strong> — Airy specular power reflectance for a single transparent dielectric film
               on a semi-infinite silicon substrate at normal incidence.

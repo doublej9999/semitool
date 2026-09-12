@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import SplitLotCalculator from '@/tools/split-lot-calculator/Calculator';
 import { tool } from '@/tools/split-lot-calculator';
@@ -23,9 +24,17 @@ export default function SplitLotCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Δ = Value_split - Value_POR</p>
-          <p className="formula-expression">% Variation = (Δ / Value_POR) × 100%</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Absolute Split Delta"
+            math="\Delta = \text{Value}_{\text{split}} - \text{Value}_{\text{POR}}"
+          />
+          <MathFormula
+            block
+            label="Percentage Relative Variation"
+            math="\%\,\Delta = \left( \frac{\Delta}{\text{Value}_{\text{POR}}} \right) \times 100\%"
+          />
+<ul className="info-list">
             <li>
               <strong>Process of Record (POR) Baseline</strong> — the qualified baseline recipe against which experimental splits and wafer groups are evaluated.
             </li>

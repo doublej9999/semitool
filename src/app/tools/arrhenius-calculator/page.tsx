@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ArrheniusCalculator from '@/tools/arrhenius-calculator/Calculator';
 import { tool } from '@/tools/arrhenius-calculator';
@@ -24,10 +25,22 @@ export default function ArrheniusCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Rate = D0 x exp(-Ea / (k x T))</p>
-          <p className="formula-expression">ln(rate) = ln(D0) - Ea / (k x T)</p>
-          <p className="formula-expression">Ea = k x (ln r1 - ln r2) / (1 / T2 - 1 / T1)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Arrhenius Rate Equation"
+            math="\text{Rate} = D_0 \exp\left(-\frac{E_a}{k_B T}\right)"
+          />
+          <MathFormula
+            block
+            label="Logarithmic Form"
+            math="\ln(\text{Rate}) = \ln(D_0) - \frac{E_a}{k_B} \left(\frac{1}{T}\right)"
+          />
+          <MathFormula
+            block
+            label="Activation Energy Extraction (Two Points)"
+            math="E_a = k_B \frac{\ln(r_1) - \ln(r_2)}{\frac{1}{T_2} - \frac{1}{T_1}}"
+          />
+<ul className="info-list">
             <li>
               <strong>D0</strong> — the prefactor, sometimes called the frequency factor. It carries
               the units of whatever rate it multiplies, so the tool keeps it as a bare number.

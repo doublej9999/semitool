@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import FilmStressCalculator from '@/tools/film-stress-calculator/Calculator';
 import { tool } from '@/tools/film-stress-calculator';
@@ -24,10 +25,22 @@ export default function FilmStressCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Stress = M_s x t_s squared / (6 x t_f x R)</p>
-          <p className="formula-expression">M_s = E_s / (1 - nu_s)</p>
-          <p className="formula-expression">R = (L squared / 4 + d squared) / (2 d)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Stoney Equation for Thin-Film Stress"
+            math="\sigma_f = \frac{E_s}{1 - \nu_s} \frac{t_s^2}{6 t_f R} = \frac{M_s t_s^2}{6 t_f R}"
+          />
+          <MathFormula
+            block
+            label="Substrate Biaxial Modulus"
+            math="M_s = \frac{E_s}{1 - \nu_s}"
+          />
+          <MathFormula
+            block
+            label="Wafer Curvature Radius from Bow"
+            math="R = \frac{L^2 + 4 d^2}{8 d} \approx \frac{L^2}{8 d}"
+          />
+<ul className="info-list">
             <li>
               <strong>Biaxial modulus</strong> — the substrate stiffness that enters Stoney, the Young modulus divided
               by one minus the Poisson ratio. It is not the Young modulus on its own.

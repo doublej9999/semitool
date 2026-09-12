@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ProcessCapabilityCalculator from '@/tools/process-capability-calculator/Calculator';
 import { tool } from '@/tools/process-capability-calculator';
@@ -23,12 +24,32 @@ export default function ProcessCapabilityCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Cp = (USL - LSL) / (6 x sigma)</p>
-          <p className="formula-expression">CPU = (USL - mean) / (3 x sigma)</p>
-          <p className="formula-expression">CPL = (mean - LSL) / (3 x sigma)</p>
-          <p className="formula-expression">Cpk = min(CPU, CPL)</p>
-          <p className="formula-expression">Out of spec = P(X &lt; LSL) + P(X &gt; USL)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Potential Process Capability"
+            math="C_p = \frac{\text{USL} - \text{LSL}}{6\sigma}"
+          />
+          <MathFormula
+            block
+            label="Upper Process Capability Index"
+            math="C_{\text{pu}} = \frac{\text{USL} - \mu}{3\sigma}"
+          />
+          <MathFormula
+            block
+            label="Lower Process Capability Index"
+            math="C_{\text{pl}} = \frac{\mu - \text{LSL}}{3\sigma}"
+          />
+          <MathFormula
+            block
+            label="Demonstrated Performance Index"
+            math="C_{pk} = \min(C_{\text{pu}}, C_{\text{pl}})"
+          />
+          <MathFormula
+            block
+            label="Out of Specification Probability"
+            math="P(\text{OOS}) = \Phi\left( \frac{\text{LSL} - \mu}{\sigma} \right) + \left[ 1 - \Phi\left( \frac{\text{USL} - \mu}{\sigma} \right) \right]"
+          />
+<ul className="info-list">
             <li>
               <strong>Cp</strong> — how wide the specification window is compared with 6 sigma. Needs both limits, so it
               ignores how far off-centre the process runs.

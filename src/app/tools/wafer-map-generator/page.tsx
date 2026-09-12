@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import WaferMapGenerator from '@/tools/wafer-map-generator/Calculator';
 import { tool } from '@/tools/wafer-map-generator';
@@ -27,8 +28,12 @@ export default function WaferMapGeneratorPage() {
             Die centres are generated on a pitch grid (X pitch and Y pitch, plus optional X/Y offsets) and placed only when
             the centre is inside the effective radius:
           </p>
-          <p className="formula-expression">centerX² + centerY² ≤ (D / 2 − E)²</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Wafer Active Yield Circle Constraint"
+            math="x_{\text{center}}^2 + y_{\text{center}}^2 \le \left( \frac{D}{2} - E \right)^2"
+          />
+<ul className="info-list">
             <li>Each die keeps dieNumber, row, column, x/y grid index, centerX, centerY and status.</li>
             <li>
               A die is automatically flagged <strong>Edge</strong> when its outer boundary reaches the effective radius,

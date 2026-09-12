@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import AppShell from '@/components/shell/AppShell';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
+import 'katex/dist/katex.min.css';
 import './globals.css';
 
 export const metadata: Metadata = {

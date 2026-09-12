@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import MosfetThresholdCalculator from '@/tools/mosfet-threshold-calculator/Calculator';
 import { tool } from '@/tools/mosfet-threshold-calculator';
@@ -23,19 +24,27 @@ export default function MosfetThresholdCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            EOT = tox × (3.9 / εr), &nbsp; Cox = εox / tox
-          </p>
-          <p className="formula-expression">
-            Vth0 = Vfb + 2ϕB + √[ 4 εsi q Nsub ϕB ] / Cox
-          </p>
-          <p className="formula-expression">
-            Vth = Vth0 + γ × [ √(2ϕB + Vsb) - √(2ϕB) ]
-          </p>
-          <p className="formula-expression">
-            S = ln(10) × (kT / q) × [ 1 + Cdep / Cox ]
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Equivalent Oxide Thickness & Capacitance"
+            math="\text{EOT} = t_{\text{ox}} \left( \frac{3.9}{\varepsilon_r} \right), \quad C_{\text{ox}} = \frac{\varepsilon_{\text{ox}}}{t_{\text{ox}}}"
+          />
+          <MathFormula
+            block
+            label="Zero-Bias Threshold Voltage (Long-Channel)"
+            math="V_{\text{th}0} = V_{\text{fb}} + 2\phi_B + \frac{\sqrt{4 \varepsilon_{\text{si}} q N_{\text{sub}} \phi_B}}{C_{\text{ox}}}"
+          />
+          <MathFormula
+            block
+            label="Substrate Reverse-Bias Body Effect"
+            math="V_{\text{th}} = V_{\text{th}0} + \gamma \left[ \sqrt{2\phi_B + V_{\text{sb}}} - \sqrt{2\phi_B} \right]"
+          />
+          <MathFormula
+            block
+            label="Subthreshold Swing"
+            math="S = \ln(10) \frac{k_B T}{q} \left[ 1 + \frac{C_{\text{dep}}}{C_{\text{ox}}} \right]"
+          />
+<ul className="info-list">
             <li>
               <strong>EOT (Equivalent Oxide Thickness)</strong> — physical thickness of high-k dielectric normalized to SiO₂ (εr = 3.9).
             </li>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import IonImplantationCalculator from '@/tools/ion-implantation-calculator/Calculator';
 import { tool } from '@/tools/ion-implantation-calculator';
@@ -23,19 +24,27 @@ export default function IonImplantationCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Np = Φ / [√(2π) × ΔRp]
-          </p>
-          <p className="formula-expression">
-            N(x) = Np × exp[ - (x - Rp)² / (2 ΔRp²) ]
-          </p>
-          <p className="formula-expression">
-            xj = Rp + ΔRp × √[ 2 ln(Np / Nb) ]
-          </p>
-          <p className="formula-expression">
-            Retention = 0.5 × [ 1 + erf(Rp / (√2 ΔRp)) ]
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Gaussian Dopant Implantation Profile"
+            math="N(x) = \frac{\Phi}{\sqrt{2\pi} \Delta R_p} \exp\left( -\frac{(x - R_p)^2}{2 \Delta R_p^2} \right)"
+          />
+          <MathFormula
+            block
+            label="Peak Dopant Concentration (at x = Rp)"
+            math="N_{\text{peak}} = \frac{\Phi}{\sqrt{2\pi} \Delta R_p}"
+          />
+          <MathFormula
+            block
+            label="pn Junction Depth Solution"
+            math="x_j = R_p \pm \Delta R_p \sqrt{2 \ln\left( \frac{N_{\text{peak}}}{N_{\text{sub}}} \right)}"
+          />
+          <MathFormula
+            block
+            label="Sheet Resistance Post-Anneal"
+            math="R_s \approx \frac{1}{q \cdot \Phi \cdot \mu_{\text{eff}} \cdot \eta_{\text{act}}}"
+          />
+<ul className="info-list">
             <li>
               <strong>Φ (Dose)</strong> — total implanted ion fluence per unit area (ions/cm²).
             </li>

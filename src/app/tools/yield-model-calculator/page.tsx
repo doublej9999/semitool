@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import YieldModelCalculator from '@/tools/yield-model-calculator/Calculator';
 import { tool } from '@/tools/yield-model-calculator';
@@ -23,10 +24,26 @@ export default function YieldModelCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">AD = D0 × A</p>
-          <p className="formula-expression">Poisson: Y = exp(-AD)</p>
-          <p className="formula-expression">Murphy: Y = ((1 - exp(-AD)) / AD)²</p>
-          <p className="formula-expression">Seeds (Moore): Y = 1 / (1 + AD)</p>
+          <MathFormula
+            block
+            label="Average Defect Count per Die"
+            math="\lambda = D_0 \times A"
+          />
+          <MathFormula
+            block
+            label="Poisson Random Defect Model"
+            math="Y = \exp(-\lambda) = \exp(-D_0 \cdot A)"
+          />
+          <MathFormula
+            block
+            label="Murphy Triangular Defect Density Model"
+            math="Y = \left[ \frac{1 - \exp(-D_0 \cdot A)}{D_0 \cdot A} \right]^2"
+          />
+          <MathFormula
+            block
+            label="Seeds (Moore) Negative Exponential Model"
+            math="Y = \frac{1}{1 + D_0 \cdot A}"
+          />
           <ul className="info-list">
             <li>
               <strong>D0</strong> — defect density in defects/cm² (the density of defects that are fatal to this die).

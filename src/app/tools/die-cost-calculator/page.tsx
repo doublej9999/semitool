@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import DieCostCalculator from '@/tools/die-cost-calculator/Calculator';
 import { tool } from '@/tools/die-cost-calculator';
@@ -23,12 +24,32 @@ export default function DieCostCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Total wafer cost = wafer cost + additional cost</p>
-          <p className="formula-expression">Cost per gross die = total wafer cost ÷ gross die</p>
-          <p className="formula-expression">Cost per good die = total wafer cost ÷ good die</p>
-          <p className="formula-expression">Cost multiplier = gross die ÷ good die = 1 ÷ yield</p>
-          <p className="formula-expression">Scrap cost per wafer = total wafer cost × (1 - yield)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Total Fab Wafer Cost"
+            math="C_{\text{total}} = C_{\text{wafer}} + C_{\text{mask}} + C_{\text{probe}}"
+          />
+          <MathFormula
+            block
+            label="Cost per Gross Die"
+            math="C_{\text{gross}} = \frac{C_{\text{total}}}{\text{Gross Die}}"
+          />
+          <MathFormula
+            block
+            label="Cost per Good Die"
+            math="C_{\text{good}} = \frac{C_{\text{total}}}{\text{Good Die}} = \frac{C_{\text{gross}}}{Y}"
+          />
+          <MathFormula
+            block
+            label="Cost Multiplier Factor"
+            math="M_{\text{cost}} = \frac{1}{Y} = \frac{\text{Gross Die}}{\text{Good Die}}"
+          />
+          <MathFormula
+            block
+            label="Yield Scrap Cost per Wafer"
+            math="C_{\text{scrap}} = C_{\text{total}} \times (1 - Y)"
+          />
+<ul className="info-list">
             <li>
               <strong>Yield</strong> — good die ÷ gross die, the same ratio as the Yield Calculator.
             </li>

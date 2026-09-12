@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import FilmUniformityCalculator from '@/tools/film-uniformity-calculator/Calculator';
 import { tool } from '@/tools/film-uniformity-calculator';
@@ -24,11 +25,27 @@ export default function FilmUniformityCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Mean = sum of readings / count</p>
-          <p className="formula-expression">Range = max - min</p>
-          <p className="formula-expression">Sigma = sqrt( sum of (x - mean) squared / (n - 1) )</p>
-          <p className="formula-expression">Half range / mean = (max - min) / (2 x mean)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Sample Mean Thickness"
+            math="\bar{x} = \frac{1}{n} \sum_{i=1}^{n} x_i"
+          />
+          <MathFormula
+            block
+            label="Total Thickness Range"
+            math="\Delta x = x_{\max} - x_{\min}"
+          />
+          <MathFormula
+            block
+            label="Sample Standard Deviation"
+            math="s = \sqrt{ \frac{1}{n - 1} \sum_{i=1}^{n} (x_i - \bar{x})^2 }"
+          />
+          <MathFormula
+            block
+            label="Half-Range Uniformity (Percent)"
+            math="U = \frac{x_{\max} - x_{\min}}{2\bar{x}} \times 100\%"
+          />
+<ul className="info-list">
             <li>
               <strong>Mean</strong> — the average of the readings, and the reference the uniformity is quoted against.
             </li>

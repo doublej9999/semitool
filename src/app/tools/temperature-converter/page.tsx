@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import TemperatureConverter from '@/tools/temperature-converter/Calculator';
 import { tool } from '@/tools/temperature-converter';
@@ -23,11 +24,27 @@ export default function TemperatureConverterPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">T(K) = T(°C) + 273.15</p>
-          <p className="formula-expression">T(°F) = T(°C) x 9/5 + 32</p>
-          <p className="formula-expression">T(°R) = T(K) x 9/5</p>
-          <p className="formula-expression">ΔT(°F) = ΔT(°C) x 9/5 &nbsp; (no offset)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Celsius to Kelvin"
+            math="T\,[\text{K}] = T\,[{^\circ}\text{C}] + 273.15"
+          />
+          <MathFormula
+            block
+            label="Celsius to Fahrenheit"
+            math="T\,[{^\circ}\text{F}] = T\,[{^\circ}\text{C}] \times \frac{9}{5} + 32"
+          />
+          <MathFormula
+            block
+            label="Kelvin to Rankine"
+            math="T\,[{^\circ}\text{R}] = T\,[\text{K}] \times \frac{9}{5}"
+          />
+          <MathFormula
+            block
+            label="Differential Temperature Interval"
+            math="\Delta T\,[{^\circ}\text{F}] = \Delta T\,[{^\circ}\text{C}] \times \frac{9}{5}"
+          />
+<ul className="info-list">
             <li>
               <strong>Absolute temperature</strong> — a reading on a scale, converted with its offset.
             </li>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import SemiconductorDepletionCalculator from '@/tools/semiconductor-depletion-calculator/Calculator';
 import { tool } from '@/tools/semiconductor-depletion-calculator';
@@ -23,22 +24,32 @@ export default function SemiconductorDepletionCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Vbi = Vt × ln((Na × Nd) / ni²)
-          </p>
-          <p className="formula-expression">
-            W = √[ (2 × εs × (Vbi + Vr) / q) × ((Na + Nd) / (Na × Nd)) ]
-          </p>
-          <p className="formula-expression">
-            xp = W × [Nd / (Na + Nd)], &nbsp; xn = W × [Na / (Na + Nd)]
-          </p>
-          <p className="formula-expression">
-            Emax = 2 × (Vbi + Vr) / W = (q × Na × xp) / εs
-          </p>
-          <p className="formula-expression">
-            Cj = εs / W
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="pn Junction Built-in Potential"
+            math="V_{\text{bi}} = \frac{k_B T}{q} \ln\left( \frac{N_a N_d}{n_i^2} \right)"
+          />
+          <MathFormula
+            block
+            label="Depletion Layer Width (One-Sided Step Junction)"
+            math="W = \sqrt{ \frac{2 \varepsilon_s}{q} \left( \frac{N_a + N_d}{N_a N_d} \right) (V_{\text{bi}} - V_a) }"
+          />
+          <MathFormula
+            block
+            label="Peak Junction Electric Field"
+            math="E_{\max} = \frac{2 (V_{\text{bi}} - V_a)}{W}"
+          />
+          <MathFormula
+            block
+            label="Junction Depletion Capacitance"
+            math="C_j = \frac{\varepsilon_s A}{W} = A \sqrt{ \frac{q \varepsilon_s N_a N_d}{2(N_a + N_d)(V_{\text{bi}} - V_a)} }"
+          />
+          <MathFormula
+            block
+            label="Avalanche Breakdown Voltage Estimate"
+            math="V_{\text{br}} \approx \frac{\varepsilon_s E_{\text{crit}}^2}{2 q N_{\text{light}}}"
+          />
+<ul className="info-list">
             <li>
               <strong>V_bi</strong> — Built-in potential arising from majority carrier diffusion across the metallurgical junction.
             </li>

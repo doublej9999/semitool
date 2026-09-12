@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import LithographyResolutionCalculator from '@/tools/lithography-resolution-calculator/Calculator';
 import { tool } from '@/tools/lithography-resolution-calculator';
@@ -24,9 +25,17 @@ export default function LithographyResolutionCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Resolution = k1 x lambda / NA</p>
-          <p className="formula-expression">Depth of focus = k2 x lambda / NA squared</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Rayleigh Resolution Limit"
+            math="R = k_1 \frac{\lambda}{\text{NA}}"
+          />
+          <MathFormula
+            block
+            label="Rayleigh Depth of Focus (DOF)"
+            math="\text{DOF} = k_2 \frac{\lambda}{\text{NA}^2}"
+          />
+<ul className="info-list">
             <li>
               <strong>NA</strong> — the numerical aperture of the lens, the sine of the largest half-angle it can
               collect, multiplied by the refractive index of the medium in the gap. Immersion replaces air with water

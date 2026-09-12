@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import TimeConstantCalculator from '@/tools/time-constant-calculator/Calculator';
 import { tool } from '@/tools/time-constant-calculator';
@@ -24,12 +25,32 @@ export default function TimeConstantCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">τ = R · C</p>
-          <p className="formula-expression">v(t) = 1 − exp(−t / τ)</p>
-          <p className="formula-expression">t(10–90%) = τ ln 9 ≈ 2.197 τ</p>
-          <p className="formula-expression">t(1%) = τ ln 100 ≈ 4.605 τ &nbsp; t(0.1%) = τ ln 1000 ≈ 6.908 τ</p>
-          <p className="formula-expression">f₋₃dB = 1 / (2 π τ)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="RC Circuit Characteristic Time Constant"
+            math="\tau = R \cdot C"
+          />
+          <MathFormula
+            block
+            label="Capacitor Transient Voltage Rise"
+            math="v(t) = V_0 \left( 1 - \exp\left(-\frac{t}{\tau}\right) \right)"
+          />
+          <MathFormula
+            block
+            label="Rise Time (10% to 90%)"
+            math="t_{10-90} = \tau \ln(9) \approx 2.197 \cdot \tau"
+          />
+          <MathFormula
+            block
+            label="Settling Time to 1% and 0.1% Residual Error"
+            math="t_{1\%} = \tau \ln(100) \approx 4.605 \tau, \quad t_{0.1\%} = \tau \ln(1000) \approx 6.908 \tau"
+          />
+          <MathFormula
+            block
+            label="Low-Pass Cutoff Corner Frequency (-3 dB)"
+            math="f_{-3\text{dB}} = \frac{1}{2\pi R C} = \frac{1}{2\pi \tau}"
+          />
+<ul className="info-list">
             <li>
               <strong>τ = R C</strong> — the time to reach 63.2% of the final value, in seconds when R is in ohms and C in
               farads.

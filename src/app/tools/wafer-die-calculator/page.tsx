@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import WaferDieCalculator from '@/tools/wafer-die-calculator/Calculator';
 import { tool } from '@/tools/wafer-die-calculator';
@@ -27,8 +28,12 @@ export default function WaferDieCalculatorPage() {
             A rectangular die grid is placed on the circular wafer. A die is counted when its <strong>centre</strong> falls
             inside the effective radius:
           </p>
-          <p className="formula-expression">x² + y² ≤ (D / 2 − E)²</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Die Center Yield Inclusion Condition"
+            math="x^2 + y^2 \le \left( \frac{D}{2} - E \right)^2"
+          />
+<ul className="info-list">
             <li>
               <strong>x, y</strong> — die centre coordinates relative to the wafer centre, on a grid whose step is the
               placement pitch.

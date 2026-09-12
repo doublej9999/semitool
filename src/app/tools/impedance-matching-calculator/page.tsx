@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ImpedanceMatchingCalculator from '@/tools/impedance-matching-calculator/Calculator';
 import { tool } from '@/tools/impedance-matching-calculator';
@@ -24,11 +25,27 @@ export default function ImpedanceMatchingCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Q = √(R_high / R_low − 1)</p>
-          <p className="formula-expression">X_series = Q · R_low</p>
-          <p className="formula-expression">X_shunt = R_high / Q</p>
-          <p className="formula-expression">BW ≈ f₀ / Q</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Matching Quality Factor (L-Network)"
+            math="Q = \sqrt{\frac{R_{\text{high}}}{R_{\text{low}}} - 1}"
+          />
+          <MathFormula
+            block
+            label="Series Branch Reactance"
+            math="X_{\text{series}} = Q \cdot R_{\text{low}}"
+          />
+          <MathFormula
+            block
+            label="Shunt Branch Reactance"
+            math="X_{\text{shunt}} = \frac{R_{\text{high}}}{Q}"
+          />
+          <MathFormula
+            block
+            label="Fractional Bandwidth Approximation"
+            math="\text{BW} \approx \frac{f_0}{Q}"
+          />
+<ul className="info-list">
             <li>
               <strong>Loaded Q</strong> — fixed by the resistance ratio alone, so it is the same for both the
               low-pass and the high-pass build.

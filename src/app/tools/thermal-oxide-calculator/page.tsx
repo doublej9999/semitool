@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ThermalOxideCalculator from '@/tools/thermal-oxide-calculator/Calculator';
 import { tool } from '@/tools/thermal-oxide-calculator';
@@ -24,10 +25,22 @@ export default function ThermalOxideCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">x squared + A x = B x (t + tau)</p>
-          <p className="formula-expression">tau = (x_i squared + A x_i) / B</p>
-          <p className="formula-expression">x = (A / 2) x (sqrt(1 + 4 B (t + tau) / A squared) - 1)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Deal-Grove Thermal Oxidation Model"
+            math="x_0^2 + A x_0 = B (t + \tau)"
+          />
+          <MathFormula
+            block
+            label="Initial Oxide Offset Time"
+            math="\tau = \frac{x_i^2 + A x_i}{B}"
+          />
+          <MathFormula
+            block
+            label="Oxide Thickness vs Oxidation Time"
+            math="x_0(t) = \frac{A}{2} \left( \sqrt{1 + \frac{4 B (t + \tau)}{A^2}} - 1 \right)"
+          />
+<ul className="info-list">
             <li>
               <strong>A</strong> — the linear rate constant over the surface reaction, in micrometres.
               It sets how fast the reaction can proceed when the oxidant arrives easily.

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import CvdKineticsCalculator from '@/tools/cvd-kinetics-calculator/Calculator';
 import { tool } from '@/tools/cvd-kinetics-calculator';
@@ -23,28 +24,42 @@ export default function CvdKineticsPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Boundary Layer Thickness: δ(x) = (2/3) · √( (D_g · x) / U )
-          </p>
-          <p className="formula-expression">
-            Gas Mass-Transfer Coefficient: h_g = D_g / δ(x)
-          </p>
-          <p className="formula-expression">
-            Arrhenius Surface Reaction Velocity: k_s(T) = k_s0 · exp( -E_a / (k_B · T) )
-          </p>
-          <p className="formula-expression">
-            Effective Deposition Rate Constant: k_eff = (h_g · k_s) / (h_g + k_s)
-          </p>
-          <p className="formula-expression">
-            Deposition Rate (Grove Model): v = (C_g / N_1) · [ (h_g · k_s) / (h_g + k_s) ]
-          </p>
-          <p className="formula-expression">
-            Transition Temperature: T_trans = E_a / [ k_B · ln( k_s0 / h_g ) ]
-          </p>
-          <p className="formula-expression">
-            Susceptor Depletion Profile: C_g(x) = C_g(0) · exp( - (k_eff · x) / (U · b) )
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Boundary Layer Thickness"
+            math="\delta(x) = \frac{2}{3} \sqrt{\frac{D_g \cdot x}{U}}"
+          />
+          <MathFormula
+            block
+            label="Gas Mass-Transfer Coefficient"
+            math="h_g = \frac{D_g}{\delta(x)}"
+          />
+          <MathFormula
+            block
+            label="Surface Reaction Velocity (Arrhenius)"
+            math="k_s(T) = k_{s0} \exp\left( -\frac{E_a}{k_B T} \right)"
+          />
+          <MathFormula
+            block
+            label="Effective Deposition Rate Constant"
+            math="k_{\text{eff}} = \frac{h_g \cdot k_s}{h_g + k_s}"
+          />
+          <MathFormula
+            block
+            label="Grove CVD Deposition Growth Rate"
+            math="v = \frac{C_g}{N_1} \left( \frac{h_g \cdot k_s}{h_g + k_s} \right)"
+          />
+          <MathFormula
+            block
+            label="Regime Transition Temperature"
+            math="T_{\text{trans}} = \frac{E_a}{k_B \ln\left( \frac{k_{s0}}{h_g} \right)}"
+          />
+          <MathFormula
+            block
+            label="Susceptor Reactant Depletion Profile"
+            math="C_g(x) = C_g(0) \exp\left( -\frac{k_{\text{eff}} \cdot x}{U \cdot b} \right)"
+          />
+<ul className="info-list">
             <li>
               <strong>Surface Reaction Controlled (T &lt; T_trans)</strong> — Low process temperatures make surface chemical reaction rates (k_s) much slower than gas-phase mass transfer (h_g). Growth rate increases exponentially with temperature following the Arrhenius law. Film thickness uniformity across wafers is predominantly determined by precise furnace temperature control.
             </li>

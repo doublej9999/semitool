@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import CurveFittingCalculator from '@/tools/curve-fitting-calculator/Calculator';
 import { tool } from '@/tools/curve-fitting-calculator';
@@ -23,10 +24,22 @@ export default function CurveFittingCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Arrhenius: Rate = A × exp(-Ea / (k_B × T))</p>
-          <p className="formula-expression">ln(Rate) = ln(A) - (Ea / k_B) × (1 / T)</p>
-          <p className="formula-expression">Deal-Grove Linearized: t / x_ox = (1 / B) × x_ox + (A / B)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Arrhenius Reaction Rate Model"
+            math="\text{Rate} = A \exp\left(-\frac{E_a}{k_B T}\right)"
+          />
+          <MathFormula
+            block
+            label="Linearized Arrhenius Form"
+            math="\ln(\text{Rate}) = \ln(A) - \left(\frac{E_a}{k_B}\right) \frac{1}{T}"
+          />
+          <MathFormula
+            block
+            label="Deal-Grove Linearized Model"
+            math="\frac{t}{x_{\text{ox}}} = \frac{1}{B} x_{\text{ox}} + \frac{A}{B}"
+          />
+<ul className="info-list">
             <li>
               <strong>Activation Energy Ea (eV)</strong> — extracted from the linear slope of ln(Rate) versus inverse absolute temperature 1/T (K⁻¹), using Boltzmann constant k_B = 8.61733 × 10⁻⁵ eV/K.
             </li>

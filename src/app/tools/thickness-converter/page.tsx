@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ThicknessConverter from '@/tools/thickness-converter/Calculator';
 import { tool } from '@/tools/thickness-converter';
@@ -23,11 +24,27 @@ export default function ThicknessConverterPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">value in target unit = value x factor(from) / factor(to)</p>
-          <p className="formula-expression">1 in = 25.4 mm exactly</p>
-          <p className="formula-expression">1 mil = 0.001 in exactly</p>
-          <p className="formula-expression">1 Å = 0.1 nm = 1e-10 m exactly</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Dimensional Unit Normalization"
+            math="d_{\text{target}} = d_{\text{source}} \times \frac{\text{Factor}_{\text{source}}}{\text{Factor}_{\text{target}}}"
+          />
+          <MathFormula
+            block
+            label="Imperial Standard Inch"
+            math="1\,\text{in} = 25.4\,\text{mm}"
+          />
+          <MathFormula
+            block
+            label="Thousandth of an Inch (Mil)"
+            math="1\,\text{mil} = 10^{-3}\,\text{in} = 25.4\,\mu\text{m}"
+          />
+          <MathFormula
+            block
+            label="Angstrom Metric Unit"
+            math="1\,\text{\AA} = 0.1\,\text{nm} = 10^{-10}\,\text{m}"
+          />
+<ul className="info-list">
             <li>
               <strong>Factor</strong> — how many millimetres one of that unit holds, kept in one table shared by every
               metrology, layout and conversion tool, so a factor is written down exactly once.

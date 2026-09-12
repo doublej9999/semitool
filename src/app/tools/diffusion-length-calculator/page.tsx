@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import DiffusionLengthCalculator from '@/tools/diffusion-length-calculator/Calculator';
 import { tool } from '@/tools/diffusion-length-calculator';
@@ -24,10 +25,22 @@ export default function DiffusionLengthCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Characteristic length = sqrt(D x t)</p>
-          <p className="formula-expression">erfc length = 2 x sqrt(D x t)</p>
-          <p className="formula-expression">Gaussian sigma = sqrt(2 x D x t)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Characteristic Thermal Diffusion Length"
+            math="L_{\text{diff}} = \sqrt{D \cdot t}"
+          />
+          <MathFormula
+            block
+            label="Complementary Error Function Penetration Depth"
+            math="L_{\text{erfc}} = 2\sqrt{D \cdot t}"
+          />
+          <MathFormula
+            block
+            label="Gaussian Profile Spatial Spread"
+            math="\sigma = \sqrt{2 D \cdot t}"
+          />
+<ul className="info-list">
             <li>
               <strong>D</strong> — the diffusivity at the process temperature, in square centimetres
               per second. It is the number that carries all the temperature dependence.

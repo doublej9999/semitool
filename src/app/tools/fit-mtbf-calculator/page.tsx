@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import FitMtbfCalculator from '@/tools/fit-mtbf-calculator/Calculator';
 import { tool } from '@/tools/fit-mtbf-calculator';
@@ -24,11 +25,27 @@ export default function FitMtbfCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">λ = failures / (devices × hours)</p>
-          <p className="formula-expression">FIT = λ × 1e9</p>
-          <p className="formula-expression">MTBF = 1 / λ</p>
-          <p className="formula-expression">DPPM(t) = (1 − exp(−λ t)) × 1e6</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Failure Rate (Hourly)"
+            math="\lambda = \frac{N_{\text{failures}}}{N_{\text{devices}} \times t_{\text{hours}}}"
+          />
+          <MathFormula
+            block
+            label="Failures in Time (FIT Rate)"
+            math="\text{FIT} = \lambda \times 10^9"
+          />
+          <MathFormula
+            block
+            label="Mean Time Between Failures"
+            math="\text{MTBF} = \frac{1}{\lambda}"
+          />
+          <MathFormula
+            block
+            label="Cumulative Defective Part Probability"
+            math="\text{DPPM}(t) = \left[ 1 - \exp(-\lambda t) \right] \times 10^6"
+          />
+<ul className="info-list">
             <li>
               <strong>λ</strong> — the failure rate per device-hour, the one number everything else is derived from.
             </li>

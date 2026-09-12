@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ReturnLossCalculator from '@/tools/return-loss-calculator/Calculator';
 import { tool } from '@/tools/return-loss-calculator';
@@ -24,11 +25,27 @@ export default function ReturnLossCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">RL = −20 log10 |Γ|</p>
-          <p className="formula-expression">|Γ| = 10^(−RL / 20)</p>
-          <p className="formula-expression">VSWR = (1 + |Γ|) / (1 − |Γ|)</p>
-          <p className="formula-expression">Mismatch loss = −10 log10(1 − |Γ|²)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Return Loss (RL)"
+            math="\text{RL}\,[\text{dB}] = -20 \log_{10}|\Gamma|"
+          />
+          <MathFormula
+            block
+            label="Reflection Coefficient Magnitude"
+            math="|\Gamma| = 10^{-\frac{\text{RL}}{20}}"
+          />
+          <MathFormula
+            block
+            label="Voltage Standing Wave Ratio (VSWR)"
+            math="\text{VSWR} = \frac{1 + |\Gamma|}{1 - |\Gamma|}"
+          />
+          <MathFormula
+            block
+            label="Mismatch Attenuation Loss"
+            math="\text{ML}\,[\text{dB}] = -10 \log_{10}\left(1 - |\Gamma|^2\right)"
+          />
+<ul className="info-list">
             <li>
               <strong>Return loss</strong> — the reflected power as a ratio in dB, always 0 dB or more for a passive load,
               and infinite for a perfect match.

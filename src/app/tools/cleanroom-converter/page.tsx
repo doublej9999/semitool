@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import CleanroomCalculator from '@/tools/cleanroom-converter/Calculator';
 import { tool } from '@/tools/cleanroom-converter';
@@ -23,13 +24,17 @@ export default function CleanroomConverterPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Cn = 10^N × (0.1 / D)^2.08
-          </p>
-          <p className="formula-expression">
-            Q = Volume × ACH
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="ISO 14644-1 Airborne Particle Limit"
+            math="C_n = 10^N \left( \frac{0.1\,\mu\text{m}}{D} \right)^{2.08}"
+          />
+          <MathFormula
+            block
+            label="Required Airflow Rate (ACH)"
+            math="Q = V_{\text{room}} \times \text{ACH} \quad [\text{m}^3/\text{h}]"
+          />
+<ul className="info-list">
             <li>
               <strong>C_n</strong> — Maximum permitted airborne particle concentration (particles/m³) for particles equal to or larger than diameter D.
             </li>

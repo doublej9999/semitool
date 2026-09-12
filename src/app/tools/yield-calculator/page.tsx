@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import YieldCalculator from '@/tools/yield-calculator/Calculator';
 import { tool } from '@/tools/yield-calculator';
@@ -23,9 +24,17 @@ export default function YieldCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Yield = Good Die ÷ Gross Die × 100%</p>
-          <p className="formula-expression">Reject Rate = Defect Die ÷ Gross Die × 100%</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Line Yield Percentage"
+            math="Y = \frac{N_{\text{good}}}{N_{\text{gross}}} \times 100\%"
+          />
+          <MathFormula
+            block
+            label="Defect Reject Rate"
+            math="\text{Reject Rate} = \frac{N_{\text{defect}}}{N_{\text{gross}}} \times 100\%"
+          />
+<ul className="info-list">
             <li>
               <strong>Gross die</strong> — number of die positions considered (must be greater than 0).
             </li>

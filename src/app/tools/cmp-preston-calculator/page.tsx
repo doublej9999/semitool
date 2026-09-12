@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import CmpPrestonCalculator from '@/tools/cmp-preston-calculator/Calculator';
 import { tool } from '@/tools/cmp-preston-calculator';
@@ -23,17 +24,27 @@ export default function CmpPrestonCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Removal Rate (RR) = Kp · P · V</p>
-          <p className="formula-expression">
-            V_center = 2π · R_offset · (Ω_platen / 60)
-          </p>
-          <p className="formula-expression">
-            Total Removed = RR · (Polish Time / 60)
-          </p>
-          <p className="formula-expression">
-            Kinematic WIWNU (%) = (|Ω_platen - Ω_carrier| · R_wafer / V_center) × 100%
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Preston Removal Rate Equation"
+            math="\text{RR} = K_p \cdot P \cdot V"
+          />
+          <MathFormula
+            block
+            label="Relative Velocity at Wafer Center"
+            math="V = 2\pi \cdot R_{\text{offset}} \left( \frac{\Omega_{\text{platen}}}{60} \right)"
+          />
+          <MathFormula
+            block
+            label="Rotational Mismatch Index"
+            math="\Delta \Omega = |\Omega_{\text{platen}} - \Omega_{\text{carrier}}|"
+          />
+          <MathFormula
+            block
+            label="WIWNU Kinematic Non-uniformity Estimate"
+            math="\text{WIWNU}_{\text{kinematic}} \approx \frac{\Delta \Omega \cdot R_{\text{wafer}}}{V} \times 100\%"
+          />
+<ul className="info-list">
             <li>
               <strong>Preston Coefficient (Kp)</strong> — Empirical constant (Pa⁻¹ or m²/N)
               governing chemical activity, slurry abrasive mechanics, and pad-wafer interface interactions.

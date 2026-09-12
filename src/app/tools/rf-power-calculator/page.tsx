@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import RfPowerCalculator from '@/tools/rf-power-calculator/Calculator';
 import { tool } from '@/tools/rf-power-calculator';
@@ -24,10 +25,22 @@ export default function RfPowerCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">P = V_rms² / R &nbsp; V_rms = √(P · R)</p>
-          <p className="formula-expression">V_peak = √2 · V_rms &nbsp; V_pp = 2√2 · V_rms</p>
-          <p className="formula-expression">P(dBm) = 10 log10(P / 1 mW)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Ohmic RF Power & RMS Voltage"
+            math="P = \frac{V_{\text{rms}}^2}{R} \iff V_{\text{rms}} = \sqrt{P \cdot R}"
+          />
+          <MathFormula
+            block
+            label="Sinusoidal Peak and Peak-to-Peak Voltages"
+            math="V_{\text{peak}} = \sqrt{2} \cdot V_{\text{rms}}, \quad V_{\text{pp}} = 2\sqrt{2} \cdot V_{\text{rms}}"
+          />
+          <MathFormula
+            block
+            label="Decibel-Milliwatt Conversion"
+            math="P\,[\text{dBm}] = 10 \log_{10}\left( \frac{P}{1\,\text{mW}} \right)"
+          />
+<ul className="info-list">
             <li>
               <strong>Impedance matters</strong> — a voltage only becomes a power once the load is known, so the system
               impedance is an input rather than a hard-coded 50 Ω.

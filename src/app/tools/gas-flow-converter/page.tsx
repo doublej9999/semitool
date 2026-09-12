@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import GasFlowConverter from '@/tools/gas-flow-converter/Calculator';
 import { tool } from '@/tools/gas-flow-converter';
@@ -23,11 +24,27 @@ export default function GasFlowConverterPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">V_m = R x T / P, with R = 8.314 462 618 153 24 J/(mol·K) and P = 1 atm</p>
-          <p className="formula-expression">1 mol/min = V_m cm³/min (standard)</p>
-          <p className="formula-expression">mass flow [g/min] = molar flow [mol/min] x molar mass [g/mol]</p>
-          <p className="formula-expression">actual flow = standard flow x (1 atm / P) x (T / T_reference)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Standard Molar Volume (Ideal Gas at 0°C, 1 atm)"
+            math="V_m = \frac{R \cdot T_{\text{STP}}}{P_{\text{STP}}} \approx 22.414\,\text{L/mol}"
+          />
+          <MathFormula
+            block
+            label="Molar Flow Rate Conversion"
+            math="1\,\text{mol/min} = V_m \times 10^3\,\text{sccm}"
+          />
+          <MathFormula
+            block
+            label="Mass Flow Conversion"
+            math="\dot{m}\,[\text{g/min}] = \dot{n}\,[\text{mol/min}] \times M_{\text{molar}}\,[\text{g/mol}]"
+          />
+          <MathFormula
+            block
+            label="Actual Volumetric Flow Rate"
+            math="Q_{\text{actual}} = Q_{\text{standard}} \times \left( \frac{1\,\text{atm}}{P} \right) \times \left( \frac{T}{T_{\text{ref}}} \right)"
+          />
+<ul className="info-list">
             <li>
               <strong>sccm / slm</strong> — standard cubic centimetre (or litre) per minute, a volumetric flow at a
               stated reference temperature and one atmosphere.

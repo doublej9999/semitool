@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import YieldDppmCalculator from '@/tools/yield-dppm-calculator/Calculator';
 import { tool } from '@/tools/yield-dppm-calculator';
@@ -24,11 +25,27 @@ export default function YieldDppmCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">DPPM = (1 − yield fraction) × 1e6</p>
-          <p className="formula-expression">DPB = (1 − yield fraction) × 1e9</p>
-          <p className="formula-expression">sigma = Φ⁻¹(yield fraction)</p>
-          <p className="formula-expression">Cpk equivalent = sigma / 3</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Defective Parts per Million (DPPM)"
+            math="\text{DPPM} = (1 - Y_{\text{fraction}}) \times 10^6"
+          />
+          <MathFormula
+            block
+            label="Defective Parts per Billion (DPB)"
+            math="\text{DPB} = (1 - Y_{\text{fraction}}) \times 10^9"
+          />
+          <MathFormula
+            block
+            label="Standard Normal Equivalent Deviate (Z-Score)"
+            math="Z = \Phi^{-1}(Y_{\text{fraction}})"
+          />
+          <MathFormula
+            block
+            label="Equivalent Process Capability Index"
+            math="C_{pk} \approx \frac{Z}{3}"
+          />
+<ul className="info-list">
             <li>
               <strong>Yield and DPPM</strong> — the same statement in two units, so a 99% yield is 10,000 DPPM.
             </li>

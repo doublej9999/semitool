@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import DopantDiffusionCalculator from '@/tools/dopant-diffusion-calculator/Calculator';
 import { tool } from '@/tools/dopant-diffusion-calculator';
@@ -23,25 +24,37 @@ export default function DopantDiffusionCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Arrhenius Diffusivity: D(T) = D₀ · exp( -E_a / (k_B · T) )
-          </p>
-          <p className="formula-expression">
-            Constant Source (Predeposition): C(x, t) = C_s · erfc( x / (2√(D · t)) )
-          </p>
-          <p className="formula-expression">
-            Predeposition Dose: Q = (2 / √π) · C_s · √(D · t)
-          </p>
-          <p className="formula-expression">
-            Predeposition Junction Depth: x_j = 2√(D · t) · inverfc( C_B / C_s )
-          </p>
-          <p className="formula-expression">
-            Limited Source (Drive-in): C(x, t) = ( Q / √(π · D · t) ) · exp( -x² / (4 · D · t) )
-          </p>
-          <p className="formula-expression">
-            Drive-in Junction Depth: x_j = √( 4 · D · t · ln( C_s / C_B ) )
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Constant Surface Source (erfc Profile)"
+            math="C(x, t) = C_s \operatorname{erfc}\left( \frac{x}{2\sqrt{D t}} \right)"
+          />
+          <MathFormula
+            block
+            label="Limited Total Dose Drive-in (Gaussian Profile)"
+            math="C(x, t) = \frac{Q}{\sqrt{\pi D t}} \exp\left( -\frac{x^2}{4 D t} \right)"
+          />
+          <MathFormula
+            block
+            label="Dopant Diffusivity (Arrhenius)"
+            math="D(T) = D_0 \exp\left( -\frac{E_a}{k_B T} \right)"
+          />
+          <MathFormula
+            block
+            label="Thermal Budget Integral"
+            math="(D t)_{\text{eff}} = \sum_{i} D(T_i) \cdot t_i"
+          />
+          <MathFormula
+            block
+            label="pn Junction Depth (erfc)"
+            math="x_j = 2\sqrt{D t} \operatorname{inverfc}\left( \frac{C_{\text{sub}}}{C_s} \right)"
+          />
+          <MathFormula
+            block
+            label="pn Junction Depth (Gaussian)"
+            math="x_j = \sqrt{4 D t \ln\left( \frac{Q}{C_{\text{sub}} \sqrt{\pi D t}} \right)}"
+          />
+<ul className="info-list">
             <li>
               <strong>Complementary Error Function (erfc)</strong> — Describes infinite/constant source diffusion from gaseous ambients (POCl₃ for phosphorus or BBr₃ for boron). The surface concentration C_s remains fixed at the solid solubility limit throughout the diffusion cycle.
             </li>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import SheetResistanceCalculator from '@/tools/sheet-resistance-calculator/Calculator';
 import { tool } from '@/tools/sheet-resistance-calculator';
@@ -23,11 +24,27 @@ export default function SheetResistanceCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Sheet resistance = (pi / ln 2) x V / I</p>
-          <p className="formula-expression">Resistivity = sheet resistance x film thickness</p>
-          <p className="formula-expression">Conductivity = 1 / resistivity</p>
-          <p className="formula-expression">Thin-film ratio = film thickness / probe spacing</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Collinear Four-Point Probe Sheet Resistance"
+            math="R_s = \frac{\pi}{\ln 2} \left( \frac{V}{I} \right) \approx 4.53236 \left( \frac{V}{I} \right)"
+          />
+          <MathFormula
+            block
+            label="Material Resistivity"
+            math="\rho = R_s \cdot t"
+          />
+          <MathFormula
+            block
+            label="Electrical Conductivity"
+            math="\sigma = \frac{1}{\rho}"
+          />
+          <MathFormula
+            block
+            label="Thin-Film Geometric Ratio"
+            math="\text{Ratio} = \frac{t}{s}"
+          />
+<ul className="info-list">
             <li>
               <strong>pi / ln 2 = 4.5324</strong> — the geometric factor of a collinear four-point probe on a thin film.
               It comes from the two-dimensional spreading of the current between the outer probes.

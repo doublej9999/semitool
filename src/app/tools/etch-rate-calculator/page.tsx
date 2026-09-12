@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import EtchRateCalculator from '@/tools/etch-rate-calculator/Calculator';
 import { tool } from '@/tools/etch-rate-calculator';
@@ -24,10 +25,22 @@ export default function EtchRateCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Etch rate = (thickness before - thickness after) / time</p>
-          <p className="formula-expression">Selectivity = film removed / masking layer removed</p>
-          <p className="formula-expression">Overetch = (time - nominal time) / nominal time</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Film Etch Rate"
+            math="\text{ER} = \frac{d_{\text{pre}} - d_{\text{post}}}{t}"
+          />
+          <MathFormula
+            block
+            label="Etch Selectivity Ratio"
+            math="S = \frac{\text{ER}_{\text{target}}}{\text{ER}_{\text{mask}}}"
+          />
+          <MathFormula
+            block
+            label="Overetch Percentage"
+            math="\text{OE}\% = \frac{t_{\text{actual}} - t_{\text{nominal}}}{t_{\text{nominal}}} \times 100\%"
+          />
+<ul className="info-list">
             <li>
               <strong>Etch rate</strong> — the average removal speed over the etch, quoted in nanometres per minute. It is
               a single number for a process that usually slows or speeds across the wafer.

@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import SpcControlChartCalculator from '@/tools/spc-control-chart-calculator/Calculator';
 import { tool } from '@/tools/spc-control-chart-calculator';
@@ -24,11 +25,27 @@ export default function SpcControlChartCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">X̄ limits = X̿ ± A₂ · R̄</p>
-          <p className="formula-expression">R limits = D₃ · R̄ to D₄ · R̄</p>
-          <p className="formula-expression">σ̂ = R̄ / d₂</p>
-          <p className="formula-expression">Run rule: 7 consecutive points on one side of X̿</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="X-bar Control Limits"
+            math="\text{UCL}_{\bar{X}} / \text{LCL}_{\bar{X}} = \bar{\bar{X}} \pm A_2 \bar{R}"
+          />
+          <MathFormula
+            block
+            label="Range Chart Control Limits"
+            math="\text{UCL}_R = D_4 \bar{R}, \quad \text{LCL}_R = D_3 \bar{R}"
+          />
+          <MathFormula
+            block
+            label="Within-Subgroup Standard Deviation"
+            math="\hat{\sigma} = \frac{\bar{R}}{d_2}"
+          />
+          <MathFormula
+            block
+            label="Western Electric Run Rule"
+            math="7 \text{ consecutive points on one side of center line } \bar{\bar{X}}"
+          />
+<ul className="info-list">
             <li>
               <strong>X̿</strong> — the grand mean, the average of the subgroup means.
             </li>

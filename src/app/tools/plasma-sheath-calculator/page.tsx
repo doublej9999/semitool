@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import PlasmaSheathCalculator from '@/tools/plasma-sheath-calculator/Calculator';
 import { tool } from '@/tools/plasma-sheath-calculator';
@@ -23,25 +24,37 @@ export default function PlasmaSheathCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Electron Debye Length: λ_D = √( (ε₀ · k_B · T_e) / (e² · n_e) )
-          </p>
-          <p className="formula-expression">
-            Bohm Velocity (Ion Sound Speed): u_B = √( (k_B · T_e) / M_i )
-          </p>
-          <p className="formula-expression">
-            Child-Langmuir Collisionless Sheath: s = (√2 / 3) · λ_D · ( (2 · e · V₀) / (k_B · T_e) )^(3/4)
-          </p>
-          <p className="formula-expression">
-            Electron Plasma Frequency: f_pe = (1 / 2π) · √( (e² · n_e) / (ε₀ · m_e) )
-          </p>
-          <p className="formula-expression">
-            Sheath Areal Capacitance: C_s / A = ε₀ / s
-          </p>
-          <p className="formula-expression">
-            Ion Mean Free Path: λ_i = (k_B · T_g) / (√2 · p · σ_coll)
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Debye Electron Shielding Length"
+            math="\lambda_D = \sqrt{\frac{\varepsilon_0 k_B T_e}{n_e q^2}}"
+          />
+          <MathFormula
+            block
+            label="Bohm Sound Velocity (Ion Sheath Entry)"
+            math="u_B = \sqrt{\frac{k_B T_e}{M_i}}"
+          />
+          <MathFormula
+            block
+            label="Child-Langmuir Collisionless Sheath"
+            math="s_{\text{CL}} = \frac{\sqrt{2}}{3} \lambda_D \left( \frac{2 q V_{\text{bias}}}{k_B T_e} \right)^{3/4}"
+          />
+          <MathFormula
+            block
+            label="Collisional Sheath Thickness"
+            math="s_{\text{col}} \approx \left( \frac{9 \varepsilon_0 \mu_i V_{\text{bias}}^2}{8 J_i} \right)^{1/3}"
+          />
+          <MathFormula
+            block
+            label="Ion Current Density to Substrate"
+            math="J_i = 0.61 q n_0 u_B = 0.61 q n_0 \sqrt{\frac{k_B T_e}{M_i}}"
+          />
+          <MathFormula
+            block
+            label="DC Self-Bias Voltage (RF Asymmetry)"
+            math="V_{\text{dc}} = V_{\text{rf}} \left( \frac{A_{\text{ground}}^4 - A_{\text{powered}}^4}{A_{\text{ground}}^4 + A_{\text{powered}}^4} \right)"
+          />
+<ul className="info-list">
             <li>
               <strong>Bohm Sheath Criterion</strong> — In order for a stable positive space charge sheath to form at an electrode or chamber wall, ions must enter the sheath edge with a directed drift velocity equal to or greater than the Bohm velocity u_B (kinetic energy ≥ k_B T_e / 2).
             </li>

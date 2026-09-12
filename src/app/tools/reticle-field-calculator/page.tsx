@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ReticleFieldCalculator from '@/tools/reticle-field-calculator/Calculator';
 import { tool } from '@/tools/reticle-field-calculator';
@@ -23,12 +24,32 @@ export default function ReticleFieldCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Die pitch = die size + scribe lane</p>
-          <p className="formula-expression">Dice per field per axis = floor(field size / die pitch)</p>
-          <p className="formula-expression">Dice per field = dice along X x dice along Y</p>
-          <p className="formula-expression">Field utilisation = dice x die area / field area</p>
-          <p className="formula-expression">Dice per wafer (bound) = shots per wafer x dice per field</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Stepping Die Pitch"
+            math="P_x = W_{\text{die}} + S_x, \quad P_y = H_{\text{die}} + S_y"
+          />
+          <MathFormula
+            block
+            label="Array Die Capacity per Field"
+            math="N_x = \left\lfloor \frac{F_x}{P_x} \right\rfloor, \quad N_y = \left\lfloor \frac{F_y}{P_y} \right\rfloor"
+          />
+          <MathFormula
+            block
+            label="Total Die Count per Reticle Field"
+            math="N_{\text{field}} = N_x \times N_y"
+          />
+          <MathFormula
+            block
+            label="Field Optical Area Utilisation"
+            math="\eta_{\text{field}} = \frac{N_{\text{field}} \times (W_{\text{die}} \cdot H_{\text{die}})}{F_x \cdot F_y} \times 100\%"
+          />
+          <MathFormula
+            block
+            label="Theoretical Upper Bound Die Count"
+            math="N_{\text{wafer, upper}} = N_{\text{shots}} \times N_{\text{field}}"
+          />
+<ul className="info-list">
             <li>
               <strong>Field</strong> — the area the exposure tool prints in one shot, set by the reticle and the
               reduction ratio. A common full field is about 26 mm by 33 mm.

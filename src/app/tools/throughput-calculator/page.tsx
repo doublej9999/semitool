@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ThroughputCalculator from '@/tools/throughput-calculator/Calculator';
 import { tool } from '@/tools/throughput-calculator';
@@ -23,12 +24,32 @@ export default function ThroughputCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Theoretical WPH = 60 / process time (min) x chambers</p>
-          <p className="formula-expression">Effective WPH = theoretical x availability x performance</p>
-          <p className="formula-expression">Good WPH = effective x quality</p>
-          <p className="formula-expression">OEE = availability x performance x quality</p>
-          <p className="formula-expression">Good wafers / day = good WPH x 24</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Theoretical Chamber WPH"
+            math="\text{WPH}_{\text{theoretical}} = \frac{60}{t_{\text{process}}\,[\text{min}]} \times N_{\text{chambers}}"
+          />
+          <MathFormula
+            block
+            label="Effective Tool Throughput"
+            math="\text{WPH}_{\text{effective}} = \text{WPH}_{\text{theoretical}} \times A \times P"
+          />
+          <MathFormula
+            block
+            label="Good Wafers per Hour"
+            math="\text{WPH}_{\text{good}} = \text{WPH}_{\text{effective}} \times Q"
+          />
+          <MathFormula
+            block
+            label="Overall Equipment Effectiveness (OEE)"
+            math="\text{OEE} = A \times P \times Q"
+          />
+          <MathFormula
+            block
+            label="Daily Net Production Capacity"
+            math="\text{Wafers}_{\text{daily}} = \text{WPH}_{\text{good}} \times 24"
+          />
+<ul className="info-list">
             <li>
               <strong>Availability</strong> — share of calendar time the equipment is up and ready, not down for repair
               or maintenance.

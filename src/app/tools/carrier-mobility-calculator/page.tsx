@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import CarrierMobilityCalculator from '@/tools/carrier-mobility-calculator/Calculator';
 import { tool } from '@/tools/carrier-mobility-calculator';
@@ -23,16 +24,22 @@ export default function CarrierMobilityCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            µ(N) = µmin + (µmax - µmin) / [ 1 + (N / Nref)^α ]
-          </p>
-          <p className="formula-expression">
-            σ = q × N × µ, &nbsp; ρ = 1 / σ
-          </p>
-          <p className="formula-expression">
-            D = µ × (kT / q)
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Caughey-Thomas Empirical Mobility Model"
+            math="\mu(N) = \mu_{\min} + \frac{\mu_0 - \mu_{\min}}{1 + \left(\frac{N}{N_{\text{ref}}}\right)^\alpha}"
+          />
+          <MathFormula
+            block
+            label="Drift Resistivity"
+            math="\rho = \frac{1}{q (n \mu_n + p \mu_p)} \approx \frac{1}{q N \mu(N)}"
+          />
+          <MathFormula
+            block
+            label="Temperature Scaling"
+            math="\mu(T) = \mu(300\,\text{K}) \left( \frac{T}{300\,\text{K}} \right)^{-\gamma}"
+          />
+<ul className="info-list">
             <li>
               <strong>µ(N)</strong> — carrier drift mobility in cm²/(V·s) determined by ionized impurity scattering and acoustic phonon scattering.
             </li>

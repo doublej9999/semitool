@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ChemicalDilutionCalculator from '@/tools/chemical-dilution-calculator/Calculator';
 import { tool } from '@/tools/chemical-dilution-calculator';
@@ -23,19 +24,27 @@ export default function ChemicalDilutionCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Dilution Conservation: C₁ · V₁ = C₂ · V₂
-          </p>
-          <p className="formula-expression">
-            Component Volume: Vᵢ = V_total · (Partsᵢ / Σ Parts)
-          </p>
-          <p className="formula-expression">
-            Component Mass: Mᵢ = Vᵢ · ρᵢ
-          </p>
-          <p className="formula-expression">
-            Active Chemical Concentration (wt%): C_eff = (Mᵢ · Assay%) / M_total
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Conservation of Mass (Dilution)"
+            math="C_1 V_1 = C_2 V_2"
+          />
+          <MathFormula
+            block
+            label="Required Stock Volume"
+            math="V_1 = \frac{C_2 V_2}{C_1}"
+          />
+          <MathFormula
+            block
+            label="Diluent Solvent Volume"
+            math="V_{\text{solvent}} = V_2 - V_1"
+          />
+          <MathFormula
+            block
+            label="Parts Ratio Proportion"
+            math="V_i = V_{\text{total}} \times \frac{\text{Parts}_i}{\sum \text{Parts}}"
+          />
+<ul className="info-list">
             <li>
               <strong>RCA SC-1 (Standard Clean 1)</strong> — NH₄OH : H₂O₂ : H₂O (typically 1 : 1 : 5 or 1 : 2 : 50) at 65–70 °C.
               Simultaneously oxidizes silicon and etches the formed oxide to dislodge sub-micron particulate contamination.

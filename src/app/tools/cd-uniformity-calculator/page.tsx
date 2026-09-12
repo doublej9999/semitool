@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import CdUniformityCalculator from '@/tools/cd-uniformity-calculator/Calculator';
 import { tool } from '@/tools/cd-uniformity-calculator';
@@ -24,11 +25,27 @@ export default function CdUniformityCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Mean = sum of readings / number of sites</p>
-          <p className="formula-expression">Sigma = sqrt( sum (reading - mean) squared / (sites - 1) )</p>
-          <p className="formula-expression">Range / mean = (max - min) / mean</p>
-          <p className="formula-expression">Half range / mean = (max - min) / (2 x mean)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Mean Critical Dimension"
+            math="\bar{x} = \frac{1}{N} \sum_{i=1}^{N} x_i"
+          />
+          <MathFormula
+            block
+            label="Sample Standard Deviation"
+            math="s = \sqrt{\frac{1}{N - 1} \sum_{i=1}^{N} (x_i - \bar{x})^2}"
+          />
+          <MathFormula
+            block
+            label="Total Range Ratio"
+            math="\frac{\text{Range}}{\text{Mean}} = \frac{x_{\max} - x_{\min}}{\bar{x}} \times 100\%"
+          />
+          <MathFormula
+            block
+            label="Half-Range Uniformity (3-Sigma)"
+            math="U = \frac{x_{\max} - x_{\min}}{2\bar{x}} \times 100\%"
+          />
+<ul className="info-list">
             <li>
               <strong>Range</strong> — the distance from the smallest to the largest reading, the most direct measure of
               spread.

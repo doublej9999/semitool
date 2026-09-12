@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import YieldConfidenceCalculator from '@/tools/yield-confidence-calculator/Calculator';
 import { tool } from '@/tools/yield-confidence-calculator';
@@ -23,12 +24,32 @@ export default function YieldConfidenceCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Point estimate = passes / units tested</p>
-          <p className="formula-expression">Wilson centre = (p&#770; + z&#178;/2n) / (1 + z&#178;/n)</p>
-          <p className="formula-expression">Wilson half-width = (z / (1 + z&#178;/n)) x sqrt(p&#770;(1 - p&#770;)/n + z&#178;/4n&#178;)</p>
-          <p className="formula-expression">Clopper-Pearson = inverse beta quantiles at alpha/2 and 1 - alpha/2</p>
-          <p className="formula-expression">n = z&#178; x p(1 - p) / half-width&#178;</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Binomial Point Estimator"
+            math="\hat{p} = \frac{k_{\text{passes}}}{n_{\text{tested}}}"
+          />
+          <MathFormula
+            block
+            label="Wilson Score Interval Center"
+            math="p_{\text{center}} = \frac{\hat{p} + \frac{z^2}{2n}}{1 + \frac{z^2}{n}}"
+          />
+          <MathFormula
+            block
+            label="Wilson Score Confidence Half-Width"
+            math="w = \frac{z}{1 + \frac{z^2}{n}} \sqrt{\frac{\hat{p}(1 - \hat{p})}{n} + \frac{z^2}{4n^2}}"
+          />
+          <MathFormula
+            block
+            label="Clopper-Pearson Exact Interval"
+            math="B\left(\frac{\alpha}{2}; k, n - k + 1\right) \le p \le B\left(1 - \frac{\alpha}{2}; k + 1, n - k\right)"
+          />
+          <MathFormula
+            block
+            label="Required Sample Size for Precision w"
+            math="n = \frac{z^2 p(1 - p)}{w^2}"
+          />
+<ul className="info-list">
             <li>
               <strong>Wilson score</strong> — closed form, well behaved at yields near 0% or 100%, and the usual default.
             </li>

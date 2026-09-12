@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import AldCycleCalculator from '@/tools/ald-cycle-calculator/Calculator';
 import { tool } from '@/tools/ald-cycle-calculator';
@@ -23,25 +24,37 @@ export default function AldCycleCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">
-            Precursor Exposure Dose: L = (P · t_pulse) / 10⁻⁶ &nbsp;(1 Langmuir = 10⁻⁶ Torr·s)
-          </p>
-          <p className="formula-expression">
-            Langmuir Chemisorption Saturation: θ(L) = 1 - exp(-L / L₀)
-          </p>
-          <p className="formula-expression">
-            Effective Growth Per Cycle: GPC_eff = GPC_max · (θ₁ · θ₂)
-          </p>
-          <p className="formula-expression">
-            Film Thickness: T = N_cycles · GPC_eff
-          </p>
-          <p className="formula-expression">
-            Cycle Period: t_cycle = t_pulse1 + t_purge1 + t_pulse2 + t_purge2
-          </p>
-          <p className="formula-expression">
-            Total Deposition Time: t_total = N_cycles · t_cycle
-          </p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Growth per Cycle (GPC)"
+            math="\text{GPC} = \frac{T_{\text{target}}}{N_{\text{cycles}}}"
+          />
+          <MathFormula
+            block
+            label="Required Cycle Count"
+            math="N_{\text{cycles}} = \left\lceil \frac{T_{\text{target}}}{\text{GPC}} \right\rceil"
+          />
+          <MathFormula
+            block
+            label="Cycle Time"
+            math="t_{\text{cycle}} = t_{\text{doseA}} + t_{\text{purgeA}} + t_{\text{doseB}} + t_{\text{purgeB}}"
+          />
+          <MathFormula
+            block
+            label="Total Recipe Time"
+            math="t_{\text{total}} = N_{\text{cycles}} \times t_{\text{cycle}} + t_{\text{overhead}}"
+          />
+          <MathFormula
+            block
+            label="Precursor Consumption"
+            math="m_{\text{consumed}} = N_{\text{cycles}} \times \dot{m}_{\text{pulse}} \times t_{\text{dose}}"
+          />
+          <MathFormula
+            block
+            label="Precursor Remaining Capacity"
+            math="N_{\text{remaining}} = \left\lfloor \frac{M_{\text{cylinder}}}{m_{\text{consumed, cycle}}} \right\rfloor"
+          />
+<ul className="info-list">
             <li>
               <strong>Self-Limiting Surface Reaction</strong> — ALD relies on sequential, self-terminating gas-solid chemical reactions. Once all active surface hydroxyl or ligand sites are fully chemisorbed, further precursor exposure yields zero additional deposition, ensuring Angstrom-level thickness control and near-100% conformality on 3D FinFET, GAA nanosheet, and high-aspect-ratio 3D NAND structures.
             </li>

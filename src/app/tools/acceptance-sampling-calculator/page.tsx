@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import AcceptanceSamplingCalculator from '@/tools/acceptance-sampling-calculator/Calculator';
 import { tool } from '@/tools/acceptance-sampling-calculator';
@@ -24,12 +25,22 @@ export default function AcceptanceSamplingCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">P(accept) = P(X ≤ c), X ~ Binomial(n, p)</p>
-          <p className="formula-expression">
-            P(accept) = Σ C(D, k)·C(N − D, n − k) / C(N, n)
-          </p>
-          <p className="formula-expression">Zero acceptance: n ≥ ln(β) / ln(1 − LTPD)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Binomial Acceptance Probability"
+            math="P(\text{accept}) = \sum_{k=0}^{c} \binom{n}{k} p^k (1 - p)^{n - k}"
+          />
+          <MathFormula
+            block
+            label="Poisson Approximation (small p)"
+            math="P(\text{accept}) \approx \sum_{k=0}^{c} \frac{\lambda^k e^{-\lambda}}{k!}, \quad \lambda = n p"
+          />
+          <MathFormula
+            block
+            label="Zero-Acceptance Sample Size (c = 0)"
+            math="n \ge \frac{\ln(\beta)}{\ln(1 - \text{LTPD})}"
+          />
+<ul className="info-list">
             <li>
               <strong>n, c</strong> — the sample size and the acceptance number: accept the lot on c defectives or
               fewer.

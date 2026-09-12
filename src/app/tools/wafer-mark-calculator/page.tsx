@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import WaferMarkCalculator from '@/tools/wafer-mark-calculator/Calculator';
 import { tool } from '@/tools/wafer-mark-calculator';
@@ -24,8 +25,12 @@ export default function WaferMarkCalculatorPage() {
       formula={
         <>
           <p>The mark is assembled from four fields, joined by your separator:</p>
-          <p className="formula-expression">LOT_ID + SEPARATOR + WAFER_NO + SEPARATOR + DATE_CODE + SEPARATOR + LAYER</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="SEMI M12/M13 Wafer Identification Structure"
+            math="\text{Mark} = \text{LotID} \mathbin{\Vert} \text{Sep} \mathbin{\Vert} \text{WaferNo} \mathbin{\Vert} \text{Sep} \mathbin{\Vert} \text{DateCode} \mathbin{\Vert} \text{Sep} \mathbin{\Vert} \text{Layer}"
+          />
+<ul className="info-list">
             <li>
               <strong>Wafer number</strong> — leading zeros are stripped, then the value is left-padded to the chosen digit
               count: wafer 7 with 2 digits becomes <code>07</code>.

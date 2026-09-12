@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import PowerConverter from '@/tools/power-converter/Calculator';
 import { tool } from '@/tools/power-converter';
@@ -24,10 +25,22 @@ export default function PowerConverterPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">1 W = 1000 mW = 1e6 µW = 0.001 kW</p>
-          <p className="formula-expression">1 hp = 745.6998715822702 W &nbsp; (550 ft·lbf/s)</p>
-          <p className="formula-expression">P(dBm) = 10 log10(P / 1 mW) &nbsp; P(dBW) = 10 log10(P / 1 W)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Metric Watt Power Multiples"
+            math="1\,\text{W} = 10^3\,\text{mW} = 10^6\,\mu\text{W} = 10^{-3}\,\text{kW}"
+          />
+          <MathFormula
+            block
+            label="Mechanical Horsepower Conversion"
+            math="1\,\text{hp} = 745.699872\,\text{W}"
+          />
+          <MathFormula
+            block
+            label="Logarithmic Decibel Reference Ratios"
+            math="P\,[\text{dBm}] = 10 \log_{10}\left(\frac{P}{1\,\text{mW}}\right), \quad P\,[\text{dBW}] = 10 \log_{10}\left(\frac{P}{1\,\text{W}}\right)"
+          />
+<ul className="info-list">
             <li>
               <strong>Linear units</strong> — W, mW, µW, kW, hp, BTU/h, cal/s and ft·lbf/s are pure scale factors, so a
               reading converts by multiplication.

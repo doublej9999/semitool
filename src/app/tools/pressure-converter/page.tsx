@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import PressureConverter from '@/tools/pressure-converter/Calculator';
 import { tool } from '@/tools/pressure-converter';
@@ -23,12 +24,32 @@ export default function PressureConverterPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">value in target unit = value x factor(from) / factor(to)</p>
-          <p className="formula-expression">1 atm = 101 325 Pa exactly</p>
-          <p className="formula-expression">1 Torr = 1/760 atm exactly</p>
-          <p className="formula-expression">1 bar = 100 000 Pa exactly</p>
-          <p className="formula-expression">1 psi = 1 lbf / in² = 6894.757... Pa</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Unit Factor Scaling"
+            math="P_{\text{target}} = P_{\text{source}} \times \frac{\text{Factor}_{\text{source}}}{\text{Factor}_{\text{target}}}"
+          />
+          <MathFormula
+            block
+            label="Standard Atmosphere (Exact)"
+            math="1\,\text{atm} = 101\,325\,\text{Pa}"
+          />
+          <MathFormula
+            block
+            label="Torr Definition (Exact)"
+            math="1\,\text{Torr} = \frac{1}{760}\,\text{atm} \approx 133.322\,\text{Pa}"
+          />
+          <MathFormula
+            block
+            label="Bar Definition (Exact)"
+            math="1\,\text{bar} = 100\,000\,\text{Pa} = 10^5\,\text{Pa}"
+          />
+          <MathFormula
+            block
+            label="Pound per Square Inch"
+            math="1\,\text{psi} = 1\,\frac{\text{lbf}}{\text{in}^2} \approx 6894.757\,\text{Pa}"
+          />
+<ul className="info-list">
             <li>
               <strong>Torr</strong> — defined as 1/760 of an atmosphere, so 760 Torr is exactly one atmosphere by
               construction.

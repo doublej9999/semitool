@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import WeibullLifeCalculator from '@/tools/weibull-life-calculator/Calculator';
 import { tool } from '@/tools/weibull-life-calculator';
@@ -24,12 +25,32 @@ export default function WeibullLifeCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">F(t) = 1 − exp(−(t/η)^β)</p>
-          <p className="formula-expression">Median rank = (i − 0.3) / (n + 0.4)</p>
-          <p className="formula-expression">ln(−ln(1 − F)) = β·ln t − β·ln η</p>
-          <p className="formula-expression">B(p) = η·(−ln(1 − p))^(1/β)</p>
-          <p className="formula-expression">MTBF = η·Γ(1 + 1/β)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Two-Parameter Cumulative Weibull Failure Probability"
+            math="F(t) = 1 - \exp\left( -\left[\frac{t}{\eta}\right]^\beta \right)"
+          />
+          <MathFormula
+            block
+            label="Bernard Median Rank Regression Plotting Position"
+            math="\text{Rank}_i = \frac{i - 0.3}{n + 0.4}"
+          />
+          <MathFormula
+            block
+            label="Linearized Weibull Transformation"
+            math="\ln\left( -\ln[1 - F(t)] \right) = \beta \ln(t) - \beta \ln(\eta)"
+          />
+          <MathFormula
+            block
+            label="Reliability B(p) Percentile Life"
+            math="B(p) = \eta \cdot \left[ -\ln(1 - p) \right]^{1/\beta}"
+          />
+          <MathFormula
+            block
+            label="Mean Time Between Failures (Gamma Function)"
+            math="\text{MTBF} = \eta \cdot \Gamma\left( 1 + \frac{1}{\beta} \right)"
+          />
+<ul className="info-list">
             <li>
               <strong>β (shape)</strong> — the slope of the fitted line. Below 1 the failure rate falls with time,
               near 1 it is flat, above 1 it rises.

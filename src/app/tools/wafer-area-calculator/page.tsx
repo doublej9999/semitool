@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import WaferAreaCalculator from '@/tools/wafer-area-calculator/Calculator';
 import { tool } from '@/tools/wafer-area-calculator';
@@ -23,12 +24,32 @@ export default function WaferAreaCalculatorPage() {
       tool={tool}
       formula={
         <>
-          <p className="formula-expression">Wafer area = pi x (diameter / 2)^2</p>
-          <p className="formula-expression">Usable area = pi x (diameter / 2 - edge exclusion)^2</p>
-          <p className="formula-expression">Die area = die width x die height</p>
-          <p className="formula-expression">Area-only die count = floor(usable area / die area)</p>
-          <p className="formula-expression">Edge exclusion loss = 1 - (usable area / wafer area)</p>
-          <ul className="info-list">
+          <MathFormula
+            block
+            label="Nominal Wafer Surface Area"
+            math="A_{\text{wafer}} = \pi \left( \frac{D}{2} \right)^2"
+          />
+          <MathFormula
+            block
+            label="Usable Substrate Area (Edge Exclusion)"
+            math="A_{\text{usable}} = \pi \left( \frac{D}{2} - E \right)^2"
+          />
+          <MathFormula
+            block
+            label="Gross Die Footprint Area"
+            math="A_{\text{die}} = W_{\text{die}} \times H_{\text{die}}"
+          />
+          <MathFormula
+            block
+            label="Area-Only Ideal Die Count"
+            math="N_{\text{ideal}} = \left\lfloor \frac{A_{\text{usable}}}{A_{\text{die}}} \right\rfloor"
+          />
+          <MathFormula
+            block
+            label="Edge Exclusion Loss Ratio"
+            math="\text{Loss}_{\text{edge}} = 1 - \frac{A_{\text{usable}}}{A_{\text{wafer}}} = 1 - \left( 1 - \frac{2E}{D} \right)^2"
+          />
+<ul className="info-list">
             <li>
               <strong>Edge exclusion</strong> — the ring at the wafer rim that is not used for product, removed from the
               radius on every side.
