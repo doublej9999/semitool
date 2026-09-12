@@ -1,40 +1,270 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Layers,
-  Plus,
-  Trash2,
+  Sparkles,
   Download,
   Upload,
   RotateCcw,
-  Sparkles,
+  Plus,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
   AlertTriangle,
   FileCheck,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 import {
   FilmStackProject,
   FilmLayer,
   SubstrateMaterial,
+  SubstrateProperties,
   SUBSTRATE_CATALOG,
-  calculateFilmStackPhysics,
   INDUSTRIAL_STACK_TEMPLATES,
+  calculateFilmStackPhysics,
   loadActiveWorkspaceProject,
   saveActiveWorkspaceProject,
   createDefaultFilmStackProject,
 } from '@/lib/film-stack';
-import { useLocale } from '@/lib/i18n/context';
+import { useLocale, type SupportedLocale } from '@/lib/i18n/context';
 
 interface FabWorkspaceModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const WORKSPACE_I18N = {
+  'zh-CN': {
+    title: '晶圆工艺堆叠与虚拟工程工作区',
+    subtitle: '统一多层几何厚度、Stoney 综合应力翘曲与热预算跟踪',
+    templates: '预置配方模板',
+    export: '导出',
+    exportTitle: '导出工程文件 (.json)',
+    import: '导入',
+    importTitle: '导入工程文件 (.json)',
+    reset: '重置',
+    resetTitle: '重置工作区',
+    totalFilmThick: '总薄膜厚度',
+    netAvgStress: '平均等效应力',
+    waferBowWarp: '晶圆矢高 / 翘曲',
+    charDiffLength: '特征热扩散长度',
+    layerCrossSection: '薄膜层叠剖面图 (Cross-Section)',
+    noFilmsVisual: '（暂无薄膜沉积）',
+    substrateMaterial: '衬底材料',
+    waferDiameter: '晶圆直径',
+    substrateThick: '衬底厚度',
+    filmStackSteps: '薄膜工步序列',
+    addLayer: '沉积新薄膜',
+    emptyStackPrompt: '当前晶圆尚无薄膜，请点击右上角「沉积新薄膜」或加载预置配方。',
+    editLayerParams: '选定层工艺与物理参数编辑',
+    layerName: '层名称',
+    material: '材料配方',
+    thickness: '膜厚 (nm)',
+    stress: '固有应力 (MPa)',
+    refractiveIndex: '折射率 n (@633nm)',
+    process: '工艺方法',
+    autoSavedNotice: '工作区数据已通过 LocalStorage 自动离线保存。快捷键 Ctrl+W 随时唤出。',
+    doneClose: '完成并关闭',
+    stressTensile: '张应力 (Tensile)',
+    stressCompressive: '压应力 (Compressive)',
+    stressNeutral: '中性应力 (Neutral)',
+    severeWarp: (bow: string) => `晶圆翘曲严重 (|矢高| = ${bow} µm > 150 µm)。静电/真空吸盘有脱附失夹风险，机械手搬运易碎裂！`,
+    moderateWarp: (bow: string) => `晶圆中度翘曲 (|矢高| = ${bow} µm > 60 µm)。可能导致光刻机曝光焦深 (DoF) 超差及线宽失真。`,
+  },
+  'zh-TW': {
+    title: '晶圓製程堆疊與虛擬工程工作區',
+    subtitle: '統一多層幾何厚度、Stoney 綜合應力翹曲與熱預算追蹤',
+    templates: '預置配方範本',
+    export: '匯出',
+    exportTitle: '匯出工程檔案 (.json)',
+    import: '匯入',
+    importTitle: '匯入工程檔案 (.json)',
+    reset: '重設',
+    resetTitle: '重設工作區',
+    totalFilmThick: '總薄膜厚度',
+    netAvgStress: '平均等效應力',
+    waferBowWarp: '晶圓矢高 / 翹曲',
+    charDiffLength: '特徵熱擴散長度',
+    layerCrossSection: '薄膜層疊剖面圖 (Cross-Section)',
+    noFilmsVisual: '（暫無薄膜沉積）',
+    substrateMaterial: '基板材料',
+    waferDiameter: '晶圓直徑',
+    substrateThick: '基板厚度',
+    filmStackSteps: '薄膜工步序列',
+    addLayer: '沉積新薄膜',
+    emptyStackPrompt: '當前晶圓尚無薄膜，請點選右上角「沉積新薄膜」或載入預置配方。',
+    editLayerParams: '選定層工藝與物理參數編輯',
+    layerName: '層名稱',
+    material: '材料配方',
+    thickness: '膜厚 (nm)',
+    stress: '固有應力 (MPa)',
+    refractiveIndex: '折射率 n (@633nm)',
+    process: '工藝方法',
+    autoSavedNotice: '工作區資料已透過 LocalStorage 自動離線儲存。快捷鍵 Ctrl+W 隨時開啟。',
+    doneClose: '完成並關閉',
+    stressTensile: '張應力 (Tensile)',
+    stressCompressive: '壓應力 (Compressive)',
+    stressNeutral: '中性應力 (Neutral)',
+    severeWarp: (bow: string) => `晶圓翹曲嚴重 (|矢高| = ${bow} µm > 150 µm)。靜電/真空吸盤有脫附失夾風險，機械手傳送易碎裂！`,
+    moderateWarp: (bow: string) => `晶圓中度翹曲 (|矢高| = ${bow} µm > 60 µm)。可能導致曝光機焦深 (DoF) 超差及線寬失真。`,
+  },
+  ja: {
+    title: 'ウェーハ薄膜積層＆半導体ワークスペース',
+    subtitle: '多層膜厚・拡張Stoney応力反り・熱履歴（熱バジェット）の一元管理',
+    templates: '標準プロセスレシピ',
+    export: 'エクスポート',
+    exportTitle: 'プロジェクトJSONを出力',
+    import: 'インポート',
+    importTitle: 'プロジェクトJSONを読み込み',
+    reset: 'リセット',
+    resetTitle: 'ワークスペースを初期化',
+    totalFilmThick: '総薄膜厚',
+    netAvgStress: '平均有効応力',
+    waferBowWarp: 'ウェーハ反り / Warp',
+    charDiffLength: '実効拡散長',
+    layerCrossSection: '薄膜断面プロファイル (Cross-Section)',
+    noFilmsVisual: '（堆積された薄膜はありません）',
+    substrateMaterial: '基板材料',
+    waferDiameter: 'ウェーハ口径',
+    substrateThick: '基板厚み',
+    filmStackSteps: '薄膜工程シーケンス',
+    addLayer: '薄膜を追加',
+    emptyStackPrompt: '薄膜層がありません。「薄膜を追加」をクリックするか、上の標準レシピを選択してください。',
+    editLayerParams: '選択した膜層のパラメータ編集',
+    layerName: '膜層名',
+    material: '材料組成',
+    thickness: '膜厚 (nm)',
+    stress: '固有応力 (MPa)',
+    refractiveIndex: '屈折率 n (@633nm)',
+    process: '成膜プロセス',
+    autoSavedNotice: 'データはブラウザのLocalStorageに自動保存されます。Ctrl+Wで即座に開閉可能。',
+    doneClose: '完了して閉じる',
+    stressTensile: '引張応力 (Tensile)',
+    stressCompressive: '圧縮応力 (Compressive)',
+    stressNeutral: '中立 (Neutral)',
+    severeWarp: (bow: string) => `重度のウェーハ反り (|Bow| = ${bow} µm > 150 µm)。静電/真空チャック保持不良および搬送時のウェーハ破損リスクがあります！`,
+    moderateWarp: (bow: string) => `中度のウェーハ反り (|Bow| = ${bow} µm > 60 µm)。露光機の焦点深度 (DoF) マージン不足やCD寸法異常を招く可能性があります。`,
+  },
+  ko: {
+    title: '웨이퍼 박막 적층 및 가상 팹 작업 공간',
+    subtitle: '다층 박막 두께, 확장 Stoney 응력 휨 및 열 이력 통합 관리',
+    templates: '표준 레시피 템플릿',
+    export: '내보내기',
+    exportTitle: '프로젝트 JSON 내보내기',
+    import: '가져오기',
+    importTitle: '프로젝트 JSON 가져오기',
+    reset: '초기화',
+    resetTitle: '작업 공간 초기화',
+    totalFilmThick: '총 박막 두께',
+    netAvgStress: '평균 유효 응력',
+    waferBowWarp: '웨이퍼 보우 / 휨',
+    charDiffLength: '특성 열 확산 길이',
+    layerCrossSection: '박막 적층 단면도 (Cross-Section)',
+    noFilmsVisual: '（증착된 박막 없음）',
+    substrateMaterial: '기판 재료',
+    waferDiameter: '웨이퍼 직경',
+    substrateThick: '기판 두께',
+    filmStackSteps: '박막 공정 시퀀스',
+    addLayer: '박막 증착 추가',
+    emptyStackPrompt: '적층된 박막이 없습니다. "+ 박막 증착 추가"를 클릭하거나 위 표준 템플릿을 선택하세요.',
+    editLayerParams: '선택한 박막 파라미터 편집',
+    layerName: '박막 이름',
+    material: '재료 조성',
+    thickness: '박막 두께 (nm)',
+    stress: '고유 응력 (MPa)',
+    refractiveIndex: '굴절률 n (@633nm)',
+    process: '공정 방식',
+    autoSavedNotice: '작업 데이터는 브라우저 LocalStorage에 자동 저장됩니다. Ctrl+W로 언제든지 열 수 있습니다.',
+    doneClose: '완료 및 닫기',
+    stressTensile: '인장 응력 (Tensile)',
+    stressCompressive: '압축 응력 (Compressive)',
+    stressNeutral: '중립 (Neutral)',
+    severeWarp: (bow: string) => `심각한 웨이퍼 휨 (|Bow| = ${bow} µm > 150 µm). 정전/진공 척 흡착 실패 및 이송 중 웨이퍼 파손 위험!`,
+    moderateWarp: (bow: string) => `중간 수준의 웨이퍼 휨 (|Bow| = ${bow} µm > 60 µm). 노광 장비 초점 심도 (DoF) 이탈 및 CD 왜곡 유발 가능성.`,
+  },
+  en: {
+    title: 'Wafer Film Stack & Fab Project Workspace',
+    subtitle: 'Unified multi-layer stack, extended Stoney warp & thermal budget ledger',
+    templates: 'Templates',
+    export: 'Export',
+    exportTitle: 'Export Project JSON',
+    import: 'Import',
+    importTitle: 'Import Project JSON',
+    reset: 'Reset',
+    resetTitle: 'Reset Workspace',
+    totalFilmThick: 'Total Film Thick.',
+    netAvgStress: 'Net Avg. Stress',
+    waferBowWarp: 'Wafer Bow / Warp',
+    charDiffLength: 'Char. Diffusion Length',
+    layerCrossSection: 'Layer Cross-Section',
+    noFilmsVisual: '(No deposited films)',
+    substrateMaterial: 'Substrate Material',
+    waferDiameter: 'Wafer Diameter',
+    substrateThick: 'Substrate Thick.',
+    filmStackSteps: 'Film Stack Steps',
+    addLayer: 'Add Layer',
+    emptyStackPrompt: 'No films in stack. Click "+ Add Layer" or pick a template above.',
+    editLayerParams: 'Edit Selected Layer Parameters',
+    layerName: 'Layer Name',
+    material: 'Material',
+    thickness: 'Thickness (nm)',
+    stress: 'Stress (MPa)',
+    refractiveIndex: 'Refractive Index n',
+    process: 'Process',
+    autoSavedNotice: 'Auto-saved to offline local storage. Toggle anytime with Ctrl+W.',
+    doneClose: 'Done & Close',
+    stressTensile: 'tensile',
+    stressCompressive: 'compressive',
+    stressNeutral: 'neutral',
+    severeWarp: (bow: string) => `Severe wafer warp (|Bow| = ${bow} µm > 150 µm). High risk of electrostatic/vacuum chuck clamping failure and wafer breakage during transfer!`,
+    moderateWarp: (bow: string) => `Moderate wafer bow (|Bow| = ${bow} µm > 60 µm). May induce lithography scanner focus depth (DoF) runout and CD distortion.`,
+  },
+};
+
+function getSubstrateName(sub: SubstrateProperties, locale: SupportedLocale): string {
+  if (locale === 'zh-CN') return sub.nameZh;
+  if (locale === 'zh-TW') {
+    switch (sub.id) {
+      case 'si100': return '單晶矽 (100)';
+      case 'si111': return '單晶矽 (111)';
+      case 'sic4h': return '碳化矽 (4H-SiC)';
+      case 'gaas': return '砷化鎵 (GaAs)';
+      case 'sapphire': return '藍寶石 (c面 Al2O3)';
+      case 'gan': return '氮化鎵 (GaN)';
+      case 'fused_silica': return '石英玻璃 (熔融石英)';
+      default: return sub.name;
+    }
+  }
+  if (locale === 'ja') {
+    switch (sub.id) {
+      case 'si100': return '単結晶シリコン (100)';
+      case 'si111': return '単結晶シリコン (111)';
+      case 'sic4h': return '炭化ケイ素 (4H-SiC)';
+      case 'gaas': return 'ヒ化ガリウム (GaAs)';
+      case 'sapphire': return 'サファイア (c面 Al2O3)';
+      case 'gan': return '窒化ガリウム (GaN)';
+      case 'fused_silica': return '合成石英ガラス (Fused Silica)';
+      default: return sub.name;
+    }
+  }
+  if (locale === 'ko') {
+    switch (sub.id) {
+      case 'si100': return '단결정 실리콘 (100)';
+      case 'si111': return '단결정 실리콘 (111)';
+      case 'sic4h': return '탄화규소 (4H-SiC)';
+      case 'gaas': return '갈륨 비소 (GaAs)';
+      case 'sapphire': return '사파이어 (c면 Al2O3)';
+      case 'gan': return '질화갈륨 (GaN)';
+      case 'fused_silica': return '석영 유리 (Fused Silica)';
+      default: return sub.name;
+    }
+  }
+  return sub.name;
+}
+
 export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModalProps) {
   const locale = useLocale();
-  const isZh = locale.startsWith('zh');
+  const m = WORKSPACE_I18N[locale] || WORKSPACE_I18N.en;
 
   const [project, setProject] = useState<FilmStackProject>(() => createDefaultFilmStackProject());
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
@@ -147,53 +377,64 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
     setIsTemplateDropdownOpen(false);
   };
 
-  // Export JSON
+  // Export JSON file
   const handleExportJson = () => {
-    const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+    const jsonStr = JSON.stringify(project, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${project.name.toLowerCase().replace(/\s+/g, '-')}-workspace.json`;
-    document.body.appendChild(a);
+    a.download = `${project.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}.json`;
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  // Import JSON
+  // Import JSON file
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = (event) => {
       try {
-        const parsed = JSON.parse(ev.target?.result as string);
-        if (parsed.schemaVersion === '1.0.0' && Array.isArray(parsed.layers)) {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (parsed.substrate && parsed.layers) {
           updateProject(() => parsed);
-        } else {
-          alert('Invalid project file schema');
         }
       } catch (err) {
-        console.error(err);
-        alert('Failed to parse JSON project file');
+        console.error('Failed to parse project JSON:', err);
       }
     };
     reader.readAsText(file);
   };
 
-  const selectedLayer = project.layers.find((l) => l.id === selectedLayerId);
+  const selectedLayer = project.layers.find((l) => l.id === selectedLayerId) || null;
+
+  const localizedWarpWarning = () => {
+    const absBow = Math.abs(physics.waferBowUm);
+    if (absBow > 150) {
+      return m.severeWarp(absBow.toFixed(1));
+    }
+    if (absBow > 60) {
+      return m.moderateWarp(absBow.toFixed(1));
+    }
+    return null;
+  };
+
+  const stressRegimeLabel = () => {
+    if (physics.dominantStressRegime === 'tensile') return m.stressTensile;
+    if (physics.dominantStressRegime === 'compressive') return m.stressCompressive;
+    return m.stressNeutral;
+  };
 
   return (
     <div
-      role="dialog"
-      aria-modal="true"
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 99998,
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
         backdropFilter: 'blur(4px)',
+        zIndex: 9999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -204,18 +445,17 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
       }}
     >
       <div
-        className="card"
         style={{
           width: '100%',
           maxWidth: '1080px',
           maxHeight: '92vh',
-          display: 'flex',
-          flexDirection: 'column',
           backgroundColor: 'var(--card, #ffffff)',
           borderRadius: '12px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          border: '1px solid var(--line, #cbd5e1)',
+          display: 'flex',
+          flexDirection: 'column',
           overflow: 'hidden',
-          padding: 0,
         }}
       >
         {/* Header */}
@@ -229,13 +469,13 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
             background: 'var(--paper, #f8fafc)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '8px',
-                background: 'var(--teal, #0d7c82)',
+                backgroundColor: 'var(--teal, #0d7c82)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
@@ -246,10 +486,10 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
             </div>
             <div>
               <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink, #0f172a)' }}>
-                {isZh ? '晶圆工艺堆叠与虚拟工程工作区' : 'Wafer Film Stack & Fab Project Workspace'}
+                {m.title}
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--ink-soft, #64748b)' }}>
-                {isZh ? '统一多层几何厚度、Stoney 综合应力翘曲与热预算跟踪' : 'Unified multi-layer stack, extended Stoney warp & thermal budget ledger'}
+                {m.subtitle}
               </div>
             </div>
           </div>
@@ -265,7 +505,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                 onClick={() => setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
               >
                 <Sparkles size={14} />
-                {isZh ? '预置配方模板' : 'Templates'}
+                {m.templates}
               </button>
               {isTemplateDropdownOpen && (
                 <div
@@ -315,10 +555,10 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               className="button outline"
               style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
               onClick={handleExportJson}
-              title={isZh ? '导出工程文件 (.json)' : 'Export Project JSON'}
+              title={m.exportTitle}
             >
               <Download size={14} />
-              {isZh ? '导出' : 'Export'}
+              {m.export}
             </button>
 
             <button
@@ -326,10 +566,10 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               className="button outline"
               style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
               onClick={() => fileInputRef.current?.click()}
-              title={isZh ? '导入工程文件 (.json)' : 'Import Project JSON'}
+              title={m.importTitle}
             >
               <Upload size={14} />
-              {isZh ? '导入' : 'Import'}
+              {m.import}
             </button>
             <input
               type="file"
@@ -344,10 +584,10 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               className="button secondary"
               style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
               onClick={() => updateProject(() => createDefaultFilmStackProject())}
-              title={isZh ? '重置工作区' : 'Reset Workspace'}
+              title={m.resetTitle}
             >
               <RotateCcw size={14} />
-              {isZh ? '重置' : 'Reset'}
+              {m.reset}
             </button>
 
             <button
@@ -359,8 +599,10 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                 fontSize: '1.4rem',
                 cursor: 'pointer',
                 color: 'var(--ink-soft)',
-                marginLeft: '0.5rem',
+                padding: '0 0.3rem',
+                marginLeft: '0.4rem',
               }}
+              aria-label="Close"
             >
               ×
             </button>
@@ -368,21 +610,21 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
         </div>
 
         {/* Content Body */}
-        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', padding: '1.2rem', gap: '1.2rem' }}>
-          {/* Top Physics Dashboard */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+          {/* Top Metrics Cards */}
           <div
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
               gap: '0.8rem',
-              padding: '0.9rem',
+              backgroundColor: 'var(--paper, #f8fafc)',
+              padding: '1rem',
               borderRadius: '8px',
-              backgroundColor: 'var(--paper, #f1f5f9)',
               border: '1px solid var(--line, #cbd5e1)',
             }}
           >
             <div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>{isZh ? '总薄膜厚度' : 'Total Film Thick.'}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>{m.totalFilmThick}</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--teal-dark, #0b5e63)' }}>
                 {physics.totalFilmThicknessNm.toFixed(1)} <span style={{ fontSize: '0.8rem' }}>nm</span>
               </div>
@@ -392,7 +634,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
             </div>
 
             <div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>{isZh ? '平均等效应力' : 'Net Avg. Stress'}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>{m.netAvgStress}</div>
               <div
                 style={{
                   fontSize: '1.2rem',
@@ -408,13 +650,13 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                 {physics.netAverageStressMpa > 0 ? `+${physics.netAverageStressMpa.toFixed(1)}` : physics.netAverageStressMpa.toFixed(1)}{' '}
                 <span style={{ fontSize: '0.8rem' }}>MPa</span>
               </div>
-              <div style={{ fontSize: '0.7rem', textTransform: 'capitalize', fontWeight: 600 }}>
-                {physics.dominantStressRegime}
+              <div style={{ fontSize: '0.7rem', fontWeight: 600 }}>
+                {stressRegimeLabel()}
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>{isZh ? '晶圆矢高 / 翘曲' : 'Wafer Bow / Warp'}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>{m.waferBowWarp}</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 700, color: Math.abs(physics.waferBowUm) > 60 ? 'var(--red, #dc2626)' : 'var(--ink)' }}>
                 {physics.waferBowUm > 0 ? `+${physics.waferBowUm.toFixed(1)}` : physics.waferBowUm.toFixed(1)}{' '}
                 <span style={{ fontSize: '0.8rem' }}>µm</span>
@@ -425,7 +667,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
             </div>
 
             <div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>{isZh ? '特征热扩散长度' : 'Char. Diffusion Length'}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>{m.charDiffLength}</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--ink)' }}>
                 {physics.effectiveDiffusionLengthNm.toFixed(1)} <span style={{ fontSize: '0.8rem' }}>nm</span>
               </div>
@@ -436,7 +678,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
           </div>
 
           {/* Safety & Focus Warnings */}
-          {physics.chuckingWarning && (
+          {localizedWarpWarning() && (
             <div
               style={{
                 display: 'flex',
@@ -452,7 +694,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               }}
             >
               <AlertTriangle size={18} style={{ flexShrink: 0 }} />
-              <div>{physics.chuckingWarning}</div>
+              <div>{localizedWarpWarning()}</div>
             </div>
           )}
 
@@ -471,7 +713,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               }}
             >
               <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--ink)' }}>
-                {isZh ? '薄膜层叠剖面图 (Cross-Section)' : 'Layer Cross-Section'}
+                {m.layerCrossSection}
               </div>
 
               {/* SVG Cross-section */}
@@ -499,7 +741,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                   {/* Substrate */}
                   <rect x="40" y="140" width="240" height="60" rx="3" fill="url(#subGrad)" />
                   <text x="160" y="175" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">
-                    {SUBSTRATE_CATALOG[project.substrate.material].name}
+                    {getSubstrateName(SUBSTRATE_CATALOG[project.substrate.material], locale)}
                   </text>
                   <text x="160" y="190" textAnchor="middle" fill="#e2e8f0" fontSize="10">
                     {project.substrate.thicknessUm} µm | ⌀{project.waferDiameterMm}mm
@@ -508,7 +750,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                   {/* Layers stacked on top */}
                   {project.layers.length === 0 ? (
                     <text x="160" y="100" textAnchor="middle" fill="#94a3b8" fontSize="12" fontStyle="italic">
-                      {isZh ? '（暂无薄膜沉积）' : '(No deposited films)'}
+                      {m.noFilmsVisual}
                     </text>
                   ) : (
                     (() => {
@@ -517,7 +759,6 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                       let currentY = 140;
 
                       return project.layers.map((layer) => {
-                        // allocate proportional height with minimum 12px
                         const layerH = Math.max(12, (layer.thicknessNm / totalNm) * maxVisualH);
                         currentY -= layerH;
                         const isSel = layer.id === selectedLayerId;
@@ -559,7 +800,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               {/* Substrate settings */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem' }}>
                 <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '衬底材料' : 'Substrate Material'}:</span>
+                  <span style={{ color: 'var(--ink-soft)' }}>{m.substrateMaterial}:</span>
                   <select
                     className="select"
                     style={{ fontSize: '0.8rem', padding: '0.2rem 0.5rem', width: '150px' }}
@@ -577,14 +818,14 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                   >
                     {Object.values(SUBSTRATE_CATALOG).map((sub) => (
                       <option key={sub.id} value={sub.id}>
-                        {isZh ? sub.nameZh : sub.name}
+                        {getSubstrateName(sub, locale)}
                       </option>
                     ))}
                   </select>
                 </label>
 
                 <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '晶圆直径' : 'Wafer Diameter'}:</span>
+                  <span style={{ color: 'var(--ink-soft)' }}>{m.waferDiameter}:</span>
                   <select
                     className="select"
                     style={{ fontSize: '0.8rem', padding: '0.2rem 0.5rem', width: '150px' }}
@@ -605,7 +846,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                 </label>
 
                 <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '衬底厚度' : 'Substrate Thick.'}:</span>
+                  <span style={{ color: 'var(--ink-soft)' }}>{m.substrateThick}:</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <input
                       type="number"
@@ -630,7 +871,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               {/* Layer List Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--ink)' }}>
-                  {isZh ? '薄膜工步序列' : 'Film Stack Steps'} ({project.layers.length})
+                  {m.filmStackSteps} ({project.layers.length})
                 </div>
                 <button
                   type="button"
@@ -639,7 +880,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                   onClick={handleAddLayer}
                 >
                   <Plus size={14} />
-                  {isZh ? '沉积新薄膜' : 'Add Layer'}
+                  {m.addLayer}
                 </button>
               </div>
 
@@ -647,7 +888,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '200px', overflowY: 'auto' }}>
                 {project.layers.length === 0 ? (
                   <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--ink-soft)', fontSize: '0.85rem' }}>
-                    {isZh ? '当前晶圆尚无薄膜，请点击右上角「沉积新薄膜」或加载预置配方。' : 'No films in stack. Click "+ Add Layer" or pick a template above.'}
+                    {m.emptyStackPrompt}
                   </div>
                 ) : (
                   project.layers.map((layer, idx) => {
@@ -754,12 +995,12 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                   }}
                 >
                   <div style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--ink)' }}>
-                    {isZh ? '选定层工艺与物理参数编辑' : 'Edit Selected Layer Parameters'}
+                    {m.editLayerParams}
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.6rem' }}>
                     <label style={{ fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '层名称' : 'Layer Name'}</span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{m.layerName}</span>
                       <input
                         type="text"
                         className="input"
@@ -770,7 +1011,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                     </label>
 
                     <label style={{ fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '材料配方' : 'Material'}</span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{m.material}</span>
                       <input
                         type="text"
                         className="input"
@@ -781,7 +1022,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                     </label>
 
                     <label style={{ fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '膜厚 (nm)' : 'Thickness (nm)'}</span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{m.thickness}</span>
                       <input
                         type="number"
                         className="input"
@@ -792,7 +1033,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                     </label>
 
                     <label style={{ fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '固有应力 (MPa)' : 'Stress (MPa)'}</span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{m.stress}</span>
                       <input
                         type="number"
                         className="input"
@@ -803,7 +1044,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                     </label>
 
                     <label style={{ fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '折射率 n (@633nm)' : 'Refractive Index n'}</span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{m.refractiveIndex}</span>
                       <input
                         type="number"
                         step="0.01"
@@ -815,7 +1056,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                     </label>
 
                     <label style={{ fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      <span style={{ color: 'var(--ink-soft)' }}>{isZh ? '工艺方法' : 'Process'}</span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{m.process}</span>
                       <select
                         className="select"
                         style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
@@ -852,11 +1093,11 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <FileCheck size={15} style={{ color: 'var(--teal)' }} />
-            <span>{isZh ? '工作区数据已通过 LocalStorage 自动离线保存。快捷键 Ctrl+W 随时唤出。' : 'Auto-saved to offline local storage. Toggle anytime with Ctrl+W.'}</span>
+            <span>{m.autoSavedNotice}</span>
           </div>
 
           <button type="button" className="button primary" onClick={onClose}>
-            {isZh ? '完成并关闭' : 'Done & Close'}
+            {m.doneClose}
           </button>
         </div>
       </div>

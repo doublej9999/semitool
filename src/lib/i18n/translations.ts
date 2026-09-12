@@ -56,6 +56,16 @@ export interface Translations {
   noFavorites: string;
   addToFavorites: string;
   removeFromFavorites: string;
+  toolBadge: string;
+  cleanroomMode: string;
+  genealogyTitle: string;
+  workspaceTitle: string;
+  shortcutsGuide: string;
+  dataBusActive: string;
+  stdProcessFlow: string;
+  recommendedNextModule: string;
+  proceedToNextStep: string;
+  pipeParamsForward: string;
 
   // Command Palette
   cmdPlaceholder: string;
@@ -279,6 +289,16 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     noFavorites: 'No favorites yet. Use the star on a tool card — or press Ctrl / ⌘ + K to search — and your most-used tools will be listed here on every visit.',
     addToFavorites: 'Add to favorites',
     removeFromFavorites: 'Remove from favorites',
+    toolBadge: 'TOOL',
+    cleanroomMode: 'Cleanroom Touch Mode',
+    genealogyTitle: 'Lot Genealogy & Run-Card Traveler',
+    workspaceTitle: 'Film Stack & Project Workspace',
+    shortcutsGuide: 'Cleanroom Keyboard Shortcuts',
+    dataBusActive: 'Data Bus Active',
+    stdProcessFlow: 'Standard Fab Process Sequence',
+    recommendedNextModule: 'Recommended Next Module',
+    proceedToNextStep: 'Proceed to Next Step',
+    pipeParamsForward: 'Piping parameters forward',
 
     cmdPlaceholder: 'Search tools, formulas, units (Ctrl+K)...',
     cmdTools: 'Tools',
@@ -492,6 +512,16 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     noFavorites: '暂无收藏工具。点击工具卡片右上角星标（或按 Ctrl / ⌘ + K 快捷键搜索）即可添加常用工具，方便随时调用。',
     addToFavorites: '添加至收藏',
     removeFromFavorites: '取消收藏',
+    toolBadge: '计算工具',
+    cleanroomMode: '无尘室大触控模式',
+    genealogyTitle: '晶圆批次谱系与随工单',
+    workspaceTitle: '膜层堆叠与工程工作区',
+    shortcutsGuide: '无尘室车间键盘快捷键',
+    dataBusActive: '参数总线已连通',
+    stdProcessFlow: '标准半导体制造工艺流',
+    recommendedNextModule: '下一步推荐工序',
+    proceedToNextStep: '前往下一工序',
+    pipeParamsForward: '自动传递当前工艺参数',
 
     cmdPlaceholder: '搜索工具、公式、物理单位 (Ctrl+K)...',
     cmdTools: '工程工具',
@@ -705,6 +735,16 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     noFavorites: '尚無收藏工具。點擊卡片右上角星號即可加入常用清單，方便隨時調用。',
     addToFavorites: '加入最愛',
     removeFromFavorites: '移除最愛',
+    toolBadge: '計算工具',
+    cleanroomMode: '無塵室大觸控模式',
+    genealogyTitle: '晶圓批次譜系與隨工單',
+    workspaceTitle: '膜層堆疊與工程工作區',
+    shortcutsGuide: '無塵室車間鍵盤快捷鍵',
+    dataBusActive: '參數總線已連通',
+    stdProcessFlow: '標準半導體製造工藝流',
+    recommendedNextModule: '下一步推薦工序',
+    proceedToNextStep: '前往下一工序',
+    pipeParamsForward: '自動傳遞當前工藝參數',
 
     cmdPlaceholder: '搜尋工具、公式、單位 (Ctrl+K)...',
     cmdTools: '工程工具',
@@ -918,6 +958,16 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     noFavorites: '즐겨찾기가 비어 있습니다. 도구 카드의 별표를 클릭하거나 Ctrl/⌘+K를 눌러 자주 사용하는 도구를 등록하세요.',
     addToFavorites: '즐겨찾기 추가',
     removeFromFavorites: '즐겨찾기 제거',
+    toolBadge: '계산 도구',
+    cleanroomMode: '클린룸 터치 모드',
+    genealogyTitle: '웨이퍼 로트 계보 및 런카드 트래블러',
+    workspaceTitle: '박막 스택 및 프로젝트 작업 공간',
+    shortcutsGuide: '클린룸 키보드 단축키 안내',
+    dataBusActive: '데이터 버스 연결됨',
+    stdProcessFlow: '표준 팹 제조 공정 시퀀스',
+    recommendedNextModule: '다음 권장 공정 모듈',
+    proceedToNextStep: '다음 공정으로 이동',
+    pipeParamsForward: '현재 공정 매개변수 자동 전달',
 
     cmdPlaceholder: '도구, 수식, 단위 검색 (Ctrl+K)...',
     cmdTools: '엔지니어링 툴',
@@ -1131,6 +1181,16 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     noFavorites: 'お気に入りが登録されていません。ツール右上の星アイコンをクリックするか、Ctrl/⌘+Kキーで検索して追加できます。',
     addToFavorites: 'お気に入りに追加',
     removeFromFavorites: 'お気に入りから解除',
+    toolBadge: '計算ツール',
+    cleanroomMode: 'クリーンルーム大タッチモード',
+    genealogyTitle: 'ウェーハロット系譜およびトラベラー',
+    workspaceTitle: '薄膜積層＆プロジェクトワークスペース',
+    shortcutsGuide: 'クリーンルームキーボードショートカット',
+    dataBusActive: 'データバス接続中',
+    stdProcessFlow: '標準半導体製造プロセスフロー',
+    recommendedNextModule: '推奨される次工程モジュール',
+    proceedToNextStep: '次の工程へ進む',
+    pipeParamsForward: '現在のプロセス条件を自動引き継ぎ',
 
     cmdPlaceholder: 'ツール名、計算式、単位を検索 (Ctrl+K)...',
     cmdTools: '計算ツール',

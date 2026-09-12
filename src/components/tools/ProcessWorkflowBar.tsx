@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Workflow, CheckCircle2, Zap } from 'lucide-react';
-import { useLocale } from '@/lib/i18n/context';
+import { useLocale, type SupportedLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
+import { translateToolName } from '@/lib/i18n/tool-translations';
 
 export interface WorkflowStep {
   toolPath: string;
@@ -18,6 +20,9 @@ export interface ProcessFlow {
   id: string;
   titleEn: string;
   titleZh: string;
+  titleZhTw?: string;
+  titleJa?: string;
+  titleKo?: string;
   steps: WorkflowStep[];
 }
 
@@ -26,6 +31,9 @@ export const FAB_FLOWS: ProcessFlow[] = [
     id: 'gate-dielectric-flow',
     titleEn: 'Gate Stack & Dielectric Module Flow',
     titleZh: '栅介质与薄膜外延工艺流',
+    titleZhTw: '閘介質與薄膜外延工藝流',
+    titleJa: 'ゲート絶縁膜・薄膜形成プロセスフロー',
+    titleKo: '게이트 스택 및 절연막 모듈 공정 흐름',
     steps: [
       {
         toolPath: '/tools/wet-bench-calculator',
@@ -95,6 +103,9 @@ export const FAB_FLOWS: ProcessFlow[] = [
     id: 'patterning-etch-flow',
     titleEn: 'Advanced Patterning & HAR Etch Module Flow',
     titleZh: '先进光刻与深反应离子刻蚀工艺流',
+    titleZhTw: '先進光刻與深反應離子蝕刻工藝流',
+    titleJa: '先端微細パターニング・HARエッチングフロー',
+    titleKo: '첨단 패터닝 및 고종횡比 식각 공정 흐름',
     steps: [
       {
         toolPath: '/tools/lithography-resolution-calculator',
@@ -144,6 +155,9 @@ export const FAB_FLOWS: ProcessFlow[] = [
     id: 'damascene-metallization-flow',
     titleEn: 'Dual Damascene Metallization & Interconnect Flow',
     titleZh: '双大马士革铜互连与化学镀工艺流',
+    titleZhTw: '雙大馬士革銅互連與化學鍍工藝流',
+    titleJa: 'BEOL デュアルダマシン・金属配線プロセスフロー',
+    titleKo: '후공정 듀얼 다마신 및 금속 배선 공정 흐름',
     steps: [
       {
         toolPath: '/tools/lithography-resolution-calculator',
@@ -222,6 +236,9 @@ export const FAB_FLOWS: ProcessFlow[] = [
     id: 'junction-implant-flow',
     titleEn: 'Junction Formation & Doping Flow',
     titleZh: '结深构建与掺杂退火工艺流',
+    titleZhTw: '結深構建與摻雜退火工藝流',
+    titleJa: 'FEOL 接合注入・熱アニールプロセスフロー',
+    titleKo: '전공정 도핑 접합 주입 및 열처리 어닐링 공정 흐름',
     steps: [
       {
         toolPath: '/tools/ion-implantation-calculator',
@@ -261,6 +278,9 @@ export const FAB_FLOWS: ProcessFlow[] = [
     id: 'yield-quality-flow',
     titleEn: 'Fab Yield, Quality & Defect Engineering Flow',
     titleZh: '晶圆良率、品质与缺陷工程流',
+    titleZhTw: '晶圓良率、品質與缺陷工程流',
+    titleJa: 'ロット判定・SPC管理・欠陥品質フロー',
+    titleKo: '로트 판정, SPC 및 결함 품질 공정 흐름',
     steps: [
       {
         toolPath: '/tools/wafer-area-calculator',
@@ -300,7 +320,7 @@ interface ProcessWorkflowBarProps {
 
 export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps) {
   const locale = useLocale();
-  const isZh = locale.startsWith('zh');
+  const t = getTranslation(locale);
   const [currentQuery, setCurrentQuery] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -373,7 +393,7 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Workflow size={17} color="var(--teal, #0d7c82)" />
           <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600, color: 'var(--teal-dark, #0a5f66)' }}>
-            {isZh ? '标准半导体制造工艺流' : 'Standard Fab Process Sequence'}
+            {t.stdProcessFlow}
           </span>
           {Object.keys(currentQuery).length > 0 && (
             <span
@@ -391,12 +411,20 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
               title="Parameters currently active on bus"
             >
               <Zap size={11} />
-              <span>{isZh ? '参数总线已连通' : 'Data Bus Active'}</span>
+              <span>{t.dataBusActive}</span>
             </span>
           )}
         </div>
         <span style={{ fontSize: '0.78rem', color: 'var(--ink-soft, #475569)', fontWeight: 500 }}>
-          {isZh ? matchingFlow.titleZh : matchingFlow.titleEn}
+          {locale === 'zh-TW'
+            ? (matchingFlow.titleZhTw || matchingFlow.titleZh)
+            : locale === 'zh-CN'
+            ? matchingFlow.titleZh
+            : locale === 'ja'
+            ? (matchingFlow.titleJa || matchingFlow.titleEn)
+            : locale === 'ko'
+            ? (matchingFlow.titleKo || matchingFlow.titleEn)
+            : matchingFlow.titleEn}
         </span>
       </div>
 
@@ -447,7 +475,7 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
                 }}
               >
                 {isPast ? <CheckCircle2 size={12} color="#059669" /> : <span>{idx + 1}.</span>}
-                <span>{isZh ? step.nameZh : step.nameEn}</span>
+                <span>{translateToolName(step.toolPath, locale) || (locale === 'zh-TW' || locale === 'zh-CN' ? step.nameZh : step.nameEn)}</span>
               </Link>
               {idx < matchingFlow.steps.length - 1 && (
                 <span style={{ color: 'var(--line-strong, #cbd5e1)', fontSize: '0.75rem' }}>→</span>
@@ -475,15 +503,15 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
         >
           <div>
             <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--teal, #0d7c82)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>{isZh ? '下一步推荐工序' : 'Recommended Next Module'}:</span>
+              <span>{t.recommendedNextModule}:</span>
               {hasPipedParams && (
                 <span style={{ color: 'var(--amber, #d97706)', fontWeight: 500 }}>
-                  ({isZh ? '自动传递当前工艺参数' : 'Piping parameters forward'})
+                  ({t.pipeParamsForward})
                 </span>
               )}
             </div>
             <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--ink, #152127)' }}>
-              {isZh ? nextStep.nameZh : nextStep.nameEn} ({nextStep.stageName})
+              {translateToolName(nextStep.toolPath, locale) || (locale === 'zh-TW' || locale === 'zh-CN' ? nextStep.nameZh : nextStep.nameEn)} ({nextStep.stageName})
             </div>
             <div style={{ fontSize: '0.76rem', color: 'var(--ink-soft, #475569)' }}>
               {nextStep.description}
@@ -500,7 +528,7 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
               whiteSpace: 'nowrap',
             }}
           >
-            <span>{isZh ? '前往下一工序' : 'Proceed to Next Step'}</span>
+            <span>{t.proceedToNextStep}</span>
             <ArrowRight size={13} />
           </Link>
         </div>

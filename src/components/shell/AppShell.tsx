@@ -31,7 +31,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const drawerOpen = drawerPath === pathname;
   const locale = useLocale();
-  const isZh = locale.startsWith('zh');
   const t = getTranslation(locale);
 
   useHydrateFavorites();
@@ -188,12 +187,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               type="button"
               className="icon-button"
               onClick={toggleGloveMode}
-              aria-label={isZh ? '无尘室手套大触控模式' : 'Cleanroom Glove-Friendly Mode'}
-              title={
-                isZh
-                  ? `无尘室手套大触控模式 (${gloveMode ? '已开启' : '已关闭'})`
-                  : `Cleanroom Glove Mode (${gloveMode ? 'ON' : 'OFF'})`
-              }
+              aria-label={t.cleanroomMode}
+              title={`${t.cleanroomMode} (${gloveMode ? (locale === 'zh-TW' ? '已開啟' : locale === 'zh-CN' ? '已开启' : locale === 'ja' ? 'オン' : locale === 'ko' ? '켜짐' : 'ON') : (locale === 'zh-TW' ? '已關閉' : locale === 'zh-CN' ? '已关闭' : locale === 'ja' ? 'オフ' : locale === 'ko' ? '꺼짐' : 'OFF')})`}
               style={{
                 color: gloveMode ? '#ffffff' : 'var(--ink-soft)',
                 backgroundColor: gloveMode ? 'var(--teal, #0d7c82)' : 'transparent',
@@ -209,8 +204,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               type="button"
               className="icon-button"
               onClick={() => setGenealogyOpen(true)}
-              aria-label={isZh ? '晶圆批次谱系图与随工单 (Ctrl+G)' : 'Lot Genealogy & Multi-Step Traveler (Ctrl+G)'}
-              title={isZh ? '晶圆批次谱系图 (Ctrl+G)' : 'Lot Genealogy (Ctrl+G)'}
+              aria-label={`${t.genealogyTitle} (Ctrl+G)`}
+              title={`${t.genealogyTitle} (Ctrl+G)`}
             >
               <GitFork size={18} />
             </button>
@@ -220,8 +215,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               type="button"
               className="icon-button"
               onClick={() => setWorkspaceOpen(true)}
-              aria-label={isZh ? '膜层堆叠与晶圆翘曲工作区 (Ctrl+W)' : 'Film Stack & Fab Project Workspace (Ctrl+W)'}
-              title={isZh ? '膜层工程工作区 (Ctrl+W)' : 'Fab Workspace (Ctrl+W)'}
+              aria-label={`${t.workspaceTitle} (Ctrl+W)`}
+              title={`${t.workspaceTitle} (Ctrl+W)`}
             >
               <Layers size={18} />
             </button>
@@ -231,8 +226,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               type="button"
               className="icon-button"
               onClick={() => setShortcutsHintOpen((prev) => !prev)}
-              aria-label={isZh ? '全键盘快捷键帮助 (?)' : 'Keyboard Shortcuts (?)'}
-              title={isZh ? '键盘快捷键指南 (?)' : 'Shortcuts (?)'}
+              aria-label={`${t.shortcutsGuide} (?)`}
+              title={`${t.shortcutsGuide} (?)`}
             >
               <Keyboard size={17} />
             </button>
@@ -317,7 +312,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ink, #0f172a)' }}>
-                {isZh ? '无尘室车间键盘快捷键' : 'Cleanroom Keyboard Shortcuts'}
+                {t.shortcutsGuide}
               </div>
               <button
                 onClick={() => setShortcutsHintOpen(false)}
@@ -326,34 +321,33 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 ×
               </button>
             </div>
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '打开晶圆制造工程手册' : 'Engineering Handbook'}:</span>
+                <span style={{ color: 'var(--ink-soft, #475569)' }}>{locale === 'zh-TW' ? '開啟晶圓製造工程手冊' : locale === 'zh-CN' ? '打开晶圆制造工程手册' : locale === 'ja' ? '半導体エンジニアリングハンドブック' : locale === 'ko' ? '엔지니어링 핸드북 열기' : 'Engineering Handbook'}:</span>
                 <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>Ctrl + H</kbd>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '开启车间随工单 / 打印' : 'Engineering Run-Card Traveler'}:</span>
+                <span style={{ color: 'var(--ink-soft, #475569)' }}>{locale === 'zh-TW' ? '開啟車間隨工單 / 列印' : locale === 'zh-CN' ? '开启车间随工单 / 打印' : locale === 'ja' ? '工程ランカード・トラベラー / 印刷' : locale === 'ko' ? '런카드 트래블러 열기 / 인쇄' : 'Engineering Run-Card Traveler'}:</span>
                 <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>Ctrl + T</kbd>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '晶圆批次谱系与分批图' : 'Lot Split Genealogy'}:</span>
+                <span style={{ color: 'var(--ink-soft, #475569)' }}>{locale === 'zh-TW' ? '晶圓批次譜系與分批圖' : locale === 'zh-CN' ? '晶圆批次谱系与分批图' : locale === 'ja' ? 'ロット系譜・スプリット管理' : locale === 'ko' ? '로트 계보 및 분기 맵' : 'Lot Split Genealogy'}:</span>
                 <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>Ctrl + G</kbd>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '膜层堆叠与晶圆翘曲工作区' : 'Film Stack & Warp Workspace'}:</span>
+                <span style={{ color: 'var(--ink-soft, #475569)' }}>{locale === 'zh-TW' ? '膜層堆疊與晶圓翹曲工作區' : locale === 'zh-CN' ? '膜层堆叠与晶圆翘曲工作区' : locale === 'ja' ? '薄膜積層＆ウェーハ反りワークスペース' : locale === 'ko' ? '박막 스택 및 팹 작업 공간' : 'Film Stack & Warp Workspace'}:</span>
                 <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>Ctrl + W</kbd>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '快捷工艺草稿本 / 备忘' : 'Fab Scratchpad'}:</span>
+                <span style={{ color: 'var(--ink-soft, #475569)' }}>{locale === 'zh-TW' ? '快捷工藝草稿本 / 備忘' : locale === 'zh-CN' ? '快捷工艺草稿本 / 备忘' : locale === 'ja' ? 'ファブ簡易メモ・スクラッチパッド' : locale === 'ko' ? '팹 스크래치패드 메모' : 'Fab Scratchpad'}:</span>
                 <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>Ctrl + S</kbd>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '聚焦指令调色板 / 工具搜索' : 'Command Palette'}:</span>
+                <span style={{ color: 'var(--ink-soft, #475569)' }}>{locale === 'zh-TW' ? '聚焦指令面板 / 工具搜尋' : locale === 'zh-CN' ? '聚焦指令调色板 / 工具搜索' : locale === 'ja' ? 'コマンドパレット / ツール検索' : locale === 'ko' ? '명령 팔레트 / 도구 검색' : 'Command Palette'}:</span>
                 <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>Ctrl + K</kbd>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '显示本快捷键帮助' : 'Show Shortcuts'}:</span>
+                <span style={{ color: 'var(--ink-soft, #475569)' }}>{locale === 'zh-TW' ? '顯示本快捷鍵說明' : locale === 'zh-CN' ? '显示本快捷键帮助' : locale === 'ja' ? 'ショートカット一覧を表示' : locale === 'ko' ? '단축키 가이드 보기' : 'Show Shortcuts'}:</span>
                 <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>?</kbd>
               </div>
             </div>
