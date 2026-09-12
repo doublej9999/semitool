@@ -268,16 +268,18 @@ export default function FourPointProbeCalculator() {
             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>
               Collinear 4-Point Probe Physical Cross-Section
             </h3>
-            {svgRef.current && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ fontSize: '12px', padding: '3px 8px' }}
-                onClick={() => downloadSvg(svgRef.current!, 'four-point-probe-schematic.svg')}
-              >
-                Save SVG
-              </button>
-            )}
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ fontSize: '12px', padding: '3px 8px' }}
+              onClick={() => {
+                if (svgRef.current) {
+                  downloadSvg(svgRef.current, 'four-point-probe-schematic.svg');
+                }
+              }}
+            >
+              Save SVG
+            </button>
           </div>
 
           <div

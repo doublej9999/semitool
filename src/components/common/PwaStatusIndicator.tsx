@@ -23,7 +23,8 @@ export default function PwaStatusIndicator() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    setIsOnline(navigator.onLine);
+    // Deferred out of the effect body (react-hooks/set-state-in-effect)
+    queueMicrotask(() => setIsOnline(navigator.onLine));
 
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);

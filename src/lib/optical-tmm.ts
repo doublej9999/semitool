@@ -67,7 +67,7 @@ export const cAbs = (a: Complex): number => Math.sqrt(cAbsSq(a));
  */
 export const cSqrt = (z: Complex): Complex => {
   const mod = Math.sqrt(z.r * z.r + z.i * z.i);
-  let r = Math.sqrt(Math.max(0, (mod + z.r) / 2));
+  const r = Math.sqrt(Math.max(0, (mod + z.r) / 2));
   let i = Math.sqrt(Math.max(0, (mod - z.r) / 2));
   if (z.i < 0) {
     i = -i;

@@ -84,7 +84,7 @@ describe('Virtual Lot Genealogy Engine', () => {
         { parameter: 'Thickness-1', nominal: 100, measured: 102, usl: 105, lsl: 95, unit: 'nm' },
         { parameter: 'Thickness-2', nominal: 100, measured: 110, usl: 105, lsl: 95, unit: 'nm' }, // OOS
       ],
-      disposition: 'WARN' as any,
+      disposition: 'HOLD',
     });
 
     const metrics = evaluateBranchMetrology(lot.branches[0]);

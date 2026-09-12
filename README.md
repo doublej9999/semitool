@@ -1,16 +1,31 @@
 # SemiTools
 
-Semiconductor engineering calculators that run entirely in the browser. Every tool states its units, shows the formula it uses, and refuses to pretend a generic estimate is a fab-specific number.
+Semiconductor engineering calculators that run entirely in the browser — 62 tools across 10 categories. Every tool states its units, shows the formula it uses, and refuses to pretend a generic estimate is a fab-specific number.
 
 **Live:** https://semitool.vercel.app
 
 ## Tools
 
+The table below mirrors the registry in `src/tools/index.ts` — sidebar order, grouped by the 10 canonical categories. Tools marked *(new)* carry the registry's `isNew` badge.
+
+### Wafer & Die (3)
+
 | Tool | Route | What it does |
 | --- | --- | --- |
 | Wafer Die Calculator | `/tools/wafer-die-calculator` | Estimated usable die per wafer from wafer diameter, die size, street width and edge exclusion (die-centre-in-circle rule) |
 | Wafer Map Generator | `/tools/wafer-map-generator` | SVG wafer map with die coordinates, row/column, Good / Defect / Skip / Edge status, CSV and JSON export |
+| Wafer Area Calculator | `/tools/wafer-area-calculator` | Wafer area, usable area after edge exclusion, die area and the area-only die count upper bound, with utilisation against a measured count |
+
+### Mark & Traceability (1)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
 | Wafer Mark Calculator | `/tools/wafer-mark-calculator` | Builds and validates wafer mark codes from lot, wafer number, product, layer and date |
+
+### Yield & Quality (15)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
 | Yield Calculator | `/tools/yield-calculator` | Yield and reject rate from gross, good and defect die counts |
 | Yield Model Calculator | `/tools/yield-model-calculator` | Poisson, Murphy and Seeds (Moore) yield models from defect density and critical area |
 | Defect Density Calculator | `/tools/defect-density-calculator` | Back-calculates defect density D0 from a measured yield and critical area, per model |
@@ -18,47 +33,96 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Process Capability Calculator | `/tools/process-capability-calculator` | Cp, Cpk, CPU and CPL plus the out-of-spec fraction from spec limits, a process mean and a sigma |
 | Yield Confidence Interval Calculator | `/tools/yield-confidence-calculator` | Wilson and Clopper-Pearson intervals for a measured yield, plus sample-size planning |
 | Throughput & OEE Calculator | `/tools/throughput-calculator` | Wafers per hour and OEE from process time, chamber count and availability / performance / quality |
+| Bin Yield Calculator | `/tools/bin-yield-calculator` | Roll up wafer-sort bin counts into per-bin share, cumulative yield, the pass fraction and the measured defect rate in DPPM |
+| FIT & MTBF Calculator | `/tools/fit-mtbf-calculator` | Failure rate, FIT and MTBF from a life test, with the DPPM over a mission time and the time to a 1% or 10% failing fraction |
+| Yield ⇄ DPPM Calculator | `/tools/yield-dppm-calculator` | Convert between yield, DPPM, DPB and the equivalent one-sided sigma and Cpk, in any direction |
+| Weibull Life Calculator | `/tools/weibull-life-calculator` | Weibull fit by median rank: shape and scale, the fit correlation, B1 / B10 / B50 life, MTBF and the reliability at a mission time |
+| SPC Control Chart Calculator | `/tools/spc-control-chart-calculator` | X-bar and R control limits, out-of-limit points, seven-in-a-row runs and the within-subgroup sigma |
+| Acceptance Sampling Calculator | `/tools/acceptance-sampling-calculator` | The operating characteristic of a sample plan, and the zero acceptance sample size that rejects a lot as bad as a stated fraction |
+| Coffin-Manson Thermal Fatigue Calculator | `/tools/thermal-fatigue-calculator` | Thermal cycling fatigue life (Nf), shear strain range, solder alloy ductility (SAC305/SnPb) and field acceleration factor |
+| Split-Lot & DOE Recipe Overlay Calculator | `/tools/split-lot-calculator` | Split-lot and Design of Experiments (DOE) recipe overlay matrix, multi-wafer parameter variance tracking, response delta comparisons and run-sheet export |
+
+### Metrology & Layout (7)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
 | Sheet Resistance Calculator | `/tools/sheet-resistance-calculator` | Sheet resistance, resistivity and conductivity from a four-point probe measurement, plus a sheet resistance / resistivity converter |
-| Wafer Area Calculator | `/tools/wafer-area-calculator` | Wafer area, usable area after edge exclusion, die area and the area-only die count upper bound, with utilisation against a measured count |
 | Reticle Field Calculator | `/tools/reticle-field-calculator` | Dice per field, field utilisation and scribe-lane effect, plus shots per wafer and the dice they can carry |
+| PN Junction Depletion Calculator | `/tools/semiconductor-depletion-calculator` | Built-in potential, depletion width, electric field, junction capacitance and breakdown voltage under reverse bias for PN junctions |
+| MOSFET Threshold & Gate Oxide Calculator | `/tools/mosfet-threshold-calculator` | Threshold voltage, equivalent oxide thickness (EOT), gate capacitance, flatband voltage, body effect and subthreshold swing for NMOS and PMOS transistors |
+| Wire Bonding Parasitics & Fusing Calculator | `/tools/wire-bonding-calculator` | Bond wire self-inductance, AC resistance (skin effect), Preece fusing current, and JEDEC continuous DC limits for Au, Cu, Al and Ag |
+| Four-Point Probe Calculator (ASTM F84) | `/tools/four-point-probe-calculator` | ASTM F84 / SEMI MF84 collinear four-point probe sheet resistance, wafer resistivity, thickness correction factor and NIST dopant density inversion |
+| STDF / KLARF Explorer | `/tools/stdf-klarf-explorer` | Parses ATE STDF V4 and KLA KLARF files in the browser: per-test Cpk statistics, sparkline trends, bin distribution, yield, defect clusters and one-click SPC hand-off *(new)* |
+
+### Unit Conversion (7)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
 | Thickness Converter | `/tools/thickness-converter` | Film thickness and length between ångström, nm, µm, mil, mm, cm, inch and m, with the exact inch and mil definitions |
 | Pressure & Vacuum Converter | `/tools/pressure-converter` | Pressure and vacuum between Pa, kPa, MPa, bar, mbar, Torr, mTorr, atm and psi, with the Torr defined as 1/760 atm |
 | Gas Flow Converter | `/tools/gas-flow-converter` | Gas flow between sccm, slm, m³/h, cfm, mol/min, mol/h and g/min, with the reference temperature and the gas as explicit inputs |
 | Temperature Converter | `/tools/temperature-converter` | Temperature and temperature difference between Celsius, Fahrenheit, kelvin and Rankine, with absolute-zero checking |
+| Power Converter | `/tools/power-converter` | Power between W, mW, µW, kW, hp, BTU/h, cal/s, ft·lbf/s and the decibel units dBm and dBW, from exact unit definitions |
+| RC Time Constant Calculator | `/tools/time-constant-calculator` | RC time constant with the exact 10-90% rise, 1% and 0.1% settling, the -3 dB corner frequency and tau in every time unit |
+| Cleanroom Classification & Airflow Calculator | `/tools/cleanroom-converter` | ISO 14644-1 and FED-STD-209E cleanroom particle limits, required air change rates (ACH), total airflow (CFM / m³/h) and FFU ceiling coverage |
+
+### Lithography & Etch (6)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
 | Lithography Resolution Calculator | `/tools/lithography-resolution-calculator` | Rayleigh resolution and depth of focus from wavelength, numerical aperture and k1 / k2, with the 0.25 diffraction limit flagged |
 | Etch Rate & Selectivity Calculator | `/tools/etch-rate-calculator` | Etch rate and remaining fraction from before / after thickness and time, plus selectivity and overetch when those were measured |
+| CD Uniformity Calculator | `/tools/cd-uniformity-calculator` | Mean, range, 3 sigma and all three uniformity percentages (range/mean, half range/mean, CV) from a pasted list of CD readings |
+| Chemical Dilution & Wet Clean Calculator | `/tools/chemical-dilution-calculator` | RCA SC-1, SC-2, Piranha SPM, DHF and BOE chemical dilution volumes, component mass / weight %, a C1·V1=C2·V2 solver and oxide etch rate estimation |
+| Plasma Sheath & Debye Length Calculator | `/tools/plasma-sheath-calculator` | Electron Debye length, Bohm velocity, Child-Langmuir RF bias sheath thickness, plasma frequency and ion collisionality regime for RIE / ICP / PECVD |
+| ARDE & Microloading Calculator | `/tools/arde-etch-calculator` | Aspect-ratio-dependent etching (RIE lag), pattern microloading and etch selectivity *(new)* |
+
+### Thin Film & Deposition (9)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
 | Film Stress Calculator | `/tools/film-stress-calculator` | Stoney film stress from curvature or bow, with the substrate biaxial modulus and a thickness-ratio validity check |
 | Film Thickness Uniformity Calculator | `/tools/film-uniformity-calculator` | Across-wafer thickness uniformity from a list of readings: mean, range, sample sigma, three sigma and the percentage conventions |
-| CD Uniformity Calculator | `/tools/cd-uniformity-calculator` | Mean, range, 3 sigma and all three uniformity percentages (range/mean, half range/mean, CV) from a pasted list of CD readings |
+| Thin Film Color & Interference Calculator | `/tools/film-color-calculator` | Specular power reflectance, CIE 1931 color synthesis, sRGB swatch and Pliskin oxide color scale for dielectric films on silicon |
+| CMP Preston Removal Rate Calculator | `/tools/cmp-preston-calculator` | Preston removal rate (RR = Kp·P·V), linear velocity, polish time and thickness removed for dielectric, copper and tungsten CMP |
+| ALD Cycle & Precursor Exposure Calculator | `/tools/ald-cycle-calculator` | Atomic layer deposition (ALD) cycle timing, Langmuir precursor exposure saturation (θ), growth per cycle (GPC) and total thickness solver |
+| CVD & Epitaxy Kinetics Calculator | `/tools/cvd-kinetics-calculator` | CVD and epitaxial thin-film growth kinetics from the Grove boundary layer model, Arrhenius surface reaction velocity and susceptor depletion dynamics |
+| CMP Endpoint & Pad Life Calculator | `/tools/cmp-endpoint-calculator` | Chemical mechanical planarization motor current endpoint, optical fringe timing and pad conditioning wear *(new)* |
+| Wafer Bow, Warp & Thin Film Stress Calculator | `/tools/wafer-warp-stress-calculator` | Thin-film residual stress via the Stoney equation, wafer bow and warp curvature, thermal expansion mismatch stress and critical cracking thickness *(new)* |
+| Copper Electroplating & Damascene Calculator | `/tools/cu-plating-calculator` | Copper electrochemical deposition (ECD), dual damascene trench superfilling, seed layer terminal effect and Faraday electrolysis kinetics *(new)* |
+
+### Thermal & Diffusion (8)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
 | Diffusion Length Calculator | `/tools/diffusion-length-calculator` | Diffusion length and thermal budget from a diffusivity and a time, with the characteristic, erfc and Gaussian length scales labelled separately |
 | Arrhenius Rate Calculator | `/tools/arrhenius-calculator` | Arrhenius rate from a prefactor and an activation energy, and the activation energy and prefactor extracted from two rates at two temperatures |
 | Deal-Grove Thermal Oxide Calculator | `/tools/thermal-oxide-calculator` | Oxide thickness from an oxidation time or the time to a target thickness, with an initial oxide, the linear / parabolic regime and the silicon consumed |
-| Power Converter | `/tools/power-converter` | Power between W, mW, µW, kW, hp, BTU/h, cal/s, ft·lbf/s and the decibel units dBm and dBW, from exact unit definitions |
-| RC Time Constant Calculator | `/tools/time-constant-calculator` | RC time constant with the exact 10-90% rise, 1% and 0.1% settling, the -3 dB corner frequency and tau in every time unit |
+| Ion Implantation & Doping Calculator | `/tools/ion-implantation-calculator` | Projected range Rp, straggle delta Rp, peak concentration and junction depth from implant energy, species and dose in silicon |
+| Carrier Mobility & Silicon Resistivity Calculator | `/tools/carrier-mobility-calculator` | Caughey-Thomas electron and hole mobility, bulk silicon resistivity, conductivity and dopant concentration bisection solver |
+| Chip Thermal Resistance & Junction Temp Calculator | `/tools/thermal-resistance-calculator` | Steady-state junction temperature, package thermal resistance (θJC), TIM layer (BLT and k), heat sink (θSA) and thermal margin |
+| Dopant Diffusion & Junction Depth Calculator | `/tools/dopant-diffusion-calculator` | Constant-source (erfc) and limited-source (Gaussian) dopant diffusion in silicon, Arrhenius D(T) coefficients (B, P, As, Sb), junction depth (xj) and oxide mask thickness |
+| Curve Fitting & Parameter Extraction Calculator | `/tools/curve-fitting-calculator` | Arrhenius activation energy (Ea), Deal-Grove oxidation rate constants (B, B/A) and least-squares linear regression with R² goodness-of-fit |
+
+### RF & Signal (5)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
 | RF Power Calculator | `/tools/rf-power-calculator` | RF power between dBm, dBW, W and mW and the RMS, peak and peak-to-peak voltage it drives into a chosen system impedance |
 | Return Loss & VSWR Calculator | `/tools/return-loss-calculator` | Return loss, reflection coefficient, VSWR, mismatch loss and the reflected and delivered power fractions, any one from the others |
-| Bin Yield Calculator | `/tools/bin-yield-calculator` | Roll up wafer-sort bin counts into per-bin share, cumulative yield, the pass fraction and the measured defect rate in DPPM |
-| FIT & MTBF Calculator | `/tools/fit-mtbf-calculator` | Failure rate, FIT and MTBF from a life test, with the DPPM over a mission time and the time to a 1% or 10% failing fraction |
-| Yield ⇄ DPPM Calculator | `/tools/yield-dppm-calculator` | Convert between yield, DPPM, DPB and the equivalent one-sided sigma and Cpk, in any direction |
 | L-Network Impedance Match Calculator | `/tools/impedance-matching-calculator` | Match two real resistances with an L network: loaded Q, shunt side, and the series and shunt L and C values for the low-pass and high-pass builds |
 | Microstrip Calculator | `/tools/microstrip-calculator` | Trace impedance, effective permittivity, guided wavelength and delay per millimetre from the geometry, or the width that reaches a target impedance |
 | Shunt Stub Match Calculator | `/tools/stub-matching-calculator` | Both single-stub distances for a complex load with the short and open stub lengths, each re-simulated against the transmission-line equations |
-| Weibull Life Calculator | `/tools/weibull-life-calculator` | Weibull fit by median rank: shape and scale, the fit correlation, B1 / B10 / B50 life, MTBF and the reliability at a mission time |
-| SPC Control Chart Calculator | `/tools/spc-control-chart-calculator` | X-bar and R control limits, out-of-limit points, seven-in-a-row runs and the within-subgroup sigma |
-| Acceptance Sampling Calculator | `/tools/acceptance-sampling-calculator` | The operating characteristic of a sample plan, and the zero acceptance sample size that rejects a lot as bad as a stated fraction |
-| Ion Implantation & Doping Calculator | `/tools/ion-implantation-calculator` | Projected range Rp, straggle delta Rp, peak concentration and junction depth from implant energy, species and dose in silicon |
-| PN Junction Depletion Calculator | `/tools/semiconductor-depletion-calculator` | Built-in potential, depletion width, electric field, junction capacitance and breakdown voltage under reverse bias for PN junctions |
-| Cleanroom Classification & Airflow Calculator | `/tools/cleanroom-converter` | ISO 14644-1 and FED-STD-209E cleanroom particle limits, required air change rates (ACH), total airflow (CFM / m³/h) and FFU ceiling coverage |
-| MOSFET Threshold & Gate Oxide Calculator | `/tools/mosfet-threshold-calculator` | Threshold voltage, equivalent oxide thickness (EOT), gate capacitance, flatband voltage, body effect and subthreshold swing for NMOS and PMOS transistors |
-| Carrier Mobility & Silicon Resistivity Calculator | `/tools/carrier-mobility-calculator` | Caughey-Thomas electron and hole mobility, bulk silicon resistivity, conductivity and dopant concentration bisection solver |
-| Thin Film Color & Interference Calculator | `/tools/film-color-calculator` | Specular power reflectance, CIE 1931 color synthesis, sRGB swatch and Pliskin oxide color scale for dielectric films on silicon |
-| Chip Thermal Resistance & Junction Temp Calculator | `/tools/thermal-resistance-calculator` | Steady-state junction temperature, package thermal resistance (θJC), TIM layer (BLT and k), heat sink (θSA) and thermal margin |
-| Wire Bonding Parasitics & Fusing Calculator | `/tools/wire-bonding-calculator` | Bond wire self-inductance, AC resistance (skin effect), Preece fusing current, and JEDEC continuous DC limits for Au, Cu, Al and Ag |
-| CMP Preston Removal Rate Calculator | `/tools/cmp-preston-calculator` | Preston removal rate (RR = Kp·P·V), linear velocity, polish time and thickness removed for dielectric, copper and tungsten CMP |
-| Coffin-Manson Thermal Fatigue Calculator | `/tools/thermal-fatigue-calculator` | Thermal cycling fatigue life (Nf), shear strain range, solder alloy ductility (SAC305/SnPb) and field acceleration factor |
+
+### Wet Process & Clean (1)
+
+| Tool | Route | What it does |
+| --- | --- | --- |
+| Wet Bench Chemical Lifetime & Spike Calculator | `/tools/wet-bench-calculator` | RCA clean (SC-1 / SC-2), SPM Piranha and BOE etch bath lifetime, chemical spike dosing and dissolved silicon loading decay *(new)* |
+
 ## Stack
 
-Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-react · Fuse.js · Vitest
+Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-react · Fuse.js · KaTeX · ExcelJS · jsPDF · Vitest
 
 All calculations are client-side. There is no account, database, payment or server-side compute.
 
@@ -68,9 +132,14 @@ All calculations are client-side. There is no account, database, payment or serv
 src/
   app/                      routes, metadata, sitemap, robots, 404
     tools/<slug>/page.tsx   server component: per-tool metadata + SEO content, renders the calculator
+    api/og/route.tsx        dynamic Open Graph card per tool (title + category params)
   components/
-    shell/                  AppShell, ToolSidebar, CommandPalette (layout around every page)
-    tools/                  ToolCard, FavoriteButton, ToolPageShell, ToolExplorer, FavoritesSection, UnitConverter, SeriesField
+    shell/                  AppShell, ToolSidebar, CommandPalette, LanguagePicker (layout around every page)
+    common/                 ModalShell (accessible modal primitive), EngineeringHandbookModal,
+                            EngineeringTravelerModal, FabScratchpadModal, FabWorkspaceModal,
+                            VirtualGenealogyModal
+    tools/                  ToolCard, FavoriteButton, ToolPageShell, ToolExplorer, FavoritesSection,
+                            UnitConverter, SeriesField, ProcessWorkflowBar, FabMetrologyImportModal
   lib/                      pure calculation + platform logic (no React)
     units.ts                shared length units (angstrom, nm, um, mil, mm, cm, inch, m) and their conversions
     wafer.ts                die estimation, wafer map generation, geometry validation
@@ -101,12 +170,24 @@ src/
     sampling.ts             binomial and hypergeometric acceptance probabilities
     format.ts               shared result-panel number formatting
     marking.ts              wafer mark formatting
+    code39.ts               Code-39 barcode encoding for the traveler
     yield.ts                yield / reject rate
     yield-model.ts          Poisson / Murphy / Seeds yield models and their inverses
     die-cost.ts             cost per gross die, cost per good die, scrap cost
     capability.ts           Cp / Cpk and the normal-distribution out-of-spec fraction
     confidence.ts           Wilson and Clopper-Pearson binomial intervals, sample size
     throughput.ts           single-step wafers per hour and OEE
+    export.ts               shared CSV / SVG / PDF / XLSX download helpers
+    stdf-parser.ts          ATE STDF V4 record parsing (PTR / PRR / MIR, bins, wafers)
+    klarf-parser.ts         KLA KLARF 1.x defect/wafer parsing
+    metrology-batch.ts      metrology CSV parsing, limit auto-detection, Tukey / 3-sigma outlier screening
+    fab-session.ts          unified Fab Workspace session store (film stack, genealogy lot,
+                            metrology summary, workflow progress, custom flows; localStorage)
+    film-stack.ts           film stack project model
+    lot-genealogy.ts        virtual lot genealogy model
+    use-url-state.ts        hook that serialises tool inputs to URL query params (replaceState)
+    i18n/                   locale resolution + translations; dictionaries/ (shell strings) and
+                            tool-dictionaries/ (per-tool strings), one lazy-loaded file per locale
     search.ts               Fuse.js wrapper used by the palette and the toolbox page
     favorites.ts            favourite tools store (localStorage, useSyncExternalStore)
     preferences.ts          persisted UI preferences (collapsed categories / rail)
@@ -122,11 +203,38 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 ### Adding a tool
 
 1. Create `src/tools/<slug>/index.ts` with `defineTool({...})` and `src/tools/<slug>/Calculator.tsx` with the UI.
-2. Add the tool to `src/tools/index.ts`.
+2. Add the tool to `src/tools/index.ts` with one of the canonical categories (the strings `translateCategory` knows).
 3. Create `src/app/tools/<slug>/page.tsx` that exports `metadata` and renders `<ToolPageShell tool={tool} faq={[...]}>`.
-4. Put every calculation in `src/lib/` and unit-test it; keep the component a thin shell.
+4. Add the tool's name and description to all five files in `src/lib/i18n/tool-dictionaries/` (`en`, `zh-CN`, `zh-TW`, `ko`, `ja`).
+5. Put every calculation in `src/lib/` and unit-test it; keep the component a thin shell. Serialise inputs with `useUrlParamsState` and wire copy buttons to `useCopyToClipboard`.
 
-`src/lib/registry.test.ts` fails if a registered tool has no matching route, a duplicate path, or no keywords, and `getRelatedTools` is covered as well.
+`src/lib/registry.test.ts` fails if a registered tool has no matching route, a duplicate path, or no keywords, `getRelatedTools` is covered as well, and `src/lib/i18n/i18n.test.ts` fails when a registered tool is missing from any locale's tool dictionary.
+
+## Internationalization (i18n)
+
+Five locales — English, 简体中文, 繁體中文, 한국어 and 日本語 — with client-side switching (no per-locale routes). Shell/UI strings live in `src/lib/i18n/dictionaries/` and per-tool strings in `src/lib/i18n/tool-dictionaries/`; both are split one file per locale and loaded lazily, so a visitor downloads only their own language. Search, the command palette, tool pages and the modals are all localized.
+
+## Fab Workspace
+
+A persistent cleanroom workspace layered over the calculators, driven by global Alt shortcuts (Alt on purpose: the Ctrl equivalents are browser-reserved):
+
+| Shortcut | Opens |
+| --- | --- |
+| Alt + H | Engineering handbook |
+| Alt + T | Lot traveler (mounts inside tool pages) |
+| Alt + S | Scratchpad |
+| Alt + G | Virtual lot genealogy |
+| Alt + W | Fab workspace (film stack project) |
+| `?` | Shortcuts guide |
+| Ctrl/Cmd + K | Command palette |
+
+Everything shares one fab session (`semitools_fab_session_v1` in `localStorage`): the film-stack project, the genealogy lot, the latest metrology import summary, per-flow workflow progress and user-defined custom flows. The scratchpad is persisted separately and `?` lists every shortcut.
+
+## Data import & export
+
+- **Export:** CSV from the data tools, SVG from the wafer map, and real XLSX (ExcelJS) / PDF (jsPDF) downloads where a file beats a clipboard copy; `src/lib/export.ts` is the shared implementation.
+- **Import:** ATE STDF V4 and KLARF 1.x files parse in the browser — a wafer map on the wafer-map generator and full per-test statistics, bin distribution and yield in the STDF / KLARF Explorer.
+- **Metrology CSV import** parses subgroup matrices and long wafer-site tables, auto-detects target / limits / unit, screens outliers (Tukey IQR or 3-sigma) and bridges the cleaned statistics into the SPC and process-capability tools.
 
 ## Accuracy policy
 
@@ -176,7 +284,7 @@ npm run dev     # local development
 npm run build   # production build
 npm run start   # serve the production build
 npm run lint    # ESLint
-npm run test    # Vitest (unit tests for lib + registry)
+npm run test    # Vitest: 82 test files / 690+ tests across lib, registry, i18n, parsers and components
 ```
 
 CI (`.github/workflows/ci.yml`) runs lint, test and build on every push and pull request.
@@ -185,6 +293,10 @@ CI (`.github/workflows/ci.yml`) runs lint, test and build on every push and pull
 
 Per-tool metadata (title, description, keywords, canonical, Open Graph), one H1 per page, FAQ blocks emitted as `FAQPage` JSON-LD alongside `SoftwareApplication`, `sitemap.xml`, `robots.txt` and a 404 page. The canonical host comes from `NEXT_PUBLIC_SITE_URL` (default `https://semitool.vercel.app`).
 
+## Social preview
+
+Every tool gets a dynamic Open Graph card from the `/api/og` route (title and category as query parameters), rendered with `next/og`.
+
 ## Privacy
 
-No analytics, no cookies, no server-side storage of inputs. Favourites and sidebar preferences stay in `localStorage`.
+No analytics, no cookies, no server-side storage of inputs. Favourites, sidebar preferences, locale, the Fab Workspace session and the scratchpad stay in `localStorage`.
