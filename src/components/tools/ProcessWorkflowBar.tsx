@@ -2,11 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Workflow, CheckCircle2, Zap } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp, Plus, Trash2, Workflow, CheckCircle2, Zap } from 'lucide-react';
 import { useLocale, type SupportedLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 import { translateToolName } from '@/lib/i18n/tool-translations';
-
+import {
+  addCustomFlow,
+  removeCustomFlow,
+  toggleFlowStep,
+  useFabSession,
+  type CustomFlow,
+} from '@/lib/fab-session';
+import { tools } from '@/tools';
 export interface WorkflowStep {
   toolPath: string;
   nameEn: string;
@@ -318,64 +325,244 @@ interface ProcessWorkflowBarProps {
   currentToolPath: string;
 }
 
+/** Adapts a session custom flow's tool paths into renderable steps. */
+function customFlowToSteps(flow: CustomFlow): WorkflowStep[] {
+  return flow.toolPaths.map((toolPath) => {
+    const tool = tools.find((candidate) => candidate.path === toolPath);
+    return {
+      toolPath,
+      nameEn: tool?.name ?? toolPath,
+      nameZh: '',
+      stageName: tool?.category ?? '',
+      description: tool?.description ?? '',
+    };
+  });
+}
+
 export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps) {
   const locale = useLocale();
   const t = getTranslation(locale);
+  const session = useFabSession();
   const [currentQuery, setCurrentQuery] = useState<Record<string, string>>({});
+  const [builderOpen, setBuilderOpen] = useState(false);
+  const [flowName, setFlowName] = useState('');
+  const [pickedTools, setPickedTools] = useState<string[]>([]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search);
+    if (typeof window === 'undefined') return;
+    // Deferred out of the effect body (react-hooks/set-state-in-effect): the read
+    // is synchronous, the state update lands on the next microtask.
+    const taskId = queueMicrotask(() => {
       const params: Record<string, string> = {};
-      searchParams.forEach((val, key) => {
+      new URLSearchParams(window.location.search).forEach((val, key) => {
         params[key] = val;
       });
       setCurrentQuery(params);
-    }
+    });
+    return () => taskId;
   }, [currentToolPath]);
 
-  // Find if current tool is part of any known flow
-  const matchingFlow = FAB_FLOWS.find((f) =>
-    f.steps.some((step) => step.toolPath === currentToolPath)
-  );
+  const customFlows: Array<{ flow: CustomFlow; steps: WorkflowStep[] }> = session.customFlows
+    .map((flow) => ({ flow, steps: customFlowToSteps(flow) }))
+    .filter((entry) => entry.steps.some((step) => step.toolPath === currentToolPath));
 
-  if (!matchingFlow) return null;
+  const presetMatch = FAB_FLOWS.find((f) => f.steps.some((step) => step.toolPath === currentToolPath));
 
-  const currentIndex = matchingFlow.steps.findIndex((s) => s.toolPath === currentToolPath);
-  const nextStep = currentIndex >= 0 && currentIndex < matchingFlow.steps.length - 1
-    ? matchingFlow.steps[currentIndex + 1]
-    : null;
+  if (!presetMatch && customFlows.length === 0) return null;
 
-  /**
-   * Helper to build destination URL passing mapped or inherited query parameters
-   */
-  const buildStepHref = (step: WorkflowStep) => {
-    const nextParams = new URLSearchParams();
+  const matchingPresets = presetMatch ? [presetMatch] : [];
 
-    // 1. Inherit universal fab parameters if present
-    const inheritedKeys = ['waferDiameter', 'filmThickness', 'targetThickness', 'temperature', 'lotId'];
-    inheritedKeys.forEach((key) => {
-      if (currentQuery[key]) {
-        nextParams.set(key, currentQuery[key]);
-      }
-    });
+  const renderFlowCard = (flowId: string, title: string, steps: WorkflowStep[]) => {
+    const currentIndex = steps.findIndex((s) => s.toolPath === currentToolPath);
+    const nextStep = currentIndex >= 0 && currentIndex < steps.length - 1 ? steps[currentIndex + 1] : null;
+    const completed = new Set(session.flowProgress[flowId] ?? []);
+    const doneCount = steps.reduce((acc, _, idx) => acc + (completed.has(idx) ? 1 : 0), 0);
 
-    // 2. Apply custom pipeline parameter mapper if specified
-    if (step.paramMap) {
-      const mapped = step.paramMap(currentQuery);
-      Object.entries(mapped).forEach(([k, v]) => {
-        if (v !== undefined && v !== '') {
-          nextParams.set(k, v);
-        }
+    const buildStepHref = (step: WorkflowStep) => {
+      const nextParams = new URLSearchParams();
+      const inheritedKeys = ['waferDiameter', 'filmThickness', 'targetThickness', 'temperature', 'lotId'];
+      inheritedKeys.forEach((key) => {
+        if (currentQuery[key]) nextParams.set(key, currentQuery[key]);
       });
-    }
+      if (step.paramMap) {
+        const mapped = step.paramMap(currentQuery);
+        Object.entries(mapped).forEach(([k, v]) => {
+          if (v !== undefined && v !== '') nextParams.set(k, v);
+        });
+      }
+      const qs = nextParams.toString();
+      return qs ? `${step.toolPath}?${qs}` : step.toolPath;
+    };
 
-    const qs = nextParams.toString();
-    return qs ? `${step.toolPath}?${qs}` : step.toolPath;
+    const nextStepHref = nextStep ? buildStepHref(nextStep) : '';
+    const hasPipedParams = nextStepHref.includes('?');
+    const isCustomFlow = session.customFlows.some((f) => f.id === flowId);
+
+    return (
+      <div
+        key={flowId}
+        style={{
+          padding: '0.9rem',
+          borderRadius: '8px',
+          backgroundColor: 'var(--card, #ffffff)',
+          border: '1px solid var(--line, #dbe2e4)',
+          marginBottom: '0.7rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.7rem' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--ink, #152127)' }}>{title}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                padding: '0.1rem 0.5rem',
+                borderRadius: '999px',
+                backgroundColor: doneCount === steps.length && steps.length > 0 ? 'rgba(5, 150, 105, 0.12)' : 'rgba(13, 124, 130, 0.1)',
+                color: doneCount === steps.length && steps.length > 0 ? '#059669' : 'var(--teal-dark, #0a5f66)',
+              }}
+            >
+              <CheckCircle2 size={12} />
+              {t.wfStepsDone.replace('{done}', String(doneCount)).replace('{total}', String(steps.length))}
+            </span>
+            {isCustomFlow && (
+              <button
+                type="button"
+                onClick={() => removeCustomFlow(flowId)}
+                title={t.wfDeleteFlow}
+                aria-label={t.wfDeleteFlow}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-soft, #475569)', display: 'inline-flex', padding: '0.15rem' }}
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.4rem', marginBottom: '0.7rem' }}>
+          {steps.map((step, idx) => {
+            const isCurrent = step.toolPath === currentToolPath;
+            const isDone = completed.has(idx);
+            const targetHref = isCurrent ? '#' : buildStepHref(step);
+
+            return (
+              <React.Fragment key={`${step.toolPath}-${idx}`}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => toggleFlowStep(flowId, idx)}
+                    title={t.wfToggleStep}
+                    aria-label={`${t.wfToggleStep}: ${translateToolName(step.toolPath, locale) || step.nameEn}`}
+                    aria-pressed={isDone}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '0.1rem',
+                      color: isDone ? '#059669' : 'var(--line-strong, #cbd5e1)',
+                      display: 'inline-flex',
+                    }}
+                  >
+                    <CheckCircle2 size={14} />
+                  </button>
+                  <Link
+                    href={targetHref}
+                    style={{
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      padding: '0.35rem 0.65rem',
+                      borderRadius: '6px',
+                      fontSize: '0.75rem',
+                      fontWeight: isCurrent ? 700 : 500,
+                      color: isCurrent
+                        ? 'var(--card, #ffffff)'
+                        : isDone
+                        ? 'var(--teal-dark, #0a5f66)'
+                        : 'var(--ink-soft, #475569)',
+                      backgroundColor: isCurrent
+                        ? 'var(--teal, #0d7c82)'
+                        : isDone
+                        ? 'rgba(13, 124, 130, 0.1)'
+                        : 'var(--card, #ffffff)',
+                      border: isCurrent ? '1px solid var(--teal, #0d7c82)' : '1px solid var(--line, #dbe2e4)',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <span>{idx + 1}.</span>
+                    <span>{translateToolName(step.toolPath, locale) || step.nameEn}</span>
+                  </Link>
+                </span>
+                {idx < steps.length - 1 && <span style={{ color: 'var(--line-strong, #cbd5e1)', fontSize: '0.75rem' }}>→</span>}
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {nextStep && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.75rem 1rem',
+              backgroundColor: 'var(--paper, #f7f9f9)',
+              borderRadius: '6px',
+              border: '1px solid var(--teal, #0d7c82)',
+              flexWrap: 'wrap',
+              gap: '0.6rem',
+            }}
+          >
+            <div>
+              <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--teal, #0d7c82)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span>{t.recommendedNextModule}:</span>
+                {hasPipedParams && (
+                  <span style={{ color: 'var(--amber, #d97706)', fontWeight: 500 }}>({t.pipeParamsForward})</span>
+                )}
+              </div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--ink, #152127)' }}>
+                {translateToolName(nextStep.toolPath, locale) || nextStep.nameEn} {nextStep.stageName ? `(${nextStep.stageName})` : ''}
+              </div>
+              {nextStep.description && (
+                <div style={{ fontSize: '0.76rem', color: 'var(--ink-soft, #475569)' }}>{nextStep.description}</div>
+              )}
+            </div>
+            <Link
+              href={nextStepHref}
+              className="button primary sm"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', whiteSpace: 'nowrap' }}
+            >
+              <span>{t.proceedToNextStep}</span>
+              <ArrowRight size={13} />
+            </Link>
+          </div>
+        )}
+      </div>
+    );
   };
 
-  const nextStepHref = nextStep ? buildStepHref(nextStep) : '';
-  const hasPipedParams = nextStepHref.includes('?');
+  const saveCustomFlow = () => {
+    if (!flowName.trim() || pickedTools.length < 2) return;
+    addCustomFlow(flowName.trim(), pickedTools);
+    setFlowName('');
+    setPickedTools([]);
+    setBuilderOpen(false);
+  };
+
+  const movePicked = (index: number, delta: number) => {
+    setPickedTools((prev) => {
+      const next = [...prev];
+      const target = index + delta;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  };
 
   return (
     <div
@@ -393,7 +580,7 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Workflow size={17} color="var(--teal, #0d7c82)" />
           <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600, color: 'var(--teal-dark, #0a5f66)' }}>
-            {t.stdProcessFlow}
+            {matchingPresets.length > 0 ? t.stdProcessFlow : t.wfCustomFlows}
           </span>
           {Object.keys(currentQuery).length > 0 && (
             <span
@@ -415,124 +602,125 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
             </span>
           )}
         </div>
-        <span style={{ fontSize: '0.78rem', color: 'var(--ink-soft, #475569)', fontWeight: 500 }}>
-          {locale === 'zh-TW'
-            ? (matchingFlow.titleZhTw || matchingFlow.titleZh)
-            : locale === 'zh-CN'
-            ? matchingFlow.titleZh
-            : locale === 'ja'
-            ? (matchingFlow.titleJa || matchingFlow.titleEn)
-            : locale === 'ko'
-            ? (matchingFlow.titleKo || matchingFlow.titleEn)
-            : matchingFlow.titleEn}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+          {matchingPresets.length > 0 && (
+            <span style={{ fontSize: '0.78rem', color: 'var(--ink-soft, #475569)', fontWeight: 500 }}>
+              {locale === 'zh-TW'
+                ? (matchingPresets[0].titleZhTw || matchingPresets[0].titleZh)
+                : locale === 'zh-CN'
+                ? matchingPresets[0].titleZh
+                : locale === 'ja'
+                ? (matchingPresets[0].titleJa || matchingPresets[0].titleEn)
+                : locale === 'ko'
+                ? (matchingPresets[0].titleKo || matchingPresets[0].titleEn)
+                : matchingPresets[0].titleEn}
+            </span>
+          )}
+          <button
+            type="button"
+            className="button secondary sm"
+            onClick={() => setBuilderOpen((prev) => !prev)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.72rem' }}
+          >
+            <Plus size={12} />
+            {t.wfNewCustomFlow}
+          </button>
         </span>
       </div>
 
-      {/* Workflow Step Sequence Pills */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.4rem',
-          overflowX: 'auto',
-          paddingBottom: '0.4rem',
-          marginBottom: '0.8rem',
-        }}
-      >
-        {matchingFlow.steps.map((step, idx) => {
-          const isCurrent = step.toolPath === currentToolPath;
-          const isPast = idx < currentIndex;
-          const targetHref = isCurrent ? '#' : buildStepHref(step);
-
-          return (
-            <React.Fragment key={step.toolPath}>
-              <Link
-                href={targetHref}
-                style={{
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  padding: '0.35rem 0.65rem',
-                  borderRadius: '6px',
-                  fontSize: '0.75rem',
-                  fontWeight: isCurrent ? 700 : 500,
-                  color: isCurrent
-                    ? 'var(--card, #ffffff)'
-                    : isPast
-                    ? 'var(--teal-dark, #0a5f66)'
-                    : 'var(--ink-soft, #475569)',
-                  backgroundColor: isCurrent
-                    ? 'var(--teal, #0d7c82)'
-                    : isPast
-                    ? 'rgba(13, 124, 130, 0.1)'
-                    : 'var(--card, #ffffff)',
-                  border: isCurrent
-                    ? '1px solid var(--teal, #0d7c82)'
-                    : '1px solid var(--line, #dbe2e4)',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {isPast ? <CheckCircle2 size={12} color="#059669" /> : <span>{idx + 1}.</span>}
-                <span>{translateToolName(step.toolPath, locale) || (locale === 'zh-TW' || locale === 'zh-CN' ? step.nameZh : step.nameEn)}</span>
-              </Link>
-              {idx < matchingFlow.steps.length - 1 && (
-                <span style={{ color: 'var(--line-strong, #cbd5e1)', fontSize: '0.75rem' }}>→</span>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </div>
-
-      {/* Suggested Next Step Banner */}
-      {nextStep && (
+      {builderOpen && (
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0.75rem 1rem',
+            padding: '0.9rem',
+            borderRadius: '8px',
             backgroundColor: 'var(--card, #ffffff)',
-            borderRadius: '6px',
-            border: '1px solid var(--teal, #0d7c82)',
-            marginTop: '0.4rem',
-            flexWrap: 'wrap',
+            border: '1px dashed var(--line-strong, #cbd5e1)',
+            marginBottom: '0.8rem',
+            display: 'flex',
+            flexDirection: 'column',
             gap: '0.6rem',
           }}
         >
-          <div>
-            <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--teal, #0d7c82)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>{t.recommendedNextModule}:</span>
-              {hasPipedParams && (
-                <span style={{ color: 'var(--amber, #d97706)', fontWeight: 500 }}>
-                  ({t.pipeParamsForward})
-                </span>
-              )}
-            </div>
-            <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--ink, #152127)' }}>
-              {translateToolName(nextStep.toolPath, locale) || (locale === 'zh-TW' || locale === 'zh-CN' ? nextStep.nameZh : nextStep.nameEn)} ({nextStep.stageName})
-            </div>
-            <div style={{ fontSize: '0.76rem', color: 'var(--ink-soft, #475569)' }}>
-              {nextStep.description}
-            </div>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              value={flowName}
+              onChange={(e) => setFlowName(e.target.value)}
+              placeholder={t.wfFlowNameLabel}
+              aria-label={t.wfFlowNameLabel}
+              style={{ flex: '1 1 180px', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--line, #dbe2e4)', fontSize: '0.8rem' }}
+            />
+            <select
+              value=""
+              aria-label={t.wfPickToolsLabel}
+              onChange={(e) => {
+                if (e.target.value) setPickedTools((prev) => (prev.includes(e.target.value) ? prev : [...prev, e.target.value]));
+              }}
+              style={{ flex: '1 1 220px', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--line, #dbe2e4)', fontSize: '0.8rem' }}
+            >
+              <option value="">{t.wfPickToolsLabel}</option>
+              {tools.map((tool) => (
+                <option key={tool.path} value={tool.path}>
+                  {`${tool.category} — ${translateToolName(tool.path, locale) || tool.name}`}
+                </option>
+              ))}
+            </select>
           </div>
-          <Link
-            href={nextStepHref}
-            className="button primary sm"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.78rem',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <span>{t.proceedToNextStep}</span>
-            <ArrowRight size={13} />
-          </Link>
+
+          {pickedTools.length > 0 && (
+            <ol style={{ margin: 0, paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', fontSize: '0.78rem' }}>
+              {pickedTools.map((toolPath, idx) => (
+                <li key={toolPath} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span style={{ flex: 1, color: 'var(--ink, #152127)' }}>
+                    {translateToolName(toolPath, locale)}
+                    {toolPath === currentToolPath ? ' ←' : ''}
+                  </span>
+                  <button type="button" onClick={() => movePicked(idx, -1)} disabled={idx === 0} aria-label="Move step up" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem' }}>
+                    <ChevronUp size={14} />
+                  </button>
+                  <button type="button" onClick={() => movePicked(idx, 1)} disabled={idx === pickedTools.length - 1} aria-label="Move step down" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem' }}>
+                    <ChevronDown size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPickedTools((prev) => prev.filter((p) => p !== toolPath))}
+                    aria-label="Remove step"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-soft, #475569)', padding: '0.1rem' }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </li>
+              ))}
+            </ol>
+          )}
+
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              type="button"
+              className="button primary sm"
+              onClick={saveCustomFlow}
+              disabled={!flowName.trim() || pickedTools.length < 2}
+              style={{ fontSize: '0.75rem' }}
+            >
+              {t.wfSaveFlow}
+            </button>
+            <button
+              type="button"
+              className="button secondary sm"
+              onClick={() => {
+                setBuilderOpen(false);
+                setFlowName('');
+                setPickedTools([]);
+              }}
+              style={{ fontSize: '0.75rem' }}
+            >
+              {t.wfCancelFlow}
+            </button>
+          </div>
         </div>
       )}
+
+      {matchingPresets.map((flow) => renderFlowCard(flow.id, flow.titleEn, flow.steps))}
+      {customFlows.map((entry) => renderFlowCard(entry.flow.id, entry.flow.name, entry.steps))}
     </div>
   );
 }

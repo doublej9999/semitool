@@ -9,6 +9,10 @@
  * - Project serialization, versioning, and cross-tool parameter bridges
  */
 
+// Persistence is delegated to the unified Fab session store (write-through to
+// localStorage under semitools_fab_session_v1). Type-only import: no runtime cycle.
+import { getFabSession, setActiveProject } from './fab-session';
+
 export type SubstrateMaterial = 'si100' | 'si111' | 'sic4h' | 'gaas' | 'sapphire' | 'gan' | 'fused_silica';
 
 export interface SubstrateProperties {
@@ -446,6 +450,7 @@ export const INDUSTRIAL_STACK_TEMPLATES: Record<string, Omit<FilmStackProject, '
 
 export const LOCAL_STORAGE_WORKSPACE_KEY = 'semitools_fab_workspace_project_v1';
 
+
 /**
  * Creates a default blank project with 300mm Silicon substrate.
  */
@@ -468,13 +473,20 @@ export function createDefaultFilmStackProject(name = 'New Wafer Project'): FilmS
 }
 
 /**
- * Loads the active project from LocalStorage or returns a default project.
+ * Loads the active project from the unified Fab session (which migrates the
+ * legacy standalone key on first load) or returns a default project.
  */
 export function loadActiveWorkspaceProject(): FilmStackProject {
   if (typeof window === 'undefined') {
     return createDefaultFilmStackProject();
   }
 
+  const sessionProject = getFabSession().activeProject;
+  if (sessionProject) {
+    return sessionProject;
+  }
+
+  // Fall back to the legacy standalone key for users whose session was never hydrated.
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_WORKSPACE_KEY);
     if (!raw) return createDefaultFilmStackProject();
@@ -490,14 +502,11 @@ export function loadActiveWorkspaceProject(): FilmStackProject {
 }
 
 /**
- * Saves the active project to LocalStorage.
+ * Saves the active project into the unified Fab session (write-through to
+ * localStorage) instead of the legacy standalone key.
  */
 export function saveActiveWorkspaceProject(project: FilmStackProject): void {
   if (typeof window === 'undefined') return;
   project.updatedAtIso = new Date().toISOString();
-  try {
-    localStorage.setItem(LOCAL_STORAGE_WORKSPACE_KEY, JSON.stringify(project));
-  } catch (err) {
-    console.error('Failed to save workspace project to localStorage:', err);
-  }
+  setActiveProject(project);
 }

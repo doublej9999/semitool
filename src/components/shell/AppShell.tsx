@@ -16,6 +16,7 @@ import ToolSidebar from './ToolSidebar';
 import { useHydrateLocale, useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 import { useHydrateFavorites } from '@/lib/favorites';
+import { useHydrateFabSession } from '@/lib/fab-session';
 import { setGloveMode, setRailCollapsed, useGloveMode, useHydratePreferences, useRailCollapsed } from '@/lib/preferences';
 import { TRAVELER_OPEN_EVENT } from '@/lib/shell-events';
 import { REPO_URL, SITE_NAME } from '@/lib/site';
@@ -38,6 +39,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   useHydrateFavorites();
   useHydratePreferences();
   useHydrateLocale();
+  useHydrateFabSession();
 
   // Global cleanroom keyboard shortcuts. Alt-based on purpose: the old Ctrl+T/W/S/H
   // combos are browser-reserved (new tab / close tab / save / history) and cannot be

@@ -53,6 +53,17 @@ export interface Translations {
   scPalette: string;
   scShowShortcuts: string;
 
+  // Process workflow bar
+  wfCustomFlows: string;
+  wfNewCustomFlow: string;
+  wfFlowNameLabel: string;
+  wfPickToolsLabel: string;
+  wfSaveFlow: string;
+  wfCancelFlow: string;
+  wfDeleteFlow: string;
+  wfStepsDone: string;
+  wfToggleStep: string;
+
   // Common UI
   inputs: string;
   results: string;
@@ -245,6 +256,58 @@ export interface Translations {
     notFoundHeading: string;
     notFoundLead: string;
     notFoundBrowseBtn: string;
+
+  // Fab Workspace
+  fabWsTitle: string;
+  fabWsSubtitle: string;
+  fabWsTemplates: string;
+  fabWsExport: string;
+  fabWsExportTitle: string;
+  fabWsImport: string;
+  fabWsImportTitle: string;
+  fabWsReset: string;
+  fabWsResetTitle: string;
+  fabWsTotalFilmThick: string;
+  fabWsNetAvgStress: string;
+  fabWsWaferBowWarp: string;
+  fabWsCharDiffLength: string;
+  fabWsLayerCrossSection: string;
+  fabWsNoFilmsVisual: string;
+  fabWsSubstrateMaterial: string;
+  fabWsWaferDiameter: string;
+  fabWsSubstrateThick: string;
+  fabWsFilmStackSteps: string;
+  fabWsAddLayer: string;
+  fabWsEmptyStackPrompt: string;
+  fabWsEditLayerParams: string;
+  fabWsLayerName: string;
+  fabWsMaterial: string;
+  fabWsThickness: string;
+  fabWsStress: string;
+  fabWsRefractiveIndex: string;
+  fabWsProcess: string;
+  fabWsAutoSavedNotice: string;
+  fabWsDoneClose: string;
+  fabWsStressTensile: string;
+  fabWsStressCompressive: string;
+  fabWsStressNeutral: string;
+  /** {bow} is replaced with the absolute wafer bow in µm. */
+  fabWsSevereWarp: string;
+  /** {bow} is replaced with the absolute wafer bow in µm. */
+  fabWsModerateWarp: string;
+  fabWsSubSi100: string;
+  fabWsSubSi111: string;
+  fabWsSubSiC4h: string;
+  fabWsSubGaas: string;
+  fabWsSubSapphire: string;
+  fabWsSubGan: string;
+  fabWsSubFusedSilica: string;
+  fabWsLinkedLot: string;
+  fabWsNoLotLinked: string;
+  /** {count} is replaced with the number of lot genealogy branches. */
+  fabWsBranchesLabel: string;
+  fabWsLinkedMetrology: string;
+  fabWsNoMetrology: string;
 }
 
 export interface ToolTranslation {

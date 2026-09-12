@@ -21,6 +21,7 @@ import {
   generateGenealogyCsv,
   evaluateBranchMetrology,
 } from '@/lib/lot-genealogy';
+import { setActiveLot, useFabSession } from '@/lib/fab-session';
 import ModalShell from '@/components/common/ModalShell';
 
 interface VirtualGenealogyModalProps {
@@ -30,7 +31,6 @@ interface VirtualGenealogyModalProps {
   currentToolPath?: string;
 }
 
-const STORAGE_KEY = 'semitools_lot_genealogy_active';
 const GENEALOGY_I18N = {
   en: {
     title: 'Virtual Lot Genealogy & Multi-Step Traveler',
@@ -169,6 +169,8 @@ const GENEALOGY_I18N = {
   },
 };
 
+const DEFAULT_GENEALOGY_LOT: LotGenealogy = createNewLot('LOT-W7409-A', 'SOC-N3-GPU', 300, 25, 'FOUP-08');
+
 export function VirtualGenealogyModal({
   isOpen,
   onClose,
@@ -177,32 +179,22 @@ export function VirtualGenealogyModal({
 }: VirtualGenealogyModalProps) {
   const locale = useLocale();
   const m = GENEALOGY_I18N[locale] || GENEALOGY_I18N.en;
-  const [lot, setLot] = useState<LotGenealogy>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          // fallback
-        }
-      }
-    }
-    return createNewLot('LOT-W7409-A', 'SOC-N3-GPU', 300, 25, 'FOUP-08');
-  });
+  const session = useFabSession();
+  // Local working copy wins until the next mutation; otherwise follow the unified
+  // session (hydrated after mount) and finally the demo lot. Every mutation is
+  // written straight through to the session store, which persists to localStorage.
+  const [localLot, setLocalLot] = useState<LotGenealogy | null>(null);
+  const lot = localLot ?? session.activeLot ?? DEFAULT_GENEALOGY_LOT;
+  const updateLot = (next: LotGenealogy): void => {
+    setLocalLot(next);
+    setActiveLot(next);
+  };
 
   const [activeBranchId, setActiveBranchId] = useState<string>('main');
   const [showSplitDialog, setShowSplitDialog] = useState<boolean>(false);
   const [splitNameInput, setSplitNameInput] = useState<string>('');
   const [splitSlotsInput, setSplitSlotsInput] = useState<string>('13-25');
   const [splitNotesInput, setSplitNotesInput] = useState<string>('');
-
-  // Persist lot changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lot));
-    }
-  }, [lot]);
 
   // Keep activeBranchId valid when the lot is replaced. React-recommended
   // "adjust state when tracked state changes" pattern: compare against the
@@ -226,7 +218,7 @@ export function VirtualGenealogyModal({
     if (!lotId) return;
     const partNo = prompt(m.promptPartNo, 'N3-TEST-CHIP') || 'DEV-PART';
     const newLot = createNewLot(lotId, partNo, 300, 25);
-    setLot(newLot);
+    updateLot(newLot);
     setActiveBranchId('main');
   };
 
@@ -265,7 +257,7 @@ export function VirtualGenealogyModal({
       notes: m.busNotes,
     });
 
-    setLot(updated);
+    updateLot(updated);
   };
 
   const handleExecuteSplit = () => {
@@ -300,7 +292,7 @@ export function VirtualGenealogyModal({
 
     try {
       const updated = splitLotBranch(lot, activeBranchId, splitNameInput, slots, splitNotesInput);
-      setLot(updated);
+      updateLot(updated);
       setShowSplitDialog(false);
       setSplitNameInput('');
       setSplitNotesInput('');

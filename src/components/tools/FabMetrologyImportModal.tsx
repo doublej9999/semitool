@@ -21,6 +21,7 @@ import {
   generateFabSampleCsv,
   type MetrologyDataset,
 } from '@/lib/metrology-batch';
+import { setLastMetrology } from '@/lib/fab-session';
 import { downloadCsv } from '@/lib/export';
 import ModalShell from '@/components/common/ModalShell';
 
@@ -80,7 +81,24 @@ export default function FabMetrologyImportModal({
     setInputText(sample);
   };
 
+  const recordMetrologyToSession = (): void => {
+    if (!hasData) return;
+    setLastMetrology({
+      source: `Fab Metrology Import (${typeof window !== 'undefined' ? window.location.pathname : ''})`,
+      subgroupCount: dataset.subgroups.length,
+      totalPoints: stats.count,
+      mean: Number(effectiveMean.toFixed(4)),
+      stdDev: Number(effectiveStdDev.toFixed(4)),
+      outlierMethod,
+      target: dataset.limits.target,
+      lsl: dataset.limits.lsl,
+      usl: dataset.limits.usl,
+      timestampIso: new Date().toISOString(),
+    });
+  };
+
   const handleApply = () => {
+    recordMetrologyToSession();
     if (onApplySubgroups && dataset.subgroups.length > 0) {
       onApplySubgroups(formatSubgroupsForSpc(dataset.subgroups));
     }
@@ -482,6 +500,7 @@ export default function FabMetrologyImportModal({
               >
                 <a
                   href={spcUrl}
+                  onClick={recordMetrologyToSession}
                   target="_blank"
                   rel="noreferrer"
                   className="button outline sm"
@@ -500,6 +519,7 @@ export default function FabMetrologyImportModal({
 
                 <a
                   href={capabilityUrl}
+                  onClick={recordMetrologyToSession}
                   target="_blank"
                   rel="noreferrer"
                   className="button outline sm"
