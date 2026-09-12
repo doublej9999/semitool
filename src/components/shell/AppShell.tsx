@@ -39,6 +39,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       document.body.style.overflow = previous;
     };
   }, [drawerOpen]);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      navigator.serviceWorker.register('/sw.js').catch((error) => {
+        console.error('Service worker registration failed:', error);
+      });
+    }
+  }, []);
 
   const shellClass = ['app-shell', railCollapsed ? 'is-rail-collapsed' : '', drawerOpen ? 'is-drawer-open' : '']
     .filter(Boolean)

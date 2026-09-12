@@ -1,4 +1,5 @@
 import ToolCard from './ToolCard';
+import ToolPageActions from './ToolPageActions';
 import { getRelatedTools } from '@/tools';
 import { absoluteUrl } from '@/lib/site';
 import type { Tool } from '@/tools/tools.types';
@@ -23,9 +24,6 @@ interface ToolPageShellProps {
  * Layout shared by every tool page (it-tools `tool.layout.vue` equivalent):
  * category eyebrow + H1 + separator + description, then the tool itself, then
  * the SEO content blocks (formula, notes, FAQ, related tools).
- *
- * Keeping the header and the related-tool list here means every new tool gets
- * a consistent H1, an internal link cluster and a FAQ block for free.
  */
 export default function ToolPageShell({ tool, faq, formula, notes, children }: ToolPageShellProps) {
   const related = getRelatedTools(tool.path);
@@ -65,6 +63,7 @@ export default function ToolPageShell({ tool, faq, formula, notes, children }: T
         <h1>{tool.name}</h1>
         <span className="tool-page-separator" aria-hidden="true" />
         <p className="tool-page-desc">{tool.description}</p>
+        <ToolPageActions toolName={tool.name} />
       </header>
 
       <div className="tool-page-content">{children}</div>
@@ -100,8 +99,8 @@ export default function ToolPageShell({ tool, faq, formula, notes, children }: T
       <section className="related-tools" aria-labelledby="related-heading">
         <h2 id="related-heading">Related tools</h2>
         <div className="tool-grid">
-          {related.map((relatedTool) => (
-            <ToolCard key={relatedTool.path} path={relatedTool.path} />
+          {related.map((candidate) => (
+            <ToolCard key={candidate.path} path={candidate.path} />
           ))}
         </div>
       </section>
