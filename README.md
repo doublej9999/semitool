@@ -46,7 +46,8 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Weibull Life Calculator | `/tools/weibull-life-calculator` | Weibull fit by median rank: shape and scale, the fit correlation, B1 / B10 / B50 life, MTBF and the reliability at a mission time |
 | SPC Control Chart Calculator | `/tools/spc-control-chart-calculator` | X-bar and R control limits, out-of-limit points, seven-in-a-row runs and the within-subgroup sigma |
 | Acceptance Sampling Calculator | `/tools/acceptance-sampling-calculator` | The operating characteristic of a sample plan, and the zero acceptance sample size that rejects a lot as bad as a stated fraction |
-
+| Ion Implantation & Doping Calculator | `/tools/ion-implantation-calculator` | Projected range Rp, straggle delta Rp, peak concentration and junction depth from implant energy, species and dose in silicon |
+| PN Junction Depletion Calculator | `/tools/semiconductor-depletion-calculator` | Built-in potential, depletion width, electric field, junction capacitance and breakdown voltage under reverse bias for PN junctions |
 ## Stack
 
 Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-react · Fuse.js · Vitest

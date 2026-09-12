@@ -16,6 +16,526 @@ const SAMPLE = [
 
 const INITIAL = { subgroups: SAMPLE };
 
+interface XBarChartProps {
+  means: number[];
+  grandMean: number;
+  ucl: number;
+  lcl: number;
+  meansOutOfControl: number[];
+  runs: { startIndex: number; endIndex: number; side: 'above' | 'below' }[];
+}
+
+function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBarChartProps) {
+  const width = 540;
+  const height = 210;
+  const marginLeft = 56;
+  const marginRight = 76;
+  const marginTop = 22;
+  const marginBottom = 28;
+
+  const plotLeft = marginLeft;
+  const plotRight = width - marginRight;
+  const plotTop = marginTop;
+  const plotBottom = height - marginBottom;
+  const plotWidth = plotRight - plotLeft;
+  const plotHeight = plotBottom - plotTop;
+
+  const minY = Math.min(...means, lcl);
+  const maxY = Math.max(...means, ucl);
+  const span = maxY - minY || 1;
+  const pad = span * 0.12;
+  const yMin = minY - pad;
+  const yMax = maxY + pad;
+
+  const toSvgY = (val: number) => plotTop + (1 - (val - yMin) / (yMax - yMin)) * plotHeight;
+  const toSvgX = (i: number) =>
+    means.length <= 1
+      ? plotLeft + plotWidth / 2
+      : plotLeft + (i / (means.length - 1)) * plotWidth;
+
+  const yUcl = toSvgY(ucl);
+  const yCl = toSvgY(grandMean);
+  const yLcl = toSvgY(lcl);
+
+  const yTicks = [0, 0.333, 0.667, 1].map((p) => yMin + p * (yMax - yMin));
+
+  const pointsStr = means.map((m, i) => `${toSvgX(i)},${toSvgY(m)}`).join(' ');
+
+  const count = means.length;
+  const tickStep = count > 24 ? Math.ceil(count / 10) : count > 12 ? 2 : 1;
+
+  let labelUclY = yUcl;
+  const labelClY = yCl;
+  let labelLclY = yLcl;
+  if (labelClY - labelUclY < 14) labelUclY = labelClY - 14;
+  if (labelLclY - labelClY < 14) labelLclY = labelClY + 14;
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      style={{ width: '100%', height: 'auto', display: 'block' }}
+      role="img"
+      aria-label={`X-bar control chart showing ${count} subgroup means, grand mean ${fmt(grandMean)}, UCL ${fmt(ucl)}, LCL ${fmt(lcl)}`}
+    >
+      <title>X-bar Control Chart</title>
+      <desc>Subgroup means over time with upper control limit, center line, and lower control limit.</desc>
+
+      {/* Plot background */}
+      <rect
+        x={plotLeft}
+        y={plotTop}
+        width={plotWidth}
+        height={plotHeight}
+        fill="#ffffff"
+        stroke="var(--line)"
+        strokeWidth="1"
+        rx="4"
+      />
+
+      {/* Subtle Y grid lines */}
+      {yTicks.map((tick, idx) => {
+        const y = toSvgY(tick);
+        return (
+          <g key={idx}>
+            <line
+              x1={plotLeft}
+              y1={y}
+              x2={plotRight}
+              y2={y}
+              stroke="var(--line)"
+              strokeWidth="0.8"
+              strokeDasharray="2 3"
+            />
+            <text
+              x={plotLeft - 6}
+              y={y + 3.5}
+              textAnchor="end"
+              fontSize="10"
+              fill="var(--muted)"
+              fontFamily="var(--font-mono)"
+            >
+              {fmt(tick)}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* UCL line and label */}
+      <line
+        x1={plotLeft}
+        y1={yUcl}
+        x2={plotRight}
+        y2={yUcl}
+        stroke="var(--red)"
+        strokeWidth="1.5"
+        strokeDasharray="5 4"
+      />
+      <text
+        x={plotRight + 6}
+        y={labelUclY + 3.5}
+        fill="var(--red)"
+        fontSize="10"
+        fontFamily="var(--font-mono)"
+        fontWeight="600"
+      >
+        UCL {fmt(ucl)}
+      </text>
+
+      {/* Center line and label */}
+      <line
+        x1={plotLeft}
+        y1={yCl}
+        x2={plotRight}
+        y2={yCl}
+        stroke="var(--teal)"
+        strokeWidth="1.5"
+      />
+      <text
+        x={plotRight + 6}
+        y={labelClY + 3.5}
+        fill="var(--teal)"
+        fontSize="10"
+        fontFamily="var(--font-mono)"
+        fontWeight="600"
+      >
+        CL {fmt(grandMean)}
+      </text>
+
+      {/* LCL line and label */}
+      <line
+        x1={plotLeft}
+        y1={yLcl}
+        x2={plotRight}
+        y2={yLcl}
+        stroke="var(--red)"
+        strokeWidth="1.5"
+        strokeDasharray="5 4"
+      />
+      <text
+        x={plotRight + 6}
+        y={labelLclY + 3.5}
+        fill="var(--red)"
+        fontSize="10"
+        fontFamily="var(--font-mono)"
+        fontWeight="600"
+      >
+        LCL {fmt(lcl)}
+      </text>
+
+      {/* Connecting line */}
+      <polyline
+        points={pointsStr}
+        fill="none"
+        stroke="var(--ink-soft)"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+
+      {/* Points */}
+      {means.map((m, i) => {
+        const x = toSvgX(i);
+        const y = toSvgY(m);
+        const isLimitOut = meansOutOfControl.includes(i);
+        const runMatch = runs.find((r) => i >= r.startIndex && i <= r.endIndex);
+        const isRunOut = Boolean(runMatch);
+        const isOut = isLimitOut || isRunOut;
+
+        const statusText = isLimitOut
+          ? 'Outside control limits'
+          : isRunOut
+          ? `Run rule signal (7+ ${runMatch?.side} CL)`
+          : 'In control';
+
+        return (
+          <g key={i}>
+            {isLimitOut && (
+              <circle
+                cx={x}
+                cy={y}
+                r="8"
+                fill="none"
+                stroke="var(--red)"
+                strokeWidth="2"
+                opacity="0.85"
+              />
+            )}
+            {!isLimitOut && isRunOut && (
+              <circle
+                cx={x}
+                cy={y}
+                r="8"
+                fill="none"
+                stroke="var(--amber)"
+                strokeWidth="2"
+                opacity="0.85"
+              />
+            )}
+            <circle
+              cx={x}
+              cy={y}
+              r={isOut ? 4.5 : 3.5}
+              fill={isLimitOut ? 'var(--red)' : isRunOut ? 'var(--amber)' : 'var(--teal)'}
+              stroke="#ffffff"
+              strokeWidth="1.5"
+            >
+              <title>{`Subgroup ${i + 1}: Mean = ${fmt(m)} (${statusText})`}</title>
+            </circle>
+          </g>
+        );
+      })}
+
+      {/* X ticks */}
+      {means.map((_, i) => {
+        if (i !== 0 && (i + 1) % tickStep !== 0 && i !== count - 1) return null;
+        const x = toSvgX(i);
+        return (
+          <g key={`xtick-${i}`}>
+            <line
+              x1={x}
+              y1={plotBottom}
+              x2={x}
+              y2={plotBottom + 4}
+              stroke="var(--line-strong)"
+              strokeWidth="1"
+            />
+            <text
+              x={x}
+              y={plotBottom + 15}
+              textAnchor="middle"
+              fontSize="10"
+              fill="var(--muted)"
+              fontFamily="var(--font-mono)"
+            >
+              {i + 1}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* X-axis title */}
+      <text
+        x={plotLeft + plotWidth / 2}
+        y={height - 2}
+        textAnchor="middle"
+        fontSize="10"
+        fill="var(--muted)"
+      >
+        Subgroup
+      </text>
+    </svg>
+  );
+}
+
+interface RChartProps {
+  ranges: number[];
+  meanRange: number;
+  rangeUcl: number;
+  rangeLcl: number;
+  rangesOutOfControl: number[];
+}
+
+function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: RChartProps) {
+  const width = 540;
+  const height = 190;
+  const marginLeft = 56;
+  const marginRight = 76;
+  const marginTop = 22;
+  const marginBottom = 28;
+
+  const plotLeft = marginLeft;
+  const plotRight = width - marginRight;
+  const plotTop = marginTop;
+  const plotBottom = height - marginBottom;
+  const plotWidth = plotRight - plotLeft;
+  const plotHeight = plotBottom - plotTop;
+
+  const minR = Math.min(...ranges, rangeLcl);
+  const maxR = Math.max(...ranges, rangeUcl);
+  const span = maxR - minR || 1;
+  const yMin = minR === 0 ? -span * 0.06 : Math.max(0, minR - span * 0.08);
+  const yMax = maxR + span * 0.12;
+
+  const toSvgY = (val: number) => plotTop + (1 - (val - yMin) / (yMax - yMin)) * plotHeight;
+  const toSvgX = (i: number) =>
+    ranges.length <= 1
+      ? plotLeft + plotWidth / 2
+      : plotLeft + (i / (ranges.length - 1)) * plotWidth;
+
+  const yUcl = toSvgY(rangeUcl);
+  const yCl = toSvgY(meanRange);
+  const yLcl = toSvgY(rangeLcl);
+
+  const yTicks = [0, 0.333, 0.667, 1].map((p) => Math.max(0, yMin + p * (yMax - yMin)));
+
+  const pointsStr = ranges.map((r, i) => `${toSvgX(i)},${toSvgY(r)}`).join(' ');
+
+  const count = ranges.length;
+  const tickStep = count > 24 ? Math.ceil(count / 10) : count > 12 ? 2 : 1;
+
+  let labelUclY = yUcl;
+  const labelClY = yCl;
+  let labelLclY = yLcl;
+  if (labelClY - labelUclY < 14) labelUclY = labelClY - 14;
+  if (labelLclY - labelClY < 14) labelLclY = labelClY + 14;
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      style={{ width: '100%', height: 'auto', display: 'block' }}
+      role="img"
+      aria-label={`R range chart showing ${count} subgroup ranges, mean range ${fmt(meanRange)}, UCL ${fmt(rangeUcl)}, LCL ${fmt(rangeLcl)}`}
+    >
+      <title>R Range Chart</title>
+      <desc>Subgroup ranges over time with upper range limit, mean range, and lower range limit.</desc>
+
+      {/* Plot background */}
+      <rect
+        x={plotLeft}
+        y={plotTop}
+        width={plotWidth}
+        height={plotHeight}
+        fill="#ffffff"
+        stroke="var(--line)"
+        strokeWidth="1"
+        rx="4"
+      />
+
+      {/* Subtle Y grid lines */}
+      {yTicks.map((tick, idx) => {
+        const y = toSvgY(tick);
+        return (
+          <g key={idx}>
+            <line
+              x1={plotLeft}
+              y1={y}
+              x2={plotRight}
+              y2={y}
+              stroke="var(--line)"
+              strokeWidth="0.8"
+              strokeDasharray="2 3"
+            />
+            <text
+              x={plotLeft - 6}
+              y={y + 3.5}
+              textAnchor="end"
+              fontSize="10"
+              fill="var(--muted)"
+              fontFamily="var(--font-mono)"
+            >
+              {fmt(tick)}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* UCL line and label */}
+      <line
+        x1={plotLeft}
+        y1={yUcl}
+        x2={plotRight}
+        y2={yUcl}
+        stroke="var(--red)"
+        strokeWidth="1.5"
+        strokeDasharray="5 4"
+      />
+      <text
+        x={plotRight + 6}
+        y={labelUclY + 3.5}
+        fill="var(--red)"
+        fontSize="10"
+        fontFamily="var(--font-mono)"
+        fontWeight="600"
+      >
+        UCL {fmt(rangeUcl)}
+      </text>
+
+      {/* Center line and label */}
+      <line
+        x1={plotLeft}
+        y1={yCl}
+        x2={plotRight}
+        y2={yCl}
+        stroke="var(--teal)"
+        strokeWidth="1.5"
+      />
+      <text
+        x={plotRight + 6}
+        y={labelClY + 3.5}
+        fill="var(--teal)"
+        fontSize="10"
+        fontFamily="var(--font-mono)"
+        fontWeight="600"
+      >
+        CL {fmt(meanRange)}
+      </text>
+
+      {/* LCL line and label */}
+      <line
+        x1={plotLeft}
+        y1={yLcl}
+        x2={plotRight}
+        y2={yLcl}
+        stroke="var(--red)"
+        strokeWidth="1.5"
+        strokeDasharray={rangeLcl === 0 ? undefined : '5 4'}
+      />
+      <text
+        x={plotRight + 6}
+        y={labelLclY + 3.5}
+        fill="var(--red)"
+        fontSize="10"
+        fontFamily="var(--font-mono)"
+        fontWeight="600"
+      >
+        LCL {fmt(rangeLcl)}
+      </text>
+
+      {/* Connecting line */}
+      <polyline
+        points={pointsStr}
+        fill="none"
+        stroke="var(--ink-soft)"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+
+      {/* Points */}
+      {ranges.map((r, i) => {
+        const x = toSvgX(i);
+        const y = toSvgY(r);
+        const isOut = rangesOutOfControl.includes(i);
+
+        return (
+          <g key={i}>
+            {isOut && (
+              <circle
+                cx={x}
+                cy={y}
+                r="8"
+                fill="none"
+                stroke="var(--red)"
+                strokeWidth="2"
+                opacity="0.85"
+              />
+            )}
+            <circle
+              cx={x}
+              cy={y}
+              r={isOut ? 4.5 : 3.5}
+              fill={isOut ? 'var(--red)' : 'var(--teal)'}
+              stroke="#ffffff"
+              strokeWidth="1.5"
+            >
+              <title>{`Subgroup ${i + 1}: Range = ${fmt(r)} (${isOut ? 'Outside control limits' : 'In control'})`}</title>
+            </circle>
+          </g>
+        );
+      })}
+
+      {/* X ticks */}
+      {ranges.map((_, i) => {
+        if (i !== 0 && (i + 1) % tickStep !== 0 && i !== count - 1) return null;
+        const x = toSvgX(i);
+        return (
+          <g key={`xtick-${i}`}>
+            <line
+              x1={x}
+              y1={plotBottom}
+              x2={x}
+              y2={plotBottom + 4}
+              stroke="var(--line-strong)"
+              strokeWidth="1"
+            />
+            <text
+              x={x}
+              y={plotBottom + 15}
+              textAnchor="middle"
+              fontSize="10"
+              fill="var(--muted)"
+              fontFamily="var(--font-mono)"
+            >
+              {i + 1}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* X-axis title */}
+      <text
+        x={plotLeft + plotWidth / 2}
+        y={height - 2}
+        textAnchor="middle"
+        fontSize="10"
+        fill="var(--muted)"
+      >
+        Subgroup
+      </text>
+    </svg>
+  );
+}
+
 export default function SpcControlChartCalculator() {
   const [state, setState] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
@@ -71,6 +591,11 @@ export default function SpcControlChartCalculator() {
       setCopied(false);
     }
   };
+
+  const xbarSignalCount = result.ok
+    ? result.meansOutOfControl.length + result.runs.length
+    : 0;
+  const rangeSignalCount = result.ok ? result.rangesOutOfControl.length : 0;
 
   return (
     <div className="calc-grid">
@@ -151,6 +676,200 @@ export default function SpcControlChartCalculator() {
                 <dd>{signalCount}</dd>
               </div>
             </dl>
+
+            {/* Visual SPC Control Charts */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', margin: '16px 0 20px' }}>
+              {/* X-bar Chart Card */}
+              <div
+                style={{
+                  background: 'var(--paper)',
+                  border: '1px solid var(--line)',
+                  borderRadius: '8px',
+                  padding: '12px',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '8px',
+                    flexWrap: 'wrap',
+                    gap: '6px',
+                  }}
+                >
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
+                    X-bar Chart (Subgroup Means)
+                  </span>
+                  <span
+                    className="unit"
+                    style={{
+                      color: xbarSignalCount > 0 ? 'var(--red)' : 'var(--teal-dark)',
+                      borderColor: xbarSignalCount > 0 ? 'var(--red)' : 'var(--line)',
+                      background: xbarSignalCount > 0 ? '#fdf1f0' : 'var(--teal-soft)',
+                    }}
+                  >
+                    {xbarSignalCount > 0 ? `${xbarSignalCount} signal${xbarSignalCount > 1 ? 's' : ''}` : 'In control'}
+                  </span>
+                </div>
+
+                <XBarChart
+                  means={result.means}
+                  grandMean={result.grandMean}
+                  ucl={result.xbarUcl}
+                  lcl={result.xbarLcl}
+                  meansOutOfControl={result.meansOutOfControl}
+                  runs={result.runs}
+                />
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                    marginTop: '8px',
+                    fontSize: '11px',
+                    color: 'var(--ink-soft)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: 'var(--teal)',
+                        display: 'inline-block',
+                      }}
+                    />
+                    <span>Normal mean</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: 'var(--red)',
+                        boxShadow: '0 0 0 2px var(--red)',
+                        display: 'inline-block',
+                      }}
+                    />
+                    <span>Outside limits</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: 'var(--amber)',
+                        boxShadow: '0 0 0 2px var(--amber)',
+                        display: 'inline-block',
+                      }}
+                    />
+                    <span>7-point run</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ width: '14px', borderTop: '1.5px dashed var(--red)', display: 'inline-block' }} />
+                    <span>Control limits (UCL/LCL)</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ width: '14px', borderTop: '1.5px solid var(--teal)', display: 'inline-block' }} />
+                    <span>Center line (CL)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* R Chart Card */}
+              <div
+                style={{
+                  background: 'var(--paper)',
+                  border: '1px solid var(--line)',
+                  borderRadius: '8px',
+                  padding: '12px',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '8px',
+                    flexWrap: 'wrap',
+                    gap: '6px',
+                  }}
+                >
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
+                    R Chart (Subgroup Ranges)
+                  </span>
+                  <span
+                    className="unit"
+                    style={{
+                      color: rangeSignalCount > 0 ? 'var(--red)' : 'var(--teal-dark)',
+                      borderColor: rangeSignalCount > 0 ? 'var(--red)' : 'var(--line)',
+                      background: rangeSignalCount > 0 ? '#fdf1f0' : 'var(--teal-soft)',
+                    }}
+                  >
+                    {rangeSignalCount > 0 ? `${rangeSignalCount} signal${rangeSignalCount > 1 ? 's' : ''}` : 'In control'}
+                  </span>
+                </div>
+
+                <RChart
+                  ranges={result.ranges}
+                  meanRange={result.meanRange}
+                  rangeUcl={result.rangeUcl}
+                  rangeLcl={result.rangeLcl}
+                  rangesOutOfControl={result.rangesOutOfControl}
+                />
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                    marginTop: '8px',
+                    fontSize: '11px',
+                    color: 'var(--ink-soft)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: 'var(--teal)',
+                        display: 'inline-block',
+                      }}
+                    />
+                    <span>Normal range</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: 'var(--red)',
+                        boxShadow: '0 0 0 2px var(--red)',
+                        display: 'inline-block',
+                      }}
+                    />
+                    <span>Outside limits</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ width: '14px', borderTop: '1.5px dashed var(--red)', display: 'inline-block' }} />
+                    <span>Range limits (UCL/LCL)</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ width: '14px', borderTop: '1.5px solid var(--teal)', display: 'inline-block' }} />
+                    <span>Mean range (CL)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <table className="model-table">
               <caption>Per-subgroup mean and range against the limits</caption>
               <thead>

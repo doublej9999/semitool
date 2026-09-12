@@ -11,6 +11,7 @@ import { tool as filmUniformityCalculator } from './film-uniformity-calculator';
 import { tool as fitMtbfCalculator } from './fit-mtbf-calculator';
 import { tool as gasFlowConverter } from './gas-flow-converter';
 import { tool as impedanceMatchingCalculator } from './impedance-matching-calculator';
+import { tool as ionImplantationCalculator } from './ion-implantation-calculator';
 import { tool as lithographyResolutionCalculator } from './lithography-resolution-calculator';
 import { tool as microstripCalculator } from './microstrip-calculator';
 import { tool as powerConverter } from './power-converter';
@@ -19,6 +20,7 @@ import { tool as processCapabilityCalculator } from './process-capability-calcul
 import { tool as reticleFieldCalculator } from './reticle-field-calculator';
 import { tool as returnLossCalculator } from './return-loss-calculator';
 import { tool as rfPowerCalculator } from './rf-power-calculator';
+import { tool as semiconductorDepletionCalculator } from './semiconductor-depletion-calculator';
 import { tool as sheetResistanceCalculator } from './sheet-resistance-calculator';
 import { tool as spcControlChartCalculator } from './spc-control-chart-calculator';
 import { tool as stubMatchingCalculator } from './stub-matching-calculator';
@@ -85,6 +87,8 @@ export const tools: Tool[] = [
   weibullLifeCalculator,
   spcControlChartCalculator,
   acceptanceSamplingCalculator,
+  ionImplantationCalculator,
+  semiconductorDepletionCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];
