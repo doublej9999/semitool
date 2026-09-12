@@ -1,7 +1,7 @@
 'use client';
 
-import { useId, useMemo, useState } from 'react';
-import { Copy, RotateCcw, AlertTriangle } from 'lucide-react';
+import { useId, useMemo, useRef, useState } from 'react';
+import { Copy, RotateCcw, AlertTriangle, Download } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import {
   calculateIonImplantation,
@@ -10,8 +10,11 @@ import {
   SPECIES_CATALOG,
   type IonSpecies,
 } from '@/lib/ion-implantation';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { downloadCsv, downloadSvg } from '@/lib/export';
 
 interface FormState {
+  [key: string]: string | number | boolean;
   species: IonSpecies;
   energyKeV: string;
   doseCm2: string;
@@ -34,6 +37,8 @@ const INITIAL_STATE: FormState = {
 export default function IonImplantationCalculator() {
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  useUrlParamsState(form, setForm);
 
   // Accessible IDs for inputs
   const speciesId = useId();
@@ -104,6 +109,35 @@ export default function IonImplantationCalculator() {
     } catch {
       setCopied(false);
     }
+  };
+
+  const exportCsv = () => {
+    if (!result.ok || profilePoints.length === 0) return;
+    const headers = [
+      'depth_nm',
+      'depth_um',
+      'concentration_cm3',
+      'species',
+      'energy_keV',
+      'dose_cm2',
+      'rp_nm',
+      'delta_rp_nm',
+      'junction_depth_nm',
+      'amorphized',
+    ];
+    const rows = profilePoints.map((pt) => [
+      pt.depthNm.toFixed(2),
+      pt.depthUm.toFixed(4),
+      pt.concentrationCm3.toExponential(4),
+      result.species,
+      result.energyKeV,
+      result.doseCm2.toExponential(3),
+      result.rpNm.toFixed(2),
+      result.deltaRpNm.toFixed(2),
+      result.junctionDepthNm !== null ? result.junctionDepthNm.toFixed(2) : 'N/A',
+      result.isAmorphized ? 'YES' : 'NO',
+    ]);
+    downloadCsv(`ion-implant-${result.species}-${result.energyKeV}keV.csv`, headers, rows);
   };
 
   // SVG dimensions and coordinate mapping
@@ -328,6 +362,15 @@ export default function IonImplantationCalculator() {
             <RotateCcw size={16} aria-hidden="true" />
             Reset
           </button>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={exportCsv}
+            disabled={!result.ok}
+          >
+            <Download size={16} aria-hidden="true" />
+            Export CSV
+          </button>
         </div>
       </section>
 
@@ -391,6 +434,16 @@ export default function IonImplantationCalculator() {
                 <strong>~{result.solidSolubilityLimitCm3.toExponential(1)}</strong>
                 <span style={{ fontSize: '11px' }}>cm⁻³ in Si</span>
               </div>
+
+              <div className="metric">
+                <span>Substrate State</span>
+                <strong style={{ color: result.isAmorphized ? '#b0413a' : '#0d7c82' }}>
+                  {result.isAmorphized ? 'Amorphized' : 'Damaged C-Si'}
+                </strong>
+                <span style={{ fontSize: '11px' }}>
+                  {result.criticalAmorphizationDoseCm2 ? `Φcrit ~ ${result.criticalAmorphizationDoseCm2.toExponential(1)}` : 'threshold'}
+                </span>
+              </div>
             </div>
 
             {/* Warnings Alert */}
@@ -425,9 +478,19 @@ export default function IonImplantationCalculator() {
                   <h3 style={{ margin: 0, fontSize: '13.5px', color: 'var(--ink-soft)' }}>
                     Implant Concentration Depth Profile N(x)
                   </h3>
-                  <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                    Logarithmic Y-axis
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                      Logarithmic Y-axis
+                    </span>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      style={{ padding: '2px 8px', fontSize: '12px' }}
+                      onClick={() => svgRef.current && downloadSvg(svgRef.current, `implant-${result.species}-${result.energyKeV}keV.svg`)}
+                    >
+                      <Download size={13} aria-hidden="true" /> Save SVG
+                    </button>
+                  </div>
                 </div>
 
                 <div
@@ -440,10 +503,12 @@ export default function IonImplantationCalculator() {
                   }}
                 >
                   <svg
+                    ref={svgRef}
                     viewBox={`0 0 ${svgWidth} ${svgHeight}`}
                     style={{ width: '100%', height: 'auto', display: 'block' }}
                     role="img"
                     aria-label="Concentration profile curve vs depth"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     {/* Plot area background */}
                     <rect

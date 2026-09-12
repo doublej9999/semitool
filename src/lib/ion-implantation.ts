@@ -82,6 +82,14 @@ export const SPECIES_CATALOG: Record<IonSpecies, IonSpeciesInfo> = {
   },
 };
 
+/** Critical ion implant dose threshold for continuous silicon amorphization at 300 K (cm⁻²) */
+export const CRITICAL_AMORPHIZATION_DOSES: Record<Exclude<IonSpecies, 'Custom'>, number> = {
+  B: 1.0e16,
+  P: 1.0e15,
+  As: 2.0e14,
+  BF2: 4.0e14,
+};
+
 /**
  * Standard Gibbons, Johnson & Mylroie range statistics in Silicon
  * Tabulated [Energy (keV), Projected Range Rp (nm), Straggle deltaRp (nm)].
@@ -324,6 +332,8 @@ export interface IonImplantationSuccess {
   retentionFraction: number;
   retentionPercent: number;
   solidSolubilityLimitCm3: number;
+  criticalAmorphizationDoseCm2: number | null;
+  isAmorphized: boolean;
   warnings: string[];
 }
 
@@ -453,6 +463,17 @@ export function calculateIonImplantation(input: IonImplantationInput): IonImplan
     );
   }
 
+  const criticalAmorphizationDoseCm2 =
+    species !== 'Custom' ? CRITICAL_AMORPHIZATION_DOSES[species] : null;
+  const isAmorphized =
+    criticalAmorphizationDoseCm2 !== null && doseCm2 >= criticalAmorphizationDoseCm2;
+
+  if (isAmorphized && criticalAmorphizationDoseCm2 !== null) {
+    warnings.push(
+      `Dose exceeds amorphization threshold (Φcrit ~ ${criticalAmorphizationDoseCm2.toExponential(1)} cm⁻²). A continuous amorphous layer is created in silicon. Full crystal recovery requires solid-phase epitaxial regrowth (SPER, 550–650 °C); end-of-range (EOR) dislocation loops should be annealed.`
+    );
+  }
+
   return {
     ok: true,
     species,
@@ -471,6 +492,8 @@ export function calculateIonImplantation(input: IonImplantationInput): IonImplan
     retentionFraction,
     retentionPercent,
     solidSolubilityLimitCm3,
+    criticalAmorphizationDoseCm2,
+    isAmorphized,
     warnings,
   };
 }

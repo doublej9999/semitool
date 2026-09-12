@@ -13,7 +13,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(CORE_ASSETS))
+      .then((cache) => Promise.allSettled(CORE_ASSETS.map((asset) => cache.add(asset))))
       .then(() => self.skipWaiting())
   );
 });

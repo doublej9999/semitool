@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Home, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import CommandPalette from './CommandPalette';
+import EngineeringHandbookModal from '@/components/common/EngineeringHandbookModal';
 import LanguagePicker from './LanguagePicker';
 import ToolSidebar from './ToolSidebar';
 import { useHydrateLocale } from '@/lib/i18n/context';
@@ -98,6 +99,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <div className="toolbar-right">
+            <EngineeringHandbookModal />
             <CommandPalette />
             <LanguagePicker />
           </div>
