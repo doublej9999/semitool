@@ -1,12 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Copy, RotateCcw } from 'lucide-react';
+import { Copy, RotateCcw, Download } from 'lucide-react';
 import {
   ALD_PRESETS,
   calculateAldCycle,
   getAldPreset,
 } from '@/lib/ald';
+import { downloadCsv } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
 
@@ -93,6 +94,35 @@ export default function AldCycleCalculator() {
       setCopied(false);
     }
   };
+  const handleExportCsv = () => {
+    const headers = ['Parameter', 'Value', 'Unit'];
+    const rows = [
+      ['Precursor System', preset?.name ?? state.presetId, ''],
+      ['Reaction Equation', preset?.reactionEquation ?? '', ''],
+      ['Process Temperature', state.temperatureC, '°C'],
+      ['Precursor A Pulse Time', state.pulseTime1, 's'],
+      ['Precursor A Purge Time', state.purgeTime1, 's'],
+      ['Precursor A Pressure', state.pressure1Torr, 'Torr'],
+      ['Precursor A Exposure Dose', result.exposure1L, 'Langmuir (L)'],
+      ['Precursor A Surface Coverage', (result.coverage1 * 100).toFixed(1), '%'],
+      ['Precursor B Pulse Time', state.pulseTime2, 's'],
+      ['Precursor B Purge Time', state.purgeTime2, 's'],
+      ['Precursor B Pressure', state.pressure2Torr, 'Torr'],
+      ['Precursor B Exposure Dose', result.exposure2L, 'Langmuir (L)'],
+      ['Precursor B Surface Coverage', (result.coverage2 * 100).toFixed(1), '%'],
+      ['Effective Surface Saturation', (result.effectiveCoverage * 100).toFixed(1), '%'],
+      ['Effective GPC', result.effectiveGpcAngstrom.toFixed(3), 'Å/cycle'],
+      ['Effective GPC (nm)', result.effectiveGpcNm.toFixed(4), 'nm/cycle'],
+      ['Total Cycles', result.requiredCycles, 'cycles'],
+      ['Resulting Thickness', result.resultingThicknessNm.toFixed(2), 'nm'],
+      ['Cycle Time', result.cycleTimeSec.toFixed(1), 's'],
+      ['Total Deposition Time', result.totalDepositionTimeSec.toFixed(0), 's'],
+      ['Formatted Deposition Time', result.formattedTime, ''],
+      ['Estimated Precursor Consumption', result.precursorConsumptionGrams.toFixed(3), 'g'],
+    ];
+    downloadCsv(`ald_recipe_${state.presetId}_${state.temperatureC}C`, headers, rows);
+  };
+
 
   return (
     <div className="calc-grid">
@@ -276,6 +306,10 @@ export default function AldCycleCalculator() {
           <button type="button" className="button" onClick={copyResult}>
             <Copy size={14} aria-hidden="true" />
             <span>{copied ? 'Copied!' : 'Copy Summary'}</span>
+          </button>
+          <button type="button" className="button secondary" onClick={handleExportCsv}>
+            <Download size={14} aria-hidden="true" />
+            <span>Export CSV</span>
           </button>
         </div>
       </section>

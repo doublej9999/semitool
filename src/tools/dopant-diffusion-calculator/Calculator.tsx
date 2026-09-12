@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Copy, RotateCcw } from 'lucide-react';
+import { Copy, RotateCcw, Download } from 'lucide-react';
 import {
   SILICON_DOPANTS,
   type DopantSpecies,
@@ -10,7 +10,9 @@ import {
   calculatePredeposition,
   calculateDriveIn,
   calculateMinimumOxideMaskThickness,
+  erfc,
 } from '@/lib/dopant-diffusion';
+import { downloadCsv } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
 
@@ -96,6 +98,123 @@ export default function DopantDiffusionCalculator() {
       return null;
     }
   }, [state.dopant, state.tempCelsius, timeSeconds]);
+  const chartData = useMemo(() => {
+    const isPredep = state.processType === 'predeposition';
+    const active = isPredep ? predepResult : driveInResult;
+    if (!active) return null;
+
+    const cb = Math.max(1e12, Number.parseFloat(state.backgroundDopingCm3) || 1e16);
+    const cs = active.surfaceConcentrationCm3;
+    const xj = active.junctionDepthUm;
+    const diffLen = active.characteristicLengthUm * 2;
+
+    const maxX = xj !== undefined && Number.isFinite(xj)
+      ? Math.max(xj * 1.5, diffLen * 2.5, 0.05)
+      : Math.max(diffLen * 3, 0.1);
+
+    const sampleCount = 101;
+    const points: Array<{ depthUm: number; concentrationCm3: number }> = [];
+    const dtProductCm2 = D_Si * timeSeconds;
+    const sqrtDtCm = Math.sqrt(dtProductCm2);
+    const twoSqrtDtCm = 2 * sqrtDtCm;
+
+    for (let i = 0; i < sampleCount; i++) {
+      const xUm = (i / (sampleCount - 1)) * maxX;
+      const xCm = xUm * 1e-4;
+      let c: number;
+      if (isPredep) {
+        c = cs * erfc(xCm / twoSqrtDtCm);
+      } else {
+        const exponent = -(xCm * xCm) / (4 * dtProductCm2);
+        c = cs * Math.exp(exponent);
+      }
+      points.push({ depthUm: xUm, concentrationCm3: Math.max(1e10, c) });
+    }
+
+    const logCb = Math.log10(cb);
+    const logCs = Math.log10(Math.max(1e14, cs));
+    const minLog = Math.floor(Math.min(logCb, 15) - 1);
+    const maxLog = Math.ceil(logCs);
+    const logSpan = Math.max(2, maxLog - minLog);
+
+    const svgW = 560;
+    const svgH = 260;
+    const pad = { top: 24, right: 36, bottom: 44, left: 66 };
+    const pW = svgW - pad.left - pad.right;
+    const pH = svgH - pad.top - pad.bottom;
+
+    const scaleX = (xUm: number) => pad.left + (xUm / maxX) * pW;
+    const scaleY = (conc: number) => {
+      const logVal = Math.log10(Math.max(1e10, conc));
+      const clamped = Math.max(minLog, Math.min(maxLog, logVal));
+      const fraction = (clamped - minLog) / logSpan;
+      return pad.top + pH * (1 - fraction);
+    };
+
+    const pathD = points
+      .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(pt.depthUm).toFixed(1)} ${scaleY(pt.concentrationCm3).toFixed(1)}`)
+      .join(' ');
+
+    const areaD = `${pathD} L ${scaleX(maxX).toFixed(1)} ${(pad.top + pH).toFixed(1)} L ${scaleX(0).toFixed(1)} ${(pad.top + pH).toFixed(1)} Z`;
+
+    const cbY = scaleY(cb);
+    const xjX = xj !== undefined && xj <= maxX ? scaleX(xj) : null;
+
+    const decades: number[] = [];
+    for (let d = minLog; d <= maxLog; d++) {
+      decades.push(d);
+    }
+
+    return {
+      points,
+      maxX,
+      minLog,
+      maxLog,
+      logSpan,
+      svgW,
+      svgH,
+      pad,
+      pW,
+      pH,
+      scaleX,
+      scaleY,
+      pathD,
+      areaD,
+      cbY,
+      xjX,
+      decades,
+      xj,
+      cb,
+      cs,
+    };
+  }, [state, predepResult, driveInResult, D_Si, timeSeconds]);
+
+  const handleExportProfileCsv = () => {
+    const isPredep = state.processType === 'predeposition';
+    const active = isPredep ? predepResult : driveInResult;
+    if (!active || !chartData) return;
+
+    const cb = Number.parseFloat(state.backgroundDopingCm3) || 1e16;
+    const headers = [
+      'Depth (um)',
+      'Depth (nm)',
+      'Concentration (cm^-3)',
+      'Normalized Concentration (C/Cs)',
+      'Ratio to Substrate (C/CB)',
+    ];
+    const rows = chartData.points.map((p) => [
+      p.depthUm.toFixed(4),
+      (p.depthUm * 1000).toFixed(1),
+      p.concentrationCm3.toExponential(4),
+      (p.concentrationCm3 / active.surfaceConcentrationCm3).toExponential(4),
+      (p.concentrationCm3 / cb).toFixed(3),
+    ]);
+    downloadCsv(
+      `dopant_profile_${state.dopant}_${state.processType}_${state.tempCelsius}C_${state.timeMinutes}min`,
+      headers,
+      rows
+    );
+  };
 
   const copyResult = async () => {
     const isPredep = state.processType === 'predeposition';
@@ -341,6 +460,185 @@ export default function DopantDiffusionCalculator() {
                   <span className="metric-unit">nm (4√(D_ox·t))</span>
                 </div>
               </div>
+              {/* Concentration Profile SVG Chart */}
+              {chartData && (
+                <div style={{ marginTop: 24 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
+                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                      Dopant Concentration vs. Depth Profile C(x) (0 to {chartData.maxX >= 1 ? chartData.maxX.toFixed(2) : chartData.maxX.toFixed(3)} μm)
+                    </span>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      style={{ fontSize: '0.78rem', padding: '4px 10px' }}
+                      onClick={handleExportProfileCsv}
+                    >
+                      <Download size={13} aria-hidden="true" />
+                      <span>Export Profile CSV</span>
+                    </button>
+                  </div>
+
+                  <div style={{ background: 'var(--surface-sunken)', borderRadius: 8, padding: 12, border: '1px solid var(--border)' }}>
+                    <svg viewBox={`0 0 ${chartData.svgW} ${chartData.svgH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+                      {/* Horizontal Decade Grid Lines */}
+                      {chartData.decades.map((d) => {
+                        const y = chartData.scaleY(Math.pow(10, d));
+                        return (
+                          <g key={d}>
+                            <line
+                              x1={chartData.pad.left}
+                              y1={y}
+                              x2={chartData.pad.left + chartData.pW}
+                              y2={y}
+                              stroke="var(--border)"
+                              strokeDasharray="3 3"
+                              opacity={0.6}
+                            />
+                            <text
+                              x={chartData.pad.left - 8}
+                              y={y + 3}
+                              fontSize="9"
+                              fill="var(--text-dim)"
+                              textAnchor="end"
+                              fontFamily="var(--font-mono)"
+                            >
+                              10<tspan dy="-3" fontSize="7">{d}</tspan>
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {/* Vertical Depth Grid Lines */}
+                      {[0, 0.25, 0.5, 0.75, 1].map((f) => {
+                        const x = chartData.pad.left + chartData.pW * f;
+                        const depthUm = chartData.maxX * f;
+                        return (
+                          <g key={f}>
+                            <line
+                              x1={x}
+                              y1={chartData.pad.top}
+                              x2={x}
+                              y2={chartData.pad.top + chartData.pH}
+                              stroke="var(--border)"
+                              strokeDasharray="3 3"
+                              opacity={0.6}
+                            />
+                            <text
+                              x={x}
+                              y={chartData.pad.top + chartData.pH + 16}
+                              fontSize="9"
+                              fill="var(--text-dim)"
+                              textAnchor="middle"
+                              fontFamily="var(--font-mono)"
+                            >
+                              {depthUm >= 1 ? depthUm.toFixed(2) : depthUm.toFixed(3)}
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {/* Area under curve */}
+                      <path d={chartData.areaD} fill="rgba(32, 178, 170, 0.12)" />
+
+                      {/* Background Doping CB Line */}
+                      <line
+                        x1={chartData.pad.left}
+                        y1={chartData.cbY}
+                        x2={chartData.pad.left + chartData.pW}
+                        y2={chartData.cbY}
+                        stroke="#d19a66"
+                        strokeWidth="1.6"
+                        strokeDasharray="4 3"
+                      />
+                      <text
+                        x={chartData.pad.left + chartData.pW - 6}
+                        y={chartData.cbY - 5}
+                        fontSize="9"
+                        fill="#d19a66"
+                        textAnchor="end"
+                        fontWeight="500"
+                      >
+                        Substrate C_B = {chartData.cb.toExponential(1)} cm⁻³
+                      </text>
+
+                      {/* Junction Depth xj Line and Marker */}
+                      {chartData.xjX !== null && chartData.xj !== undefined && (
+                        <g>
+                          <line
+                            x1={chartData.xjX}
+                            y1={chartData.pad.top}
+                            x2={chartData.xjX}
+                            y2={chartData.pad.top + chartData.pH}
+                            stroke="#e06c75"
+                            strokeWidth="1.6"
+                            strokeDasharray="4 3"
+                          />
+                          <circle
+                            cx={chartData.xjX}
+                            cy={chartData.cbY}
+                            r="4.5"
+                            fill="#e06c75"
+                            stroke="var(--surface-sunken)"
+                            strokeWidth="1.5"
+                          />
+                          <text
+                            x={chartData.xjX + 6}
+                            y={chartData.pad.top + 14}
+                            fontSize="9"
+                            fill="#e06c75"
+                            fontWeight="600"
+                          >
+                            x_j = {chartData.xj.toFixed(3)} μm ({(chartData.xj * 1000).toFixed(0)} nm)
+                          </text>
+                        </g>
+                      )}
+
+                      {/* Profile Curve Line */}
+                      <path d={chartData.pathD} fill="none" stroke="var(--teal)" strokeWidth="2.5" />
+
+                      {/* Surface Concentration Point */}
+                      <circle
+                        cx={chartData.pad.left}
+                        cy={chartData.scaleY(chartData.cs)}
+                        r="4"
+                        fill="var(--teal)"
+                        stroke="var(--surface-sunken)"
+                        strokeWidth="1.5"
+                      />
+                      <text
+                        x={chartData.pad.left + 8}
+                        y={chartData.scaleY(chartData.cs) + 12}
+                        fontSize="9"
+                        fill="var(--teal)"
+                        fontWeight="600"
+                      >
+                        C_s = {chartData.cs.toExponential(2)}
+                      </text>
+
+                      {/* Axis Labels */}
+                      <text
+                        x={chartData.pad.left + chartData.pW / 2}
+                        y={chartData.pad.top + chartData.pH + 34}
+                        fontSize="10"
+                        fill="var(--text-dim)"
+                        textAnchor="middle"
+                      >
+                        Depth into Silicon Substrate (μm)
+                      </text>
+                      <text
+                        transform="rotate(-90)"
+                        x={-(chartData.pad.top + chartData.pH / 2)}
+                        y={18}
+                        fontSize="10"
+                        fill="var(--text-dim)"
+                        textAnchor="middle"
+                      >
+                        Concentration (cm⁻³, log₁₀)
+                      </text>
+                    </svg>
+                  </div>
+                </div>
+              )}
 
               <div
                 style={{

@@ -644,6 +644,24 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "oxide mask",
         "solid solubility"
       ]
+    },
+    "/tools/cvd-kinetics-calculator": {
+      "name": "CVD & Epitaxy Kinetics Calculator",
+      "description": "Grove boundary layer mass transfer, Arrhenius surface reaction rate, transition temperature, and susceptor depletion dynamics for CVD/Epi.",
+      "keywords": [
+        "cvd",
+        "epitaxy",
+        "chemical vapor deposition",
+        "grove model",
+        "boundary layer",
+        "mass transfer",
+        "surface reaction",
+        "arrhenius",
+        "growth rate",
+        "silane",
+        "lpcvd",
+        "teos"
+      ]
     }
   },
   "zh-CN": {
@@ -1317,6 +1335,24 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "热预算",
         "氧化物掩膜"
       ]
+    },
+    "/tools/cvd-kinetics-calculator": {
+      "name": "化学气相沉积 (CVD) 与外延动力学计算器",
+      "description": "基于格罗夫（Grove）边界层传质模型与阿伦尼乌斯表面反应速率，计算 CVD/外延薄膜生长速率、机制转变温度及沿晶托前驱体耗尽均匀性。",
+      "keywords": [
+        "CVD",
+        "化学气相沉积",
+        "外延",
+        "外延生长速率",
+        "Grove模型",
+        "边界层",
+        "传质控制",
+        "表面反应控制",
+        "阿伦尼乌斯",
+        "硅烷",
+        "LPCVD",
+        "TEOS"
+      ]
     }
   },
   "zh-TW": {
@@ -1923,6 +1959,24 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "熱預算",
         "氧化層遮罩"
       ]
+    },
+    "/tools/cvd-kinetics-calculator": {
+      "name": "化學氣相沉積 (CVD) 與磊晶動力學計算器",
+      "description": "依據格羅夫（Grove）邊界層傳質模型與阿基尼斯表面反應速率，計算 CVD/磊晶薄膜生長速率、機制轉變溫度及沿晶托前驅物消耗均勻性。",
+      "keywords": [
+        "CVD",
+        "化學氣相沉積",
+        "磊晶",
+        "磊晶生長速率",
+        "Grove模型",
+        "邊界層",
+        "傳質控制",
+        "表面反應控制",
+        "阿基尼斯",
+        "矽烷",
+        "LPCVD",
+        "TEOS"
+      ]
     }
   },
   "ja": {
@@ -2515,6 +2569,24 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "サーマルバジェット",
         "酸化膜マスク"
       ]
+    },
+    "/tools/cvd-kinetics-calculator": {
+      "name": "CVD・エピタキシャル成長速度・反応動力学計算ツール",
+      "description": "Grove境界層物質移動モデルおよびArrhenius表面反応速度論に基づき、CVD/エピタキシャル成長速度、律速領域遷移温度、サセプタ沿いの原料枯渇を算出。",
+      "keywords": [
+        "CVD",
+        "化学気相成長",
+        "エピタキシャル",
+        "成長速度",
+        "Groveモデル",
+        "境界層",
+        "物質移動律速",
+        "反応律速",
+        "アレニウス",
+        "シラン",
+        "LPCVD",
+        "TEOS"
+      ]
     }
   },
   "ko": {
@@ -3104,6 +3176,24 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "인 확산",
         "열 예산",
         "산화막 마스크"
+      ]
+    },
+    "/tools/cvd-kinetics-calculator": {
+      "name": "CVD 및 에피택시 성장 속도·반응 역학 계산기",
+      "description": "Grove 경계층 물질 전달 모델 및 아레니우스 표면 반응 속도론을 바탕으로 CVD/에피택시 박막 성장 속도, 율속 단계 전이 온도 및 전구체 고갈 균일도 계산.",
+      "keywords": [
+        "CVD",
+        "화학기상증착",
+        "에피택시",
+        "성장 속도",
+        "Grove 모델",
+        "경계층",
+        "물질 전달 율속",
+        "표면 반응 율속",
+        "아레니우스",
+        "실란",
+        "LPCVD",
+        "TEOS"
       ]
     }
   }

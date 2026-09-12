@@ -50,6 +50,7 @@ import { tool as chemicalDilutionCalculator } from './chemical-dilution-calculat
 import { tool as plasmaSheathCalculator } from './plasma-sheath-calculator';
 import { tool as aldCycleCalculator } from './ald-cycle-calculator';
 import { tool as dopantDiffusionCalculator } from './dopant-diffusion-calculator';
+import { tool as cvdKineticsCalculator } from './cvd-kinetics-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
 /**
@@ -113,6 +114,7 @@ export const tools: Tool[] = [
   plasmaSheathCalculator,
   aldCycleCalculator,
   dopantDiffusionCalculator,
+  cvdKineticsCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];
