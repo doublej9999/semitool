@@ -1,11 +1,13 @@
 'use client';
-
 import { useState } from 'react';
 import { Check, Link2, Printer } from 'lucide-react';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 
 export default function ToolPageActions({ toolName }: { toolName: string }) {
   const [copied, setCopied] = useState(false);
-
+  const locale = useLocale();
+  const t = getTranslation(locale);
   const shareLink = async () => {
     try {
       if (typeof window !== 'undefined') {
@@ -35,12 +37,12 @@ export default function ToolPageActions({ toolName }: { toolName: string }) {
         {copied ? (
           <>
             <Check size={14} aria-hidden="true" color="var(--teal)" />
-            <span>Link copied</span>
+            <span>{t.linkCopied}</span>
           </>
         ) : (
           <>
             <Link2 size={14} aria-hidden="true" />
-            <span>Share calculation</span>
+            <span>{t.shareCalculation}</span>
           </>
         )}
       </button>
@@ -52,7 +54,7 @@ export default function ToolPageActions({ toolName }: { toolName: string }) {
         title="Print or export engineering calculation report as PDF"
       >
         <Printer size={14} aria-hidden="true" />
-        <span>Print / PDF Report</span>
+        <span>{t.printPdfReport}</span>
       </button>
     </div>
   );

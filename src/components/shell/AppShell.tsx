@@ -5,7 +5,9 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Github, Home, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import CommandPalette from './CommandPalette';
+import LanguagePicker from './LanguagePicker';
 import ToolSidebar from './ToolSidebar';
+import { useHydrateLocale } from '@/lib/i18n/context';
 import { useHydrateFavorites } from '@/lib/favorites';
 import { setRailCollapsed, useHydratePreferences, useRailCollapsed } from '@/lib/preferences';
 import { REPO_URL, SITE_NAME } from '@/lib/site';
@@ -26,6 +28,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useHydrateFavorites();
   useHydratePreferences();
+
+  useHydrateLocale();
 
   useEffect(() => {
     if (!drawerOpen) {
@@ -95,9 +99,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           <CommandPalette />
 
-          <Link className="toolbar-link" href="/tools">
-            Tools
-          </Link>
+          <LanguagePicker />
 
           <a
             className="icon-button toolbar-github"

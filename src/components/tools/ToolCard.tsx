@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import FavoriteButton from './FavoriteButton';
 import { getTool } from '@/tools';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation, translateCategory } from '@/lib/i18n/translations';
 
 /**
  * Tool card used on the home page, the toolbox page and the related-tool list.
@@ -18,6 +20,8 @@ import { getTool } from '@/tools';
  */
 export default function ToolCard({ path }: { path: string }) {
   const tool = getTool(path);
+  const locale = useLocale();
+  const t = getTranslation(locale);
 
   if (!tool) {
     return null;
@@ -33,7 +37,7 @@ export default function ToolCard({ path }: { path: string }) {
         </span>
 
         <span className="tool-card-actions">
-          {tool.isNew ? <span className="badge-new">New</span> : null}
+          {tool.isNew ? <span className="badge-new">{t.newBadge}</span> : null}
           <FavoriteButton tool={tool} compact />
         </span>
       </div>
@@ -47,9 +51,9 @@ export default function ToolCard({ path }: { path: string }) {
       <p>{tool.description}</p>
 
       <div className="tool-card-foot">
-        <span className="tool-card-category">{tool.category}</span>
+        <span className="tool-card-category">{translateCategory(tool.category, locale)}</span>
         <Link href={tool.path} className="tool-card-cta" aria-label={`Open ${tool.name}`}>
-          Open tool <ArrowRight size={14} aria-hidden="true" />
+          {t.openTool} <ArrowRight size={14} aria-hidden="true" />
         </Link>
       </div>
     </article>

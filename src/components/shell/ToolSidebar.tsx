@@ -7,6 +7,8 @@ import { ChevronRight, Star, Wrench } from 'lucide-react';
 import { toolsByCategory } from '@/tools';
 import { useFavorites } from '@/lib/favorites';
 import { setGroupCollapsed, useCollapsedGroups } from '@/lib/preferences';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation, translateCategory } from '@/lib/i18n/translations';
 import type { Tool } from '@/tools/tools.types';
 
 interface MenuGroup {
@@ -25,7 +27,8 @@ export default function ToolSidebar({ onNavigate }: { onNavigate?: () => void })
   const pathname = usePathname();
   const collapsed = useCollapsedGroups();
   const { favorites } = useFavorites();
-
+  const locale = useLocale();
+  const t = getTranslation(locale);
   const groups = useMemo<MenuGroup[]>(() => {
     const categoryGroups: MenuGroup[] = toolsByCategory.map((group) => ({
       name: group.name,
@@ -49,7 +52,7 @@ export default function ToolSidebar({ onNavigate }: { onNavigate?: () => void })
         <span className="sider-hero-title">
           SEMI<span>-TOOLS</span>
         </span>
-        <span className="sider-hero-sub">Semiconductor engineering tools</span>
+        <span className="sider-hero-sub">{t.brandSubtitle}</span>
       </Link>
 
       <nav className="sider-menu" aria-label="Tools">
@@ -66,12 +69,12 @@ export default function ToolSidebar({ onNavigate }: { onNavigate?: () => void })
                   onClick={() => setGroupCollapsed(group.name, !isCollapsed)}
                 >
                   <ChevronRight size={13} className={`chevron${isCollapsed ? ' is-collapsed' : ''}`} aria-hidden="true" />
-                  {group.name}
+                  {translateCategory(group.name, locale)}
                 </button>
               ) : (
                 <p className="menu-group-label">
                   <Star size={12} aria-hidden="true" />
-                  {group.name}
+                  {t.favorites}
                 </p>
               )}
 
@@ -104,12 +107,12 @@ export default function ToolSidebar({ onNavigate }: { onNavigate?: () => void })
 
       <div className="sider-footer">
         <p>
-          <Link href="/tools">Toolbox</Link>
-          <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/tools">{t.toolbox}</Link>
+          <Link href="/about">{t.about}</Link>
+          <Link href="/contact">{t.contact}</Link>
         </p>
         <p>
-          All calculations run locally <span className="sider-version">v1.0</span>
+          SemiTools <span className="sider-version">v1.2</span>
         </p>
       </div>
     </div>

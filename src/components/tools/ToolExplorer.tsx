@@ -5,6 +5,8 @@ import { Search } from 'lucide-react';
 import ToolCard from './ToolCard';
 import { groupByCategory, searchTools } from '@/lib/search';
 import { tools } from '@/tools';
+import { useLocale } from '@/lib/i18n/context';
+import { translateCategory } from '@/lib/i18n/translations';
 
 function categoryId(category: string): string {
   return `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
@@ -16,6 +18,7 @@ function categoryId(category: string): string {
  */
 export default function ToolExplorer() {
   const [query, setQuery] = useState('');
+  const locale = useLocale();
   const groups = useMemo(() => groupByCategory(searchTools(query, tools)), [query]);
 
   return (
@@ -38,7 +41,7 @@ export default function ToolExplorer() {
       ) : (
         groups.map((group) => (
           <section className="category-section" key={group.category} aria-labelledby={categoryId(group.category)}>
-            <h2 id={categoryId(group.category)}>{group.category}</h2>
+            <h2 id={categoryId(group.category)}>{translateCategory(group.category, locale)}</h2>
             <div className="tool-grid">
               {group.tools.map((tool) => (
                 <ToolCard key={tool.path} path={tool.path} />

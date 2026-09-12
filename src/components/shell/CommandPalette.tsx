@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { CornerDownLeft, FileText, Search, X } from 'lucide-react';
 import { tools } from '@/tools';
 import { groupByCategory, searchTools } from '@/lib/search';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation, translateCategory } from '@/lib/i18n/translations';
 import { REPO_URL } from '@/lib/site';
 import type { Tool } from '@/tools/tools.types';
 
@@ -41,6 +43,8 @@ export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
+  const locale = useLocale();
+  const t = getTranslation(locale);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -219,7 +223,7 @@ export default function CommandPalette() {
         aria-expanded={open}
       >
         <Search size={15} aria-hidden="true" />
-        <span className="palette-trigger-label">Search tools</span>
+        <span className="palette-trigger-label">{t.searchPlaceholder}</span>
         <kbd>/</kbd>
       </button>
 
@@ -239,7 +243,7 @@ export default function CommandPalette() {
                 aria-activedescendant={activeOptionId}
                 aria-autocomplete="list"
                 autoComplete="off"
-                placeholder="Search tools, e.g. wafer, yield, map…"
+                placeholder={t.searchPlaceholder}
                 value={query}
                 onChange={(event) => {
                   setQuery(event.target.value);
@@ -278,11 +282,11 @@ export default function CommandPalette() {
                         <span className="palette-option-text">
                           <span className="palette-option-name">
                             {entry.tool.name}
-                            {entry.tool.isNew ? <em className="badge-new">New</em> : null}
+                            {entry.tool.isNew ? <em className="badge-new">{t.newBadge}</em> : null}
                           </span>
                           <span className="palette-option-desc">{entry.tool.description}</span>
                         </span>
-                        <span className="palette-option-cat">{entry.tool.category}</span>
+                        <span className="palette-option-cat">{translateCategory(entry.tool.category, locale)}</span>
                       </li>
                     );
                   }
