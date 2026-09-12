@@ -43,6 +43,7 @@ import { tool as yieldCalculator } from './yield-calculator';
 import { tool as yieldConfidenceCalculator } from './yield-confidence-calculator';
 import { tool as yieldDppmCalculator } from './yield-dppm-calculator';
 import { tool as yieldModelCalculator } from './yield-model-calculator';
+import { tool as wireBondingCalculator } from './wire-bonding-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
 /**
@@ -99,6 +100,7 @@ export const tools: Tool[] = [
   carrierMobilityCalculator,
   filmColorCalculator,
   thermalResistanceCalculator,
+  wireBondingCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

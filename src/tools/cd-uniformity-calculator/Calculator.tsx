@@ -6,7 +6,7 @@ import { Copy, RotateCcw } from 'lucide-react';
 import SeriesField from '@/components/tools/SeriesField';
 import { formatNumber as fmt } from '@/lib/format';
 import { parseSeries, summariseSeries } from '@/lib/series';
-
+import CsvBatchUpload from '@/components/tools/CsvBatchUpload';
 const INITIAL = {
   series: '42.1, 41.8, 42.4\n41.9, 42.6, 42.0\n42.3, 41.7, 42.2',
   targetCd: '',
@@ -66,6 +66,12 @@ export default function CdUniformityCalculator() {
           onChange={(value) => setState((previous) => ({ ...previous, series: value }))}
           hint="Separate the readings with commas, spaces or new lines. One reading per site, in nanometres."
           placeholder="42.1, 41.8, 42.4, 41.9"
+        />
+
+        <CsvBatchUpload
+          onDataLoaded={(values) => setState((p) => ({ ...p, series: values.join(', ') }))}
+          currentSummary={summary}
+          unit="nm"
         />
 
         <div className="field">

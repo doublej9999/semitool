@@ -6,6 +6,7 @@ import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { parseSeries, summariseSeries } from '@/lib/series';
 import SeriesField from '@/components/tools/SeriesField';
+import CsvBatchUpload from '@/components/tools/CsvBatchUpload';
 
 const INITIAL_SERIES = '100.5, 101.2, 99.4, 100.8, 102.1, 98.9, 100.0, 101.5, 99.8';
 const INITIAL_TARGET = '100';
@@ -55,6 +56,12 @@ export default function FilmUniformityCalculator() {
           onChange={setSeries}
           placeholder="100.5, 101.2, 99.4, ..."
           hint="Comma, space or line separated. One number per measurement site."
+        />
+
+        <CsvBatchUpload
+          onDataLoaded={(values) => setSeries(values.join(', '))}
+          currentSummary={summary}
+          unit="nm"
         />
 
         <div className="field">

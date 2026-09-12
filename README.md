@@ -53,6 +53,7 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Carrier Mobility & Silicon Resistivity Calculator | `/tools/carrier-mobility-calculator` | Caughey-Thomas electron and hole mobility, bulk silicon resistivity, conductivity and dopant concentration bisection solver |
 | Thin Film Color & Interference Calculator | `/tools/film-color-calculator` | Specular power reflectance, CIE 1931 color synthesis, sRGB swatch and Pliskin oxide color scale for dielectric films on silicon |
 | Chip Thermal Resistance & Junction Temp Calculator | `/tools/thermal-resistance-calculator` | Steady-state junction temperature, package thermal resistance (θJC), TIM layer (BLT and k), heat sink (θSA) and thermal margin |
+| Wire Bonding Parasitics & Fusing Calculator | `/tools/wire-bonding-calculator` | Bond wire self-inductance, AC resistance (skin effect), Preece fusing current, and JEDEC continuous DC limits for Au, Cu, Al and Ag |
 ## Stack
 
 Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-react · Fuse.js · Vitest
