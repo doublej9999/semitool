@@ -22,6 +22,9 @@ import {
   type MetrologyDataset,
 } from '@/lib/metrology-batch';
 import { downloadCsv } from '@/lib/export';
+import ModalShell from '@/components/common/ModalShell';
+
+type OutlierMethod = 'tukey' | 'three_sigma' | 'none';
 
 interface FabMetrologyImportModalProps {
   isOpen: boolean;
@@ -40,10 +43,9 @@ export default function FabMetrologyImportModal({
 }: FabMetrologyImportModalProps) {
   const [inputText, setInputText] = useState('');
   const [subgroupSize, setSubgroupSize] = useState<number>(5);
-  const [outlierMethod, setOutlierMethod] = useState<'tukey' | 'three_sigma' | 'none'>('tukey');
+  const [outlierMethod, setOutlierMethod] = useState<OutlierMethod>('tukey');
   const [excludeOutliers, setExcludeOutliers] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Parse dataset dynamically
@@ -110,39 +112,12 @@ export default function FabMetrologyImportModal({
   const capabilityUrl = hasData ? buildCapabilityCalculatorUrl(dataset, excludeOutliers) : '#';
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-      }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <ModalShell
+      open={isOpen}
+      onClose={onClose}
+      labelledById="fab-metrology-import-modal-title"
+      className="w-full max-w-[860px] max-h-[90vh] flex flex-col overflow-hidden rounded-xl bg-[var(--paper,#fdfbf7)] border border-[var(--line-strong,#dcd5c9)] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.2),0_8px_10px_-6px_rgba(0,0,0,0.1)]"
     >
-      <div
-        style={{
-          backgroundColor: 'var(--paper, #fdfbf7)',
-          border: '1px solid var(--line-strong, #dcd5c9)',
-          borderRadius: '12px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-          width: '100%',
-          maxWidth: '860px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
         {/* Header */}
         <div
           style={{
@@ -157,7 +132,10 @@ export default function FabMetrologyImportModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <FileSpreadsheet size={22} style={{ color: 'var(--teal, #0d7c82)' }} />
             <div>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink, #1f2937)', margin: 0 }}>
+              <h2
+                id="fab-metrology-import-modal-title"
+                style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink, #1f2937)', margin: 0 }}
+              >
                 Fab Metrology Batch CSV Import & SPC Linkage
               </h2>
               <p style={{ fontSize: '0.8rem', color: 'var(--muted, #64748b)', margin: 0 }}>
@@ -322,7 +300,7 @@ export default function FabMetrologyImportModal({
               <select
                 id="outlier-select"
                 value={outlierMethod}
-                onChange={(e) => setOutlierMethod(e.target.value as any)}
+                onChange={(e) => setOutlierMethod(e.target.value as OutlierMethod)}
                 style={{
                   padding: '3px 6px',
                   borderRadius: '4px',
@@ -597,7 +575,6 @@ export default function FabMetrologyImportModal({
             <span>Apply to Active Calculator</span>
           </button>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

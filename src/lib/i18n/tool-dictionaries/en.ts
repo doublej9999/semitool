@@ -771,5 +771,25 @@ export const en: Record<string, ToolTranslation> = {
       "terminal effect",
       "current density"
     ]
+  },
+  "/tools/stdf-klarf-explorer": {
+    "name": "STDF / KLARF Explorer",
+    "description": "Parse ATE STDF V4 and KLA KLARF files in the browser: per-test Cpk statistics, sparkline trends, bin distribution, yield and defect clusters with one-click SPC hand-off.",
+    "keywords": [
+      "stdf",
+      "stdf v4",
+      "klarf",
+      "ptr",
+      "prr",
+      "ate datalog",
+      "wafer test",
+      "parametric data",
+      "cpk",
+      "bin distribution",
+      "soft bin",
+      "hard bin",
+      "yield",
+      "defect inspection"
+    ]
   }
 };

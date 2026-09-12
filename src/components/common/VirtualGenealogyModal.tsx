@@ -4,14 +4,11 @@ import React, { useState, useEffect } from 'react';
 import {
   GitFork,
   X,
-  Plus,
   Download,
   Printer,
-  Trash2,
   CheckCircle2,
   AlertTriangle,
   Layers,
-  ChevronRight,
   Sparkles,
 } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
@@ -24,6 +21,7 @@ import {
   generateGenealogyCsv,
   evaluateBranchMetrology,
 } from '@/lib/lot-genealogy';
+import ModalShell from '@/components/common/ModalShell';
 
 interface VirtualGenealogyModalProps {
   isOpen: boolean;
@@ -206,12 +204,17 @@ export function VirtualGenealogyModal({
     }
   }, [lot]);
 
-  // Keep activeBranchId valid
-  useEffect(() => {
+  // Keep activeBranchId valid when the lot is replaced. React-recommended
+  // "adjust state when tracked state changes" pattern: compare against the
+  // previous lot during render instead of inside an effect (avoids the
+  // cascading renders flagged by react-hooks/set-state-in-effect).
+  const [prevLot, setPrevLot] = useState(lot);
+  if (prevLot !== lot) {
+    setPrevLot(lot);
     if (!lot.branches.some((b) => b.branchId === activeBranchId)) {
       setActiveBranchId(lot.branches[0]?.branchId || 'main');
     }
-  }, [lot.branches, activeBranchId]);
+  }
 
   if (!isOpen) return null;
 
@@ -301,8 +304,8 @@ export function VirtualGenealogyModal({
       setShowSplitDialog(false);
       setSplitNameInput('');
       setSplitNotesInput('');
-    } catch (e: any) {
-      alert(e?.message || 'Error executing split');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Error executing split');
     }
   };
 
@@ -333,41 +336,12 @@ export function VirtualGenealogyModal({
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(4px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-      }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <ModalShell
+      open={isOpen}
+      onClose={onClose}
+      labelledById="virtual-genealogy-modal-title"
+      className="genealogy-modal-panel card w-full max-w-[1020px] max-h-[90vh] flex flex-col overflow-hidden rounded-xl bg-[var(--card,#ffffff)] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
     >
-      <div
-        className="genealogy-modal-panel card"
-        style={{
-          width: '100%',
-          maxWidth: '1020px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: 'var(--card, #ffffff)',
-          borderRadius: '12px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          overflow: 'hidden',
-        }}
-      >
         {/* Header */}
         <div
           style={{
@@ -395,7 +369,10 @@ export function VirtualGenealogyModal({
               <GitFork size={18} />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink, #0f172a)' }}>
+              <div
+                id="virtual-genealogy-modal-title"
+                style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink, #0f172a)' }}
+              >
                 {m.title}
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--ink-soft, #64748b)' }}>
@@ -801,8 +778,7 @@ export function VirtualGenealogyModal({
             })
           )}
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   Layers,
   Sparkles,
@@ -21,11 +21,13 @@ import {
   SubstrateProperties,
   SUBSTRATE_CATALOG,
   INDUSTRIAL_STACK_TEMPLATES,
+  type LayerProcessType,
   calculateFilmStackPhysics,
   loadActiveWorkspaceProject,
   saveActiveWorkspaceProject,
   createDefaultFilmStackProject,
 } from '@/lib/film-stack';
+import ModalShell from '@/components/common/ModalShell';
 import { useLocale, type SupportedLocale } from '@/lib/i18n/context';
 
 interface FabWorkspaceModalProps {
@@ -271,8 +273,13 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load from LocalStorage on initial open
-  useEffect(() => {
+  // Reload from LocalStorage every time the modal opens. React-recommended
+  // "adjust state when a prop changes" pattern: track the previous value and
+  // adjust state during render instead of inside an effect (avoids the
+  // cascading-render cascade flagged by react-hooks/set-state-in-effect).
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       const active = loadActiveWorkspaceProject();
       setProject(active);
@@ -280,7 +287,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
         setSelectedLayerId(active.layers[0].id);
       }
     }
-  }, [isOpen]);
+  }
 
   // Sync to LocalStorage whenever project updates
   const updateProject = (updater: (prev: FilmStackProject) => FilmStackProject) => {
@@ -428,36 +435,12 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-      }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <ModalShell
+      open={isOpen}
+      onClose={onClose}
+      labelledById="fab-workspace-modal-title"
+      className="w-full max-w-[1080px] max-h-[92vh] flex flex-col overflow-hidden rounded-xl bg-[var(--card,#ffffff)] border border-[var(--line,#cbd5e1)] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
     >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '1080px',
-          maxHeight: '92vh',
-          backgroundColor: 'var(--card, #ffffff)',
-          borderRadius: '12px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          border: '1px solid var(--line, #cbd5e1)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
         {/* Header */}
         <div
           style={{
@@ -485,7 +468,10 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
               <Layers size={18} />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink, #0f172a)' }}>
+              <div
+                id="fab-workspace-modal-title"
+                style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink, #0f172a)' }}
+              >
                 {m.title}
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--ink-soft, #64748b)' }}>
@@ -1061,7 +1047,9 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
                         className="select"
                         style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
                         value={selectedLayer.processType}
-                        onChange={(e) => handleUpdateSelectedLayer({ processType: e.target.value as any })}
+                        onChange={(e) =>
+                          handleUpdateSelectedLayer({ processType: e.target.value as LayerProcessType })
+                        }
                       >
                         <option value="thermal_oxidation">Thermal Oxidation</option>
                         <option value="cvd">CVD / PECVD / LPCVD</option>
@@ -1100,8 +1088,7 @@ export default function FabWorkspaceModal({ isOpen, onClose }: FabWorkspaceModal
             {m.doneClose}
           </button>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }
 export { FabWorkspaceModal };

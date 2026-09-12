@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Printer, X, Download, Save, History, Trash2, Check } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
+import { CODE39_WIDE, encodeCode39, sanitizeCode39 } from '@/lib/code39';
+import { downloadPdf } from '@/lib/export';
 
 interface EngineeringTravelerModalProps {
   toolName: string;
@@ -11,19 +13,121 @@ interface EngineeringTravelerModalProps {
   defaultResults?: Record<string, string | number>;
 }
 
-/** Vector SVG Code-128 / Code-39 barcode pattern */
-function SvgBarcode({ value }: { value: string }) {
-  const bars: number[] = [2, 1, 1, 2]; // Start guard
-  for (let i = 0; i < value.length; i++) {
-    const code = value.charCodeAt(i);
-    bars.push((code % 3) + 1);
-    bars.push(((code >> 2) % 2) + 1);
-    bars.push(((code >> 4) % 3) + 1);
-    bars.push(1); // inter-character space
-  }
-  bars.push(2, 1, 2, 2); // Stop guard
+interface TravelerRecord {
+  id: string;
+  timestamp: number;
+  date: string;
+  toolName: string;
+  lotId: string;
+  waferIds: string;
+  recipeName: string;
+  chamberId: string;
+  operator: string;
+  targetSpec: string;
+  notes: string;
+  inputs: Record<string, string | number>;
+  results: Record<string, string | number>;
+}
 
-  let currentX = 8;
+/** Loads archived travelers from localStorage (safe during SSR). */
+function loadTravelerHistory(): TravelerRecord[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem('semitools_traveler_history');
+    return raw ? (JSON.parse(raw) as TravelerRecord[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Collects traveler parameters from the live page: URL params, calculator
+ * input fields and result cards. Runs at open-interaction time. */
+function extractTravelerParams(
+  defaultInputs: Record<string, string | number>,
+  defaultResults: Record<string, string | number>,
+): { inputs: Record<string, string | number>; results: Record<string, string | number> } {
+  const inputs = { ...defaultInputs };
+  const results = { ...defaultResults };
+
+  if (typeof window === 'undefined') {
+    return { inputs, results };
+  }
+
+  // 1. URL search params
+  try {
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.forEach((val, key) => {
+      if (val && !inputs[key]) {
+        const formattedKey = key
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, (str) => str.toUpperCase());
+        inputs[formattedKey] = val;
+      }
+    });
+  } catch {
+    // Ignore URL parsing errors
+  }
+
+  // 2. Scan calculator input fields on page if inputs are sparse
+  if (Object.keys(inputs).length <= 2) {
+    try {
+      const fields = document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+        'main input:not([type="hidden"]):not([type="search"]), main select'
+      );
+      fields.forEach((el) => {
+        let label = '';
+        if (el.id) {
+          const lbl = document.querySelector(`label[for="${el.id}"]`);
+          if (lbl) label = lbl.textContent?.trim() || '';
+        }
+        if (!label) {
+          const parentLabel = el.closest('label');
+          if (parentLabel) label = parentLabel.textContent?.replace(el.value, '').trim() || '';
+        }
+        if (!label && el.name) label = el.name;
+        if (!label && el.getAttribute('aria-label')) label = el.getAttribute('aria-label') || '';
+
+        if (label && el.value && !inputs[label] && Object.keys(inputs).length < 8) {
+          const cleanLabel = label.split('\n')[0].replace(/[:*]/g, '').trim();
+          if (cleanLabel.length > 0 && cleanLabel.length < 45) {
+            inputs[cleanLabel] = el.value;
+          }
+        }
+      });
+    } catch {
+      // Ignore DOM query issues
+    }
+  }
+
+  // 3. Scan result cards on page if results are sparse
+  if (Object.keys(results).length === 0) {
+    try {
+      const resultCards = document.querySelectorAll<HTMLElement>(
+        '.metric-card, .result-card, [data-testid="result"], .stat-card, .result-hero'
+      );
+      resultCards.forEach((card) => {
+        const titleEl = card.querySelector<HTMLElement>('.metric-label, .result-label, h4, h3, span');
+        const valEl = card.querySelector<HTMLElement>('.metric-value, .result-value, strong, .font-mono');
+        const title = titleEl?.textContent?.trim();
+        const val = valEl?.textContent?.trim();
+        if (title && val && title !== val && Object.keys(results).length < 6) {
+          results[title] = val;
+        }
+      });
+    } catch {
+      // Ignore DOM query issues
+    }
+  }
+
+  return { inputs, results };
+}
+
+/** Real Code 39 (ISO/IEC 16388) barcode rendered from the shared encoder. */
+function SvgBarcode({ value }: { value: string }) {
+  const { bars } = encodeCode39(sanitizeCode39(value));
+
+  const quietZone = 8;
+  let currentX = quietZone;
   const rects: React.ReactNode[] = [];
   bars.forEach((width, idx) => {
     if (idx % 2 === 0) {
@@ -44,7 +148,7 @@ function SvgBarcode({ value }: { value: string }) {
   return (
     <div style={{ textAlign: 'center', display: 'inline-block' }}>
       <svg
-        viewBox={`0 0 ${currentX + 8} 48`}
+        viewBox={`0 0 ${currentX + quietZone} 48`}
         style={{ width: '100%', maxWidth: '210px', height: '38px', display: 'block', margin: '0 auto' }}
         shapeRendering="crispEdges"
         aria-label={`Barcode for ${value}`}
@@ -142,19 +246,10 @@ export default function EngineeringTravelerModal({
 
   const [activeInputs, setActiveInputs] = useState<Record<string, string | number>>(defaultInputs);
   const [activeResults, setActiveResults] = useState<Record<string, string | number>>(defaultResults);
-  const [savedHistory, setSavedHistory] = useState<any[]>([]);
+  // Lazy initializer: archived runs are read once from localStorage on mount.
+  const [savedHistory, setSavedHistory] = useState<TravelerRecord[]>(loadTravelerHistory);
   const [showHistory, setShowHistory] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-
-  // Load history from localStorage
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('semitools_traveler_history');
-      if (raw) setSavedHistory(JSON.parse(raw));
-    } catch {
-      // ignore local storage error
-    }
-  }, [isOpen]);
 
   const handleSaveTraveler = () => {
     const record = {
@@ -181,7 +276,7 @@ export default function EngineeringTravelerModal({
     setTimeout(() => setSaveSuccess(false), 2000);
   };
 
-  const handleLoadRecord = (rec: any) => {
+  const handleLoadRecord = (rec: TravelerRecord) => {
     setLotId(rec.lotId || lotId);
     setWaferIds(rec.waferIds || waferIds);
     setRecipeName(rec.recipeName || recipeName);
@@ -259,7 +354,198 @@ export default function EngineeringTravelerModal({
     URL.revokeObjectURL(url);
   };
 
-  // Lock body scroll, listen for Escape key, and auto-populate parameters
+  const handleExportPdf = async () => {
+    await downloadPdf(`Traveler_${lotId}_${dateStr}.pdf`, `Cleanroom Traveler ${lotId}`, (doc) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      const contentWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      doc.setDrawColor(148, 163, 184);
+
+      const ensureSpace = (needed: number) => {
+        if (y + needed > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+      };
+
+      const sectionHeader = (label: string) => {
+        ensureSpace(14);
+        doc.setFont('courier', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(15, 23, 42);
+        doc.text(label, margin, y + 3);
+        y += 5.5;
+      };
+
+      const drawGrid = (rows: string[][], colWidths: number[], headerRows = 0) => {
+        const padding = 1.5;
+        const lineHeight = 3.2;
+        doc.setFontSize(7.5);
+        rows.forEach((cells, rowIndex) => {
+          const isHeader = rowIndex < headerRows;
+          doc.setFont('courier', isHeader ? 'bold' : 'normal');
+          const cellLines = cells.map(
+            (cell, i) => doc.splitTextToSize(cell || ' ', colWidths[i] - padding * 2) as string[],
+          );
+          const lineCount = Math.max(1, ...cellLines.map((lines) => lines.length));
+          const rowHeight = lineCount * lineHeight + padding * 2;
+
+          if (y + rowHeight > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+          }
+
+          cells.forEach((_, i) => {
+            const x = margin + colWidths.slice(0, i).reduce((sum, w) => sum + w, 0);
+            if (isHeader) {
+              doc.setFillColor(241, 245, 249);
+              doc.rect(x, y, colWidths[i], rowHeight, 'F');
+            }
+            doc.rect(x, y, colWidths[i], rowHeight, 'S');
+            doc.setTextColor(15, 23, 42);
+            cellLines[i].forEach((line, lineIdx) => {
+              doc.text(line, x + padding, y + padding + (lineIdx + 0.75) * lineHeight);
+            });
+          });
+          y += rowHeight;
+        });
+      };
+
+      // Document header
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(15);
+      doc.text('SEMITOOLS CLEANROOM TRAVELER', pageWidth / 2, y + 4, { align: 'center' });
+      y += 8;
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(8);
+      doc.text('WAFER LOT DISPATCH & PROCESS RUN-SHEET', pageWidth / 2, y, { align: 'center' });
+      y += 4;
+      doc.text(`DATE: ${dateStr}    REV: V2.6-ENG    STATUS: AUTHORIZED`, pageWidth / 2, y, {
+        align: 'center',
+      });
+      y += 7;
+
+      // Code 39 barcode of the lot id, drawn bar by bar from the shared encoder
+      const barcodeText = sanitizeCode39(lotId);
+      const { bars } = encodeCode39(barcodeText);
+      const narrow = 0.3;
+      const wide = narrow * 2.5;
+      const barcodeWidth = bars.reduce(
+        (sum, units) => sum + (units === CODE39_WIDE ? wide : narrow),
+        0,
+      );
+      ensureSpace(20);
+      let cursor = (pageWidth - barcodeWidth) / 2;
+      doc.setFillColor(15, 23, 42);
+      bars.forEach((units, index) => {
+        const width = units === CODE39_WIDE ? wide : narrow;
+        if (index % 2 === 0) {
+          doc.rect(cursor, y, width, 10, 'F');
+        }
+        cursor += width;
+      });
+      y += 12;
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(8);
+      doc.text(`*${barcodeText}*`, pageWidth / 2, y, { align: 'center' });
+      y += 8;
+
+      // Lot information run-card grid
+      sectionHeader('LOT INFORMATION');
+      drawGrid(
+        [
+          ['LOT NUMBER', lotId, 'WAFER SLOTS', waferIds],
+          ['PROCESS / RECIPE', recipeName, 'CHAMBER / TOOL', chamberId],
+          ['RESPONSIBLE ENG', operator, 'RUN DATE', dateStr],
+          ['OPERATION STEP', `STEP-410 [${toolName}]`, 'TARGET SPEC', targetSpec || '-'],
+        ],
+        [34, 56, 34, 56],
+      );
+      y += 5;
+
+      // Input parameters
+      sectionHeader('INPUT PARAMETERS - NOMINAL / MODELED SETPOINT');
+      const inputRows = Object.entries(activeInputs)
+        .slice(0, 12)
+        .map(([key, val]) => [key, String(val), '+/-3.0%', '[        ]', '[ ] PASS  [ ] OOS']);
+      drawGrid(
+        [
+          ['Parameter', 'Nominal / Modeled Setpoint', 'Tolerance', 'Actual', 'Verification'],
+          ...(inputRows.length > 0
+            ? inputRows
+            : [['Process Temp / Power', 'Standard Recipe Setpoint', '+/-1.5%', '[        ]', '[ ] PASS  [ ] OOS']]),
+        ],
+        [40, 58, 22, 26, 34],
+        1,
+      );
+      y += 5;
+
+      // Metrology & quality acceptance
+      sectionHeader('METROLOGY & QUALITY ACCEPTANCE');
+      const resultRows = Object.entries(activeResults)
+        .slice(0, 10)
+        .map(([key, val]) => [key, String(val), '-5%', '+5%', '[        ]']);
+      drawGrid(
+        [
+          ['Metrology Output', 'Theoretical / Modeled Value', 'LSL', 'USL', 'Measured Avg'],
+          ...(resultRows.length > 0
+            ? resultRows
+            : [['Target Thickness / Rate / Yield', 'Refer to Active Tool Metrology', '-5%', '+5%', '[        ]']]),
+        ],
+        [44, 62, 20, 20, 34],
+        1,
+      );
+      y += 5;
+
+      // Notes
+      sectionHeader('NOTES');
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(8);
+      const noteLines = doc.splitTextToSize(notes || '-', contentWidth) as string[];
+      ensureSpace(noteLines.length * 3.5 + 4);
+      noteLines.forEach((line) => {
+        doc.text(line, margin, y + 3);
+        y += 3.5;
+      });
+      y += 3;
+
+      // Sign-off block
+      sectionHeader('CLEANROOM SIGN-OFF & VERIFICATION');
+      drawGrid(
+        [
+          ['PRE-CHECK', 'PROCESS RUN', 'POST METROLOGY'],
+          [
+            'Chamber Base Vacuum: [ ] OK\nOperator Sign: ______________',
+            'Recipe Abort / Alarm: [ ] NONE\nShift Handover: ______________',
+            'Disposition: [ ] RELEASE [ ] HOLD\nFab Engineer Sign: ____________',
+          ],
+        ],
+        [60, 60, 60],
+        1,
+      );
+
+      // Footer on every page
+      const pageCount = doc.getNumberOfPages();
+      for (let page = 1; page <= pageCount; page++) {
+        doc.setPage(page);
+        doc.setFont('courier', 'normal');
+        doc.setFontSize(6.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text('Generated by SemiTools Local Fab Engineering Hub', margin, pageHeight - 8);
+        doc.text(
+          `ISO 9001 / IATF 16949 Metrology Audit Compliant Record - Page ${page}/${pageCount}`,
+          pageWidth - margin,
+          pageHeight - 8,
+          { align: 'right' },
+        );
+      }
+    });
+  };
+
+  // Lock body scroll and listen for Escape while the modal is open.
   useEffect(() => {
     if (!isOpen) return;
     const originalOverflow = document.body.style.overflow;
@@ -270,90 +556,24 @@ export default function EngineeringTravelerModal({
     };
     window.addEventListener('keydown', handleKeyDown);
 
-    // Auto-extract parameters from URL and DOM
-    const extractedInputs: Record<string, string | number> = { ...defaultInputs };
-    const extractedResults: Record<string, string | number> = { ...defaultResults };
-
-    if (typeof window !== 'undefined') {
-      // 1. URL search params
-      try {
-        const searchParams = new URLSearchParams(window.location.search);
-        searchParams.forEach((val, key) => {
-          if (val && !extractedInputs[key]) {
-            const formattedKey = key
-              .replace(/([A-Z])/g, ' $1')
-              .replace(/^./, (str) => str.toUpperCase());
-            extractedInputs[formattedKey] = val;
-          }
-        });
-      } catch {
-        // Ignore URL parsing errors
-      }
-
-      // 2. Scan calculator input fields on page if inputs are sparse
-      if (Object.keys(extractedInputs).length <= 2) {
-        try {
-          const inputs = document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
-            'main input:not([type="hidden"]):not([type="search"]), main select'
-          );
-          inputs.forEach((el) => {
-            let label = '';
-            if (el.id) {
-              const lbl = document.querySelector(`label[for="${el.id}"]`);
-              if (lbl) label = lbl.textContent?.trim() || '';
-            }
-            if (!label) {
-              const parentLabel = el.closest('label');
-              if (parentLabel) label = parentLabel.textContent?.replace(el.value, '').trim() || '';
-            }
-            if (!label && el.name) label = el.name;
-            if (!label && el.getAttribute('aria-label')) label = el.getAttribute('aria-label') || '';
-
-            if (label && el.value && !extractedInputs[label] && Object.keys(extractedInputs).length < 8) {
-              const cleanLabel = label.split('\n')[0].replace(/[:*]/g, '').trim();
-              if (cleanLabel.length > 0 && cleanLabel.length < 45) {
-                extractedInputs[cleanLabel] = el.value;
-              }
-            }
-          });
-        } catch {
-          // Ignore DOM query issues
-        }
-      }
-
-      // 3. Scan result cards on page if results are sparse
-      if (Object.keys(extractedResults).length === 0) {
-        try {
-          const resultCards = document.querySelectorAll<HTMLElement>(
-            '.metric-card, .result-card, [data-testid="result"], .stat-card, .result-hero'
-          );
-          resultCards.forEach((card) => {
-            const titleEl = card.querySelector<HTMLElement>('.metric-label, .result-label, h4, h3, span');
-            const valEl = card.querySelector<HTMLElement>('.metric-value, .result-value, strong, .font-mono');
-            const title = titleEl?.textContent?.trim();
-            const val = valEl?.textContent?.trim();
-            if (title && val && title !== val && Object.keys(extractedResults).length < 6) {
-              extractedResults[title] = val;
-            }
-          });
-        } catch {
-          // Ignore DOM query issues
-        }
-      }
-    }
-
-    if (Object.keys(extractedInputs).length > 0) {
-      setActiveInputs(extractedInputs);
-    }
-    if (Object.keys(extractedResults).length > 0) {
-      setActiveResults(extractedResults);
-    }
-
     return () => {
       document.body.style.overflow = originalOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, defaultInputs, defaultResults]);
+  }, [isOpen]);
+
+  // Parameter extraction scans the live page, so it runs from the open
+  // interaction instead of synchronously inside an effect.
+  const openTraveler = () => {
+    const { inputs, results } = extractTravelerParams(defaultInputs, defaultResults);
+    if (Object.keys(inputs).length > 0) {
+      setActiveInputs(inputs);
+    }
+    if (Object.keys(results).length > 0) {
+      setActiveResults(results);
+    }
+    setIsOpen(true);
+  };
 
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
@@ -366,7 +586,7 @@ export default function EngineeringTravelerModal({
       <button
         type="button"
         className="button secondary tool-action-btn"
-        onClick={() => setIsOpen(true)}
+        onClick={openTraveler}
         title={t.travelerBtnTitle}
       >
         <FileText size={14} aria-hidden="true" />
@@ -447,6 +667,16 @@ export default function EngineeringTravelerModal({
                 </button>
                 <button
                   type="button"
+                  className="button secondary sm"
+                  onClick={handleExportPdf}
+                  title="Export printable PDF run-card"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
+                >
+                  <Download size={14} />
+                  <span>PDF</span>
+                </button>
+                <button
+                  type="button"
                   className="button primary sm"
                   onClick={handlePrint}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '12px' }}
@@ -493,7 +723,7 @@ export default function EngineeringTravelerModal({
                 </div>
                 {savedHistory.length === 0 ? (
                   <div style={{ fontSize: '12px', color: 'var(--muted)', padding: '6px 0' }}>
-                    No archived runs yet. Click "Archive" to store this traveler.
+                    No archived runs yet. Click &quot;Archive&quot; to store this traveler.
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>

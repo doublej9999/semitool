@@ -1,0 +1,811 @@
+'use client';
+
+import { useCallback, useMemo, useState } from 'react';
+import {
+  AlertTriangle,
+  Download,
+  ExternalLink,
+  RotateCcw,
+  Sparkles,
+  Upload,
+} from 'lucide-react';
+import { parseStdfV4, type StdfParseSummary, type StdfParametricTestRecord } from '@/lib/stdf-parser';
+import { generateSyntheticKlarf, parseKlarf, type KlarfSummary } from '@/lib/klarf-parser';
+import {
+  binSummary,
+  groupByTest,
+  splitTestGroupKey,
+  summarizeTest,
+  trendValues,
+} from '@/lib/parametric-analysis';
+import { downloadCsv } from '@/lib/export';
+import { formatSubgroupsForSpc } from '@/lib/metrology-batch';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { buildDemoStdf } from './demo';
+
+interface TestRow {
+  key: string;
+  name: string;
+  units: string;
+  testNumber: number;
+  records: StdfParametricTestRecord[];
+  trend: number[];
+  lsl?: number;
+  usl?: number;
+  summary: ReturnType<typeof summarizeTest>;
+}
+
+interface LimitInput {
+  lsl: string;
+  usl: string;
+}
+
+const round = (value: number): number => Number(value.toFixed(4));
+const formatLimit = (value: number): string => String(Number(value.toPrecision(6)));
+
+function parseLimit(text: string | undefined): number | undefined {
+  const trimmed = (text ?? '').trim();
+  if (trimmed === '') return undefined;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+/** First finite low/high limit found in a test's PTR records (the file's own specs). */
+function fileDefaultLimits(records: StdfParametricTestRecord[]): { lsl?: number; usl?: number } {
+  let lsl: number | undefined;
+  let usl: number | undefined;
+  for (const record of records) {
+    if (lsl === undefined && Number.isFinite(record.lowLimit)) lsl = record.lowLimit;
+    if (usl === undefined && Number.isFinite(record.highLimit)) usl = record.highLimit;
+    if (lsl !== undefined && usl !== undefined) break;
+  }
+  return { lsl, usl };
+}
+
+/**
+ * Serializes a test's results into the SPC Control Chart deep link using the
+ * same `subgroups` URL contract as `buildSpcCalculatorUrl` in metrology-batch:
+ * comma-separated readings per line, fixed subgroup size, at least 2 subgroups.
+ */
+function buildSpcUrl(values: number[], subgroupSize = 5): string | null {
+  const usableCount = Math.floor(values.length / subgroupSize) * subgroupSize;
+  if (usableCount / subgroupSize < 2) return null;
+
+  const subgroups: number[][] = [];
+  for (let index = 0; index < usableCount; index += subgroupSize) {
+    subgroups.push(values.slice(index, index + subgroupSize));
+  }
+
+  const params = new URLSearchParams();
+  params.set('subgroups', formatSubgroupsForSpc(subgroups));
+  return `/tools/spc-control-chart-calculator?${params.toString()}`;
+}
+
+function looksLikeKlarfText(text: string): boolean {
+  return /FileVersion\s|DefectRecordSpec|WaferID\s|InspectionStationID/i.test(text.slice(0, 2000));
+}
+
+function looksLikeKlarfBuffer(buffer: ArrayBuffer): boolean {
+  const sample = new TextDecoder().decode(new Uint8Array(buffer.slice(0, 1024)));
+  return looksLikeKlarfText(sample);
+}
+
+export default function StdfKlarfExplorer() {
+  const [stdf, setStdf] = useState<StdfParseSummary | null>(null);
+  const [klarf, setKlarf] = useState<KlarfSummary | null>(null);
+  const [fileName, setFileName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [limits, setLimits] = useState<Record<string, LimitInput>>({});
+  const [urlState, setUrlState] = useState({ q: '' });
+  useUrlParamsState(urlState, setUrlState);
+  const search = urlState.q;
+
+  const groups = useMemo(
+    () => (stdf ? [...groupByTest(stdf.parametricTests).entries()] : []),
+    [stdf],
+  );
+
+  const testRows = useMemo<TestRow[]>(
+    () =>
+      groups.map(([key, records]) => {
+        const { name, units } = splitTestGroupKey(key);
+        const saved = limits[key] ?? { lsl: '', usl: '' };
+        const lsl = parseLimit(saved.lsl);
+        const usl = parseLimit(saved.usl);
+        return {
+          key,
+          name,
+          units,
+          testNumber: records[0]?.testNumber ?? 0,
+          records,
+          trend: trendValues(records),
+          lsl,
+          usl,
+          summary: summarizeTest(records, { lsl, usl }),
+        };
+      }),
+    [groups, limits],
+  );
+
+  const filteredRows = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return testRows;
+    return testRows.filter(
+      (row) =>
+        row.name.toLowerCase().includes(query) ||
+        row.units.toLowerCase().includes(query) ||
+        String(row.testNumber).includes(query),
+    );
+  }, [testRows, search]);
+
+  const bins = useMemo(() => (stdf ? binSummary(stdf.parts) : []), [stdf]);
+
+  const loadStdf = useCallback((data: ArrayBuffer | Uint8Array, name: string) => {
+    const summary = parseStdfV4(data);
+    const hasContent = Boolean(summary.mir || summary.wrr) || summary.totalParts > 0 || summary.parametricTests.length > 0;
+    if (!hasContent) {
+      setError(`"${name}" does not contain recognizable STDF V4 records (FAR / MIR / PRR / PTR).`);
+      return;
+    }
+
+    const nextLimits: Record<string, LimitInput> = {};
+    for (const [key, records] of groupByTest(summary.parametricTests)) {
+      const defaults = fileDefaultLimits(records);
+      nextLimits[key] = {
+        lsl: defaults.lsl !== undefined ? formatLimit(defaults.lsl) : '',
+        usl: defaults.usl !== undefined ? formatLimit(defaults.usl) : '',
+      };
+    }
+
+    setStdf(summary);
+    setLimits(nextLimits);
+    setKlarf(null);
+    setFileName(name);
+    setError(null);
+  }, []);
+
+  const loadKlarf = useCallback((text: string, name: string) => {
+    const summary = parseKlarf(text);
+    const hasContent = Boolean(summary.header.lotId || summary.header.waferId) || summary.totalDefects > 0;
+    if (!hasContent) {
+      setError(`"${name}" does not contain recognizable KLARF records (LotID / WaferID / DefectList).`);
+      return;
+    }
+
+    setKlarf(summary);
+    setStdf(null);
+    setLimits({});
+    setFileName(name);
+    setError(null);
+  }, []);
+
+  const handleFile = useCallback(
+    async (file: File) => {
+      try {
+        const buffer = await file.arrayBuffer();
+        const lowerName = file.name.toLowerCase();
+        const isKlarfByExtension = lowerName.endsWith('.klarf') || lowerName.endsWith('.001');
+        const isStdfByExtension = lowerName.endsWith('.std') || lowerName.endsWith('.stdf');
+        const asKlarf = isKlarfByExtension || (!isStdfByExtension && looksLikeKlarfBuffer(buffer));
+
+        if (asKlarf) {
+          loadKlarf(new TextDecoder().decode(buffer), file.name);
+        } else {
+          loadStdf(buffer, file.name);
+        }
+      } catch (loadError) {
+        setError(`Failed to read "${file.name}": ${loadError instanceof Error ? loadError.message : String(loadError)}`);
+      }
+    },
+    [loadKlarf, loadStdf],
+  );
+
+  const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragActive(false);
+    const file = event.dataTransfer.files?.[0];
+    if (file) void handleFile(file);
+  };
+
+  const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+    const files = event.clipboardData?.files;
+    if (files && files.length > 0) {
+      event.preventDefault();
+      void handleFile(files[0]);
+      return;
+    }
+    const text = event.clipboardData?.getData('text') ?? '';
+    if (text && looksLikeKlarfText(text)) {
+      event.preventDefault();
+      loadKlarf(text, 'pasted-klarf.txt');
+    }
+  };
+
+  const reset = () => {
+    setStdf(null);
+    setKlarf(null);
+    setFileName('');
+    setError(null);
+    setLimits({});
+    setUrlState({ q: '' });
+  };
+
+  const updateLimit = (key: string, side: 'lsl' | 'usl', value: string) => {
+    setLimits((previous) => ({
+      ...previous,
+      [key]: { lsl: previous[key]?.lsl ?? '', usl: previous[key]?.usl ?? '', [side]: value },
+    }));
+  };
+
+  const exportSummaryCsv = () => {
+    downloadCsv(
+      'stdf-test-summary.csv',
+      ['Test', 'Units', 'Test Number', 'N', 'Mean', 'Median', 'StdDev', 'Min', 'Max', 'P95', 'LSL', 'USL', 'Out of Spec', 'Cpk'],
+      testRows.map((row) => [
+        row.name,
+        row.units,
+        row.testNumber,
+        row.summary.n,
+        round(row.summary.mean),
+        round(row.summary.median),
+        round(row.summary.stdDev),
+        round(row.summary.min),
+        round(row.summary.max),
+        round(row.summary.p95),
+        row.lsl ?? '',
+        row.usl ?? '',
+        row.summary.outOfSpec,
+        row.summary.cpk !== undefined ? round(row.summary.cpk) : '',
+      ]),
+    );
+  };
+
+  return (
+    <div className="layout-two-column">
+      <section className="panel" aria-labelledby="explorer-inputs">
+        <h2 id="explorer-inputs">Load test data</h2>
+
+        <div
+          className={`drop-zone${dragActive ? ' is-active' : ''}`}
+          role="button"
+          tabIndex={0}
+          aria-label="Drop an STDF or KLARF file, click to browse, or paste KLARF text"
+          onDragOver={(event) => {
+            event.preventDefault();
+            setDragActive(true);
+          }}
+          onDragLeave={() => setDragActive(false)}
+          onDrop={onDrop}
+          onPaste={onPaste}
+          onClick={() => document.getElementById('explorer-file-input')?.click()}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              document.getElementById('explorer-file-input')?.click();
+            }
+          }}
+          style={{
+            border: `2px dashed ${dragActive ? 'var(--teal)' : 'var(--border)'}`,
+            borderRadius: '8px',
+            padding: '24px 16px',
+            textAlign: 'center',
+            cursor: 'pointer',
+            background: dragActive ? 'rgba(60, 154, 164, 0.06)' : 'transparent',
+          }}
+        >
+          <Upload size={22} aria-hidden="true" style={{ margin: '0 auto 8px', display: 'block', color: 'var(--teal)' }} />
+          <p style={{ margin: 0, fontWeight: 600 }}>Drop a file, click to browse, or paste KLARF text</p>
+          <p className="note" style={{ margin: '4px 0 0' }}>
+            STDF V4 binary (.std / .stdf) parsed as ArrayBuffer · KLARF 1.x (.klarf / .001) parsed as text
+          </p>
+          <input
+            id="explorer-file-input"
+            type="file"
+            accept=".std,.stdf,.klarf,.001,.txt"
+            style={{ display: 'none' }}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void handleFile(file);
+              event.target.value = '';
+            }}
+          />
+        </div>
+
+        <div className="action-row">
+          <button className="button secondary" type="button" onClick={() => loadStdf(buildDemoStdf(), 'synthetic-demo.std')}>
+            <Sparkles size={14} aria-hidden="true" /> Load synthetic demo (STDF)
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={() => loadKlarf(generateSyntheticKlarf({ lotId: 'LOT-DEMO-7721', waferId: 'W08' }), 'synthetic-demo.klarf')}
+          >
+            <Sparkles size={14} aria-hidden="true" /> Load demo KLARF
+          </button>
+          <button className="button secondary" type="button" onClick={reset}>
+            <RotateCcw size={14} aria-hidden="true" /> Reset
+          </button>
+        </div>
+
+        {error ? (
+          <p role="alert" style={{ color: '#b0413a', fontWeight: 600, marginTop: '12px' }}>
+            <AlertTriangle size={14} aria-hidden="true" style={{ verticalAlign: '-2px', marginRight: '4px' }} />
+            {error}
+          </p>
+        ) : null}
+
+        <hr className="divider" />
+
+        <h3>Loaded source</h3>
+        {stdf ? (
+          <p className="note" style={{ margin: 0 }}>
+            <strong>{fileName || 'STDF V4 datalog'}</strong>
+            <br />
+            Lot {stdf.mir?.lotId || 'N/A'} · Wafer {stdf.wrr?.waferId || 'N/A'} · Device {stdf.mir?.partType || 'N/A'} ·
+            Tester {stdf.mir?.testerType || 'ATE'}
+            <br />
+            {stdf.parametricTests.length} PTR records across {testRows.length} tests · endian:{' '}
+            {stdf.isLittleEndian ? 'little' : 'big'}
+          </p>
+        ) : klarf ? (
+          <p className="note" style={{ margin: 0 }}>
+            <strong>{fileName || 'KLARF inspection file'}</strong>
+            <br />
+            Lot {klarf.header.lotId || 'N/A'} · Wafer {klarf.header.waferId || 'N/A'} · Station{' '}
+            {klarf.header.inspectionStationId || 'N/A'} · Klarf v{klarf.header.fileVersion}
+            <br />
+            {klarf.totalDefects} defects · {klarf.clusterCount} clusters
+          </p>
+        ) : (
+          <p className="note" style={{ margin: 0 }}>
+            Nothing loaded yet. Everything runs locally in your browser — no file is uploaded.
+          </p>
+        )}
+
+        {stdf && testRows.length > 0 ? (
+          <div className="action-row" style={{ marginTop: '12px' }}>
+            <button className="button secondary" type="button" onClick={exportSummaryCsv}>
+              <Download size={14} aria-hidden="true" /> Export test summary CSV
+            </button>
+          </div>
+        ) : null}
+      </section>
+
+      <section className="panel" aria-labelledby="explorer-results">
+        <h2 id="explorer-results">Results</h2>
+
+        {!stdf && !klarf ? (
+          <p className="note">Load an STDF or KLARF file (or the synthetic demo) to explore bins, parametrics and defects.</p>
+        ) : null}
+
+        {stdf ? (
+          <>
+            <div className="metric-grid">
+              <div className="metric">
+                <span>Total tested</span>
+                <strong>{stdf.totalParts}</strong>
+              </div>
+              <div className="metric">
+                <span>Good parts</span>
+                <strong>{stdf.goodParts}</strong>
+              </div>
+              <div className="metric">
+                <span>Failed parts</span>
+                <strong>{stdf.failedParts}</strong>
+              </div>
+              <div className="metric">
+                <span>Yield</span>
+                <strong style={{ color: stdf.yieldPercent >= 80 ? '#1b806a' : '#b0413a' }}>
+                  {stdf.yieldPercent.toFixed(1)}%
+                </strong>
+              </div>
+            </div>
+
+            {bins.length > 0 ? (
+              <div style={{ marginTop: '16px' }}>
+                <h3 style={{ marginBottom: '8px' }}>Bin distribution (soft bin, hard bin fallback)</h3>
+                <div className="table-scroll">
+                  <table className="model-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Bin</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Percent</th>
+                        <th scope="col">Bar</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bins.map((entry) => (
+                        <tr key={entry.bin}>
+                          <td>{entry.bin}</td>
+                          <td>{entry.count}</td>
+                          <td>{entry.percent.toFixed(1)}%</td>
+                          <td style={{ minWidth: '120px' }}>
+                            <span
+                              aria-hidden="true"
+                              style={{
+                                display: 'inline-block',
+                                height: '8px',
+                                width: `${Math.max(2, entry.percent)}%`,
+                                minWidth: '6px',
+                                borderRadius: '4px',
+                                background: entry.bin === 1 || entry.bin === 100 ? '#3c9aa4' : '#d1625a',
+                              }}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : null}
+
+            {testRows.length > 0 ? (
+              <div style={{ marginTop: '20px' }}>
+                <div className="field">
+                  <label htmlFor="explorer-search">
+                    Filter tests
+                    <span className="unit">{filteredRows.length} / {testRows.length}</span>
+                  </label>
+                  <input
+                    id="explorer-search"
+                    type="search"
+                    value={search}
+                    placeholder="Test name, units or test number…"
+                    onChange={(event) => setUrlState({ q: event.target.value })}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
+                  {filteredRows.map((row) => (
+                    <TestCard
+                      key={row.key}
+                      row={row}
+                      saved={limits[row.key] ?? { lsl: '', usl: '' }}
+                      onLimitChange={updateLimit}
+                    />
+                  ))}
+                  {filteredRows.length === 0 ? <p className="note">No test matches the filter.</p> : null}
+                </div>
+              </div>
+            ) : (
+              <p className="note" style={{ marginTop: '16px' }}>
+                This datalog contains no PTR parametric records — only bin / yield data is available.
+              </p>
+            )}
+          </>
+        ) : null}
+
+        {klarf ? <KlarfView summary={klarf} /> : null}
+      </section>
+    </div>
+  );
+}
+
+function TestCard({
+  row,
+  saved,
+  onLimitChange,
+}: {
+  row: TestRow;
+  saved: LimitInput;
+  onLimitChange: (key: string, side: 'lsl' | 'usl', value: string) => void;
+}) {
+  const { summary } = row;
+  const spcHref = buildSpcUrl(row.trend);
+
+  return (
+    <div
+      style={{
+        border: '1px solid var(--border)',
+        borderRadius: '8px',
+        padding: '14px',
+        background: 'var(--panel-subtle)',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+        <strong>
+          {row.name}
+          {row.units ? <span className="unit"> [{row.units}]</span> : null}
+        </strong>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+          <span className="note" style={{ margin: 0 }}>
+            #{row.testNumber}
+          </span>
+          <CpkBadge cpk={summary.cpk} />
+        </span>
+      </div>
+
+      <div style={{ marginTop: '10px' }}>
+        <Sparkline values={row.trend} lsl={row.lsl} usl={row.usl} />
+      </div>
+
+      <div className="metric-grid" style={{ marginTop: '10px' }}>
+        <div className="metric">
+          <span>n</span>
+          <strong>{summary.n}</strong>
+        </div>
+        <div className="metric">
+          <span>Mean</span>
+          <strong>{round(summary.mean)}</strong>
+        </div>
+        <div className="metric">
+          <span>Median</span>
+          <strong>{round(summary.median)}</strong>
+        </div>
+        <div className="metric">
+          <span>σ (n−1)</span>
+          <strong>{round(summary.stdDev)}</strong>
+        </div>
+        <div className="metric">
+          <span>Min</span>
+          <strong>{round(summary.min)}</strong>
+        </div>
+        <div className="metric">
+          <span>Max</span>
+          <strong>{round(summary.max)}</strong>
+        </div>
+        <div className="metric">
+          <span>P95</span>
+          <strong>{round(summary.p95)}</strong>
+        </div>
+        <div className="metric">
+          <span>Out of spec</span>
+          <strong style={{ color: summary.outOfSpec > 0 ? '#b0413a' : undefined }}>{summary.outOfSpec}</strong>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '12px' }}>
+        <div className="field" style={{ marginBottom: 0 }}>
+          <label htmlFor={`lsl-${row.key}`}>LSL</label>
+          <input
+            id={`lsl-${row.key}`}
+            type="number"
+            step="any"
+            style={{ width: '120px' }}
+            value={saved.lsl}
+            placeholder="—"
+            onChange={(event) => onLimitChange(row.key, 'lsl', event.target.value)}
+          />
+        </div>
+        <div className="field" style={{ marginBottom: 0 }}>
+          <label htmlFor={`usl-${row.key}`}>USL</label>
+          <input
+            id={`usl-${row.key}`}
+            type="number"
+            step="any"
+            style={{ width: '120px' }}
+            value={saved.usl}
+            placeholder="—"
+            onChange={(event) => onLimitChange(row.key, 'usl', event.target.value)}
+          />
+        </div>
+        {spcHref ? (
+          <a className="button secondary" href={spcHref}>
+            <ExternalLink size={14} aria-hidden="true" /> Open in SPC
+          </a>
+        ) : (
+          <button className="button secondary" type="button" disabled title="Need at least 10 results for two subgroups of 5">
+            <ExternalLink size={14} aria-hidden="true" /> Open in SPC
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CpkBadge({ cpk }: { cpk: number | undefined }) {
+  if (cpk === undefined) {
+    return (
+      <span className="note" style={{ margin: 0 }}>
+        Cpk —
+      </span>
+    );
+  }
+
+  const level = cpk >= 1.33 ? 'good' : cpk >= 1 ? 'marginal' : 'poor';
+  const color = level === 'good' ? '#1b806a' : level === 'marginal' ? '#915a13' : '#b0413a';
+  const background = level === 'good' ? 'rgba(60, 154, 164, 0.15)' : level === 'marginal' ? 'rgba(223, 162, 67, 0.18)' : 'rgba(209, 98, 90, 0.15)';
+
+  return (
+    <span
+      title="Cpk = min((USL − μ) / 3σ, (μ − LSL) / 3σ), sample σ"
+      style={{
+        fontSize: '11px',
+        fontWeight: 700,
+        padding: '2px 8px',
+        borderRadius: '4px',
+        color,
+        background,
+      }}
+    >
+      Cpk {cpk.toFixed(2)}
+    </span>
+  );
+}
+
+function Sparkline({ values, lsl, usl }: { values: number[]; lsl?: number; usl?: number }) {
+  if (values.length === 0) {
+    return <p className="note" style={{ margin: 0 }}>No finite results to plot.</p>;
+  }
+
+  // Display-cap long trends by step sampling.
+  const maxPoints = 400;
+  const step = Math.max(1, Math.ceil(values.length / maxPoints));
+  const shown = step > 1 ? values.filter((_, index) => index % step === 0) : values;
+
+  const width = 320;
+  const height = 56;
+  const pad = 3;
+
+  let min = Math.min(...shown);
+  let max = Math.max(...shown);
+  if (lsl !== undefined) min = Math.min(min, lsl);
+  if (usl !== undefined) max = Math.max(max, usl);
+  if (min === max) {
+    min -= 1;
+    max += 1;
+  }
+  const span = max - min;
+
+  const x = (index: number) => pad + (index / Math.max(1, shown.length - 1)) * (width - 2 * pad);
+  const y = (value: number) => height - pad - ((value - min) / span) * (height - 2 * pad);
+  const points = shown.map((value, index) => `${x(index).toFixed(1)},${y(value).toFixed(1)}`).join(' ');
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width="100%"
+      height={height}
+      role="img"
+      aria-label={`Trend of ${values.length} results${lsl !== undefined || usl !== undefined ? ' with spec limits' : ''}`}
+    >
+      {lsl !== undefined ? (
+        <line x1={pad} x2={width - pad} y1={y(lsl)} y2={y(lsl)} stroke="#d1625a" strokeDasharray="4 3" strokeWidth="1" />
+      ) : null}
+      {usl !== undefined ? (
+        <line x1={pad} x2={width - pad} y1={y(usl)} y2={y(usl)} stroke="#d1625a" strokeDasharray="4 3" strokeWidth="1" />
+      ) : null}
+      <polyline points={points} fill="none" stroke="#3c9aa4" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const CLUSTER_COLORS: Record<KlarfSummary['clusters'][number]['category'], string> = {
+  isolated: '#b4bec4',
+  scratch: '#d1625a',
+  hotspot: '#dfa243',
+  cluster: '#3c9aa4',
+};
+
+function KlarfView({ summary }: { summary: KlarfSummary }) {
+  const classEntries = Object.entries(summary.classes)
+    .map(([classNumber, count]) => ({ classNumber: Number(classNumber), count }))
+    .sort((a, b) => a.classNumber - b.classNumber);
+  const topClusters = [...summary.clusters].sort((a, b) => b.count - a.count).slice(0, 6);
+
+  return (
+    <>
+      <div
+        style={{
+          marginBottom: '12px',
+          padding: '10px 14px',
+          background: summary.hasScratches ? 'rgba(209, 98, 90, 0.08)' : 'rgba(223, 162, 67, 0.08)',
+          border: `1px solid ${summary.hasScratches ? '#d1625a' : '#dfa243'}`,
+          borderRadius: '8px',
+          fontSize: '12px',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
+          <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            {summary.hasScratches ? <AlertTriangle size={14} color="#d1625a" /> : null}
+            Lot {summary.header.lotId || 'N/A'} · Wafer {summary.header.waferId || 'N/A'}
+          </strong>
+          <span style={{ fontWeight: 700, color: summary.hasScratches ? '#b0413a' : '#915a13' }}>
+            {summary.hasScratches ? 'MECHANICAL SCRATCH DETECTED' : 'INSPECTION COMPLETE'}
+          </span>
+        </div>
+      </div>
+
+      <div className="metric-grid">
+        <div className="metric">
+          <span>Total defects</span>
+          <strong>{summary.totalDefects}</strong>
+        </div>
+        <div className="metric">
+          <span>Defective die</span>
+          <strong>{summary.defectiveDieCount}</strong>
+        </div>
+        <div className="metric">
+          <span>Density</span>
+          <strong>{summary.defectDensityPerCm2}/cm²</strong>
+        </div>
+        <div className="metric">
+          <span>Clusters</span>
+          <strong>{summary.clusterCount}</strong>
+        </div>
+      </div>
+
+      <p className="note" style={{ marginTop: '10px' }}>
+        Device {summary.header.deviceId || 'N/A'} · Step/Station {summary.header.inspectionStationId || 'N/A'} · Slot{' '}
+        {summary.header.slot ?? '—'} · Die pitch {summary.header.diePitchX ?? '—'}×{summary.header.diePitchY ?? '—'} µm
+      </p>
+
+      {classEntries.length > 0 ? (
+        <div style={{ marginTop: '16px' }}>
+          <h3 style={{ marginBottom: '8px' }}>Defect count per class (bin)</h3>
+          <div className="table-scroll">
+            <table className="model-table">
+              <thead>
+                <tr>
+                  <th scope="col">Class</th>
+                  <th scope="col">Count</th>
+                  <th scope="col">Percent</th>
+                </tr>
+              </thead>
+              <tbody>
+                {classEntries.map((entry) => (
+                  <tr key={entry.classNumber}>
+                    <td>{entry.classNumber}</td>
+                    <td>{entry.count}</td>
+                    <td>{((entry.count / Math.max(1, summary.totalDefects)) * 100).toFixed(1)}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : null}
+
+      {topClusters.length > 0 ? (
+        <div style={{ marginTop: '16px' }}>
+          <h3 style={{ marginBottom: '8px' }}>Top defect clusters</h3>
+          <div className="table-scroll">
+            <table className="model-table">
+              <thead>
+                <tr>
+                  <th scope="col">Cluster</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Defects</th>
+                  <th scope="col">Bounding box (mm)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topClusters.map((cluster) => (
+                  <tr key={cluster.clusterId}>
+                    <td>#{cluster.clusterId}</td>
+                    <td>
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          color: '#152127',
+                          background: CLUSTER_COLORS[cluster.category],
+                        }}
+                      >
+                        {cluster.category}
+                      </span>
+                    </td>
+                    <td>{cluster.count}</td>
+                    <td>
+                      ({cluster.bbox.minX.toFixed(1)}, {cluster.bbox.minY.toFixed(1)}) → ({cluster.bbox.maxX.toFixed(1)},{' '}
+                      {cluster.bbox.maxY.toFixed(1)})
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <p className="note" style={{ marginTop: '16px' }}>
+          No multi-defect clusters detected — defect population is essentially isolated.
+        </p>
+      )}
+    </>
+  );
+}

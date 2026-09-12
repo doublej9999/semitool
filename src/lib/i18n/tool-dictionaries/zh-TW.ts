@@ -738,5 +738,25 @@ export const zhTW: Record<string, ToolTranslation> = {
       "電流密度",
       "添加劑"
     ]
+  },
+  "/tools/stdf-klarf-explorer": {
+    "name": "STDF/KLARF 資料瀏覽器",
+    "description": "在瀏覽器中解析 ATE STDF V4 與 KLA KLARF 檔案：逐測試 Cpk 統計、趨勢走勢圖、Bin 分布、良率與缺陷簇分析，並可一鍵轉入 SPC 控制圖。",
+    "keywords": [
+      "STDF",
+      "KLARF",
+      "測試資料",
+      "ATE 資料日誌",
+      "參數量測",
+      "Cpk",
+      "製程能力",
+      "Bin 分布",
+      "軟Bin",
+      "硬Bin",
+      "良率",
+      "缺陷檢測",
+      "晶圓測試",
+      "SPC"
+    ]
   }
 };

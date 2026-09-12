@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Copy, RotateCcw, FileSpreadsheet } from 'lucide-react';
+import { Copy, Download, RotateCcw, FileSpreadsheet } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { parseSubgroups, xbarRChart } from '@/lib/spc';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { downloadXlsx } from '@/lib/export';
 import FabMetrologyImportModal from '@/components/tools/FabMetrologyImportModal';
 
 const SAMPLE = [
@@ -601,6 +602,27 @@ export default function SpcControlChartCalculator() {
     }
   };
 
+  const exportXlsx = async () => {
+    if (!result.ok) return;
+    const headers = ['Subgroup', 'Mean', 'Range', 'Status'];
+    const rows = result.means.map((mean, index) => {
+      const meanOut = result.meansOutOfControl.includes(index);
+      const rangeOut = result.rangesOutOfControl.includes(index);
+      const run = result.runs.find(
+        (entry) => index >= entry.startIndex && index <= entry.endIndex,
+      );
+      const status = [
+        meanOut ? 'mean out of limits' : null,
+        rangeOut ? 'range out of limits' : null,
+        run ? `run ${run.side}` : null,
+      ]
+        .filter(Boolean)
+        .join(', ');
+      return [index + 1, mean, result.ranges[index], status === '' ? 'in control' : status];
+    });
+    await downloadXlsx('spc-xbar-r-chart.xlsx', 'X-bar R Data', headers, rows);
+  };
+
   const xbarSignalCount = result.ok
     ? result.meansOutOfControl.length + result.runs.length
     : 0;
@@ -638,6 +660,10 @@ export default function SpcControlChartCalculator() {
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
             {copied ? 'Copied' : 'Copy result'}
+          </button>
+          <button type="button" className="button secondary" onClick={exportXlsx} disabled={!result.ok}>
+            <Download size={16} aria-hidden="true" />
+            Export XLSX
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />

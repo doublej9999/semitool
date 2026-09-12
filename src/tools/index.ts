@@ -59,6 +59,7 @@ import { tool as cmpEndpointCalculator } from './cmp-endpoint-calculator';
 import { tool as waferWarpStressCalculator } from './wafer-warp-stress-calculator';
 import { tool as wetBenchCalculator } from './wet-bench-calculator';
 import { tool as cuPlatingCalculator } from './cu-plating-calculator';
+import { tool as stdfKlarfExplorer } from './stdf-klarf-explorer';
 import type { Tool, ToolCategory } from './tools.types';
 
 /**
@@ -131,6 +132,7 @@ export const tools: Tool[] = [
   waferWarpStressCalculator,
   wetBenchCalculator,
   cuPlatingCalculator,
+  stdfKlarfExplorer,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

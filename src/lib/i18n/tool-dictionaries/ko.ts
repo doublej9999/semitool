@@ -720,5 +720,25 @@ export const ko: Record<string, ToolTranslation> = {
       "터미널 효과",
       "전류 밀도"
     ]
+  },
+  "/tools/stdf-klarf-explorer": {
+    "name": "STDF/KLARF 탐색기",
+    "description": "브라우저에서 ATE STDF V4 및 KLA KLARF 파일을 해석합니다: 테스트별 Cpk 통계, 스파크라인 추세, 빈 분포, 수율 및 결함 클러스터 분석과 SPC 관리도 연동.",
+    "keywords": [
+      "STDF",
+      "KLARF",
+      "테스트 데이터",
+      "ATE 데이터 로그",
+      "파라메트릭",
+      "Cpk",
+      "공정 능력",
+      "빈 분포",
+      "소프트 빈",
+      "하드 빈",
+      "수율",
+      "결함 검사",
+      "웨이퍼 테스트",
+      "SPC"
+    ]
   }
 };

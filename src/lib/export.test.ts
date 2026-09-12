@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { downloadCsv, downloadSvg } from './export';
+import { downloadCsv, downloadPdf, downloadSvg, downloadXlsx } from './export';
 
 describe('export utilities', () => {
   beforeEach(() => {
@@ -22,6 +22,13 @@ describe('export utilities', () => {
   it('safely no-ops in SSR / non-browser environment', () => {
     expect(() => downloadCsv('test', ['A'], [['1']])).not.toThrow();
     expect(() => downloadSvg(null as unknown as SVGSVGElement, 'test')).not.toThrow();
+  });
+
+  it('resolves without importing jspdf/exceljs in SSR / non-browser environment', async () => {
+    await expect(downloadPdf('test', 'Test', () => {})).resolves.toBeUndefined();
+    await expect(
+      downloadXlsx('test', 'Sheet', ['A'], [['1']]),
+    ).resolves.toBeUndefined();
   });
 
   it('triggers CSV download when browser window/document are defined', () => {

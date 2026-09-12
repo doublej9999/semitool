@@ -721,5 +721,25 @@ export const ja: Record<string, ToolTranslation> = {
       "ターミナル効果",
       "添加剤"
     ]
+  },
+  "/tools/stdf-klarf-explorer": {
+    "name": "STDF/KLARF エクスプローラー",
+    "description": "ATE STDF V4 と KLA KLARF ファイルをブラウザーで解析: テストごとの Cpk 統計、スパークライン趨勢、ビン分布、歩留まりと欠陥クラスタ分析、SPC 管理図への連携。",
+    "keywords": [
+      "STDF",
+      "KLARF",
+      "テストデータ",
+      "ATE データログ",
+      "パラメトリック",
+      "Cpk",
+      "工程能力",
+      "ビン分布",
+      "ソフトビン",
+      "ハードビン",
+      "歩留まり",
+      "欠陥検査",
+      "ウェハテスト",
+      "SPC"
+    ]
   }
 };

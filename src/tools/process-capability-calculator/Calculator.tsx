@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { Copy, RotateCcw, Play, Download, BarChart2, FileSpreadsheet } from 'lucide-react';
+import { Copy, RotateCcw, Play, Download, FileSpreadsheet } from 'lucide-react';
 import { calculateCapability } from '@/lib/capability';
 import FabMetrologyImportModal from '@/components/tools/FabMetrologyImportModal';
 import { useUrlParamsState } from '@/lib/use-url-state';
@@ -10,7 +10,7 @@ import {
   type MonteCarloResult,
   type ParameterSpec,
 } from '@/lib/monte-carlo';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadSvg, downloadXlsx } from '@/lib/export';
 
 const UNITS = ['nm', 'µm', 'mm', 'inch', 'mil', 'unitless'];
 
@@ -133,6 +133,19 @@ export default function ProcessCapabilityCalculator() {
       bin.frequency.toFixed(5),
     ]);
     downloadCsv(`monte-carlo-distribution-${unit}.csv`, headers, rows);
+  };
+
+  const exportSimulationXlsx = async () => {
+    if (!mcResult) return;
+    const headers = ['bin_start', 'bin_end', 'bin_center', 'die_count', 'relative_frequency'];
+    const rows = mcResult.histogram.map((bin) => [
+      bin.binStart,
+      bin.binEnd,
+      bin.binCenter,
+      bin.count,
+      bin.frequency,
+    ]);
+    await downloadXlsx(`monte-carlo-distribution-${unit}.xlsx`, 'Monte Carlo Distribution', headers, rows);
   };
 
   // SVG dimensions for histogram
@@ -390,6 +403,14 @@ export default function ProcessCapabilityCalculator() {
                       onClick={exportSimulationCsv}
                     >
                       <Download size={12} aria-hidden="true" /> CSV
+                    </button>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      style={{ padding: '2px 8px', fontSize: '12px' }}
+                      onClick={exportSimulationXlsx}
+                    >
+                      <Download size={12} aria-hidden="true" /> XLSX
                     </button>
                   </div>
                 </div>
