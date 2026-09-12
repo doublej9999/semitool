@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
+import { useUrlParamsState } from '@/lib/use-url-state';
 import {
   calculateCoffinMansonNf,
   calculateShearStrainRange,
@@ -346,6 +347,7 @@ function FatiguePlot({
 
 export default function ThermalFatigueCalculator() {
   const [state, setState] = useState(INITIAL);
+  useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
 
   const update = (key: keyof typeof INITIAL, value: string) =>

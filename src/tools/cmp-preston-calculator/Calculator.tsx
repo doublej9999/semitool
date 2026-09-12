@@ -8,6 +8,7 @@ import {
   CMP_PRESETS,
   type CmpPressureUnit,
 } from '@/lib/cmp-preston';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   materialId: 'oxide',
@@ -25,6 +26,7 @@ const num = (v: string) => (v.trim() === '' ? Number.NaN : Number(v));
 
 export default function CmpPrestonCalculator() {
   const [state, setState] = useState(INITIAL);
+  useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
 
   const selectedPreset = useMemo(

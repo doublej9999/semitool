@@ -564,6 +564,45 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "wire length",
         "packaging"
       ]
+    },
+    "/tools/chemical-dilution-calculator": {
+      "name": "Chemical Dilution & Wet Clean Calculator",
+      "description": "RCA SC-1, SC-2, Piranha SPM, DHF, and BOE chemical dilution volumes, component mass/weight %, C1·V1=C2·V2 solver, and oxide etch rate estimation.",
+      "keywords": [
+        "chemical dilution",
+        "rca clean",
+        "sc1 clean",
+        "sc2 clean",
+        "piranha etch",
+        "spm",
+        "dhf",
+        "dilute hf",
+        "boe",
+        "buffered oxide etch",
+        "wet bench",
+        "c1v1 c2v2",
+        "semiconductor cleaning",
+        "oxide etch rate"
+      ]
+    },
+    "/tools/plasma-sheath-calculator": {
+      "name": "Plasma Sheath & Debye Length Calculator",
+      "description": "Electron Debye length, Bohm velocity, Child-Langmuir RF bias sheath thickness, plasma frequency, and ion collisionality regime for RIE/ICP/PECVD.",
+      "keywords": [
+        "plasma sheath",
+        "debye length",
+        "bohm velocity",
+        "bohm criterion",
+        "child langmuir",
+        "plasma frequency",
+        "rf bias",
+        "rie etch",
+        "icp plasma",
+        "sheath capacitance",
+        "floating potential",
+        "mean free path",
+        "semiconductor plasma"
+      ]
     }
   },
   "zh-CN": {
@@ -1159,6 +1198,45 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "Ball Shear",
         "Wire Pull"
       ]
+    },
+    "/tools/chemical-dilution-calculator": {
+      "name": "化学品配比稀释与湿法清洗计算器",
+      "description": "RCA SC-1/SC-2、Piranha SPM、DHF 与 BOE 缓冲氢氟酸配比计算，组分质量/有效浓度百分比、C1·V1=C2·V2 稀释方程与二氧化硅刻蚀速率估算。",
+      "keywords": [
+        "化学配比",
+        "湿法清洗",
+        "稀释计算器",
+        "RCA清洗",
+        "SC-1",
+        "SC-2",
+        "皮拉尼亚",
+        "SPM",
+        "氢氟酸",
+        "DHF",
+        "BOE",
+        "缓冲刻蚀液",
+        "湿法槽",
+        "C1V1",
+        "二氧化硅腐蚀速率"
+      ]
+    },
+    "/tools/plasma-sheath-calculator": {
+      "name": "等离子体鞘层与德拜长度计算器",
+      "description": "电子德拜长度（Debye Length）、玻姆声速（Bohm Velocity）、Child-Langmuir 射频偏压鞘层厚度、等离子体频率与离子碰撞无量纲参数估算。",
+      "keywords": [
+        "等离子体鞘层",
+        "德拜长度",
+        "玻姆速度",
+        "玻姆判据",
+        "Child Langmuir",
+        "鞘层厚度",
+        "等离子体频率",
+        "射频偏压",
+        "RIE刻蚀",
+        "ICP等离子体",
+        "鞘层电容",
+        "平均自由程"
+      ]
     }
   },
   "zh-TW": {
@@ -1687,6 +1765,45 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "金球推力",
         "打線拉力"
       ]
+    },
+    "/tools/chemical-dilution-calculator": {
+      "name": "化學品配比稀釋與濕法清洗計算器",
+      "description": "RCA SC-1/SC-2、Piranha SPM、DHF 與 BOE 緩衝氫氟酸配比計算，組分質量/有效重量百分比、C1·V1=C2·V2 稀釋方程與二氧化矽蝕刻速率估算。",
+      "keywords": [
+        "化學配比",
+        "濕法清洗",
+        "稀釋計算器",
+        "RCA清洗",
+        "SC-1",
+        "SC-2",
+        "皮拉尼亞",
+        "SPM",
+        "氫氟酸",
+        "DHF",
+        "BOE",
+        "緩衝蝕刻液",
+        "濕法槽",
+        "C1V1",
+        "蝕刻速率"
+      ]
+    },
+    "/tools/plasma-sheath-calculator": {
+      "name": "電漿鞘層與德拜長度計算器",
+      "description": "電子德拜長度（Debye Length）、玻姆聲速（Bohm Velocity）、Child-Langmuir 射頻偏壓鞘層厚度、電漿頻率與離子碰撞無因次參數估算。",
+      "keywords": [
+        "電漿鞘層",
+        "德拜長度",
+        "玻姆速度",
+        "玻姆準則",
+        "Child Langmuir",
+        "鞘層厚度",
+        "電漿頻率",
+        "射頻偏壓",
+        "RIE蝕刻",
+        "ICP電漿",
+        "鞘層電容",
+        "平均自由徑"
+      ]
     }
   },
   "ja": {
@@ -2205,6 +2322,42 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "ボールシェア",
         "ワイヤプル"
       ]
+    },
+    "/tools/chemical-dilution-calculator": {
+      "name": "薬液希釈・ウェット洗浄配合計算ツール",
+      "description": "RCA SC-1/SC-2、ピラニアSPM、DHF、BOEバッファードフッ酸の体積比率・質量・実効重量%、C1·V1=C2·V2希釈方程式および酸化膜エッチングレート算出。",
+      "keywords": [
+        "薬液希釈",
+        "ウェット洗浄",
+        "RCA洗浄",
+        "SC-1",
+        "SC-2",
+        "ピラニア洗浄",
+        "SPM",
+        "フッ酸",
+        "DHF",
+        "BOE",
+        "バッファードフッ酸",
+        "ウェットベンチ",
+        "エッチングレート"
+      ]
+    },
+    "/tools/plasma-sheath-calculator": {
+      "name": "プラズマシース＆デバイ長計算ツール",
+      "description": "電子デバイ遮蔽長（Debye Length）、ボーム音速（Bohm Velocity）、Child-Langmuir式高周波RFバイアスシース厚、プラズマ振動数およびイオン衝突性判定。",
+      "keywords": [
+        "プラズマシース",
+        "デバイ長",
+        "ボーム速度",
+        "ボーム基準",
+        "Child Langmuir",
+        "シース厚",
+        "プラズマ周波数",
+        "RFバイアス",
+        "RIEエッチング",
+        "ICPプラズマ",
+        "平均自由行程"
+      ]
     }
   },
   "ko": {
@@ -2720,6 +2873,42 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "루프 높이",
         "볼 쉐어",
         "와이어 풀"
+      ]
+    },
+    "/tools/chemical-dilution-calculator": {
+      "name": "화학 케미컬 희석 및 습식 세정 계산기",
+      "description": "RCA SC-1/SC-2, 피라냐 SPM, DHF, BOE 완충 불산 용액의 배합 체적, 성분 질량 및 중량%, C1·V1=C2·V2 희석 방정식 및 실리콘 산화막 식각율 계산.",
+      "keywords": [
+        "케미컬 희석",
+        "습식 세정",
+        "RCA 세정",
+        "SC-1",
+        "SC-2",
+        "피라냐",
+        "SPM",
+        "불산 희석",
+        "DHF",
+        "BOE",
+        "습식 벤치",
+        "식각 속도",
+        "산화막 식각"
+      ]
+    },
+    "/tools/plasma-sheath-calculator": {
+      "name": "플라즈마 시스 & 드바이 길이 계산기",
+      "description": "전자 드바이 길이(Debye Length), 보름 속도(Bohm Velocity), Child-Langmuir RF 바이어스 시스 두께, 플라즈마 주파수 및 이온 충돌성 해석.",
+      "keywords": [
+        "플라즈마 시스",
+        "드바이 길이",
+        "보름 속도",
+        "보름 기준",
+        "Child Langmuir",
+        "시스 두께",
+        "플라즈마 주파수",
+        "RF 바이어스",
+        "RIE 식각",
+        "ICP 플라즈마",
+        "평균 자유 행로"
       ]
     }
   }

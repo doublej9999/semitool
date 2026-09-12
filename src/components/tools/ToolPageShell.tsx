@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react';
 import ToolCard from './ToolCard';
-import ToolPageActions from './ToolPageActions';
+import ToolPageHeader from './ToolPageHeader';
+import I18nHeading from './I18nHeading';
 import { getRelatedTools } from '@/tools';
 import { absoluteUrl } from '@/lib/site';
 import type { Tool } from '@/tools/tools.types';
@@ -56,28 +58,20 @@ export default function ToolPageShell({ tool, faq, formula, notes, children }: T
   return (
     <article className="tool-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <header className="tool-page-header">
-        <p className="eyebrow">
-          {tool.category} / {tool.isNew ? 'NEW TOOL' : 'TOOL'}
-        </p>
-        <h1>{tool.name}</h1>
-        <span className="tool-page-separator" aria-hidden="true" />
-        <p className="tool-page-desc">{tool.description}</p>
-        <ToolPageActions toolName={tool.name} />
-      </header>
+      <ToolPageHeader toolPath={tool.path} />
 
       <div className="tool-page-content">{children}</div>
 
       {formula ? (
         <section className="info-card" aria-labelledby="formula-heading">
-          <h2 id="formula-heading">Formula and method</h2>
+          <I18nHeading id="formula-heading" translationKey="formulaMethod" fallback="Formula and method" />
           <div className="info-body">{formula}</div>
         </section>
       ) : null}
 
       {notes && notes.length > 0 ? (
         <section className="info-card" aria-labelledby="notes-heading">
-          <h2 id="notes-heading">Notes and assumptions</h2>
+          <I18nHeading id="notes-heading" translationKey="notesAssumptions" fallback="Notes and assumptions" />
           <ul className="info-list">
             {notes.map((note) => (
               <li key={note}>{note}</li>
@@ -87,7 +81,7 @@ export default function ToolPageShell({ tool, faq, formula, notes, children }: T
       ) : null}
 
       <section className="faq" aria-labelledby="faq-heading">
-        <h2 id="faq-heading">FAQ</h2>
+        <I18nHeading id="faq-heading" translationKey="faq" fallback="FAQ" />
         {faq.map((item) => (
           <details className="faq-item" key={item.question}>
             <summary>{item.question}</summary>
@@ -97,7 +91,7 @@ export default function ToolPageShell({ tool, faq, formula, notes, children }: T
       </section>
 
       <section className="related-tools" aria-labelledby="related-heading">
-        <h2 id="related-heading">Related tools</h2>
+        <I18nHeading id="related-heading" translationKey="relatedTools" fallback="Related tools" />
         <div className="tool-grid">
           {related.map((candidate) => (
             <ToolCard key={candidate.path} path={candidate.path} />

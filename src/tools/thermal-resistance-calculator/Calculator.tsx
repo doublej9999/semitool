@@ -9,6 +9,7 @@ import {
   PACKAGE_PRESETS,
   TIM_PRESETS,
 } from '@/lib/thermal-resistance';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   ambientTempC: '25',
@@ -29,6 +30,7 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function ChipThermalCalculator() {
   const [state, setState] = useState(INITIAL);
+  useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
 
   const update = (key: keyof typeof INITIAL, value: string) => {

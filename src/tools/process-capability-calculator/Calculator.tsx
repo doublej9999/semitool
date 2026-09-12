@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { calculateCapability } from '@/lib/capability';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const UNITS = ['nm', 'µm', 'mm', 'inch', 'mil', 'unitless'];
 
@@ -18,6 +19,7 @@ function num(value: number | null, digits = 3): string {
 
 export default function ProcessCapabilityCalculator() {
   const [values, setValues] = useState(INITIAL);
+  useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
 
   const lowerLimit = parseLimit(values.lower);

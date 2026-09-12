@@ -46,6 +46,8 @@ import { tool as yieldConfidenceCalculator } from './yield-confidence-calculator
 import { tool as yieldDppmCalculator } from './yield-dppm-calculator';
 import { tool as yieldModelCalculator } from './yield-model-calculator';
 import { tool as wireBondingCalculator } from './wire-bonding-calculator';
+import { tool as chemicalDilutionCalculator } from './chemical-dilution-calculator';
+import { tool as plasmaSheathCalculator } from './plasma-sheath-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
 /**
@@ -105,6 +107,8 @@ export const tools: Tool[] = [
   wireBondingCalculator,
   cmpPrestonCalculator,
   thermalFatigueCalculator,
+  chemicalDilutionCalculator,
+  plasmaSheathCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

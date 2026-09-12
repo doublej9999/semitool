@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
+import { useUrlParamsState } from '@/lib/use-url-state';
 import {
   calculateWireBonding,
   WIRE_MATERIALS,
@@ -19,6 +20,7 @@ const INITIAL = {
 
 export default function WireBondingCalculator() {
   const [state, setState] = useState(INITIAL);
+  useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
 
   const result = useMemo(() => {

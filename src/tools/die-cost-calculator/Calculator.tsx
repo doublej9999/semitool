@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { calculateDieCost } from '@/lib/die-cost';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = { waferCost: 3000, extraCostPerWafer: 0, grossDie: 720, goodDie: 697 };
 
@@ -12,6 +13,7 @@ function money(value: number, digits: number): string {
 
 export default function DieCostCalculator() {
   const [values, setValues] = useState(INITIAL);
+  useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
 
   const result = useMemo(() => calculateDieCost(values), [values]);

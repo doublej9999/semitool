@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { calculateArrhenius, extractActivationEnergy } from '@/lib/arrhenius';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const MODES = [
   { id: 'predict', label: 'Predict a rate at a temperature' },
@@ -25,6 +26,7 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function ArrheniusCalculator() {
   const [state, setState] = useState(INITIAL);
+  useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
 
   const update = (key: keyof typeof INITIAL, value: string) =>

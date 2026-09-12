@@ -350,8 +350,11 @@ code {
   text-decoration: none;
 }
 
-.toolbar-github {
+.toolbar-right {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .palette-trigger {
@@ -1392,8 +1395,12 @@ kbd {
     display: none;
   }
 
-  .toolbar-link,
-  .toolbar-github {
+  .toolbar-right {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .toolbar-link {
     display: none;
   }
 
@@ -1444,7 +1451,13 @@ kbd {
   padding: 5px 12px;
 }
 
+@page {
+  size: auto;
+  margin: 12mm 15mm 15mm 15mm;
+}
+
 @media print {
+  /* Hide all surrounding chrome, navigation, footers and supplementary docs */
   .app-sider,
   .app-toolbar,
   .app-footer,
@@ -1454,27 +1467,126 @@ kbd {
   .info-card,
   .action-row,
   .drawer-toggle,
-  .rail-toggle {
+  .rail-toggle,
+  .skip-link,
+  button,
+  .button {
     display: none !important;
   }
 
   body,
   .app-shell,
   .app-main,
+  .app-view,
   .page,
   .tool-page {
+    display: block !important;
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #111827 !important;
     padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Tool Header: Keep only the tool title as the clean report title */
+  .tool-page-header {
+    max-width: 100% !important;
+    margin-bottom: 18px !important;
+    padding-bottom: 10px !important;
+    border-bottom: 2px solid #0d7c82 !important;
+  }
+
+  .tool-page-header h1 {
+    font-size: 20pt !important;
+    color: #0f172a !important;
     margin: 0 !important;
   }
 
+  .tool-page-header .eyebrow,
+  .tool-page-header .tool-page-separator,
+  .tool-page-header .tool-page-desc {
+    display: none !important;
+  }
+
+  /* Layout for Inputs and Result panels */
+  .tool-page-content {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .calc-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+    align-items: start !important;
+    width: 100% !important;
+  }
+
   .panel {
+    background: #ffffff !important;
     box-shadow: none !important;
-    border: 1px solid #c0c0c0 !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-    margin-bottom: 20px;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    padding: 14px 16px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 16px !important;
+  }
+
+  .panel h2 {
+    font-size: 13pt !important;
+    color: #1f2937 !important;
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 6px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  /* Clear readable inputs in print reports */
+  .field label {
+    color: #374151 !important;
+    font-size: 10.5pt !important;
+    font-weight: 600 !important;
+  }
+
+  .field input[type="text"],
+  .field input[type="number"],
+  .field input[type="date"],
+  .field textarea,
+  .field select {
+    border: 1px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    font-size: 10.5pt !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Highlighting Result in print reports */
+  .result-value {
+    color: #0d7c82 !important;
+    font-size: 22pt !important;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .result-value .result-suffix {
+    color: #64748b !important;
+    font-size: 12pt !important;
+  }
+
+  .metric {
+    border: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    padding: 6px 10px !important;
+    border-radius: 4px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 /* Comparison table used by the yield-model and defect-density tools. */

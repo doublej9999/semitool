@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Github, Home, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Home, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import LanguagePicker from './LanguagePicker';
 import ToolSidebar from './ToolSidebar';
@@ -97,19 +97,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <Home size={18} aria-hidden="true" />
           </Link>
 
-          <CommandPalette />
-
-          <LanguagePicker />
-
-          <a
-            className="icon-button toolbar-github"
-            href={REPO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Source code on GitHub"
-          >
-            <Github size={18} aria-hidden="true" />
-          </a>
+          <div className="toolbar-right">
+            <CommandPalette />
+            <LanguagePicker />
+          </div>
         </header>
 
         <main id="main-content" className="app-view">

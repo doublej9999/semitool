@@ -3,11 +3,13 @@
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { calculateYield } from '@/lib/yield';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = { gross: 720, good: 697, defect: 23 };
 
 export default function YieldCalculator() {
   const [values, setValues] = useState(INITIAL);
+  useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
 
   const update = (key: keyof typeof INITIAL, value: number) => setValues((previous) => ({ ...previous, [key]: value }));

@@ -9,11 +9,13 @@ import {
   validateYieldModelInputs,
   type AreaUnit,
 } from '@/lib/yield-model';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = { density: 0.5, area: 50, areaUnit: 'mm2' as AreaUnit };
 
 export default function YieldModelCalculator() {
   const [values, setValues] = useState(INITIAL);
+  useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
 
   const { areaCm2, errors, rows } = useMemo(() => {
