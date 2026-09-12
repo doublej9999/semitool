@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   calculatePlasmaSheath,
   PLASMA_GAS_PRESETS,
+  generateSheathProfile,
 } from './plasma-sheath';
 
 describe('Plasma Sheath & Debye Length Physics', () => {
@@ -73,5 +74,42 @@ describe('Plasma Sheath & Debye Length Physics', () => {
     // Ratio of sheath should be (200/50)^(3/4) = 4^0.75 = 2.828
     const ratio = res200.childLangmuirSheathUm / res50.childLangmuirSheathUm;
     expect(ratio).toBeCloseTo(2.828, 2);
+  });
+
+  it('generates sheath spatial profile with consistent boundary conditions and physical trends', () => {
+    const inputs = {
+      electronDensityCm3: 1e11,
+      electronTempEv: 3.0,
+      ionMassAmu: 39.95,
+      sheathVoltageV: 150,
+    };
+    const result = calculatePlasmaSheath(inputs);
+    const profile = generateSheathProfile(result, inputs, 60);
+
+    expect(profile.length).toBeGreaterThanOrEqual(40);
+
+    // Bulk / Presheath start: potential close to 0, ni/n0 and ne/n0 close to 1
+    const start = profile[0];
+    expect(start.region).toBe('Presheath');
+    expect(start.potentialVolts).toBeCloseTo(0, 1);
+    expect(start.ionDensityNormalized).toBeCloseTo(1, 1);
+    expect(start.electronDensityNormalized).toBeCloseTo(1, 1);
+
+    // Sheath edge (x = 0): V = -0.5 Te = -1.5 V, ni/n0 = ne/n0 ≈ exp(-0.5) ≈ 0.6065
+    const edge = profile.find((p) => p.region === 'Sheath Edge');
+    expect(edge).toBeDefined();
+    expect(edge?.xUm).toBe(0);
+    expect(edge?.potentialVolts).toBeCloseTo(-1.5, 1);
+    expect(edge?.ionDensityNormalized).toBeCloseTo(0.6065, 2);
+    expect(edge?.electronDensityNormalized).toBeCloseTo(0.6065, 2);
+    expect(edge?.ionVelocityMPerSec).toBe(Math.round(result.bohmVelocityMPerSec));
+
+    // Wafer / Electrode boundary (x = s): V = -150 V, ne ≈ 0, vi accelerated
+    const end = profile[profile.length - 1];
+    expect(end.region).toBe('Sheath');
+    expect(end.potentialVolts).toBeCloseTo(-150, 1);
+    expect(end.electronDensityNormalized).toBeLessThan(1e-4);
+    expect(end.ionVelocityMPerSec).toBeGreaterThan(result.bohmVelocityMPerSec * 8);
+    expect(end.xUm).toBeCloseTo(result.childLangmuirSheathUm, 0);
   });
 });

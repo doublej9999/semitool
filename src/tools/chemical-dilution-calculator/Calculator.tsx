@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Copy, RotateCcw, AlertTriangle, ShieldCheck, Info } from 'lucide-react';
+import { Copy, RotateCcw, AlertTriangle, ShieldCheck, Info, Download } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import {
   calculateRecipeVolumes,
@@ -10,6 +10,7 @@ import {
   type WetBenchRecipePreset,
 } from '@/lib/chemical-dilution';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { downloadCsv } from '@/lib/export';
 
 const INITIAL = {
   mode: 'recipe', // 'recipe' | 'c1v1'
@@ -83,6 +84,47 @@ export default function ChemicalDilutionCalculator() {
       setCopied(false);
     }
   };
+  const handleExportCsv = () => {
+    if (state.mode === 'recipe' && recipeResult) {
+      const headers = [
+        'Component',
+        'Chemical Key',
+        'Ratio Parts',
+        'Volume (mL)',
+        'Volume (L)',
+        'Volume Percent (%)',
+        'Total Mass (g)',
+        'Active Chemical Mass (g)',
+        'Effective Wt Percent (%)',
+      ];
+      const rows = recipeResult.components.map((c) => [
+        c.name,
+        c.chemicalKey,
+        c.ratioPart,
+        c.volumeMl.toFixed(1),
+        c.volumeLiters.toFixed(4),
+        c.volumePct.toFixed(2),
+        c.massGrams.toFixed(1),
+        c.activeChemicalMassGrams.toFixed(1),
+        c.effectiveConcentrationWtPct.toFixed(2),
+      ]);
+      downloadCsv(`recipe_${recipeResult.recipeName.replace(/[^a-zA-Z0-9_-]/g, '_')}_${recipeResult.totalVolumeLiters}L`, headers, rows);
+    } else if (state.mode === 'c1v1' && c1v1Result) {
+      const headers = ['Parameter', 'Value', 'Unit'];
+      const rows = [
+        ['Stock Concentration (C1)', c1v1Result.stockConcentration, '%'],
+        ['Target Concentration (C2)', c1v1Result.targetConcentration, '%'],
+        ['Target Volume (V2)', c1v1Result.targetVolumeLiters, 'L'],
+        ['Required Stock Volume (V1)', c1v1Result.stockVolumeMl.toFixed(1), 'mL'],
+        ['Required Stock Volume (V1, L)', c1v1Result.stockVolumeLiters.toFixed(4), 'L'],
+        ['Required DI Water Volume', c1v1Result.solventWaterVolumeMl.toFixed(1), 'mL'],
+        ['Required DI Water Volume (L)', c1v1Result.solventWaterVolumeLiters.toFixed(4), 'L'],
+        ['Dilution Factor', c1v1Result.dilutionFactor.toFixed(2), 'x'],
+      ];
+      downloadCsv(`c1v1_dilution_${c1v1Result.stockConcentration}pct_to_${c1v1Result.targetConcentration}pct`, headers, rows);
+    }
+  };
+
 
   return (
     <div className="calc-grid">
@@ -229,6 +271,13 @@ export default function ChemicalDilutionCalculator() {
           >
             <Copy size={14} aria-hidden="true" /> {copied ? 'Copied Recipe!' : 'Copy Summary'}
           </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={handleExportCsv}
+          >
+            <Download size={14} aria-hidden="true" /> Export CSV
+          </button>
         </div>
 
         <div className="note" style={{ marginTop: '20px' }}>
@@ -249,6 +298,42 @@ export default function ChemicalDilutionCalculator() {
                 <span style={{ fontSize: '14px', color: 'var(--ink-soft)', marginLeft: '10px' }}>
                   ({fmt(recipeResult.totalMassGrams)} g total mass)
                 </span>
+              </div>
+            </div>
+            {/* SVG Component Volume Stacked Bar Chart */}
+            <div style={{ marginTop: '16px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '6px' }}>
+                <span>Volumetric Composition (100%)</span>
+                <span>{recipeResult.components.length} Components</span>
+              </div>
+              <div style={{ width: '100%', height: '24px', borderRadius: '4px', overflow: 'hidden', display: 'flex', border: '1px solid var(--border-soft)' }}>
+                {(() => {
+                  const palette = ['#0284c7', '#0d9488', '#ea580c', '#d97706', '#6366f1', '#ec4899'];
+                  return recipeResult.components.map((c, i) => (
+                    <div
+                      key={c.chemicalKey}
+                      title={`${c.name}: ${fmt(c.volumePct, 1)}% (${fmt(c.volumeMl)} mL)`}
+                      style={{
+                        width: `${c.volumePct}%`,
+                        backgroundColor: palette[i % palette.length],
+                        height: '100%',
+                        transition: 'width 0.3s ease',
+                      }}
+                    />
+                  ));
+                })()}
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '8px', fontSize: '11px' }}>
+                {(() => {
+                  const palette = ['#0284c7', '#0d9488', '#ea580c', '#d97706', '#6366f1', '#ec4899'];
+                  return recipeResult.components.map((c, i) => (
+                    <div key={c.chemicalKey} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: palette[i % palette.length] }} />
+                      <span style={{ fontWeight: 500 }}>{c.name}:</span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{fmt(c.volumePct, 1)}%</span>
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
 

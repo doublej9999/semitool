@@ -196,3 +196,92 @@ export function calculatePlasmaSheath(inputs: PlasmaSheathInputs): PlasmaSheathR
     regimeDescription,
   };
 }
+
+export interface SheathSpatialPoint {
+  xUm: number;
+  region: 'Presheath' | 'Sheath Edge' | 'Sheath';
+  potentialVolts: number;
+  ionDensityNormalized: number;
+  electronDensityNormalized: number;
+  ionVelocityMPerSec: number;
+}
+
+/**
+ * Generates discrete spatial distributions across presheath and Child-Langmuir sheath:
+ * - Electrostatic potential V(x) from plasma bulk (0 V) through presheath (-0.5 Te) to wafer (-V0)
+ * - Electron Boltzmann density n_e(x)/n0
+ * - Ion continuity & energy conservation density n_i(x)/n0
+ * - Ion directed drift velocity v_i(x)
+ */
+export function generateSheathProfile(
+  result: PlasmaSheathResult,
+  inputs: PlasmaSheathInputs,
+  numPoints: number = 80
+): SheathSpatialPoint[] {
+  const s = result.childLangmuirSheathUm;
+  const Te = Math.max(0.1, inputs.electronTempEv);
+  const V0 = Math.max(0.1, inputs.sheathVoltageV);
+  const uB = result.bohmVelocityMPerSec;
+  const deltaVpre = 0.5 * Te;
+  const Lpre = Math.max(s * 0.5, 50);
+
+  const points: SheathSpatialPoint[] = [];
+
+  const prePoints = Math.max(15, Math.floor(numPoints * 0.35));
+  const sheathPoints = Math.max(25, numPoints - prePoints);
+
+  // 1. Presheath: x from -Lpre up to 0
+  for (let i = 0; i < prePoints; i++) {
+    const fraction = i / prePoints;
+    const xUm = -Lpre * (1 - fraction);
+    const xi = fraction;
+    const potentialVolts = -deltaVpre * Math.pow(xi, 2);
+    const electronDensityNormalized = Math.exp(potentialVolts / Te);
+    const ionDensityNormalized = electronDensityNormalized;
+    const ionVelocityMPerSec = uB * xi;
+
+    points.push({
+      xUm: Number(xUm.toFixed(2)),
+      region: 'Presheath',
+      potentialVolts: Number(potentialVolts.toFixed(3)),
+      ionDensityNormalized: Number(ionDensityNormalized.toFixed(4)),
+      electronDensityNormalized: Number(electronDensityNormalized.toFixed(4)),
+      ionVelocityMPerSec: Math.round(ionVelocityMPerSec),
+    });
+  }
+
+  // 2. Sheath Edge: x = 0
+  const nEdge = Math.exp(-0.5);
+  points.push({
+    xUm: 0,
+    region: 'Sheath Edge',
+    potentialVolts: Number((-deltaVpre).toFixed(3)),
+    ionDensityNormalized: Number(nEdge.toFixed(4)),
+    electronDensityNormalized: Number(nEdge.toFixed(4)),
+    ionVelocityMPerSec: Math.round(uB),
+  });
+
+  // 3. Child-Langmuir Sheath: x from >0 to s
+  for (let i = 1; i <= sheathPoints; i++) {
+    const fraction = i / sheathPoints;
+    const xUm = s * fraction;
+    const zeta = fraction;
+    const deltaVSheath = (V0 - deltaVpre) * Math.pow(zeta, 4 / 3);
+    const potentialVolts = -deltaVpre - deltaVSheath;
+
+    const electronDensityNormalized = Math.max(0, Math.exp(potentialVolts / Te));
+    const ionVelocityMPerSec = uB * Math.sqrt(1 + (2 * deltaVSheath) / Te);
+    const ionDensityNormalized = Math.max(0, nEdge / Math.sqrt(1 + (2 * deltaVSheath) / Te));
+
+    points.push({
+      xUm: Number(xUm.toFixed(2)),
+      region: 'Sheath',
+      potentialVolts: Number(potentialVolts.toFixed(3)),
+      ionDensityNormalized: Number(ionDensityNormalized.toFixed(4)),
+      electronDensityNormalized: Number(electronDensityNormalized < 1e-6 ? 0 : Number(electronDensityNormalized.toFixed(5))),
+      ionVelocityMPerSec: Math.round(ionVelocityMPerSec),
+    });
+  }
+
+  return points;
+}
