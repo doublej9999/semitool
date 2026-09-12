@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BookOpen, X, Search, Atom, Layers, ShieldCheck, Sigma, ExternalLink, ArrowRight } from 'lucide-react';
+import { BookOpen, X, Search, Atom, Layers, ShieldCheck, Sigma, ArrowRight } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 import {
@@ -14,21 +14,37 @@ import {
 import MathFormula from '@/components/tools/MathFormulaClient';
 type Tab = 'formulas' | 'constants' | 'materials' | 'cleanroom';
 
-export default function EngineeringHandbookModal() {
+interface EngineeringHandbookModalProps {
+  /** Controlled open state (set by AppShell for the Alt+H shortcut). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export default function EngineeringHandbookModal({ open, onOpenChange }: EngineeringHandbookModalProps = {}) {
   const locale = useLocale();
   const t = getTranslation(locale);
   const [isOpen, setIsOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const effectiveOpen = isControlled ? open : isOpen;
+  const openModal = useCallback(() => {
+    setIsOpen(true);
+    onOpenChange?.(true);
+  }, [onOpenChange]);
+  const closeModal = useCallback(() => {
+    setIsOpen(false);
+    onOpenChange?.(false);
+  }, [onOpenChange]);
   const [activeTab, setActiveTab] = useState<Tab>('formulas');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Lock body scroll and listen for Escape key when open
   useEffect(() => {
-    if (!isOpen) return;
+    if (!effectiveOpen) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setIsOpen(false);
+        closeModal();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -36,7 +52,7 @@ export default function EngineeringHandbookModal() {
       document.body.style.overflow = originalOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [effectiveOpen, closeModal]);
 
   const filteredFormulas = HANDBOOK_FORMULAS.filter(
     (f) =>
@@ -59,17 +75,17 @@ export default function EngineeringHandbookModal() {
         className="icon-button handbook-trigger"
         aria-label={t.handbookBtnTitle}
         title={t.handbookBtnTitle}
-        onClick={() => setIsOpen(true)}
+        onClick={openModal}
       >
         <BookOpen size={18} aria-hidden="true" />
       </button>
 
       {/* Modal Drawer */}
-      {isOpen && (
+      {effectiveOpen && (
         <div
           className="handbook-overlay"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setIsOpen(false);
+            if (e.target === e.currentTarget) closeModal();
           }}
         >
           <div
@@ -99,7 +115,7 @@ export default function EngineeringHandbookModal() {
                 type="button"
                 className="icon-button"
                 aria-label={t.handbookClose}
-                onClick={() => setIsOpen(false)}
+                onClick={() => closeModal()}
               >
                 <X size={18} aria-hidden="true" />
               </button>
@@ -323,7 +339,7 @@ export default function EngineeringHandbookModal() {
                         <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
                           <Link
                             href={f.calculatorPath}
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => closeModal()}
                             className="button secondary sm"
                             style={{
                               display: 'inline-flex',

@@ -40,6 +40,19 @@ export interface Translations {
   catMarkTraceability: string;
   catWetProcess: string;
 
+  // Glove mode
+  gloveModeOn: string;
+  gloveModeOff: string;
+
+  // Shortcuts guide rows
+  scHandbook: string;
+  scTraveler: string;
+  scGenealogy: string;
+  scWorkspace: string;
+  scScratchpad: string;
+  scPalette: string;
+  scShowShortcuts: string;
+
   // Common UI
   inputs: string;
   results: string;

@@ -13,10 +13,12 @@ import { useEffect, useSyncExternalStore } from 'react';
  */
 const COLLAPSED_KEY = 'semitools:collapsed-categories';
 const RAIL_KEY = 'semitools:rail-collapsed';
+const GLOVE_KEY = 'semitools_glove_mode';
 const EMPTY_COLLAPSED: Record<string, boolean> = {};
 
 let collapsedGroups: Record<string, boolean> = EMPTY_COLLAPSED;
 let railCollapsed = false;
+let gloveMode = false;
 let hydrated = false;
 const listeners = new Set<() => void>();
 
@@ -79,6 +81,15 @@ function parseCollapsed(raw: string | null): Record<string, boolean> {
 function loadFromStorage(): void {
   collapsedGroups = parseCollapsed(readItem(COLLAPSED_KEY));
   railCollapsed = readItem(RAIL_KEY) === '1';
+  // Legacy writes stored 'true'/'false'; current writes use '1'/'0'.
+  const savedGlove = readItem(GLOVE_KEY);
+  gloveMode = savedGlove === '1' || savedGlove === 'true';
+  applyGloveClass(gloveMode);
+}
+
+function applyGloveClass(on: boolean): void {
+  if (typeof document === 'undefined') return;
+  document.body.classList.toggle('cleanroom-glove-mode', on);
 }
 
 export function setGroupCollapsed(category: string, collapsed: boolean): void {
@@ -90,6 +101,14 @@ export function setGroupCollapsed(category: string, collapsed: boolean): void {
 export function setRailCollapsed(collapsed: boolean): void {
   railCollapsed = collapsed;
   writeItem(RAIL_KEY, collapsed ? '1' : '0');
+  emit();
+}
+
+/** Toggles cleanroom glove mode; also mirrors the state onto <body> as a class. */
+export function setGloveMode(on: boolean): void {
+  gloveMode = on;
+  writeItem(GLOVE_KEY, on ? '1' : '0');
+  applyGloveClass(on);
   emit();
 }
 
@@ -127,6 +146,14 @@ export function useRailCollapsed(): boolean {
   return useSyncExternalStore(
     subscribe,
     () => hydrated && railCollapsed,
+    () => false,
+  );
+}
+
+export function useGloveMode(): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => hydrated && gloveMode,
     () => false,
   );
 }

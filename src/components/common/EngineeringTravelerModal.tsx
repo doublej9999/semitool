@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { TRAVELER_OPEN_EVENT } from '@/lib/shell-events';
 import { FileText, Printer, X, Download, Save, History, Trash2, Check } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
@@ -248,6 +249,13 @@ export default function EngineeringTravelerModal({
   const [activeResults, setActiveResults] = useState<Record<string, string | number>>(defaultResults);
   // Lazy initializer: archived runs are read once from localStorage on mount.
   const [savedHistory, setSavedHistory] = useState<TravelerRecord[]>(loadTravelerHistory);
+
+  // The app shell opens the traveler globally (Alt+T) through a typed custom event.
+  useEffect(() => {
+    const openOnEvent = (): void => setIsOpen(true);
+    window.addEventListener(TRAVELER_OPEN_EVENT, openOnEvent);
+    return () => window.removeEventListener(TRAVELER_OPEN_EVENT, openOnEvent);
+  }, []);
   const [showHistory, setShowHistory] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 

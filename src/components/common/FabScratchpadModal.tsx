@@ -1,14 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Calculator, X, Copy, Check, Download, Trash2 } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 
 type Tab = 'converters' | 'scratchpad';
 
-export default function FabScratchpadModal() {
+interface FabScratchpadModalProps {
+  /** Controlled open state (set by AppShell for the Alt+S shortcut). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export default function FabScratchpadModal({ open, onOpenChange }: FabScratchpadModalProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const effectiveOpen = isControlled ? open : isOpen;
+  const openModal = useCallback(() => {
+    setIsOpen(true);
+    onOpenChange?.(true);
+  }, [onOpenChange]);
+  const closeModal = useCallback(() => {
+    setIsOpen(false);
+    onOpenChange?.(false);
+  }, [onOpenChange]);
   const [activeTab, setActiveTab] = useState<Tab>('converters');
 
   // Converter states
@@ -29,33 +45,33 @@ export default function FabScratchpadModal() {
   const [waferDiamMm, setWaferDiamMm] = useState<number>(300);
 
   // Scratchpad notes
-  const [notes, setNotes] = useState<string>('');
+  const [notes, setNotes] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      return window.localStorage.getItem('semitools_fab_scratchpad') ?? '';
+    } catch {
+      return '';
+    }
+  });
   const [copied, setCopied] = useState(false);
   const [quickCalc, setQuickCalc] = useState<string>('');
   const [calcResult, setCalcResult] = useState<string>('');
   const locale = useLocale();
   const t = getTranslation(locale);
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('semitools_fab_scratchpad');
-      if (saved) setNotes(saved);
-    }
-  }, []);
-
   // Lock body scroll and listen for Escape key when open
   useEffect(() => {
-    if (!isOpen) return;
+    if (!effectiveOpen) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === 'Escape') closeModal();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = originalOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [effectiveOpen, closeModal]);
   const handleNotesChange = (val: string) => {
     setNotes(val);
     if (typeof window !== 'undefined') {
@@ -100,7 +116,6 @@ export default function FabScratchpadModal() {
         setCalcResult('');
         return;
       }
-      // eslint-disable-next-line no-eval
       const res = Function(`"use strict"; return (${clean})`)();
       if (typeof res === 'number' && !Number.isNaN(res) && Number.isFinite(res)) {
         setCalcResult(String(Number(res.toPrecision(7))));
@@ -181,16 +196,16 @@ export default function FabScratchpadModal() {
         className="icon-button fab-scratchpad-trigger"
         aria-label={t.scratchpadBtnTitle}
         title={t.scratchpadBtnTitle}
-        onClick={() => setIsOpen(true)}
+        onClick={openModal}
       >
         <Calculator size={18} aria-hidden="true" />
       </button>
 
-      {isOpen && (
+      {effectiveOpen && (
         <div
           className="scratchpad-overlay"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setIsOpen(false);
+            if (e.target === e.currentTarget) closeModal();
           }}
         >
           <div
@@ -218,7 +233,7 @@ export default function FabScratchpadModal() {
               <button
                 type="button"
                 className="icon-button"
-                onClick={() => setIsOpen(false)}
+                onClick={() => closeModal()}
                 aria-label={t.cmdClose}
               >
                 <X size={18} />
@@ -332,7 +347,7 @@ export default function FabScratchpadModal() {
                       />
                       <select
                         value={pressureUnit}
-                        onChange={(e) => setPressureUnit(e.target.value as any)}
+                        onChange={(e) => setPressureUnit(e.target.value as typeof pressureUnit)}
                         style={{ padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}
                       >
                         <option value="torr">Torr</option>
@@ -366,7 +381,7 @@ export default function FabScratchpadModal() {
                       />
                       <select
                         value={thicknessUnit}
-                        onChange={(e) => setThicknessUnit(e.target.value as any)}
+                        onChange={(e) => setThicknessUnit(e.target.value as typeof thicknessUnit)}
                         style={{ padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}
                       >
                         <option value="angstrom">Å (Angstrom)</option>
@@ -434,7 +449,7 @@ export default function FabScratchpadModal() {
                       />
                       <select
                         value={tempUnit}
-                        onChange={(e) => setTempUnit(e.target.value as any)}
+                        onChange={(e) => setTempUnit(e.target.value as typeof tempUnit)}
                         style={{ padding: '0.4rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}
                       >
                         <option value="C">°C (Celsius)</option>
