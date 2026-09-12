@@ -9,6 +9,7 @@ import { useFavorites } from '@/lib/favorites';
 import { setGroupCollapsed, useCollapsedGroups } from '@/lib/preferences';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation, translateCategory } from '@/lib/i18n/translations';
+import { translateToolName } from '@/lib/i18n/tool-translations';
 import type { Tool } from '@/tools/tools.types';
 
 interface MenuGroup {
@@ -93,7 +94,7 @@ export default function ToolSidebar({ onNavigate }: { onNavigate?: () => void })
                           aria-current={isActive ? 'page' : undefined}
                         >
                           <Icon size={15} aria-hidden="true" />
-                          {tool.name}
+                          {translateToolName(tool.path, locale)}
                         </Link>
                       </li>
                     );

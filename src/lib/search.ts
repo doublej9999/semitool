@@ -1,6 +1,7 @@
 import Fuse from 'fuse.js';
-import type { IFuseOptions } from 'fuse.js';
 import type { Tool } from '@/tools/tools.types';
+import type { SupportedLocale } from './i18n/context';
+import { getTranslatedTool } from './i18n/tool-translations';
 
 /**
  * Fuzzy search used by the command palette (Ctrl/Cmd + K) and the toolbox page.
@@ -9,19 +10,15 @@ import type { Tool } from '@/tools/tools.types';
  * description, keywords are searchable, and results are grouped by category
  * with a per-category cap so one big category cannot flood the list.
  */
-const FUSE_OPTIONS: IFuseOptions<Tool> = {
-  keys: [
-    { name: 'name', weight: 3 },
-    { name: 'keywords', weight: 2 },
-    { name: 'description', weight: 1 },
-    { name: 'category', weight: 1 },
-  ],
-  threshold: 0.35,
-  ignoreLocation: true,
-  minMatchCharLength: 2,
-};
+interface SearchItem {
+  tool: Tool;
+  name: string;
+  keywords: string[];
+  description: string;
+  category: string;
+}
 
-export function searchTools(query: string, tools: Tool[]): Tool[] {
+export function searchTools(query: string, tools: Tool[], locale?: SupportedLocale): Tool[] {
   const trimmed = query.trim();
 
   // fuse.js matches everything against an empty query; keep "no query" explicit.
@@ -29,7 +26,39 @@ export function searchTools(query: string, tools: Tool[]): Tool[] {
     return tools;
   }
 
-  return new Fuse(tools, FUSE_OPTIONS).search(trimmed).map((result) => result.item);
+  const items: SearchItem[] = tools.map((tool) => {
+    if (!locale) {
+      return {
+        tool,
+        name: tool.name,
+        keywords: tool.keywords,
+        description: tool.description,
+        category: tool.category,
+      };
+    }
+    const trans = getTranslatedTool(tool, locale);
+    return {
+      tool,
+      name: `${tool.name} ${trans.name}`,
+      keywords: Array.from(new Set([...tool.keywords, ...(trans.keywords || [])])),
+      description: `${tool.description} ${trans.description}`,
+      category: tool.category,
+    };
+  });
+
+  const fuse = new Fuse(items, {
+    keys: [
+      { name: 'name', weight: 3 },
+      { name: 'keywords', weight: 2 },
+      { name: 'description', weight: 1 },
+      { name: 'category', weight: 1 },
+    ],
+    threshold: 0.35,
+    ignoreLocation: true,
+    minMatchCharLength: 1,
+  });
+
+  return fuse.search(trimmed).map((result) => result.item.tool);
 }
 
 export interface ToolGroup {

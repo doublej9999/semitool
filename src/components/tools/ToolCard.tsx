@@ -6,6 +6,7 @@ import FavoriteButton from './FavoriteButton';
 import { getTool } from '@/tools';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation, translateCategory } from '@/lib/i18n/translations';
+import { getTranslatedTool } from '@/lib/i18n/tool-translations';
 
 /**
  * Tool card used on the home page, the toolbox page and the related-tool list.
@@ -28,6 +29,7 @@ export default function ToolCard({ path }: { path: string }) {
   }
 
   const Icon = tool.icon;
+  const translated = getTranslatedTool(tool, locale);
 
   return (
     <article className="tool-card">
@@ -44,15 +46,15 @@ export default function ToolCard({ path }: { path: string }) {
 
       <h3>
         <Link href={tool.path} className="tool-card-link">
-          {tool.name}
+          {translated.name}
         </Link>
       </h3>
 
-      <p>{tool.description}</p>
+      <p>{translated.description}</p>
 
       <div className="tool-card-foot">
         <span className="tool-card-category">{translateCategory(tool.category, locale)}</span>
-        <Link href={tool.path} className="tool-card-cta" aria-label={`Open ${tool.name}`}>
+        <Link href={tool.path} className="tool-card-cta" aria-label={`Open ${translated.name}`}>
           {t.openTool} <ArrowRight size={14} aria-hidden="true" />
         </Link>
       </div>

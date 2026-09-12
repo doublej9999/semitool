@@ -7,6 +7,7 @@ import { tools } from '@/tools';
 import { groupByCategory, searchTools } from '@/lib/search';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation, translateCategory } from '@/lib/i18n/translations';
+import { getTranslatedTool } from '@/lib/i18n/tool-translations';
 import { REPO_URL } from '@/lib/site';
 import type { Tool } from '@/tools/tools.types';
 
@@ -49,7 +50,7 @@ export default function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const matchingTools = useMemo(() => searchTools(query, tools), [query]);
+  const matchingTools = useMemo(() => searchTools(query, tools, locale), [query, locale]);
 
   const groups = useMemo(() => groupByCategory(matchingTools, 5), [matchingTools]);
 
@@ -264,7 +265,7 @@ export default function CommandPalette() {
 
                   if (entry.kind === 'tool') {
                     const Icon = entry.tool.icon;
-
+                    const toolInfo = getTranslatedTool(entry.tool, locale);
                     return (
                       <li
                         key={entry.id}
@@ -281,10 +282,10 @@ export default function CommandPalette() {
                         </span>
                         <span className="palette-option-text">
                           <span className="palette-option-name">
-                            {entry.tool.name}
+                            {toolInfo.name}
                             {entry.tool.isNew ? <em className="badge-new">{t.newBadge}</em> : null}
                           </span>
-                          <span className="palette-option-desc">{entry.tool.description}</span>
+                          <span className="palette-option-desc">{toolInfo.description}</span>
                         </span>
                         <span className="palette-option-cat">{translateCategory(entry.tool.category, locale)}</span>
                       </li>

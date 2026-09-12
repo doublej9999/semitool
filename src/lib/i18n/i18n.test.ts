@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { matchLocaleFromCountry, matchLocaleFromBrowser, SUPPORTED_LOCALES } from './context';
 import { getTranslation, translateCategory } from './translations';
+import { searchTools } from '../search';
+import { getTranslatedTool, translateToolName, TOOL_TRANSLATIONS } from './tool-translations';
+import { tools } from '@/tools';
 
 describe('i18n Locale Resolution', () => {
   it('maps country codes to correct regional languages', () => {
@@ -33,5 +36,53 @@ describe('i18n Locale Resolution', () => {
       const catTranslated = translateCategory('Wafer & Die', locale.code);
       expect(catTranslated.length).toBeGreaterThan(0);
     }
+  });
+
+  it('provides tool translations for all registered tools', () => {
+    const sampleTool = {
+      name: 'Wafer Die Calculator',
+      path: '/tools/wafer-die-calculator',
+      description: 'Estimated gross die per wafer',
+      category: 'Wafer & Die',
+      keywords: ['gross die'],
+      icon: () => null,
+    } as any;
+
+    expect(translateToolName(sampleTool.path, 'zh-CN')).toContain('晶圆');
+    expect(translateToolName(sampleTool.path, 'ja')).toBeDefined();
+    expect(translateToolName(sampleTool.path, 'ko')).toBeDefined();
+
+    const translatedZh = getTranslatedTool(sampleTool, 'zh-CN');
+    expect(translatedZh.name).toContain('晶圆');
+    expect(translatedZh.description.length).toBeGreaterThan(0);
+    expect(translatedZh.keywords.length).toBeGreaterThan(0);
+  });
+
+  it('covers all tools in tool registry across all supported locales', () => {
+    const locales = ['en', 'zh-CN', 'zh-TW', 'ja', 'ko'] as const;
+    for (const locale of locales) {
+      const dict = TOOL_TRANSLATIONS[locale];
+      expect(dict).toBeDefined();
+      for (const tool of tools) {
+        const trans = dict[tool.path];
+        expect(trans, `Missing translation for ${tool.path} in locale ${locale}`).toBeDefined();
+        expect(trans.name.length).toBeGreaterThan(0);
+        expect(trans.description.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('supports localized tool search in different languages', () => {
+    const zhResults = searchTools('热阻', tools, 'zh-CN');
+    expect(zhResults.length).toBeGreaterThan(0);
+    expect(zhResults[0].path).toBe('/tools/thermal-resistance-calculator');
+
+    const koResults = searchTools('솔더', tools, 'ko');
+    expect(koResults.length).toBeGreaterThan(0);
+    expect(koResults[0].path).toBe('/tools/thermal-fatigue-calculator');
+
+    const jaResults = searchTools('研磨', tools, 'ja');
+    expect(jaResults.length).toBeGreaterThan(0);
+    expect(jaResults[0].path).toBe('/tools/cmp-preston-calculator');
   });
 });

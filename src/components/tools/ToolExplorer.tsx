@@ -6,7 +6,7 @@ import ToolCard from './ToolCard';
 import { groupByCategory, searchTools } from '@/lib/search';
 import { tools } from '@/tools';
 import { useLocale } from '@/lib/i18n/context';
-import { translateCategory } from '@/lib/i18n/translations';
+import { getTranslation, translateCategory } from '@/lib/i18n/translations';
 
 function categoryId(category: string): string {
   return `category-${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
@@ -19,7 +19,8 @@ function categoryId(category: string): string {
 export default function ToolExplorer() {
   const [query, setQuery] = useState('');
   const locale = useLocale();
-  const groups = useMemo(() => groupByCategory(searchTools(query, tools)), [query]);
+  const t = getTranslation(locale);
+  const groups = useMemo(() => groupByCategory(searchTools(query, tools, locale)), [query, locale]);
 
   return (
     <div>
@@ -29,7 +30,7 @@ export default function ToolExplorer() {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Filter tools: name, keyword or unit"
+          placeholder={t.searchPlaceholder || "Filter tools: name, keyword or unit"}
           aria-label="Filter tools"
         />
       </div>
