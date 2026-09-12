@@ -3,6 +3,7 @@ import { tool as arrheniusCalculator } from './arrhenius-calculator';
 import { tool as binYieldCalculator } from './bin-yield-calculator';
 import { tool as carrierMobilityCalculator } from './carrier-mobility-calculator';
 import { tool as cdUniformityCalculator } from './cd-uniformity-calculator';
+import { tool as cmpPrestonCalculator } from './cmp-preston-calculator';
 import { tool as defectDensityCalculator } from './defect-density-calculator';
 import { tool as dieCostCalculator } from './die-cost-calculator';
 import { tool as diffusionLengthCalculator } from './diffusion-length-calculator';
@@ -29,6 +30,7 @@ import { tool as sheetResistanceCalculator } from './sheet-resistance-calculator
 import { tool as spcControlChartCalculator } from './spc-control-chart-calculator';
 import { tool as stubMatchingCalculator } from './stub-matching-calculator';
 import { tool as temperatureConverter } from './temperature-converter';
+import { tool as thermalFatigueCalculator } from './thermal-fatigue-calculator';
 import { tool as thermalOxideCalculator } from './thermal-oxide-calculator';
 import { tool as thermalResistanceCalculator } from './thermal-resistance-calculator';
 import { tool as thicknessConverter } from './thickness-converter';
@@ -101,6 +103,8 @@ export const tools: Tool[] = [
   filmColorCalculator,
   thermalResistanceCalculator,
   wireBondingCalculator,
+  cmpPrestonCalculator,
+  thermalFatigueCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

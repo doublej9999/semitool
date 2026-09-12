@@ -1451,6 +1451,7 @@ kbd {
   .related-tools,
   .tool-actions-bar,
   .faq,
+  .info-card,
   .action-row,
   .drawer-toggle,
   .rail-toggle {
@@ -1468,8 +1469,7 @@ kbd {
     margin: 0 !important;
   }
 
-  .panel,
-  .info-card {
+  .panel {
     box-shadow: none !important;
     border: 1px solid #c0c0c0 !important;
     break-inside: avoid;

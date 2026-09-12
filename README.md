@@ -54,6 +54,8 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Thin Film Color & Interference Calculator | `/tools/film-color-calculator` | Specular power reflectance, CIE 1931 color synthesis, sRGB swatch and Pliskin oxide color scale for dielectric films on silicon |
 | Chip Thermal Resistance & Junction Temp Calculator | `/tools/thermal-resistance-calculator` | Steady-state junction temperature, package thermal resistance (θJC), TIM layer (BLT and k), heat sink (θSA) and thermal margin |
 | Wire Bonding Parasitics & Fusing Calculator | `/tools/wire-bonding-calculator` | Bond wire self-inductance, AC resistance (skin effect), Preece fusing current, and JEDEC continuous DC limits for Au, Cu, Al and Ag |
+| CMP Preston Removal Rate Calculator | `/tools/cmp-preston-calculator` | Preston removal rate (RR = Kp·P·V), linear velocity, polish time and thickness removed for dielectric, copper and tungsten CMP |
+| Coffin-Manson Thermal Fatigue Calculator | `/tools/thermal-fatigue-calculator` | Thermal cycling fatigue life (Nf), shear strain range, solder alloy ductility (SAC305/SnPb) and field acceleration factor |
 ## Stack
 
 Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-react · Fuse.js · Vitest

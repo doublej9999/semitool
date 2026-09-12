@@ -3,12 +3,14 @@
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { estimateDies } from '@/lib/wafer';
-
+import { useUrlParamsState } from '@/lib/use-url-state';
 const INITIAL = { diameter: 300, width: 10, height: 10, street: 0.1, edge: 3 };
 
 export default function WaferDieCalculator() {
   const [values, setValues] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
+
+  useUrlParamsState(values, setValues);
 
   const update = (key: keyof typeof INITIAL, value: number) => setValues((previous) => ({ ...previous, [key]: value }));
 
