@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Wifi, WifiOff, DownloadCloud, CheckCircle2 } from 'lucide-react';
+import { Wifi, WifiOff, DownloadCloud } from 'lucide-react';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,6 +14,8 @@ export default function PwaStatusIndicator() {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const locale = useLocale();
+  const t = getTranslation(locale);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -75,7 +79,7 @@ export default function PwaStatusIndicator() {
           type="button"
           className="button secondary pwa-install-btn"
           onClick={handleInstallClick}
-          title="Install SemiTools to desktop or mobile for offline cleanroom access"
+          title={t.installPwaTitle}
           style={{
             padding: '0.25rem 0.6rem',
             fontSize: '0.75rem',
@@ -88,14 +92,14 @@ export default function PwaStatusIndicator() {
           }}
         >
           <DownloadCloud size={13} aria-hidden="true" />
-          <span>Install PWA</span>
+          <span>{t.installPwa}</span>
         </button>
       )}
 
       {/* Online / Offline status indicator */}
       {!isOnline ? (
         <div
-          title="Offline cleanroom mode: SemiTools is cached and running entirely client-side"
+          title={t.offlineTooltip}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -109,11 +113,11 @@ export default function PwaStatusIndicator() {
           }}
         >
           <WifiOff size={12} />
-          <span>Offline</span>
+          <span>{t.offlineStatus}</span>
         </div>
       ) : (
         <div
-          title="SemiTools is offline-ready via client-side Service Worker cache"
+          title={t.onlineReadyTooltip}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -135,7 +139,7 @@ export default function PwaStatusIndicator() {
               display: 'inline-block',
             }}
           />
-          <span>Offline Ready</span>
+          <span>{t.offlineReady}</span>
         </div>
       )}
     </div>

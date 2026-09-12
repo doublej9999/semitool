@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calculator, X, Save, Copy, Check, Download, Trash2, ArrowRightLeft, Sparkles } from 'lucide-react';
+import { Calculator, X, Copy, Check, Download, Trash2 } from 'lucide-react';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 
 type Tab = 'converters' | 'scratchpad';
 
@@ -31,7 +33,8 @@ export default function FabScratchpadModal() {
   const [copied, setCopied] = useState(false);
   const [quickCalc, setQuickCalc] = useState<string>('');
   const [calcResult, setCalcResult] = useState<string>('');
-
+  const locale = useLocale();
+  const t = getTranslation(locale);
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('semitools_fab_scratchpad');
@@ -39,6 +42,20 @@ export default function FabScratchpadModal() {
     }
   }, []);
 
+  // Lock body scroll and listen for Escape key when open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
   const handleNotesChange = (val: string) => {
     setNotes(val);
     if (typeof window !== 'undefined') {
@@ -162,8 +179,8 @@ export default function FabScratchpadModal() {
       <button
         type="button"
         className="icon-button fab-scratchpad-trigger"
-        aria-label="Open Fab Quick Scratchpad & Unit Converter"
-        title="FAB Quick Scratchpad & Unit Converter"
+        aria-label={t.scratchpadBtnTitle}
+        title={t.scratchpadBtnTitle}
         onClick={() => setIsOpen(true)}
       >
         <Calculator size={18} aria-hidden="true" />
@@ -172,15 +189,6 @@ export default function FabScratchpadModal() {
       {isOpen && (
         <div
           className="scratchpad-overlay"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 1000,
-            backgroundColor: 'rgba(21, 33, 39, 0.45)',
-            backdropFilter: 'blur(3px)',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false);
           }}
@@ -190,17 +198,6 @@ export default function FabScratchpadModal() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="scratchpad-title"
-            style={{
-              width: '100%',
-              maxWidth: '560px',
-              height: '100%',
-              backgroundColor: 'var(--panel-bg, #ffffff)',
-              color: 'var(--foreground, #1e293b)',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '-4px 0 25px rgba(0, 0, 0, 0.15)',
-              borderLeft: '1px solid var(--border-color, #e2e8f0)',
-            }}
           >
             {/* Header */}
             <div
@@ -215,14 +212,14 @@ export default function FabScratchpadModal() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <Calculator size={20} color="var(--teal, #0d9488)" />
                 <h2 id="scratchpad-title" style={{ margin: 0, fontSize: '1.15rem', fontWeight: 600 }}>
-                  Fab Scratchpad &amp; Unit Converter
+                  {t.scratchpadTitle}
                 </h2>
               </div>
               <button
                 type="button"
                 className="icon-button"
                 onClick={() => setIsOpen(false)}
-                aria-label="Close scratchpad"
+                aria-label={t.cmdClose}
               >
                 <X size={18} />
               </button>
@@ -251,7 +248,7 @@ export default function FabScratchpadModal() {
                 }}
                 onClick={() => setActiveTab('converters')}
               >
-                Instant Fab Converters
+                {t.scratchpadTabConverters}
               </button>
               <button
                 type="button"
@@ -268,12 +265,12 @@ export default function FabScratchpadModal() {
                 }}
                 onClick={() => setActiveTab('scratchpad')}
               >
-                Engineering Scratchpad
+                {t.scratchpadTabNotes}
               </button>
             </div>
 
             {/* Content Area */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem' }}>
+            <div className="scratchpad-body">
               {activeTab === 'converters' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   {/* Quick Math Inline Evaluator */}
@@ -286,12 +283,12 @@ export default function FabScratchpadModal() {
                     }}
                   >
                     <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted, #64748b)', marginBottom: '0.4rem' }}>
-                      QUICK MATH EXPRESSION
+                      {t.scratchpadQuickMath}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                       <input
                         type="text"
-                        placeholder="e.g. 300 * 0.08 / 1.25 or 2 * 3.14159 * 150"
+                        placeholder={t.scratchpadQuickMathPlaceholder}
                         value={quickCalc}
                         onChange={(e) => evaluateCalc(e.target.value)}
                         style={{
@@ -324,7 +321,7 @@ export default function FabScratchpadModal() {
                   {/* 1. Pressure Converter */}
                   <div className="card" style={{ padding: '1rem', border: '1px solid var(--border-color)' }}>
                     <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                      Cleanroom Vacuum &amp; Pressure
+                      {t.scratchpadPressureTitle}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                       <input
@@ -358,7 +355,7 @@ export default function FabScratchpadModal() {
                   {/* 2. Thickness Converter */}
                   <div className="card" style={{ padding: '1rem', border: '1px solid var(--border-color)' }}>
                     <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                      Thin Film Thickness Metrology
+                      {t.scratchpadThicknessTitle}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                       <input
@@ -389,11 +386,11 @@ export default function FabScratchpadModal() {
                   {/* 3. RF Power Density */}
                   <div className="card" style={{ padding: '1rem', border: '1px solid var(--border-color)' }}>
                     <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                      RF Generator Power &amp; Wafer Power Density
+                      {t.scratchpadRfTitle}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                       <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>RF Power (W)</label>
+                        <label style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{t.scratchpadRfPower}</label>
                         <input
                           type="number"
                           value={rfPowerVal}
@@ -402,7 +399,7 @@ export default function FabScratchpadModal() {
                         />
                       </div>
                       <div style={{ width: '140px' }}>
-                        <label style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Wafer Size</label>
+                        <label style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{t.scratchpadWaferDiam}</label>
                         <select
                           value={waferDiamMm}
                           onChange={(e) => setWaferDiamMm(Number(e.target.value))}
@@ -418,7 +415,7 @@ export default function FabScratchpadModal() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem', fontSize: '0.8rem', background: 'var(--subtle-bg)', padding: '0.5rem', borderRadius: '6px' }}>
                       <div><strong>Power:</strong> {rfPowerVal} W</div>
-                      <div><strong>Density:</strong> {rfDensity.toFixed(3)} W/cm²</div>
+                      <div><strong>{t.scratchpadPowerDensity}:</strong> {rfDensity.toFixed(3)} W/cm²</div>
                       <div><strong>RF Level:</strong> {rfDbm.toFixed(1)} dBm</div>
                     </div>
                   </div>
@@ -426,7 +423,7 @@ export default function FabScratchpadModal() {
                   {/* 4. Temperature */}
                   <div className="card" style={{ padding: '1rem', border: '1px solid var(--border-color)' }}>
                     <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                      Thermal Furnace Temperature
+                      {t.scratchpadTempTitle}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
                       <input
@@ -462,7 +459,7 @@ export default function FabScratchpadModal() {
                       style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
                       onClick={() => insertSnippet(`[${new Date().toLocaleTimeString()}] SHIFT LOG: Wafer slots #01-25 loaded into loadlock A.`)}
                     >
-                      + Shift Log
+                      {t.scratchpadInsertLog}
                     </button>
                     <button
                       type="button"
@@ -478,14 +475,14 @@ export default function FabScratchpadModal() {
                       style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
                       onClick={() => insertSnippet(`SPLIT EXPERIMENT:\nSplit A (POR): Std recipe\nSplit B: Temp +15C\nSplit C: Gas flow +10%`)}
                     >
-                      + DOE Split
+                      {t.scratchpadInsertSplit}
                     </button>
                   </div>
 
                   <textarea
                     value={notes}
                     onChange={(e) => handleNotesChange(e.target.value)}
-                    placeholder="Type fab scratchpad notes, wafer IDs, chamber leak-back notes here... (auto-saved locally in browser)"
+                    placeholder={t.scratchpadPlaceholderNotes}
                     style={{
                       flex: 1,
                       minHeight: '260px',
@@ -510,7 +507,7 @@ export default function FabScratchpadModal() {
                       }}
                     >
                       <Trash2 size={13} style={{ marginRight: '0.25rem' }} />
-                      Clear
+                      {t.scratchpadClearNotes}
                     </button>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button
@@ -520,7 +517,7 @@ export default function FabScratchpadModal() {
                         onClick={handleCopyNotes}
                       >
                         {copied ? <Check size={13} color="var(--teal)" /> : <Copy size={13} />}
-                        <span style={{ marginLeft: '0.25rem' }}>{copied ? 'Copied' : 'Copy'}</span>
+                        <span style={{ marginLeft: '0.25rem' }}>{copied ? t.copied : t.scratchpadCopyNotes}</span>
                       </button>
                       <button
                         type="button"
@@ -529,7 +526,7 @@ export default function FabScratchpadModal() {
                         onClick={handleDownloadNotes}
                       >
                         <Download size={13} style={{ marginRight: '0.25rem' }} />
-                        Export .txt
+                        {t.scratchpadDownloadTxt}
                       </button>
                     </div>
                   </div>

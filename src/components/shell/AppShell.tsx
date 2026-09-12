@@ -10,7 +10,8 @@ import FabScratchpadModal from '@/components/common/FabScratchpadModal';
 import PwaStatusIndicator from '@/components/common/PwaStatusIndicator';
 import LanguagePicker from './LanguagePicker';
 import ToolSidebar from './ToolSidebar';
-import { useHydrateLocale } from '@/lib/i18n/context';
+import { useHydrateLocale, useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 import { useHydrateFavorites } from '@/lib/favorites';
 import { setRailCollapsed, useHydratePreferences, useRailCollapsed } from '@/lib/preferences';
 import { REPO_URL, SITE_NAME } from '@/lib/site';
@@ -28,6 +29,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [drawerPath, setDrawerPath] = useState<string | null>(null);
 
   const drawerOpen = drawerPath === pathname;
+  const locale = useLocale();
+  const t = getTranslation(locale);
 
   useHydrateFavorites();
   useHydratePreferences();
@@ -61,7 +64,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className={shellClass}>
       <a className="skip-link" href="#main-content">
-        Skip to content
+        {t.skipToContent}
       </a>
 
       <aside className="app-sider" id="tool-navigation" aria-label="Tool navigation">
@@ -73,7 +76,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             className="icon-button drawer-toggle"
-            aria-label={drawerOpen ? 'Close tool menu' : 'Open tool menu'}
+            aria-label={drawerOpen ? t.closeToolMenu : t.openToolMenu}
             aria-expanded={drawerOpen}
             aria-controls="tool-navigation"
             onClick={() => setDrawerPath(drawerOpen ? null : pathname)}
@@ -84,7 +87,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             className="icon-button rail-toggle"
-            aria-label={railCollapsed ? 'Show tool menu' : 'Hide tool menu'}
+            aria-label={railCollapsed ? t.showToolMenu : t.hideToolMenu}
             aria-expanded={!railCollapsed}
             aria-controls="tool-navigation"
             onClick={() => setRailCollapsed(!railCollapsed)}
@@ -96,7 +99,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </button>
 
-          <Link className="icon-button" href="/" aria-label={`${SITE_NAME} home`}>
+          <Link className="icon-button" href="/" aria-label={`${SITE_NAME} ${t.homeTitle}`}>
             <Home size={18} aria-hidden="true" />
           </Link>
 
@@ -115,23 +118,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         <footer className="app-footer">
           <div>
-            <Link href="/tools">Tools</Link>
-            <Link href="/about">About</Link>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/contact">Contact</Link>
+            <Link href="/tools">{t.toolbox}</Link>
+            <Link href="/about">{t.about}</Link>
+            <Link href="/privacy">{t.cmdPrivacy}</Link>
+            <Link href="/contact">{t.contact}</Link>
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
           </div>
           <p>
-            {SITE_NAME} — semiconductor engineering tools, made clear. Every calculation runs in your browser; results are
-            generic estimates unless a tool states otherwise.
+            {SITE_NAME} — {t.footerTagline}
           </p>
         </footer>
       </div>
 
       {drawerOpen ? (
-        <button type="button" className="app-scrim" aria-label="Close tool menu" onClick={() => setDrawerPath(null)} />
+        <button type="button" className="app-scrim" aria-label={t.closeToolMenu} onClick={() => setDrawerPath(null)} />
       ) : null}
     </div>
   );

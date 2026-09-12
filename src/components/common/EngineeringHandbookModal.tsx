@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BookOpen, X, Search, Atom, Layers, ShieldCheck, Sigma } from 'lucide-react';
+import Link from 'next/link';
+import { BookOpen, X, Search, Atom, Layers, ShieldCheck, Sigma, ExternalLink, ArrowRight } from 'lucide-react';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 import {
   FUNDAMENTAL_CONSTANTS,
   MATERIAL_PROPERTIES_TABLE,
@@ -12,20 +15,27 @@ import {
 type Tab = 'formulas' | 'constants' | 'materials' | 'cleanroom';
 
 export default function EngineeringHandbookModal() {
+  const locale = useLocale();
+  const t = getTranslation(locale);
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('formulas');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Close modal on Escape key press
+  // Lock body scroll and listen for Escape key when open
   useEffect(() => {
     if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen]);
 
   const filteredFormulas = HANDBOOK_FORMULAS.filter(
@@ -47,8 +57,8 @@ export default function EngineeringHandbookModal() {
       <button
         type="button"
         className="icon-button handbook-trigger"
-        aria-label="Open Semiconductor Engineering Handbook & Formula Reference"
-        title="Semiconductor Engineering Handbook & Formulas"
+        aria-label={t.handbookBtnTitle}
+        title={t.handbookBtnTitle}
         onClick={() => setIsOpen(true)}
       >
         <BookOpen size={18} aria-hidden="true" />
@@ -58,15 +68,6 @@ export default function EngineeringHandbookModal() {
       {isOpen && (
         <div
           className="handbook-overlay"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 1000,
-            backgroundColor: 'rgba(21, 33, 39, 0.45)',
-            backdropFilter: 'blur(3px)',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false);
           }}
@@ -76,16 +77,6 @@ export default function EngineeringHandbookModal() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="handbook-title"
-            style={{
-              width: '100%',
-              maxWidth: '680px',
-              height: '100%',
-              backgroundColor: 'var(--card, #ffffff)',
-              borderLeft: '1px solid var(--line, #dbe2e4)',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: 'var(--shadow-md, 0 10px 30px rgba(21, 33, 39, 0.09))',
-            }}
           >
             {/* Header */}
             <div
@@ -101,13 +92,13 @@ export default function EngineeringHandbookModal() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <BookOpen size={20} color="var(--teal, #0d7c82)" aria-hidden="true" />
                 <h2 id="handbook-title" style={{ fontSize: '17px', fontWeight: '600', margin: 0, color: 'var(--ink, #152127)' }}>
-                  Fab Engineering Handbook
+                  {t.handbookTitle}
                 </h2>
               </div>
               <button
                 type="button"
                 className="icon-button"
-                aria-label="Close Handbook"
+                aria-label={t.handbookClose}
                 onClick={() => setIsOpen(false)}
               >
                 <X size={18} aria-hidden="true" />
@@ -144,7 +135,7 @@ export default function EngineeringHandbookModal() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                <Sigma size={15} /> Formulas
+                <Sigma size={15} /> {t.handbookTabFormulas}
               </button>
 
               <button
@@ -166,7 +157,7 @@ export default function EngineeringHandbookModal() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                <Atom size={15} /> Physical Constants
+                <Atom size={15} /> {t.handbookTabConstants}
               </button>
 
               <button
@@ -188,7 +179,7 @@ export default function EngineeringHandbookModal() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                <Layers size={15} /> Materials
+                <Layers size={15} /> {t.handbookTabMaterials}
               </button>
 
               <button
@@ -210,7 +201,7 @@ export default function EngineeringHandbookModal() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                <ShieldCheck size={15} /> Cleanroom
+                <ShieldCheck size={15} /> {t.handbookTabCleanroom}
               </button>
             </div>
 
@@ -225,7 +216,7 @@ export default function EngineeringHandbookModal() {
                   <input
                     type="search"
                     className="handbook-search-input"
-                    placeholder={`Filter ${activeTab}...`}
+                    placeholder={t.handbookSearchPlaceholder || `Filter ${activeTab}...`}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     style={{
@@ -242,7 +233,7 @@ export default function EngineeringHandbookModal() {
             )}
 
             {/* Content Body */}
-            <div style={{ padding: '20px', overflowY: 'auto', flex: 1, background: 'var(--card, #ffffff)' }}>
+            <div className="handbook-body">
               {activeTab === 'formulas' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {filteredFormulas.map((f) => (
@@ -278,14 +269,17 @@ export default function EngineeringHandbookModal() {
                       <div
                         style={{
                           background: 'var(--card, #ffffff)',
-                          padding: '10px 14px',
+                          padding: '12px 14px',
                           borderRadius: '6px',
                           border: '1px solid var(--line, #dbe2e4)',
-                          fontFamily: 'var(--font-mono)',
-                          fontSize: '13px',
+                          borderLeft: '3px solid var(--teal, #0d7c82)',
+                          fontFamily: 'var(--font-mono, monospace)',
+                          fontSize: '13.5px',
                           color: 'var(--ink, #152127)',
-                          margin: '8px 0',
+                          margin: '10px 0',
                           overflowX: 'auto',
+                          fontWeight: '500',
+                          letterSpacing: '0.01em',
                         }}
                       >
                         {f.formulaPlain}
@@ -318,6 +312,32 @@ export default function EngineeringHandbookModal() {
                       >
                         <strong>Fab Application:</strong> {f.fabRelevance}
                       </div>
+
+                      {f.calculatorPath && (
+                        <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+                          <Link
+                            href={f.calculatorPath}
+                            onClick={() => setIsOpen(false)}
+                            className="button secondary sm"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              color: 'var(--teal-dark, #0a5f66)',
+                              backgroundColor: 'var(--card, #ffffff)',
+                              borderColor: 'var(--teal, #0d7c82)',
+                              textDecoration: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '6px',
+                            }}
+                          >
+                            <span>{t.handbookOpenCalc}</span>
+                            <ArrowRight size={13} aria-hidden="true" />
+                          </Link>
+                        </div>
+                      )}
                     </article>
                   ))}
                 </div>

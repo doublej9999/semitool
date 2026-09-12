@@ -6,7 +6,7 @@ import { CornerDownLeft, FileText, Search, X } from 'lucide-react';
 import { tools } from '@/tools';
 import { groupByCategory, searchTools } from '@/lib/search';
 import { useLocale } from '@/lib/i18n/context';
-import { getTranslation, translateCategory } from '@/lib/i18n/translations';
+import { getTranslation, translateCategory, type Translations } from '@/lib/i18n/translations';
 import { getTranslatedTool } from '@/lib/i18n/tool-translations';
 import { REPO_URL } from '@/lib/site';
 import type { Tool } from '@/tools/tools.types';
@@ -19,13 +19,15 @@ interface QuickLink {
   external?: boolean;
 }
 
-const QUICK_LINKS: QuickLink[] = [
-  { name: 'All tools', description: 'Browse every SemiTools calculator', href: '/tools', keywords: ['index', 'browse', 'catalog', 'list'] },
-  { name: 'About SemiTools', description: 'How these calculations work and their limits', href: '/about', keywords: ['about', 'method', 'disclaimer'] },
-  { name: 'Privacy', description: 'What data is and is not collected', href: '/privacy', keywords: ['privacy', 'data', 'gdpr'] },
-  { name: 'Contact', description: 'Send a correction or feature request', href: '/contact', keywords: ['contact', 'email', 'feedback'] },
-  { name: 'GitHub repository', description: 'Source code and issue tracker', href: REPO_URL, keywords: ['github', 'source', 'code', 'issues'], external: true },
-];
+function getQuickLinks(t: Translations): QuickLink[] {
+  return [
+    { name: t.cmdAllTools, description: t.cmdAllToolsDesc, href: '/tools', keywords: ['index', 'browse', 'catalog', 'list'] },
+    { name: t.cmdAbout, description: t.cmdAboutDesc, href: '/about', keywords: ['about', 'method', 'disclaimer'] },
+    { name: t.cmdPrivacy, description: t.cmdPrivacyDesc, href: '/privacy', keywords: ['privacy', 'data', 'gdpr'] },
+    { name: t.cmdContact, description: t.cmdContactDesc, href: '/contact', keywords: ['contact', 'email', 'feedback'] },
+    { name: t.cmdGithub, description: t.cmdGithubDesc, href: REPO_URL, keywords: ['github', 'source', 'code', 'issues'], external: true },
+  ];
+}
 
 type PaletteEntry =
   | { kind: 'tool'; id: string; tool: Tool }
@@ -54,19 +56,21 @@ export default function CommandPalette() {
 
   const groups = useMemo(() => groupByCategory(matchingTools, 5), [matchingTools]);
 
+  const quickLinks = useMemo(() => getQuickLinks(t), [t]);
+
   const matchingLinks = useMemo(() => {
     const trimmed = query.trim().toLowerCase();
 
     if (trimmed.length === 0) {
-      return QUICK_LINKS;
+      return quickLinks;
     }
 
-    return QUICK_LINKS.filter(
+    return quickLinks.filter(
       (link) =>
         link.name.toLowerCase().includes(trimmed) ||
         link.keywords.some((keyword) => keyword.includes(trimmed)),
     );
-  }, [query]);
+  }, [query, quickLinks]);
 
   const entries = useMemo<PaletteEntry[]>(
     () => [
@@ -224,15 +228,15 @@ export default function CommandPalette() {
         aria-expanded={open}
       >
         <Search size={15} aria-hidden="true" />
-        <span className="palette-trigger-label">{t.searchPlaceholder}</span>
+        <span className="palette-trigger-label">{t.cmdPlaceholder}</span>
         <kbd>/</kbd>
       </button>
 
       {open ? (
         <div className="palette-overlay" role="presentation">
-          <button type="button" className="palette-backdrop" aria-label="Close search" onClick={close} />
+          <button type="button" className="palette-backdrop" aria-label={t.cmdClose} onClick={close} />
 
-          <div className="palette-panel" role="dialog" aria-modal="true" aria-label="Search tools">
+          <div className="palette-panel" role="dialog" aria-modal="true" aria-label={t.cmdTools}>
             <div className="palette-field">
               <Search size={16} aria-hidden="true" />
               <input
@@ -244,21 +248,21 @@ export default function CommandPalette() {
                 aria-activedescendant={activeOptionId}
                 aria-autocomplete="list"
                 autoComplete="off"
-                placeholder={t.searchPlaceholder}
+                placeholder={t.cmdPlaceholder}
                 value={query}
                 onChange={(event) => {
                   setQuery(event.target.value);
                   setActiveIndex(0);
                 }}
               />
-              <button type="button" className="palette-close" onClick={close} aria-label="Close search">
+              <button type="button" className="palette-close" onClick={close} aria-label={t.cmdClose}>
                 <X size={15} aria-hidden="true" />
               </button>
             </div>
 
             <ul id="palette-results" role="listbox" aria-label="Search results" ref={listRef} className="palette-list">
               {entries.length === 0 ? (
-                <li className="palette-empty">No tool matches “{query}”.</li>
+                <li className="palette-empty">{t.cmdNoResults} “{query}”.</li>
               ) : (
                 entries.map((entry, index) => {
                   const isActive = index === activeIndex;
@@ -322,16 +326,16 @@ export default function CommandPalette() {
               </span>
               <span>
                 <kbd>↑</kbd>
-                <kbd>↓</kbd> navigate
+                <kbd>↓</kbd> {t.cmdNavigate}
               </span>
               <span>
                 <kbd>
                   <CornerDownLeft size={11} aria-hidden="true" />
                 </kbd>{' '}
-                open
+                {t.cmdOpen}
               </span>
               <span>
-                <kbd>Esc</kbd> close
+                <kbd>Esc</kbd> {t.cmdClose}
               </span>
             </div>
           </div>

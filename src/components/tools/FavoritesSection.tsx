@@ -2,6 +2,8 @@
 
 import ToolCard from './ToolCard';
 import { useFavorites, useFavoritesHydrated } from '@/lib/favorites';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 
 /**
  * Favorites block on the home page.
@@ -10,6 +12,8 @@ import { useFavorites, useFavoritesHydrated } from '@/lib/favorites';
  * client render agree (localStorage is not readable during SSR).
  */
 export default function FavoritesSection() {
+  const locale = useLocale();
+  const t = getTranslation(locale);
   const { favorites } = useFavorites();
   const ready = useFavoritesHydrated();
 
@@ -20,8 +24,7 @@ export default function FavoritesSection() {
   if (favorites.length === 0) {
     return (
       <p className="empty-state">
-        No favorites yet. Use the star on a tool card — or press <kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>K</kbd> to search —
-        and your most-used tools will be listed here on every visit.
+        {t.noFavorites}
       </p>
     );
   }

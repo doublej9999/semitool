@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
-
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 /**
  * One unit a converter can express a value in.
  *
@@ -75,6 +76,8 @@ export default function UnitConverter({
   controls,
   note,
 }: UnitConverterProps) {
+  const locale = useLocale();
+  const t = getTranslation(locale);
   const [raw, setRaw] = useState(initialValue);
   const [unit, setUnit] = useState(initialUnit);
   const [copied, setCopied] = useState(false);
@@ -108,7 +111,7 @@ export default function UnitConverter({
         {controls}
 
         <div className="field">
-          <label htmlFor="converter-value">Value</label>
+          <label htmlFor="converter-value">{t.valueLabel}</label>
           <div className="inline-field">
             <input
               id="converter-value"
@@ -118,7 +121,7 @@ export default function UnitConverter({
               onChange={(event) => setRaw(event.target.value)}
             />
             <select
-              aria-label="Value unit"
+              aria-label={t.unitColumn || 'Value unit'}
               value={unit}
               onChange={(event) => setUnit(event.target.value)}
               style={{ flex: '0 0 auto', width: 'auto' }}
@@ -141,7 +144,7 @@ export default function UnitConverter({
               setUnit(initialUnit);
             }}
           >
-            <RotateCcw size={14} aria-hidden="true" /> Reset
+            <RotateCcw size={14} aria-hidden="true" /> {t.reset}
           </button>
         </div>
       </section>
@@ -157,7 +160,7 @@ export default function UnitConverter({
           </div>
         ) : (
           <>
-            <span className="unit">Equal to</span>
+            <span className="unit">{t.equalTo}</span>
             <div className="result-value" aria-live="polite">
               {formatValue(result.values[headline.id])}
               <span className="result-suffix"> {headline.label}</span>
@@ -166,8 +169,8 @@ export default function UnitConverter({
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Unit</th>
-                  <th scope="col">Value</th>
+                  <th scope="col">{t.unitColumn}</th>
+                  <th scope="col">{t.valueColumn}</th>
                 </tr>
               </thead>
               <tbody>
@@ -184,7 +187,7 @@ export default function UnitConverter({
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t.copied : t.copyResult}
               </button>
             </div>
           </>

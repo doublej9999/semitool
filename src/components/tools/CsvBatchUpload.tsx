@@ -3,6 +3,8 @@
 import { useState, useRef } from 'react';
 import { Upload, Download, FileSpreadsheet, Check } from 'lucide-react';
 import { parseDelimitedText, buildCsv } from '@/lib/batch-processing';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 
 interface CsvBatchUploadProps {
   onDataLoaded: (values: number[], filename?: string) => void;
@@ -18,6 +20,8 @@ interface CsvBatchUploadProps {
 }
 
 export default function CsvBatchUpload({ onDataLoaded, currentSummary, unit = 'nm' }: CsvBatchUploadProps) {
+  const locale = useLocale();
+  const t = getTranslation(locale);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [lastLoadedCount, setLastLoadedCount] = useState<number | null>(null);
@@ -58,12 +62,12 @@ export default function CsvBatchUpload({ onDataLoaded, currentSummary, unit = 'n
     if (!currentSummary) return;
     const headers = ['Metric', `Value (${unit})`];
     const rows = [
-      ['Mean', currentSummary.mean.toFixed(3)],
-      ['Minimum', currentSummary.min.toFixed(3)],
-      ['Maximum', currentSummary.max.toFixed(3)],
-      ['Range', currentSummary.range.toFixed(3)],
-      ['Sample Sigma (1σ)', currentSummary.sigma !== null ? currentSummary.sigma.toFixed(3) : 'N/A'],
-      ['Uniformity (± Half Range %)', currentSummary.halfRangePercent !== null ? currentSummary.halfRangePercent.toFixed(2) + '%' : 'N/A'],
+      [t.csvMetricMean || 'Mean', currentSummary.mean.toFixed(3)],
+      [t.csvMetricMin || 'Minimum', currentSummary.min.toFixed(3)],
+      [t.csvMetricMax || 'Maximum', currentSummary.max.toFixed(3)],
+      [t.csvMetricRange || 'Range', currentSummary.range.toFixed(3)],
+      [t.csvMetricSigma || 'Sample Sigma (1σ)', currentSummary.sigma !== null ? currentSummary.sigma.toFixed(3) : 'N/A'],
+      [t.csvMetricUniformity || 'Uniformity (± Half Range %)', currentSummary.halfRangePercent !== null ? currentSummary.halfRangePercent.toFixed(2) + '%' : 'N/A'],
     ];
 
     const csvText = buildCsv(headers, rows);
@@ -118,10 +122,10 @@ export default function CsvBatchUpload({ onDataLoaded, currentSummary, unit = 'n
           <span style={{ fontSize: '13px', color: 'var(--ink)' }}>
             {lastLoadedCount !== null ? (
               <span style={{ color: 'var(--teal-dark)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <Check size={14} /> Loaded {lastLoadedCount} readings from CSV!
+                <Check size={14} /> {t.csvLoadedSuccess ? `${lastLoadedCount} ${t.csvLoadedSuccess}` : `Loaded ${lastLoadedCount} readings from CSV!`}
               </span>
             ) : (
-              'Drop raw metrology CSV/TSV file or import from machine'
+              t.csvDropPrompt
             )}
           </span>
         </div>
@@ -134,7 +138,7 @@ export default function CsvBatchUpload({ onDataLoaded, currentSummary, unit = 'n
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload size={13} aria-hidden="true" />
-            <span>Upload CSV</span>
+            <span>{t.csvUploadBtn}</span>
           </button>
 
           {currentSummary && (
@@ -143,10 +147,10 @@ export default function CsvBatchUpload({ onDataLoaded, currentSummary, unit = 'n
               className="button secondary"
               style={{ fontSize: '12px', padding: '4px 9px' }}
               onClick={exportSummaryCsv}
-              title="Export summary results as RFC 4180 CSV report"
+              title={t.csvExportTitle}
             >
               <Download size={13} aria-hidden="true" />
-              <span>Export CSV</span>
+              <span>{t.csvExportBtn}</span>
             </button>
           )}
         </div>

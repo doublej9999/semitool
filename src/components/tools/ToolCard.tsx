@@ -54,7 +54,7 @@ export default function ToolCard({ path }: { path: string }) {
 
       <div className="tool-card-foot">
         <span className="tool-card-category">{translateCategory(tool.category, locale)}</span>
-        <Link href={tool.path} className="tool-card-cta" aria-label={`Open ${translated.name}`}>
+        <Link href={tool.path} className="tool-card-cta" aria-label={`${t.openTool}: ${translated.name}`}>
           {t.openTool} <ArrowRight size={14} aria-hidden="true" />
         </Link>
       </div>

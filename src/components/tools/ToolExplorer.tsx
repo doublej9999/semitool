@@ -31,13 +31,13 @@ export default function ToolExplorer() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t.searchPlaceholder || "Filter tools: name, keyword or unit"}
-          aria-label="Filter tools"
+          aria-label={t.filterToolsAria || t.searchPlaceholder || "Filter tools"}
         />
       </div>
 
       {groups.length === 0 ? (
         <p className="empty-state">
-          No tool matches “{query.trim()}”. Try “wafer”, “die”, “yield”, “mark”, “mm” or “export”.
+          {t.noToolMatches}
         </p>
       ) : (
         groups.map((group) => (

@@ -2,6 +2,9 @@
 
 import { Star } from 'lucide-react';
 import { useFavorites } from '@/lib/favorites';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
+import { getTranslatedTool } from '@/lib/i18n/tool-translations';
 import type { Tool } from '@/tools/tools.types';
 
 /**
@@ -10,16 +13,19 @@ import type { Tool } from '@/tools/tools.types';
  * snapshot on the server and on the first client render.
  */
 export default function FavoriteButton({ tool, compact = false }: { tool: Tool; compact?: boolean }) {
+  const locale = useLocale();
+  const t = getTranslation(locale);
   const { isFavorite, toggle } = useFavorites();
   const active = isFavorite(tool.path);
+  const translated = getTranslatedTool(tool, locale);
 
   return (
     <button
       type="button"
       className={`favorite-button${active ? ' is-active' : ''}${compact ? ' is-compact' : ''}`}
       aria-pressed={active}
-      aria-label={active ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`}
-      title={active ? 'Remove from favorites' : 'Add to favorites'}
+      aria-label={active ? `${t.removeFromFavorites}: ${translated.name}` : `${t.addToFavorites}: ${translated.name}`}
+      title={active ? t.removeFromFavorites : t.addToFavorites}
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();

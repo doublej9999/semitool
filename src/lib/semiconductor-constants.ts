@@ -35,6 +35,7 @@ export interface HandbookTopic {
   variables: { symbol: string; meaning: string; unit: string }[];
   explanation: string;
   fabRelevance: string;
+  calculatorPath?: string;
 }
 
 /** CODATA 2018 Fundamental Physical Constants */
@@ -186,6 +187,7 @@ export const HANDBOOK_FORMULAS: HandbookTopic[] = [
     id: 'deal-grove',
     category: 'Thermal Oxidation',
     title: 'Deal-Grove Thermal Oxidation Model',
+    formulaLatex: 'x_{ox}^2 + A \\cdot x_{ox} = B \\cdot (t + \\tau)',
     formulaPlain: 'x_ox² + A · x_ox = B · (t + τ)',
     variables: [
       { symbol: 'x_ox', meaning: 'Oxide thickness grown', unit: 'µm or nm' },
@@ -197,11 +199,13 @@ export const HANDBOOK_FORMULAS: HandbookTopic[] = [
     explanation:
       'Models silicon thermal oxidation by balancing oxidant transport through the gas boundary layer, diffusion through existing oxide, and chemical reaction at the Si/SiO2 interface. At small thicknesses (x << A/2), growth is linear with rate B/A; at large thicknesses (x >> A/2), growth is parabolic with rate constant B.',
     fabRelevance: 'Essential for predicting gate oxide, pad oxide, field oxide, and LOCOS/STI sacrificial oxide runs in furnace oxidation tubes.',
+    calculatorPath: '/tools/thermal-oxide-calculator',
   },
   {
     id: 'ion-implant-gaussian',
     category: 'Doping & Junctions',
     title: 'Ion Implantation Gaussian Depth Profile',
+    formulaLatex: 'N(x) = \\frac{\\Phi}{\\sqrt{2\\pi}\\,\\Delta R_p} \\exp\\left(-\\frac{(x - R_p)^2}{2\\,\\Delta R_p^2}\\right)',
     formulaPlain: 'N(x) = (Φ / (√(2π) · ΔRp)) · exp(- (x - Rp)² / (2 · ΔRp²))',
     variables: [
       { symbol: 'N(x)', meaning: 'Dopant concentration at depth x', unit: 'cm⁻³' },
@@ -213,11 +217,13 @@ export const HANDBOOK_FORMULAS: HandbookTopic[] = [
     explanation:
       'Calculates dopant distribution assuming nuclear and electronic stopping in amorphous silicon. The peak concentration occurs at x = Rp with Np = 0.3989 · Φ / ΔRp. Metallurgical junction depth xj occurs where N(xj) equals the substrate background doping Nb.',
     fabRelevance: 'Governs threshold voltage VT implants, CMOS well formation, ultra-shallow source/drain extensions, and halo/pocket profiles.',
+    calculatorPath: '/tools/ion-implantation-calculator',
   },
   {
     id: 'fick-diffusion',
     category: 'Diffusion & Annealing',
     title: 'Fick’s Second Law with Arrhenius Diffusivity',
+    formulaLatex: '\\frac{\\partial C}{\\partial t} = D \\frac{\\partial^2 C}{\\partial x^2},\\quad D(T) = D_0 \\exp\\left(-\\frac{E_a}{k_B T}\\right)',
     formulaPlain: '∂C/∂t = D · ∂²C/∂x²,  where D(T) = D_0 · exp(-E_a / (k_B · T))',
     variables: [
       { symbol: 'C(x,t)', meaning: 'Dopant concentration profile over time', unit: 'cm⁻³' },
@@ -230,11 +236,31 @@ export const HANDBOOK_FORMULAS: HandbookTopic[] = [
     explanation:
       'Describes thermal redistribution of impurities during furnace drive-in, rapid thermal processing (RTP), or spike annealing. For constant surface concentration (predeposition), the solution is an erfc curve; for finite total dose (drive-in), the solution approaches a Gaussian profile with characteristic diffusion length 2√(Dt).',
     fabRelevance: 'Limits thermal budget (Dt) accumulation to avoid junction smearing and short-channel effects in scaled nodes.',
+    calculatorPath: '/tools/dopant-diffusion-calculator',
+  },
+  {
+    id: 'four-point-probe',
+    category: 'Metrology & Electrical',
+    title: 'Four-Point Probe Sheet Resistance & ASTM F84 Correction',
+    formulaLatex: 'R_s = \\frac{\\pi}{\\ln 2} \\cdot \\frac{V}{I} \\cdot F(t/s) \\cdot F_2(D/s)',
+    formulaPlain: 'Rs = (π / ln 2) · (V / I) · F(t/s) · F_2(D/s) ≈ 4.53236 · (V / I) · F',
+    variables: [
+      { symbol: 'Rs', meaning: 'Sheet resistance of film or diffused layer', unit: 'Ω/□' },
+      { symbol: 'V', meaning: 'Inner pin differential voltage drop', unit: 'mV or V' },
+      { symbol: 'I', meaning: 'Outer pin forced DC current', unit: 'mA or µA' },
+      { symbol: 'F(t/s)', meaning: 'Thickness geometric correction factor', unit: '—' },
+      { symbol: 'F_2(D/s)', meaning: 'Wafer edge / finite diameter boundary factor', unit: '—' },
+    ],
+    explanation:
+      'ASTM F84 standard method for measuring resistivity and sheet resistance. When wafer thickness t << probe spacing s, the infinite thin-sheet limit constant is π/ln(2) ≈ 4.5324. For non-negligible thickness or probe proximity to the wafer bevel, correction factors F(t/s) and F_2 must be evaluated.',
+    fabRelevance: 'Primary in-line metrology tool for monitoring epitaxial layer resistivity, ion implant activation after RTP, silicide sheets, and metal deposition sheet resistance.',
+    calculatorPath: '/tools/four-point-probe-calculator',
   },
   {
     id: 'rayleigh-litho',
     category: 'Photolithography',
     title: 'Rayleigh Lithography Resolution & Depth of Focus (DoF)',
+    formulaLatex: 'CD = k_1 \\cdot \\frac{\\lambda}{NA},\\quad \\text{DoF} = k_2 \\cdot \\frac{\\lambda}{NA^2}',
     formulaPlain: 'CD = k_1 · (λ / NA),   DoF = k_2 · (λ / NA²)',
     variables: [
       { symbol: 'CD', meaning: 'Minimum printable critical dimension (half-pitch)', unit: 'nm' },
@@ -247,11 +273,13 @@ export const HANDBOOK_FORMULAS: HandbookTopic[] = [
     explanation:
       'Defines optical diffraction limits for scanner projection systems. High NA (including immersion NA = 1.35 and High-NA EUV NA = 0.55) shrinks CD at the expense of quadratically reducing depth of focus, demanding chemical mechanical planarization (CMP) and extreme topography control.',
     fabRelevance: 'Forms the baseline roadmap for stepper/scanner capability and determines when multi-patterning (SADP, SAQP) or EUV is required.',
+    calculatorPath: '/tools/lithography-resolution-calculator',
   },
   {
     id: 'child-langmuir-sheath',
     category: 'Plasma Etch & Deposition',
     title: 'Child-Langmuir Space-Charge Sheath Equation',
+    formulaLatex: 'J = \\frac{4}{9} \\varepsilon_0 \\sqrt{\\frac{2q}{M_{ion}}} \\frac{V_s^{3/2}}{d_s^2}',
     formulaPlain: 'J = (4/9) · ε_0 · √(2q / M_ion) · (V_s^(3/2) / d_s²)',
     variables: [
       { symbol: 'J', meaning: 'Ion current density crossing the sheath to the wafer', unit: 'A/m²' },
@@ -263,11 +291,66 @@ export const HANDBOOK_FORMULAS: HandbookTopic[] = [
     explanation:
       'Relates the DC self-bias voltage applied to the electrostatic chuck, RF power, and gas pressure to sheath thickness and ion acceleration energy in reactive ion etching (RIE) and inductively coupled plasma (ICP) reactors. Energetic directional ions dictate trench verticality and etch anisotropy.',
     fabRelevance: 'Critical for tuning plasma etch selectivity, avoiding micro-trenching, gate dielectric punch-through, and sidewall bow.',
+    calculatorPath: '/tools/plasma-sheath-calculator',
+  },
+  {
+    id: 'cvd-grove-kinetics',
+    category: 'Thin Film Deposition',
+    title: 'Grove CVD Boundary Layer & Surface Reaction Deposition Rate',
+    formulaLatex: 'R_{dep} = \\frac{C_g}{\\frac{1}{h_g} + \\frac{1}{k_s}} \\cdot \\frac{1}{N_{film}}',
+    formulaPlain: 'R_dep = [ C_g / (1/h_g + 1/k_s) ] / N_film',
+    variables: [
+      { symbol: 'R_dep', meaning: 'Steady-state film growth rate', unit: 'nm/min or µm/h' },
+      { symbol: 'C_g', meaning: 'Bulk gas reactant precursor concentration', unit: 'molecules/cm³' },
+      { symbol: 'h_g', meaning: 'Gas boundary layer mass transfer coefficient', unit: 'cm/s' },
+      { symbol: 'k_s', meaning: 'Surface chemical reaction rate constant', unit: 'cm/s' },
+      { symbol: 'N_film', meaning: 'Atomic/molecular density of the deposited film', unit: 'atoms/cm³' },
+    ],
+    explanation:
+      'Balances gas-phase diffusion across the boundary layer against surface reaction rate kinetics. At low temperatures, ks << hg yields surface reaction-limited deposition with excellent step coverage and conformality (LPCVD); at high temperatures, hg << ks produces mass-transport-limited deposition where wafer gas flow uniformity dominates.',
+    fabRelevance: 'Core physics for polysilicon, Si3N4, TEOS oxide, and epitaxial silicon deposition tubes.',
+    calculatorPath: '/tools/cvd-kinetics-calculator',
+  },
+  {
+    id: 'preston-cmp',
+    category: 'Chemical Mechanical Planarization',
+    title: 'Preston’s Equation for CMP Material Removal Rate (MRR)',
+    formulaLatex: 'MRR = K_p \\cdot P \\cdot V',
+    formulaPlain: 'MRR = K_p · P · V',
+    variables: [
+      { symbol: 'MRR', meaning: 'Material removal rate', unit: 'nm/min or Å/min' },
+      { symbol: 'K_p', meaning: 'Preston coefficient (slurry chemistry, pad conditioned state)', unit: 'mm²·min / (N·m)' },
+      { symbol: 'P', meaning: 'Downforce pressure applied by carrier head', unit: 'psi or kPa' },
+      { symbol: 'V', meaning: 'Relative velocity between wafer and polishing pad', unit: 'm/s or rpm' },
+    ],
+    explanation:
+      'Semi-empirical law stating that planarization material removal is directly proportional to the mechanical energy dissipated: the product of downward pressure P and relative linear velocity V, scaled by the Preston constant Kp which embeds slurry abrasives, chemical reactivity, and pad conditioning.',
+    fabRelevance: 'Governs oxide, copper CMP dishing, dielectric erosion, and within-wafer non-uniformity (WIWNU) optimization.',
+    calculatorPath: '/tools/cmp-preston-calculator',
+  },
+  {
+    id: 'arrhenius-reliability',
+    category: 'Reliability & Life Testing',
+    title: 'Arrhenius Thermal Acceleration & Reliability Factor',
+    formulaLatex: 'AF = \\exp\\left[\\frac{E_a}{k_B} \\left(\\frac{1}{T_{use}} - \\frac{1}{T_{stress}}\\right)\\right]',
+    formulaPlain: 'AF = exp[ (E_a / k_B) · (1/T_use - 1/T_stress) ]',
+    variables: [
+      { symbol: 'AF', meaning: 'Acceleration factor for accelerated life testing (HTOL)', unit: '—' },
+      { symbol: 'E_a', meaning: 'Failure mechanism activation energy (e.g. 0.7 eV for TDDB, 0.9 eV for EM)', unit: 'eV' },
+      { symbol: 'k_B', meaning: 'Boltzmann constant (8.617333262 × 10⁻⁵ eV/K)', unit: 'eV/K' },
+      { symbol: 'T_use', meaning: 'Nominal chip operating junction temperature', unit: 'K' },
+      { symbol: 'T_stress', meaning: 'Oven/furnace burn-in stress temperature', unit: 'K' },
+    ],
+    explanation:
+      'Calculates the acceleration multiplier when stressing microelectronic devices at elevated thermal bake or burn-in conditions. Relates mean time to failure (MTTF) under stress back to equivalent operational lifetime under normal fab/consumer environmental conditions.',
+    fabRelevance: 'Underpins JEDEC qualification, High-Temperature Operating Life (HTOL), and burn-in chamber duration sizing.',
+    calculatorPath: '/tools/arrhenius-calculator',
   },
   {
     id: 'murphy-seeds-yield',
     category: 'Yield & Fab Economics',
     title: 'Murphy & Seeds Semiconductor Yield Models',
+    formulaLatex: 'Y_{Murphy} = \\left(\\frac{1 - \\exp(-D_0 A)}{D_0 A}\\right)^2,\\quad Y_{Seeds} = \\exp(-\\sqrt{D_0 A})',
     formulaPlain: 'Y_Murphy = ((1 - exp(-D_0 · A)) / (D_0 · A))²,   Y_Seeds = exp(-√(D_0 · A))',
     variables: [
       { symbol: 'Y', meaning: 'Die functional yield percentage', unit: '% or fraction' },
@@ -277,5 +360,6 @@ export const HANDBOOK_FORMULAS: HandbookTopic[] = [
     explanation:
       'Corrects for non-random spatial clustering of particulate defects across wafers, overcoming Poisson’s conservative pessimism for large die sizes. Murphy assumes a triangular distribution of defect density, while negative binomial models parameterize cluster coefficient alpha.',
     fabRelevance: 'Used by product engineers and fab planners to forecast wafer out yield, cost per good die, and die-to-reticle partitioning.',
+    calculatorPath: '/tools/yield-model-calculator',
   },
 ];

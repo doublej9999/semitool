@@ -28,6 +28,7 @@ export interface Translations {
   hideToolMenu: string;
   homeTitle: string;
   githubRepo: string;
+  footerTagline: string;
 
   // Categories
   catWaferDie: string;
@@ -186,6 +187,7 @@ export interface Translations {
   handbookSearchPlaceholder: string;
   handbookClose: string;
   handbookPropertyCol: string;
+  handbookOpenCalc: string;
 
   // About, Privacy, Contact prose pages
   aboutEyebrow: string;
@@ -246,6 +248,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     hideToolMenu: 'Hide tool menu',
     homeTitle: 'Home',
     githubRepo: 'GitHub repository',
+    footerTagline: 'Semiconductor engineering tools, made clear. Every calculation runs in your browser; results are generic estimates unless a tool states otherwise.',
 
     catWaferDie: 'Wafer & Die',
     catYieldQuality: 'Yield & Quality',
@@ -394,6 +397,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     handbookSearchPlaceholder: 'Search formulas, constants, materials...',
     handbookClose: 'Close Handbook',
     handbookPropertyCol: 'Property',
+    handbookOpenCalc: 'Open Calculator',
 
     aboutEyebrow: 'ABOUT',
     aboutHeading: 'Engineering tools, without the friction.',
@@ -452,6 +456,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     hideToolMenu: '折叠工具侧边栏',
     homeTitle: '首页',
     githubRepo: 'GitHub 开源仓库',
+    footerTagline: '半导体工程专业计算工具箱。所有计算均在浏览器端完成，纯前端本地运算，保障工艺机密。计算结果为通用模型推算，实际生产请以厂内受控文件为准。',
 
     catWaferDie: '晶圆与芯片布局',
     catYieldQuality: '良率与质量可靠性',
@@ -600,6 +605,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     handbookSearchPlaceholder: '搜索公式名称、物理量符号、材料特性...',
     handbookClose: '关闭速查手册',
     handbookPropertyCol: '材料物理属性',
+    handbookOpenCalc: '打开对应计算器',
 
     aboutEyebrow: '关于 SEMITOOLS',
     aboutHeading: '纯粹、高效、无冗余的半导体工程工具。',
@@ -658,6 +664,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     hideToolMenu: '收合工具側邊欄',
     homeTitle: '首頁',
     githubRepo: 'GitHub 開源專案',
+    footerTagline: '半導體工程專業計算工具箱。所有計算均在瀏覽器本機完成，純客戶端運算，保障製程機密。計算結果為通用模型推算，實際生產請以廠內受控文件為準。',
 
     catWaferDie: '晶圓與晶粒佈局',
     catYieldQuality: '良率與品質可靠度',
@@ -806,6 +813,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     handbookSearchPlaceholder: '搜尋公式、物理常數、材料...',
     handbookClose: '關閉手冊',
     handbookPropertyCol: '物理性質',
+    handbookOpenCalc: '開啟對應計算器',
 
     aboutEyebrow: '關於 SEMITOOLS',
     aboutHeading: '純粹、高效、無負擔的半導體工程工具。',
@@ -864,6 +872,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     hideToolMenu: '사이드바 숨기기',
     homeTitle: '홈',
     githubRepo: 'GitHub 저장소',
+    footerTagline: '투명하고 신뢰할 수 있는 반도체 엔지니어링 툴. 모든 연산은 브라우저에서 로컬로 실행되며 기밀 데이터는 전송되지 않습니다. 실생산 적용 전 사내 규격을 확인하십시오.',
 
     catWaferDie: '웨이퍼 및 다이',
     catYieldQuality: '수율 및 품질 신뢰성',
@@ -1012,6 +1021,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     handbookSearchPlaceholder: '수식, 물리 상수, 재료 물성 검색...',
     handbookClose: '핸드북 닫기',
     handbookPropertyCol: '물리적 특성',
+    handbookOpenCalc: '계산기 열기',
 
     aboutEyebrow: 'SEMITOOLS 소개',
     aboutHeading: '군더더기 없는 반도체 엔지니어링 툴.',
@@ -1070,6 +1080,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     hideToolMenu: 'サイドバーを折りたたむ',
     homeTitle: 'ホーム',
     githubRepo: 'GitHubリポジトリ',
+    footerTagline: '半導体エンジニアリング計算ツール集。すべての計算はブラウザ内でローカルに実行され、機密データが外部送信されることはありません。実生産前には社内管理基準をご確認ください。',
 
     catWaferDie: 'ウェーハ＆ダイ設計',
     catYieldQuality: '歩留まり・信頼性品質',
@@ -1218,6 +1229,7 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     handbookSearchPlaceholder: '公式名、物理定数、材料物性を検索...',
     handbookClose: 'ハンドブックを閉じる',
     handbookPropertyCol: '物理特性',
+    handbookOpenCalc: '計算機を開く',
 
     aboutEyebrow: 'SEMITOOLSについて',
     aboutHeading: '妥協のない半導体エンジニアリングツール。',
