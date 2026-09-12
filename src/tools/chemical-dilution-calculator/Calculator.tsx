@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Copy, RotateCcw, AlertTriangle, ShieldCheck, Info, Download } from 'lucide-react';
+import { useMemo, useState, useRef } from 'react';
+import { Copy, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, ImageIcon } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import {
   calculateRecipeVolumes,
@@ -10,7 +10,9 @@ import {
   type WetBenchRecipePreset,
 } from '@/lib/chemical-dilution';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv } from '@/lib/export';
+import { downloadCsv, downloadSvg } from '@/lib/export';
+
+const PALETTE = ['#0284c7', '#0d9488', '#ea580c', '#d97706', '#6366f1', '#ec4899'];
 
 const INITIAL = {
   mode: 'recipe', // 'recipe' | 'c1v1'
@@ -27,10 +29,90 @@ export default function ChemicalDilutionCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   const selectedPreset: WetBenchRecipePreset = useMemo(() => {
     return RECIPE_PRESETS.find((p) => p.id === state.recipeId) || RECIPE_PRESETS[0];
   }, [state.recipeId]);
+
+  interface PhysicsWarning {
+    level: 'warning' | 'danger';
+    title: string;
+    message: string;
+  }
+
+  const physicsWarnings = useMemo<PhysicsWarning[]>(() => {
+    const warnings: PhysicsWarning[] = [];
+    if (state.mode === 'c1v1') {
+      const c1 = num(state.stockConcentration);
+      const c2 = num(state.targetConcentration);
+      const v2 = num(state.c1v1VolumeLiters);
+
+      if (Number.isFinite(c1) && c1 > 100) {
+        warnings.push({
+          level: 'danger',
+          title: 'Physical Concentration Exceeded (C1 > 100%)',
+          message: `Stock chemical concentration C1 = ${c1}% exceeds 100%, which is physically impossible for chemical solutions.`,
+        });
+      }
+
+      if (Number.isFinite(c1) && Number.isFinite(c2) && c2 > c1) {
+        warnings.push({
+          level: 'danger',
+          title: 'Physical Impossibility (C2 > C1 Dilution Violation)',
+          message: `Target concentration C2 (${c2}%) cannot exceed stock chemical concentration C1 (${c1}%). Standard wet bench dilution with DI water can only decrease solute concentration, never concentrate it without evaporation.`,
+        });
+      }
+
+      if (Number.isFinite(c1) && Number.isFinite(c2) && c1 > 0 && c1 === c2) {
+        warnings.push({
+          level: 'warning',
+          title: 'Zero Dilution Needed (C1 = C2)',
+          message: 'Target concentration equals stock concentration. The required stock chemical volume equals the target volume (V1 = V2) with zero DI water required.',
+        });
+      }
+
+      if (Number.isFinite(v2) && v2 > 200) {
+        warnings.push({
+          level: 'warning',
+          title: 'Extremely Large Tank Volume (> 200 L)',
+          message: 'Standard semiconductor cleanroom tanks are usually 5–50 L. Ensure overflow, exhaust, and containment berms support 200+ L.',
+        });
+      }
+    } else {
+      const vol = num(state.bathVolumeLiters);
+      if (Number.isFinite(vol) && vol > 100) {
+        warnings.push({
+          level: 'warning',
+          title: 'Excessive Bath Volume (> 100 L)',
+          message: 'Wet bench immersion tanks in semiconductor fabs are typically 5 to 30 L (up to 50 L for 300 mm wafer automated wet stations). 100+ L tanks present severe exothermic runaway and drainage risks.',
+        });
+      }
+      if (Number.isFinite(vol) && vol > 0 && vol < 0.5) {
+        warnings.push({
+          level: 'warning',
+          title: 'Sub-Liter Micro Tank (< 500 mL)',
+          message: 'Bath volume is below 500 mL. Small beaker volumes suffer rapid evaporative concentration drift and thermal instability.',
+        });
+      }
+      if (selectedPreset.category === 'piranha') {
+        warnings.push({
+          level: 'danger',
+          title: 'Piranha (SPM) Exothermic Reaction Hazard',
+          message: 'Sulfuric acid and hydrogen peroxide react with high exothermicity (> 100 °C). ALWAYS add H₂O₂ to H₂SO₄ slowly; NEVER add water to acid. Explosion risk if organic solvent (IPA/acetone) contacts piranha.',
+        });
+      }
+      if (selectedPreset.category === 'hf-clean') {
+        warnings.push({
+          level: 'danger',
+          title: 'Hydrofluoric Acid (HF) Toxicity',
+          message: 'HF penetrates skin to attack calcium bone structure without immediate burn sensation. Calcium gluconate antidote gel and HF-resistant PPE (neoprene gloves) are mandatory.',
+        });
+      }
+    }
+    return warnings;
+  }, [state.mode, state.stockConcentration, state.targetConcentration, state.c1v1VolumeLiters, state.bathVolumeLiters, selectedPreset]);
+
 
   const recipeResult = useMemo(() => {
     const vol = num(state.bathVolumeLiters);
@@ -122,6 +204,16 @@ export default function ChemicalDilutionCalculator() {
         ['Dilution Factor', c1v1Result.dilutionFactor.toFixed(2), 'x'],
       ];
       downloadCsv(`c1v1_dilution_${c1v1Result.stockConcentration}pct_to_${c1v1Result.targetConcentration}pct`, headers, rows);
+    }
+  };
+  const handleExportSvg = () => {
+    if (svgRef.current) {
+      downloadSvg(
+        svgRef.current,
+        state.mode === 'recipe'
+          ? `recipe_composition_${recipeResult?.recipeName.replace(/[^a-zA-Z0-9_-]/g, '_') ?? state.recipeId}`
+          : `c1v1_dilution_${state.stockConcentration}pct_to_${state.targetConcentration}pct`
+      );
     }
   };
 
@@ -278,6 +370,14 @@ export default function ChemicalDilutionCalculator() {
           >
             <Download size={14} aria-hidden="true" /> Export CSV
           </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={handleExportSvg}
+            disabled={state.mode === 'recipe' ? !recipeResult : !c1v1Result}
+          >
+            <ImageIcon size={14} aria-hidden="true" /> Save SVG
+          </button>
         </div>
 
         <div className="note" style={{ marginTop: '20px' }}>
@@ -288,6 +388,14 @@ export default function ChemicalDilutionCalculator() {
 
       <section className="panel" aria-labelledby="clean-results">
         <h2 id="clean-results">Volumetric & Concentration Breakdown</h2>
+        {physicsWarnings.map((w, idx) => (
+          <div key={idx} className={`physics-alert ${w.level === 'danger' ? 'danger' : ''}`} role="alert" style={{ marginBottom: 16 }}>
+            <AlertTriangle size={16} className="physics-alert-icon" />
+            <div className="physics-alert-content">
+              <strong>{w.title}:</strong> {w.message}
+            </div>
+          </div>
+        ))}
 
         {state.mode === 'recipe' && recipeResult ? (
           <>
@@ -302,38 +410,71 @@ export default function ChemicalDilutionCalculator() {
             </div>
             {/* SVG Component Volume Stacked Bar Chart */}
             <div style={{ marginTop: '16px', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '6px' }}>
-                <span>Volumetric Composition (100%)</span>
-                <span>{recipeResult.components.length} Components</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '6px' }}>
+                <span style={{ fontWeight: 600 }}>Volumetric Composition Breakdown</span>
+                <span style={{ color: 'var(--ink-soft)' }}>{recipeResult.components.length} Components</span>
               </div>
-              <div style={{ width: '100%', height: '24px', borderRadius: '4px', overflow: 'hidden', display: 'flex', border: '1px solid var(--border-soft)' }}>
-                {(() => {
-                  const palette = ['#0284c7', '#0d9488', '#ea580c', '#d97706', '#6366f1', '#ec4899'];
-                  return recipeResult.components.map((c, i) => (
-                    <div
-                      key={c.chemicalKey}
-                      title={`${c.name}: ${fmt(c.volumePct, 1)}% (${fmt(c.volumeMl)} mL)`}
-                      style={{
-                        width: `${c.volumePct}%`,
-                        backgroundColor: palette[i % palette.length],
-                        height: '100%',
-                        transition: 'width 0.3s ease',
-                      }}
-                    />
-                  ));
-                })()}
+              <div style={{ background: 'var(--surface-sunken)', borderRadius: '6px', padding: '10px 12px', border: '1px solid var(--border-soft)' }}>
+                <svg
+                  ref={state.mode === 'recipe' ? svgRef : undefined}
+                  viewBox="0 0 600 56"
+                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                  role="img"
+                  aria-label="Wet bench recipe volumetric breakdown"
+                >
+                  <rect width="600" height="56" fill="var(--surface-sunken)" rx="4" />
+                  {(() => {
+                    let currentX = 0;
+                    const totalW = 600;
+                    const barY = 8;
+                    const barH = 24;
+                    return recipeResult.components.map((c, i) => {
+                      const w = (c.volumePct / 100) * totalW;
+                      const x = currentX;
+                      currentX += w;
+                      const color = PALETTE[i % PALETTE.length];
+                      return (
+                        <g key={c.chemicalKey}>
+                          <rect x={x} y={barY} width={w} height={barH} fill={color} rx="2" />
+                          {w > 30 && (
+                            <text
+                              x={x + w / 2}
+                              y={barY + barH / 2 + 4}
+                              textAnchor="middle"
+                              fill="#ffffff"
+                              fontSize="11"
+                              fontWeight="600"
+                              fontFamily="system-ui, sans-serif"
+                            >
+                              {fmt(c.volumePct, 1)}%
+                            </text>
+                          )}
+                          {w > 50 && (
+                            <text
+                              x={x + w / 2}
+                              y={barY + barH + 16}
+                              textAnchor="middle"
+                              fill="var(--ink-soft)"
+                              fontSize="10"
+                              fontFamily="system-ui, sans-serif"
+                            >
+                              {c.name.split(' ')[0]} ({fmt(c.volumeMl)} mL)
+                            </text>
+                          )}
+                        </g>
+                      );
+                    });
+                  })()}
+                </svg>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '8px', fontSize: '11px' }}>
-                {(() => {
-                  const palette = ['#0284c7', '#0d9488', '#ea580c', '#d97706', '#6366f1', '#ec4899'];
-                  return recipeResult.components.map((c, i) => (
-                    <div key={c.chemicalKey} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: palette[i % palette.length] }} />
-                      <span style={{ fontWeight: 500 }}>{c.name}:</span>
-                      <span style={{ color: 'var(--ink-soft)' }}>{fmt(c.volumePct, 1)}%</span>
-                    </div>
-                  ));
-                })()}
+                {recipeResult.components.map((c, i) => (
+                  <div key={c.chemicalKey} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: PALETTE[i % PALETTE.length] }} />
+                    <span style={{ fontWeight: 500 }}>{c.name}:</span>
+                    <span style={{ color: 'var(--ink-soft)' }}>{fmt(c.volumePct, 1)}% ({fmt(c.volumeMl)} mL)</span>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -424,6 +565,109 @@ export default function ChemicalDilutionCalculator() {
                 <span style={{ fontSize: '14px', color: 'var(--ink-soft)', marginLeft: '10px' }}>
                   ({fmt(c1v1Result.stockVolumeLiters, 4)} L)
                 </span>
+              </div>
+            </div>
+            {/* SVG Dilution Proportions Bar */}
+            <div style={{ marginTop: '16px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '6px' }}>
+                <span style={{ fontWeight: 600 }}>Dilution Volume Proportions</span>
+                <span style={{ color: 'var(--ink-soft)' }}>
+                  {fmt(c1v1Result.targetVolumeLiters)} L Total
+                </span>
+              </div>
+              <div style={{ background: 'var(--surface-sunken)', borderRadius: '6px', padding: '10px 12px', border: '1px solid var(--border-soft)' }}>
+                <svg
+                  ref={state.mode === 'c1v1' ? svgRef : undefined}
+                  viewBox="0 0 600 56"
+                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                  role="img"
+                  aria-label="C1V1 chemical dilution breakdown"
+                >
+                  <rect width="600" height="56" fill="var(--surface-sunken)" rx="4" />
+                  {(() => {
+                    const totalVol = c1v1Result.targetVolumeLiters;
+                    const v1Pct = totalVol > 0 ? (c1v1Result.stockVolumeLiters / totalVol) * 100 : 0;
+                    const vWaterPct = Math.max(0, 100 - v1Pct);
+                    const totalW = 600;
+                    const barY = 8;
+                    const barH = 24;
+                    const w1 = (v1Pct / 100) * totalW;
+                    const wWater = totalW - w1;
+
+                    return (
+                      <g>
+                        <rect x={0} y={barY} width={w1} height={barH} fill="#ea580c" rx="2" />
+                        <rect x={w1} y={barY} width={wWater} height={barH} fill="#0284c7" rx="2" />
+                        {w1 > 35 && (
+                          <text
+                            x={w1 / 2}
+                            y={barY + barH / 2 + 4}
+                            textAnchor="middle"
+                            fill="#ffffff"
+                            fontSize="11"
+                            fontWeight="600"
+                            fontFamily="system-ui, sans-serif"
+                          >
+                            {fmt(v1Pct, 1)}%
+                          </text>
+                        )}
+                        {w1 > 50 && (
+                          <text
+                            x={w1 / 2}
+                            y={barY + barH + 16}
+                            textAnchor="middle"
+                            fill="var(--ink-soft)"
+                            fontSize="10"
+                            fontFamily="system-ui, sans-serif"
+                          >
+                            Stock ({fmt(c1v1Result.stockVolumeMl)} mL)
+                          </text>
+                        )}
+                        {wWater > 35 && (
+                          <text
+                            x={w1 + wWater / 2}
+                            y={barY + barH / 2 + 4}
+                            textAnchor="middle"
+                            fill="#ffffff"
+                            fontSize="11"
+                            fontWeight="600"
+                            fontFamily="system-ui, sans-serif"
+                          >
+                            {fmt(vWaterPct, 1)}%
+                          </text>
+                        )}
+                        {wWater > 50 && (
+                          <text
+                            x={w1 + wWater / 2}
+                            y={barY + barH + 16}
+                            textAnchor="middle"
+                            fill="var(--ink-soft)"
+                            fontSize="10"
+                            fontFamily="system-ui, sans-serif"
+                          >
+                            DIW ({fmt(c1v1Result.solventWaterVolumeMl)} mL)
+                          </text>
+                        )}
+                      </g>
+                    );
+                  })()}
+                </svg>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '8px', fontSize: '11px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#ea580c' }} />
+                  <span style={{ fontWeight: 500 }}>Stock Chemical (V1):</span>
+                  <span style={{ color: 'var(--ink-soft)' }}>
+                    {fmt(c1v1Result.stockVolumeMl)} mL ({fmt((c1v1Result.stockVolumeLiters / c1v1Result.targetVolumeLiters) * 100, 1)}%)
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#0284c7' }} />
+                  <span style={{ fontWeight: 500 }}>DI Water Diluent:</span>
+                  <span style={{ color: 'var(--ink-soft)' }}>
+                    {fmt(c1v1Result.solventWaterVolumeMl)} mL ({fmt((c1v1Result.solventWaterVolumeLiters / c1v1Result.targetVolumeLiters) * 100, 1)}%)
+                  </span>
+                </div>
               </div>
             </div>
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { useId, useMemo, useState } from 'react';
-import { Copy, RotateCcw, Download, Info, CheckCircle, AlertCircle } from 'lucide-react';
+import { useId, useMemo, useRef, useState } from 'react';
+import { Copy, RotateCcw, Download, Info, CheckCircle, AlertCircle, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv } from '@/lib/export';
+import { downloadCsv, downloadSvg } from '@/lib/export';
 import {
   calculateCvdKinetics,
   CVD_RECIPES,
@@ -40,6 +40,7 @@ const INITIAL_STATE: CvdState = {
 export default function CvdKineticsCalculator() {
   const [state, setState] = useState<CvdState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   // Synchronize state with URL search query params
   useUrlParamsState(state, setState);
@@ -144,6 +145,56 @@ export default function CvdKineticsCalculator() {
     ]);
     downloadCsv(`cvd_arrhenius_curve_${state.recipeId}`, headers, rows);
   };
+
+  const handleExportDepletionSvg = () => {
+    if (svgRef.current) {
+      downloadSvg(svgRef.current, `cvd_depletion_chart_${state.recipeId}_${state.tempCelsius}C`);
+    }
+  };
+
+  const physicsWarnings = useMemo(() => {
+    const warnings: { level: 'danger' | 'warning'; title: string; message: string }[] = [];
+
+    if (state.tempCelsius >= 1414) {
+      warnings.push({
+        level: 'danger',
+        title: 'Exceeds Silicon Substrate Melting Point (1414 °C)',
+        message: 'Pure silicon melts at 1414 °C. At this temperature, the wafer and silicon parts will liquefy and destroy the reactor.',
+      });
+    } else if (state.tempCelsius < 350) {
+      warnings.push({
+        level: 'warning',
+        title: 'Low Thermal Activation (< 350 °C)',
+        message: 'Purely thermal CVD chemical reactions have virtually zero yield below 350 °C without RF plasma excitation (PECVD).',
+      });
+    }
+
+    if (state.pressureTorr > 760) {
+      warnings.push({
+        level: 'warning',
+        title: 'Super-Atmospheric Pressure (> 760 Torr)',
+        message: 'High operating pressures promote premature gas-phase homogeneous nucleation, producing fine powder/particles on wafers instead of specular thin films.',
+      });
+    }
+
+    if (state.gasVelocityCmPerS > 200) {
+      warnings.push({
+        level: 'warning',
+        title: 'High Gas Velocity & Turbulent Boundary Layer (U > 200 cm/s)',
+        message: 'High velocities increase the flow Reynolds number, causing turbulent eddies that destroy boundary layer stability and film uniformity.',
+      });
+    }
+
+    if (state.waferPositionXCm > state.susceptorLengthCm) {
+      warnings.push({
+        level: 'danger',
+        title: 'Wafer Position Out of Bounds',
+        message: `Wafer position (${state.waferPositionXCm} cm) extends beyond the heated susceptor length (${state.susceptorLengthCm} cm).`,
+      });
+    }
+
+    return warnings;
+  }, [state]);
 
   // Depletion profile SVG chart parameters
   const svgW = 600;
@@ -326,6 +377,15 @@ export default function CvdKineticsCalculator() {
         ) : (
           <>
             {/* Hero Card */}
+
+            {physicsWarnings.map((w, idx) => (
+              <div key={idx} className={`physics-alert ${w.level === 'danger' ? 'danger' : ''}`} role="alert" style={{ marginBottom: 16 }}>
+                <AlertTriangle size={16} className="physics-alert-icon" />
+                <div className="physics-alert-content">
+                  <strong>{w.title}:</strong> {w.message}
+                </div>
+              </div>
+            ))}
             <div
               className="result-hero"
               style={{
@@ -441,13 +501,17 @@ export default function CvdKineticsCalculator() {
                     </button>
                     <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportArrheniusCsv}>
                       <Download size={13} aria-hidden="true" />
-                      <span>Export Arrhenius CSV</span>
+                      <span>Arrhenius CSV</span>
+                    </button>
+                    <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportDepletionSvg}>
+                      <ImageIcon size={13} aria-hidden="true" />
+                      <span>Save SVG</span>
                     </button>
                   </div>
                 </div>
 
                 <div style={{ background: 'var(--surface-sunken)', borderRadius: 8, padding: 12, border: '1px solid var(--border)' }}>
-                  <svg viewBox={`0 0 ${svgW} ${svgH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+                  <svg ref={svgRef} viewBox={`0 0 ${svgW} ${svgH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
                     {/* Horizontal Grid */}
                     {[0, 0.25, 0.5, 0.75, 1].map((f) => {
                       const y = pad.top + pH * (1 - f);

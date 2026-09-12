@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Copy, RotateCcw, Download } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
+import { Copy, RotateCcw, Download, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import {
   SILICON_DOPANTS,
   type DopantSpecies,
@@ -12,7 +12,7 @@ import {
   calculateMinimumOxideMaskThickness,
   erfc,
 } from '@/lib/dopant-diffusion';
-import { downloadCsv } from '@/lib/export';
+import { downloadCsv, downloadSvg } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
 
@@ -30,6 +30,7 @@ const INITIAL = {
 export default function DopantDiffusionCalculator() {
   const [state, setState] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   useUrlParamsState(state, setState);
 
@@ -216,6 +217,55 @@ export default function DopantDiffusionCalculator() {
     );
   };
 
+  const handleExportProfileSvg = () => {
+    if (svgRef.current) {
+      downloadSvg(
+        svgRef.current,
+        `dopant_profile_${state.dopant}_${state.processType}_${state.tempCelsius}C`
+      );
+    }
+  };
+
+  const physicsWarnings = useMemo(() => {
+    const warnings: { level: 'danger' | 'warning'; title: string; message: string }[] = [];
+    const cs = state.processType === 'predeposition'
+      ? (state.useSolidSolubility ? solidSolubility : Number.parseFloat(state.customCsCm3) || 1e20)
+      : (driveInResult?.surfaceConcentrationCm3 ?? 0);
+    const cb = Number.parseFloat(state.backgroundDopingCm3) || 1e16;
+
+    if (state.tempCelsius >= 1414) {
+      warnings.push({
+        level: 'danger',
+        title: 'Exceeds Silicon Melting Point (1414 °C)',
+        message: 'Pure silicon melts at 1414 °C. At this temperature, the wafer will melt and destroy the furnace chamber.',
+      });
+    } else if (state.tempCelsius > 1250) {
+      warnings.push({
+        level: 'warning',
+        title: 'High Thermal Stress & Slip Dislocation Risk (> 1250 °C)',
+        message: 'Prolonged exposure above 1250 °C induces severe crystal plastic deformation, wafer warpage, and slip lines along {111} planes.',
+      });
+    }
+
+    if (state.processType === 'predeposition' && !state.useSolidSolubility && cs > solidSolubility * 1.05) {
+      warnings.push({
+        level: 'warning',
+        title: 'Exceeds Solid Solubility Limit',
+        message: `Surface concentration (${cs.toExponential(2)} cm⁻³) exceeds equilibrium solid solubility (${solidSolubility.toExponential(2)} cm⁻³ at ${state.tempCelsius} °C). Excess dopant forms inactive precipitates and dislocation loops.`,
+      });
+    }
+
+    if (cs > 0 && cs <= cb) {
+      warnings.push({
+        level: 'danger',
+        title: 'No Metallurgical Junction Formed (Cs ≤ C_sub)',
+        message: 'Surface dopant concentration is less than or equal to substrate background doping. A p-n junction cannot be formed.',
+      });
+    }
+
+    return warnings;
+  }, [state, solidSolubility, driveInResult]);
+
   const copyResult = async () => {
     const isPredep = state.processType === 'predeposition';
     const active = isPredep ? predepResult : driveInResult;
@@ -385,6 +435,15 @@ export default function DopantDiffusionCalculator() {
       <section className="panel" aria-labelledby="dopant-results">
         <h2 id="dopant-results">Junction Depth & Doping Profile</h2>
 
+        {physicsWarnings.map((w, idx) => (
+          <div key={idx} className={`physics-alert ${w.level === 'danger' ? 'danger' : ''}`} role="alert">
+            <AlertTriangle size={16} className="physics-alert-icon" />
+            <div className="physics-alert-content">
+              <strong>{w.title}:</strong> {w.message}
+            </div>
+          </div>
+        ))}
+
         {(() => {
           const isPredep = state.processType === 'predeposition';
           const active = isPredep ? predepResult : driveInResult;
@@ -474,12 +533,21 @@ export default function DopantDiffusionCalculator() {
                       onClick={handleExportProfileCsv}
                     >
                       <Download size={13} aria-hidden="true" />
-                      <span>Export Profile CSV</span>
+                      <span>Export CSV</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      style={{ fontSize: '0.78rem', padding: '4px 10px' }}
+                      onClick={handleExportProfileSvg}
+                    >
+                      <ImageIcon size={13} aria-hidden="true" />
+                      <span>Save SVG</span>
                     </button>
                   </div>
 
                   <div style={{ background: 'var(--surface-sunken)', borderRadius: 8, padding: 12, border: '1px solid var(--border)' }}>
-                    <svg viewBox={`0 0 ${chartData.svgW} ${chartData.svgH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+                    <svg ref={svgRef} viewBox={`0 0 ${chartData.svgW} ${chartData.svgH}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
                       {/* Horizontal Decade Grid Lines */}
                       {chartData.decades.map((d) => {
                         const y = chartData.scaleY(Math.pow(10, d));

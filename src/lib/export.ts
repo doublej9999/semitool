@@ -39,3 +39,30 @@ export function downloadCsv(filename: string, headers: string[], rows: (string |
 
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+/**
+ * Triggers a download of an SVG element as an .svg image file.
+ */
+export function downloadSvg(svgElement: SVGSVGElement, filename: string): void {
+  if (typeof window === 'undefined' || !svgElement) return;
+
+  const serializer = new XMLSerializer();
+  let source = serializer.serializeToString(svgElement);
+
+  // Ensure xmlns is present for standalone SVG file
+  if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+
+  const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename.endsWith('.svg') ? filename : `${filename}.svg`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

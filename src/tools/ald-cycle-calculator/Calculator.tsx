@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Copy, RotateCcw, Download } from 'lucide-react';
+import { Copy, RotateCcw, Download, AlertTriangle } from 'lucide-react';
 import {
   ALD_PRESETS,
   calculateAldCycle,
@@ -69,6 +69,49 @@ export default function AldCycleCalculator() {
       temperatureC: state.temperatureC,
     });
   }, [state]);
+  interface PhysicsWarning {
+    level: 'warning' | 'danger';
+    title: string;
+    message: string;
+  }
+
+  const physicsWarnings = useMemo<PhysicsWarning[]>(() => {
+    const warnings: PhysicsWarning[] = [];
+    if (!preset) return warnings;
+
+    const [minT, maxT] = preset.temperatureRangeC;
+    if (state.temperatureC < minT) {
+      warnings.push({
+        level: 'warning',
+        title: 'Sub-Optimal ALD Window (T < Min Temp)',
+        message: `Substrate temperature (${state.temperatureC} °C) is below typical ALD window (${minT}–${maxT} °C). Precursor condensation and slow ligand exchange kinetics will occur.`,
+      });
+    } else if (state.temperatureC > maxT) {
+      warnings.push({
+        level: 'danger',
+        title: 'Thermal Decomposition Hazard (T > Max Temp)',
+        message: `Substrate temperature (${state.temperatureC} °C) exceeds the ALD self-limiting window (${minT}–${maxT} °C). Risk of thermal precursor decomposition and uncontrolled parasitic CVD growth.`,
+      });
+    }
+
+    if (state.purgeTime1 < 1.0 || state.purgeTime2 < 1.0) {
+      warnings.push({
+        level: 'warning',
+        title: 'Insufficient Purge Time (< 1.0 s)',
+        message: 'Purge duration is under 1 second. Incomplete purging causes precursor vapor cross-talk in the gas phase, generating parasitic CVD particles and non-uniform film edges.',
+      });
+    }
+
+    if (result.effectiveCoverage < 0.75) {
+      warnings.push({
+        level: 'warning',
+        title: 'Severely Sub-Saturated Dose (θ < 75%)',
+        message: `Effective surface coverage is only ${(result.effectiveCoverage * 100).toFixed(1)}%. Increase precursor pulse time or partial pressure to achieve conformality across 3D high-aspect-ratio topography.`,
+      });
+    }
+
+    return warnings;
+  }, [preset, state.temperatureC, state.purgeTime1, state.purgeTime2, result.effectiveCoverage]);
 
   const copyResult = async () => {
     const summary = [
@@ -316,6 +359,14 @@ export default function AldCycleCalculator() {
 
       <section className="panel" aria-labelledby="ald-results">
         <h2 id="ald-results">Deposition Results & Kinetics</h2>
+        {physicsWarnings.map((w, idx) => (
+          <div key={idx} className={`physics-alert ${w.level === 'danger' ? 'danger' : ''}`} role="alert" style={{ marginBottom: 16 }}>
+            <AlertTriangle size={16} className="physics-alert-icon" />
+            <div className="physics-alert-content">
+              <strong>{w.title}:</strong> {w.message}
+            </div>
+          </div>
+        ))}
 
         <div className="result-hero" style={{ marginBottom: 16 }}>
           <span className="result-label">Effective Growth Per Cycle (GPC)</span>

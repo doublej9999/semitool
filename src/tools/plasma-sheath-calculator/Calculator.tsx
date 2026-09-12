@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Copy, RotateCcw, Info, Activity, Download } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
+import { Copy, RotateCcw, Info, Activity, Download, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import {
   calculatePlasmaSheath,
@@ -11,7 +11,7 @@ import {
   type SheathSpatialPoint,
 } from '@/lib/plasma-sheath';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv } from '@/lib/export';
+import { downloadCsv, downloadSvg } from '@/lib/export';
 
 const INITIAL = {
   gasPresetId: 'argon',
@@ -30,6 +30,7 @@ export default function PlasmaSheathCalculator() {
   const [copied, setCopied] = useState(false);
   const [chartMode, setChartMode] = useState<'potential' | 'density'>('potential');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   const selectedPreset: PlasmaGasPreset | undefined = useMemo(() => {
     return PLASMA_GAS_PRESETS.find((p) => p.id === state.gasPresetId);
@@ -64,6 +65,45 @@ export default function PlasmaSheathCalculator() {
       chamberPressureMtorr: Number.isFinite(P) && P > 0 ? P : undefined,
     });
   }, [densityVal, state.electronTempEv, activeIonMass, state.sheathVoltageV, state.chamberPressureMtorr]);
+
+  const physicsWarnings = useMemo(() => {
+    const warnings: { level: 'danger' | 'warning'; title: string; message: string }[] = [];
+    const Te = num(state.electronTempEv);
+    const V = num(state.sheathVoltageV);
+    const P = num(state.chamberPressureMtorr);
+
+    if (Number.isFinite(V) && Number.isFinite(Te) && V <= Te) {
+      warnings.push({
+        level: 'danger',
+        title: 'Weak Sheath Potential (V_sheath ≤ Te)',
+        message: 'The Child-Langmuir space-charge approximation requires eV >> kTe. Below this, space-charge separation is incomplete and Debye thermal screening dominates.',
+      });
+    }
+
+    if (Number.isFinite(P) && P > 100 && result && (result.collisionalityRatio ?? 0) > 5) {
+      warnings.push({
+        level: 'warning',
+        title: 'Highly Collisional Sheath (s >> λ_i)',
+        message: 'At pressures > 100 mTorr, charge-exchange collisions degrade ion directional energy, resulting in a broad low-energy distribution and reduced etch anisotropy.',
+      });
+    }
+
+    if (Number.isFinite(Te) && (Te > 15 || Te < 0.8)) {
+      warnings.push({
+        level: 'warning',
+        title: 'Non-Standard Electron Temperature',
+        message: `Te = ${Te} eV lies outside typical semiconductor processing plasma regimes (1.5 to 6.0 eV for ICP/CCP/RIE).`,
+      });
+    }
+
+    return warnings;
+  }, [state, result]);
+
+  const handleExportProfileSvg = () => {
+    if (svgRef.current) {
+      downloadSvg(svgRef.current, `plasma_sheath_profile_${state.gasPresetId}_${state.sheathVoltageV}V`);
+    }
+  };
 
   // Spatial profiles across presheath & Child-Langmuir sheath
   const profilePoints: SheathSpatialPoint[] = useMemo(() => {
@@ -378,6 +418,15 @@ export default function PlasmaSheathCalculator() {
         </div>
       </section>
 
+
+        {physicsWarnings.map((w, idx) => (
+          <div key={idx} className={`physics-alert ${w.level === 'danger' ? 'danger' : ''}`} role="alert" style={{ marginBottom: 16 }}>
+            <AlertTriangle size={16} className="physics-alert-icon" />
+            <div className="physics-alert-content">
+              <strong>{w.title}:</strong> {w.message}
+            </div>
+          </div>
+        ))}
       <section className="panel" aria-labelledby="plasma-results">
         <h2 id="plasma-results">Sheath & Plasma Properties</h2>
 
@@ -451,22 +500,34 @@ export default function PlasmaSheathCalculator() {
                   <h3 style={{ fontSize: '14px', margin: 0, color: 'var(--ink)' }}>
                     Sheath Spatial Profiling (Presheath to Wafer Cathode)
                   </h3>
-                  <div className="button-group" role="tablist" aria-label="Profile View Mode">
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div className="button-group" role="tablist" aria-label="Profile View Mode">
+                      <button
+                        type="button"
+                        className={`button ${chartMode === 'potential' ? 'primary' : 'secondary'}`}
+                        style={{ fontSize: '11px', padding: '3px 8px' }}
+                        onClick={() => setChartMode('potential')}
+                      >
+                        Potential V(x)
+                      </button>
+                      <button
+                        type="button"
+                        className={`button ${chartMode === 'density' ? 'primary' : 'secondary'}`}
+                        style={{ fontSize: '11px', padding: '3px 8px' }}
+                        onClick={() => setChartMode('density')}
+                      >
+                        Density n/n₀
+                      </button>
+                    </div>
                     <button
                       type="button"
-                      className={`button ${chartMode === 'potential' ? 'primary' : 'secondary'}`}
+                      className="button secondary"
                       style={{ fontSize: '11px', padding: '3px 8px' }}
-                      onClick={() => setChartMode('potential')}
+                      onClick={handleExportProfileSvg}
+                      title="Save SVG chart"
                     >
-                      Potential V(x)
-                    </button>
-                    <button
-                      type="button"
-                      className={`button ${chartMode === 'density' ? 'primary' : 'secondary'}`}
-                      style={{ fontSize: '11px', padding: '3px 8px' }}
-                      onClick={() => setChartMode('density')}
-                    >
-                      Density n/n₀
+                      <ImageIcon size={12} aria-hidden="true" />
+                      <span>Save SVG</span>
                     </button>
                   </div>
                 </div>
@@ -481,6 +542,7 @@ export default function PlasmaSheathCalculator() {
                   }}
                 >
                   <svg
+                    ref={svgRef}
                     viewBox={`0 0 ${svgW} ${svgH}`}
                     style={{ width: '100%', height: 'auto', display: 'block' }}
                     onMouseLeave={() => setHoveredIndex(null)}
