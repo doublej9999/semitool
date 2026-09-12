@@ -51,6 +51,9 @@ import { tool as plasmaSheathCalculator } from './plasma-sheath-calculator';
 import { tool as aldCycleCalculator } from './ald-cycle-calculator';
 import { tool as dopantDiffusionCalculator } from './dopant-diffusion-calculator';
 import { tool as cvdKineticsCalculator } from './cvd-kinetics-calculator';
+import { tool as fourPointProbeCalculator } from './four-point-probe-calculator';
+import { tool as splitLotCalculator } from './split-lot-calculator';
+import { tool as curveFittingCalculator } from './curve-fitting-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
 /**
@@ -115,6 +118,9 @@ export const tools: Tool[] = [
   aldCycleCalculator,
   dopantDiffusionCalculator,
   cvdKineticsCalculator,
+  fourPointProbeCalculator,
+  splitLotCalculator,
+  curveFittingCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { Home, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import EngineeringHandbookModal from '@/components/common/EngineeringHandbookModal';
+import FabScratchpadModal from '@/components/common/FabScratchpadModal';
+import PwaStatusIndicator from '@/components/common/PwaStatusIndicator';
 import LanguagePicker from './LanguagePicker';
 import ToolSidebar from './ToolSidebar';
 import { useHydrateLocale } from '@/lib/i18n/context';
@@ -100,6 +102,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           <div className="toolbar-right">
             <EngineeringHandbookModal />
+            <FabScratchpadModal />
+            <PwaStatusIndicator />
             <CommandPalette />
             <LanguagePicker />
           </div>

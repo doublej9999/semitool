@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Check, Link2, Printer } from 'lucide-react';
+import EngineeringTravelerModal from '@/components/common/EngineeringTravelerModal';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 
@@ -56,6 +57,8 @@ export default function ToolPageActions({ toolName }: { toolName: string }) {
         <Printer size={14} aria-hidden="true" />
         <span>{t.printPdfReport}</span>
       </button>
+
+      <EngineeringTravelerModal toolName={toolName} />
     </div>
   );
 }

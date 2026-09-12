@@ -662,6 +662,51 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "lpcvd",
         "teos"
       ]
+    },
+    "/tools/four-point-probe-calculator": {
+      "name": "Four-Point Probe Calculator (ASTM F84)",
+      "description": "ASTM F84 / SEMI MF84 collinear four-point probe sheet resistance, wafer resistivity, thickness correction factor, and NIST dopant density inversion.",
+      "keywords": [
+        "four point probe",
+        "astm f84",
+        "semi mf84",
+        "sheet resistance",
+        "resistivity",
+        "thickness correction",
+        "dopant density",
+        "irvin curves",
+        "carrier mobility"
+      ]
+    },
+    "/tools/split-lot-calculator": {
+      "name": "Split-Lot & DOE Recipe Overlay Calculator",
+      "description": "Split-lot and Design of Experiments (DOE) recipe overlay matrix, multi-wafer parameter variance tracking, response delta comparisons, and run-sheet export.",
+      "keywords": [
+        "split lot",
+        "doe",
+        "design of experiments",
+        "recipe overlay",
+        "recipe split",
+        "fab traveler",
+        "process delta",
+        "process tuning",
+        "cleanroom run sheet"
+      ]
+    },
+    "/tools/curve-fitting-calculator": {
+      "name": "Curve Fitting & Parameter Extraction Calculator",
+      "description": "Extract semiconductor kinetic parameters: Arrhenius activation energy (Ea), Deal-Grove oxidation rate constants (B, B/A), and least-squares linear regression with R² goodness-of-fit.",
+      "keywords": [
+        "curve fitting",
+        "arrhenius fit",
+        "activation energy",
+        "deal-grove parameter",
+        "linear regression",
+        "parameter extraction",
+        "kinetics",
+        "oxidation rate constants",
+        "diffusion activation energy"
+      ]
     }
   },
   "zh-CN": {
@@ -1353,6 +1398,51 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "LPCVD",
         "TEOS"
       ]
+    },
+    "/tools/four-point-probe-calculator": {
+      "name": "四探针电阻率与方阻计算器 (ASTM F84)",
+      "description": "基于 ASTM F84 / SEMI MF84 标准的共线四探针薄层电阻、晶圆体电阻率、有限厚度几何修正系数及 NIST/Thurber 掺杂浓度反推计算器。",
+      "keywords": [
+        "四探针",
+        "ASTM F84",
+        "SEMI MF84",
+        "薄层电阻",
+        "方块电阻",
+        "电阻率",
+        "厚度修正",
+        "掺杂浓度反推",
+        "载流子迁移率"
+      ]
+    },
+    "/tools/split-lot-calculator": {
+      "name": "Split-Lot 实验与 DOE 配方对比计算器",
+      "description": "半导体分批实验（Split-Lot）及正交试验（DOE）配方矩阵对比，晶圆级参数偏差监控、工艺响应 Delta 分析及制造流转卡导出。",
+      "keywords": [
+        "split lot",
+        "DOE",
+        "实验设计",
+        "配方对比",
+        "分批实验",
+        "晶圆流转卡",
+        "工艺偏差",
+        "配方调整",
+        "洁净室工单"
+      ]
+    },
+    "/tools/curve-fitting-calculator": {
+      "name": "曲线拟合与工艺参数提取计算器",
+      "description": "半导体反应动力学参数提取：阿伦尼乌斯激活能 (Ea)、Deal-Grove 氧化速率常数 (B, B/A) 以及一元线性回归与 R² 拟合优度判定。",
+      "keywords": [
+        "曲线拟合",
+        "阿伦尼乌斯拟合",
+        "激活能提取",
+        "Deal-Grove 参数提取",
+        "线性回归",
+        "参数拟合",
+        "动力学参数",
+        "氧化速率常数",
+        "扩散激活能"
+      ]
     }
   },
   "zh-TW": {
@@ -1977,6 +2067,51 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "LPCVD",
         "TEOS"
       ]
+    },
+    "/tools/four-point-probe-calculator": {
+      "name": "四探針電阻率與方阻計算器 (ASTM F84)",
+      "description": "基於 ASTM F84 / SEMI MF84 標準的共線四探針薄層電阻、晶圓體電阻率、有限厚度幾何修正係數及 NIST/Thurber 摻雜濃度反推計算器。",
+      "keywords": [
+        "四探針",
+        "ASTM F84",
+        "SEMI MF84",
+        "薄層電阻",
+        "方塊電阻",
+        "電阻率",
+        "厚度修正",
+        "摻雜濃度反推",
+        "載流子遷移率"
+      ]
+    },
+    "/tools/split-lot-calculator": {
+      "name": "Split-Lot 實驗與 DOE 配方對比計算器",
+      "description": "半導體分批實驗（Split-Lot）及正交試驗（DOE）配方矩陣對比，晶圓級參數偏差監控、工藝響應 Delta 分析及製造流轉卡導出。",
+      "keywords": [
+        "split lot",
+        "DOE",
+        "實驗設計",
+        "配方對比",
+        "分批實驗",
+        "晶圓流轉卡",
+        "工藝偏差",
+        "配方微調",
+        "無塵室工單"
+      ]
+    },
+    "/tools/curve-fitting-calculator": {
+      "name": "曲線擬合與工藝參數提取計算器",
+      "description": "半導體反應動力學參數提取：阿倫尼烏斯活化能 (Ea)、Deal-Grove 氧化速率常數 (B, B/A) 以及一元線性迴歸與 R² 擬合優度判定。",
+      "keywords": [
+        "曲線擬合",
+        "阿倫尼烏斯擬合",
+        "活化能提取",
+        "Deal-Grove 參數提取",
+        "線性迴歸",
+        "參數擬合",
+        "動力學參數",
+        "氧化速率常數",
+        "擴散活化能"
+      ]
     }
   },
   "ja": {
@@ -2587,6 +2722,48 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "LPCVD",
         "TEOS"
       ]
+    },
+    "/tools/four-point-probe-calculator": {
+      "name": "四探針抵抗率・シート抵抗計算ツール (ASTM F84)",
+      "description": "ASTM F84 / SEMI MF84 規格に準拠した直線配置四探針シート抵抗、ウェーハ体積抵抗率、有限厚み幾何補正係数、NISTドーパント濃度逆算ツール。",
+      "keywords": [
+        "四探針法",
+        "ASTM F84",
+        "SEMI MF84",
+        "シート抵抗",
+        "体積抵抗率",
+        "厚み補正",
+        "不純物濃度",
+        "移動度"
+      ]
+    },
+    "/tools/split-lot-calculator": {
+      "name": "Split-Lot / DOE レシピ比較計算ツール",
+      "description": "半導体スプリットロットおよび実験計画法（DOE）のレシピ対比マトリクス、ウェーハ別パラメータ偏差追跡、応答デルタ分析およびトラベラー出力。",
+      "keywords": [
+        "スプリットロット",
+        "split lot",
+        "DOE",
+        "実験計画法",
+        "レシピ比較",
+        "ランシート",
+        "パラメータ偏差",
+        "プロセス調整"
+      ]
+    },
+    "/tools/curve-fitting-calculator": {
+      "name": "曲線フィッティング・反応速度パラメータ抽出計算ツール",
+      "description": "半導体動力学パラメータ抽出：アレニウスプロットによる活性化エネルギー (Ea)、Deal-Grove 酸化速度定数 (B, B/A)、最小二乗線形回帰と決定係数 R²。",
+      "keywords": [
+        "曲線フィッティング",
+        "アレニウスプロット",
+        "活性化エネルギー",
+        "Deal-Grove パラメータ",
+        "線形回帰",
+        "パラメータ抽出",
+        "反応速度論",
+        "酸化速度定数"
+      ]
     }
   },
   "ko": {
@@ -3194,6 +3371,48 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "실란",
         "LPCVD",
         "TEOS"
+      ]
+    },
+    "/tools/four-point-probe-calculator": {
+      "name": "4포인트 프로브 비저항 및 면저항 계산기 (ASTM F84)",
+      "description": "ASTM F84 / SEMI MF84 표준 직선 4탐침 면저항, 웨이퍼 체적 비저항, 유한 두께 기하학 보정 계수 및 NIST 도펀트 농도 역산 계산기.",
+      "keywords": [
+        "4탐침",
+        "포포인트 프로브",
+        "ASTM F84",
+        "SEMI MF84",
+        "면저항",
+        "비저항",
+        "두께 보정",
+        "도핑 농도"
+      ]
+    },
+    "/tools/split-lot-calculator": {
+      "name": "Split-Lot 및 DOE 레시피 비교 계산기",
+      "description": "반도체 스플릿 롯 및 실험계획법(DOE) 레시피 오버레이 매트릭스, 웨이퍼별 공정 파라미터 변동 모니터링, 응답 델타 비교 및 공정 트래블러 내보내기.",
+      "keywords": [
+        "스플릿 롯",
+        "split lot",
+        "DOE",
+        "실험계획법",
+        "레시피 비교",
+        "웨이퍼 트래블러",
+        "공정 편차",
+        "클린룸 런시트"
+      ]
+    },
+    "/tools/curve-fitting-calculator": {
+      "name": "곡선 피팅 및 반응 동역학 파라미터 추출 계산기",
+      "description": "반도체 키네틱 파라미터 추출: 아레니우스 활성화 에너지(Ea), Deal-Grove 산화 속도 상수(B, B/A) 및 최소제곱 선형 회귀와 R² 적합도 분석.",
+      "keywords": [
+        "곡선 피팅",
+        "아레니우스 피팅",
+        "활성화 에너지",
+        "Deal-Grove 파라미터",
+        "선형 회귀",
+        "파라미터 추출",
+        "반응 속도론",
+        "산화 속도 상수"
       ]
     }
   }
