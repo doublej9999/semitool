@@ -15,6 +15,8 @@ import {
   timeConstantSeconds,
   type TimeUnit,
 } from '@/lib/time';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const RESISTANCE_UNITS = [
   { id: 'ohm', label: 'Ω', factor: 1 },
@@ -36,7 +38,8 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function TimeConstantCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -85,16 +88,6 @@ export default function TimeConstantCalculator() {
       `-3 dB corner = ${fmt(result.corner)} Hz`,
     ];
   }, [result]);
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  };
 
   return (
     <div className="calc-grid">
@@ -157,7 +150,7 @@ export default function TimeConstantCalculator() {
           corner near 3.2 GHz.
         </p>
         <div className="action-row">
-          <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
+          <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
             {copied ? 'Copied' : 'Copy result'}
           </button>

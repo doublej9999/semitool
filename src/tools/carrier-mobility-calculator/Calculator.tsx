@@ -8,6 +8,8 @@ import {
   calculateDopingFromResistivity,
   type DopantType,
 } from '@/lib/carrier-mobility';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 const PRESETS = [
   { name: 'Standard p-type Wafer (10 Ω·cm)', type: 'p-type' as DopantType, mode: 'rev', val: '10' },
@@ -23,11 +25,19 @@ function parseSci(str: string): number {
 }
 
 export default function CarrierMobilityCalculator() {
-  const [dopantType, setDopantType] = useState<DopantType>('p-type');
-  const [mode, setMode] = useState<'forward' | 'reverse'>('forward');
-  const [dopingInput, setDopingInput] = useState('1e16');
-  const [resistivityInput, setResistivityInput] = useState('1.0');
-  const [copied, setCopied] = useState(false);
+  const [state, setState] = useState({
+    dopantType: 'p-type' as DopantType,
+    mode: 'forward' as 'forward' | 'reverse',
+    dopingInput: '1e16',
+    resistivityInput: '1.0',
+  });
+  useUrlParamsState(state, setState);
+  const { dopantType, mode, dopingInput, resistivityInput } = state;
+  const setDopantType = (value: DopantType) => setState((previous) => ({ ...previous, dopantType: value }));
+  const setMode = (value: 'forward' | 'reverse') => setState((previous) => ({ ...previous, mode: value }));
+  const setDopingInput = (value: string) => setState((previous) => ({ ...previous, dopingInput: value }));
+  const setResistivityInput = (value: string) => setState((previous) => ({ ...previous, resistivityInput: value }));
+  const { copied, copy: copyResult } = useCopyToClipboard();
 
   const result = useMemo(() => {
     if (mode === 'forward') {
@@ -39,7 +49,7 @@ export default function CarrierMobilityCalculator() {
     }
   }, [dopantType, mode, dopingInput, resistivityInput]);
 
-  const copy = async () => {
+  const copy = () => {
     if (!result.ok) return;
     const lines = [
       `Silicon Carrier Mobility & Resistivity (${result.dopantType.toUpperCase()})`,
@@ -50,13 +60,7 @@ export default function CarrierMobilityCalculator() {
       `Diffusion Coefficient (Dn/Dp): ${fmt(result.diffusivityCm2PerS)} cm²/s`,
     ];
 
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copyResult(lines.join('\n'));
   };
 
   return (

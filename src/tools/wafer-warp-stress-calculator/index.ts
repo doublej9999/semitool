@@ -16,7 +16,7 @@ export const tool = defineTool({
     'thin film residual stress',
     'curvature',
   ],
-  category: 'thin-film',
+  category: 'Thin Film & Deposition',
   icon: Layers,
   createdAt: '2026-09-17',
   isNew: true,

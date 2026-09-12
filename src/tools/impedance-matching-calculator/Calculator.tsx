@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { matchLNetwork, type MatchSolution } from '@/lib/impedance';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = { frequencyMhz: '100', sourceOhm: '50', loadOhm: '200' };
 
@@ -38,7 +40,8 @@ function elementValue(solution: MatchSolution, kind: 'series' | 'shunt'): string
 
 export default function ImpedanceMatchingCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -80,16 +83,6 @@ export default function ImpedanceMatchingCalculator() {
     ];
   }, [result]);
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  };
-
   return (
     <div className="calc-grid">
       <section className="panel">
@@ -130,7 +123,7 @@ export default function ImpedanceMatchingCalculator() {
           transformer instead.
         </p>
         <div className="action-row">
-          <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
+          <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
             {copied ? 'Copied' : 'Copy result'}
           </button>

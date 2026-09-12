@@ -9,6 +9,8 @@ import {
   GATE_PRESETS,
   type MosfetChannelType,
 } from '@/lib/mosfet-threshold';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   channelType: 'nmos' as MosfetChannelType,
@@ -29,7 +31,8 @@ function parseSci(str: string): number {
 
 export default function MosfetThresholdCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy: copyResult } = useCopyToClipboard();
 
   const selectedDielectric = DIELECTRIC_PRESETS.find((d) => d.id === state.dielectricId);
   const selectedGate = GATE_PRESETS.find((g) => g.id === state.gateId);
@@ -61,7 +64,7 @@ export default function MosfetThresholdCalculator() {
     });
   }, [state, epsR, gateWf]);
 
-  const copy = async () => {
+  const copy = () => {
     if (!result.ok) return;
     const lines = [
       `MOSFET Threshold & Dielectric Analysis (${result.channelType.toUpperCase()})`,
@@ -78,13 +81,7 @@ export default function MosfetThresholdCalculator() {
       `Subthreshold Swing (S): ${fmt(result.subthresholdSwingMVPerDec)} mV/decade`,
     ];
 
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copyResult(lines.join('\n'));
   };
 
   return (

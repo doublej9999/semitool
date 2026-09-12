@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw, Download, Info } from 'lucide-react';
-import MathFormula from '@/components/tools/MathFormula';
+import MathFormula from '@/components/tools/MathFormulaClient';
 import {
   calculateArdeEtchRate,
   calculateMicroloading,

@@ -12,6 +12,8 @@ import {
 } from '@/lib/curve-fitting';
 import { downloadCsv, downloadSvg } from '@/lib/export';
 import { Download, Copy, Check, Info } from 'lucide-react';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 type FitMode = 'arrhenius' | 'deal-grove' | 'linear';
 
@@ -42,9 +44,12 @@ const PRESET_LINEAR = `# X (Independent Variable), Y (Dependent Variable)
 `;
 
 export default function CurveFittingCalculator() {
-  const [mode, setMode] = useState<FitMode>('arrhenius');
-  const [inputText, setInputText] = useState<string>(PRESET_ARRHENIUS);
-  const [copied, setCopied] = useState(false);
+  const [state, setState] = useState({ mode: 'arrhenius' as FitMode, inputText: PRESET_ARRHENIUS });
+  useUrlParamsState(state, setState);
+  const { mode, inputText } = state;
+  const setMode = (value: FitMode) => setState((previous) => ({ ...previous, mode: value }));
+  const setInputText = (value: string) => setState((previous) => ({ ...previous, inputText: value }));
+  const { copied, copy } = useCopyToClipboard();
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const textId = useId();
@@ -108,7 +113,7 @@ export default function CurveFittingCalculator() {
     }
   };
 
-  const copySummary = async () => {
+  const copySummary = () => {
     let summaryText = '';
     if (mode === 'arrhenius' && arrheniusResult) {
       summaryText = `Arrhenius Activation Energy Extraction:\n` +
@@ -130,13 +135,7 @@ export default function CurveFittingCalculator() {
         `Standard Error: ${linearResult.standardError.toFixed(4)}\n`;
     }
 
-    try {
-      await navigator.clipboard.writeText(summaryText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
+    void copy(summaryText);
   };
 
   return (
@@ -361,9 +360,7 @@ export default function CurveFittingCalculator() {
 
               {mode === 'deal-grove' && dealGroveResult && (() => {
                 const pts = dealGroveResult.points;
-                const minX = 0;
                 const maxX = Math.max(...pts.map((p) => p.thicknessUm)) * 1.15 || 1;
-                const minY = 0;
                 const maxY = Math.max(...pts.map((p) => p.timeHours)) * 1.15 || 1;
 
                 const toSvgX = (x: number) => 50 + (x / maxX) * 360;

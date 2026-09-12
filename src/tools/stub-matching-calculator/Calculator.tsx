@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { stubMatch, stubVerification } from '@/lib/stub';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   z0Ohm: '50',
@@ -24,7 +26,8 @@ function fmtDeviation(value: number): string {
 
 export default function StubMatchingCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -89,16 +92,6 @@ export default function StubMatchingCalculator() {
     );
   }, [result, state.z0Ohm, state.loadR, state.loadX]);
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  };
-
   return (
     <div className="calc-grid">
       <section className="panel">
@@ -158,7 +151,7 @@ export default function StubMatchingCalculator() {
           rather than returning a zero-length stub. Use εr = 1 for an air line.
         </p>
         <div className="action-row">
-          <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
+          <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
             {copied ? 'Copied' : 'Copy result'}
           </button>

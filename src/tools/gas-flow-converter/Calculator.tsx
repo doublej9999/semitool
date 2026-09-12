@@ -14,14 +14,16 @@ import {
   type GasFlowUnit,
   type ReferenceTemperature,
 } from '@/lib/gas-flow';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const UNITS = GAS_FLOW_UNITS.map((unit) => ({ id: unit, label: GAS_FLOW_LABELS[unit] }));
 
 const fmt = (value: number) => Number(value.toPrecision(6)).toString();
 
 export default function GasFlowConverter() {
-  const [gasId, setGasId] = useState(GASES[0].id);
-  const [temperature, setTemperature] = useState<ReferenceTemperature>(0);
+  const [state, setState] = useState({ gasId: GASES[0].id, temperature: 0 as ReferenceTemperature });
+  useUrlParamsState(state, setState);
+  const { gasId, temperature } = state;
 
   const gas = GASES.find((entry) => entry.id === gasId) ?? GASES[0];
   const molarVolume = molarVolumeCm3(temperature);
@@ -38,7 +40,7 @@ export default function GasFlowConverter() {
         <>
           <div className="field">
             <label htmlFor="gas-kind">Gas</label>
-            <select id="gas-kind" value={gasId} onChange={(event) => setGasId(event.target.value)}>
+            <select id="gas-kind" value={gasId} onChange={(event) => setState((current) => ({ ...current, gasId: event.target.value }))}>
               {GASES.map((entry) => (
                 <option key={entry.id} value={entry.id}>
                   {entry.name}
@@ -52,7 +54,7 @@ export default function GasFlowConverter() {
             <select
               id="gas-reference"
               value={temperature}
-              onChange={(event) => setTemperature(Number(event.target.value) as ReferenceTemperature)}
+              onChange={(event) => setState((current) => ({ ...current, temperature: Number(event.target.value) as ReferenceTemperature }))}
             >
               {REFERENCE_TEMPERATURES.map((entry) => (
                 <option key={entry} value={entry}>

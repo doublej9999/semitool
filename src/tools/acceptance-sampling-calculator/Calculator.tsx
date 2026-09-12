@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { acceptProbability, ocCurve, solveZeroAcceptSample } from '@/lib/sampling';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 type Mode = 'evaluate' | 'solve';
 
@@ -27,7 +29,8 @@ const optionalNum = (value: string) => (value.trim() === '' ? null : Number(valu
 
 export default function AcceptanceSamplingCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy: copyResult } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -123,14 +126,8 @@ export default function AcceptanceSamplingCalculator() {
     ];
   }, [result, state.lotSize]);
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+  const copy = () => {
+    void copyResult(lines.join('\n'));
   };
 
   return (

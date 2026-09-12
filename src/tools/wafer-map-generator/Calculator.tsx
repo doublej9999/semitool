@@ -1,12 +1,37 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useMemo, useRef, useState } from 'react';
-import { Download, RotateCcw, Trash2, FileText, Upload, Sparkles, AlertTriangle, Layers } from 'lucide-react';
+import { Download, RotateCcw, Trash2, FileText, Upload, AlertTriangle } from 'lucide-react';
 import { generateWaferMap, validateWaferMapInputs, type Die, type DieStatus } from '@/lib/wafer';
-import { exportSemiG85, parseSemiG85, analyzeDefectClusters } from '@/lib/wafer-map-g85';
-import { parseStdfV4, generateSyntheticStdfV4, type StdfParseSummary } from '@/lib/stdf-parser';
-import { parseKlarf, generateSyntheticKlarf, type KlarfSummary } from '@/lib/klarf-parser';
+import { exportSemiG85, analyzeDefectClusters } from '@/lib/wafer-map-g85';
+import type { StdfParseSummary } from '@/lib/stdf-parser';
+import type { KlarfSummary } from '@/lib/klarf-parser';
 import { downloadSvg } from '@/lib/export';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import type { WaferImportPayload } from './WaferImportPanel';
+
+/**
+ * Native fab format import UI (SEMI G85 / STDF V4 / KLARF) is code-split out
+ * of the route bundle; its parsers are only fetched when the drawer opens.
+ */
+const WaferImportPanel = dynamic(() => import('./WaferImportPanel'), {
+  loading: () => (
+    <div
+      style={{
+        marginTop: '16px',
+        padding: '14px',
+        background: 'var(--panel-subtle)',
+        borderRadius: '8px',
+        border: '1px solid var(--border)',
+      }}
+    >
+      <p className="note" style={{ margin: 0 }}>
+        Loading import panel…
+      </p>
+    </div>
+  ),
+});
 
 const INITIAL = { diameter: 300, edge: 3, width: 10, height: 10, xPitch: 10.1, yPitch: 10.1, xOffset: 0, yOffset: 0 };
 
@@ -31,19 +56,17 @@ function download(filename: string, content: string | Uint8Array, type: string) 
 
 export default function WaferMapGenerator() {
   const [values, setValues] = useState(INITIAL);
+  useUrlParamsState(values, setValues);
   const [dies, setDies] = useState<Die[]>([]);
   const [selected, setSelected] = useState<Die | null>(null);
   const [lookup, setLookup] = useState('');
-  
+
   // Format import state
   const [showImportDrawer, setShowImportDrawer] = useState(false);
-  const [importTab, setImportTab] = useState<'g85' | 'stdf' | 'klarf'>('stdf');
-  const [rawTextInput, setRawTextInput] = useState('');
   const [stdfSummary, setStdfSummary] = useState<StdfParseSummary | null>(null);
   const [klarfSummary, setKlarfSummary] = useState<KlarfSummary | null>(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const update = (key: keyof typeof INITIAL, value: number) => setValues((previous) => ({ ...previous, [key]: value }));
 
@@ -75,7 +98,6 @@ export default function WaferMapGenerator() {
     setSelected(null);
     setLookup('');
     setShowImportDrawer(false);
-    setRawTextInput('');
     setStdfSummary(null);
     setKlarfSummary(null);
   };
@@ -123,159 +145,13 @@ export default function WaferMapGenerator() {
     download('wafer-map-semi-g85.txt', text, 'text/plain;charset=utf-8');
   };
 
-  // Convert STDF summary into Die[]
-  const applyStdfToMap = (summary: StdfParseSummary) => {
-    setStdfSummary(summary);
-    setKlarfSummary(null);
-
-    const pitchX = summary.wcr?.dieWidthMm || values.xPitch;
-    const pitchY = summary.wcr?.dieHeightMm || values.yPitch;
-
-    const newDies: Die[] = summary.parts.map((p, idx) => ({
-      dieNumber: idx + 1,
-      x: p.xCoord,
-      y: p.yCoord,
-      row: p.yCoord,
-      column: p.xCoord,
-      centerX: p.xCoord * pitchX,
-      centerY: p.yCoord * pitchY,
-      status: p.passed ? 'Good' : 'Defect',
-    }));
-
-    setDies(newDies);
+  // Apply a parsed native fab import (STDF / KLARF / SEMI G85) from the
+  // lazily loaded WaferImportPanel to the parent die map and metadata banners.
+  const handleImport = ({ dies: nextDies, stdfSummary: nextStdf, klarfSummary: nextKlarf }: WaferImportPayload) => {
+    setDies(nextDies);
+    setStdfSummary(nextStdf);
+    setKlarfSummary(nextKlarf);
     setShowImportDrawer(false);
-  };
-
-  // Convert KLARF summary into Die[]
-  const applyKlarfToMap = (summary: KlarfSummary) => {
-    setKlarfSummary(summary);
-    setStdfSummary(null);
-
-    // If dies already exist, mark defective ones
-    const defectDieCoords = new Set(summary.defects.map((d) => `${d.xIndex},${d.yIndex}`));
-
-    if (dies.length > 0) {
-      const updated = dies.map((d) => {
-        if (defectDieCoords.has(`${d.x},${d.y}`) || defectDieCoords.has(`${d.column},${d.row}`)) {
-          return { ...d, status: 'Defect' as DieStatus };
-        }
-        return d;
-      });
-      setDies(updated);
-    } else {
-      // Generate grid based on KLARF defects or synthetic layout
-      const diameter = summary.header.waferDiameterMm || 300;
-      const baseDies = generateWaferMap(diameter, 3, 12, 12, 12, 12, 0, 0);
-      const updated = baseDies.map((d) => {
-        if (defectDieCoords.has(`${d.x},${d.y}`)) {
-          return { ...d, status: 'Defect' as DieStatus };
-        }
-        return d;
-      });
-      setDies(updated);
-    }
-    setShowImportDrawer(false);
-  };
-
-  // SEMI G85 import handler
-  const handleImportG85 = () => {
-    if (!rawTextInput.trim()) return;
-    const parsed = parseSemiG85(rawTextInput);
-    if (parsed.dies.length === 0) return;
-
-    const importedDies: Die[] = parsed.dies.map((d, index) => ({
-      dieNumber: index + 1,
-      x: d.col,
-      y: d.row,
-      row: d.row,
-      column: d.col,
-      centerX: (d.col - parsed.colCount / 2) * values.xPitch,
-      centerY: (parsed.rowCount / 2 - d.row) * values.yPitch,
-      status: d.status,
-    }));
-
-    setDies(importedDies);
-    setStdfSummary(null);
-    setKlarfSummary(null);
-    setShowImportDrawer(false);
-  };
-
-  // Load Synthetic Data Presets
-  const loadSyntheticStdfPreset = () => {
-    const rawBinary = generateSyntheticStdfV4({
-      lotId: 'LOT-DEMO-9912',
-      waferId: 'W14-ATE',
-      dieCount: 160,
-      yieldPercent: 86.5,
-      waferDiameterMm: values.diameter,
-    });
-    const parsed = parseStdfV4(rawBinary);
-    applyStdfToMap(parsed);
-  };
-
-  const loadSyntheticKlarfPreset = () => {
-    const klarfText = generateSyntheticKlarf({
-      lotId: 'LOT-KLA-778',
-      waferId: 'W03',
-      defectCount: 80,
-      includeScratch: true,
-    });
-    setRawTextInput(klarfText);
-    const parsed = parseKlarf(klarfText);
-    applyKlarfToMap(parsed);
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const name = file.name.toLowerCase();
-
-    // STDF Binary file (.std / .stdf)
-    if (name.endsWith('.std') || name.endsWith('.stdf')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const buf = event.target?.result as ArrayBuffer;
-        if (buf) {
-          const parsed = parseStdfV4(buf);
-          applyStdfToMap(parsed);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-      return;
-    }
-
-    // Text-based files (SEMI G85, KLARF)
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      if (!text) return;
-      setRawTextInput(text);
-
-      if (text.includes('FileVersion') || text.includes('DefectList') || text.includes('DefectRecordSpec')) {
-        const parsed = parseKlarf(text);
-        applyKlarfToMap(parsed);
-      } else {
-        const parsed = parseSemiG85(text);
-        if (parsed.dies.length > 0) {
-          const importedDies: Die[] = parsed.dies.map((d, index) => ({
-            dieNumber: index + 1,
-            x: d.col,
-            y: d.row,
-            row: d.row,
-            column: d.col,
-            centerX: (d.col - parsed.colCount / 2) * values.xPitch,
-            centerY: (parsed.rowCount / 2 - d.row) * values.yPitch,
-            status: d.status,
-          }));
-          setDies(importedDies);
-          setStdfSummary(null);
-          setKlarfSummary(null);
-          setShowImportDrawer(false);
-        }
-      }
-    };
-    reader.readAsText(file);
   };
 
   const mapScale = 470;
@@ -329,166 +205,15 @@ export default function WaferMapGenerator() {
           </button>
         </div>
 
-        {/* Native Fab Format Import Panel (SEMI G85 / STDF V4 / KLARF) */}
+        {/* Native Fab Format Import Panel (SEMI G85 / STDF V4 / KLARF) — lazily loaded */}
         {showImportDrawer && (
-          <div
-            style={{
-              marginTop: '16px',
-              padding: '14px',
-              background: 'var(--panel-subtle)',
-              borderRadius: '8px',
-              border: '1px solid var(--border)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <h3 style={{ fontSize: '13px', fontWeight: '600', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Layers size={14} /> Fab Metrology & Test Format Importer
-              </h3>
-              <div style={{ display: 'flex', gap: '4px' }}>
-                <button
-                  type="button"
-                  className={`button small ${importTab === 'stdf' ? 'primary' : 'secondary'}`}
-                  style={{ fontSize: '11px', padding: '2px 8px' }}
-                  onClick={() => setImportTab('stdf')}
-                >
-                  STDF V4
-                </button>
-                <button
-                  type="button"
-                  className={`button small ${importTab === 'klarf' ? 'primary' : 'secondary'}`}
-                  style={{ fontSize: '11px', padding: '2px 8px' }}
-                  onClick={() => setImportTab('klarf')}
-                >
-                  KLARF 1.2
-                </button>
-                <button
-                  type="button"
-                  className={`button small ${importTab === 'g85' ? 'primary' : 'secondary'}`}
-                  style={{ fontSize: '11px', padding: '2px 8px' }}
-                  onClick={() => setImportTab('g85')}
-                >
-                  SEMI G85
-                </button>
-              </div>
-            </div>
-
-            {importTab === 'stdf' && (
-              <div>
-                <p className="note" style={{ marginBottom: '10px' }}>
-                  Import ATE Automated Test Equipment binary STDF V4 (.std / .stdf) logs containing FAR, MIR, WRR, and PRR die-level test records.
-                </p>
-                <div className="action-row">
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload size={13} /> Select .std / .stdf Binary
-                  </button>
-                  <button
-                    type="button"
-                    className="button secondary"
-                    onClick={loadSyntheticStdfPreset}
-                  >
-                    <Sparkles size={13} /> Load Synthetic STDF Stream
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {importTab === 'klarf' && (
-              <div>
-                <p className="note" style={{ marginBottom: '10px' }}>
-                  Import KLA defect inspection format (.klarf / .001) with spatial coordinates, defect classification, and scratch line clustering.
-                </p>
-                <div className="action-row" style={{ marginBottom: '10px' }}>
-                  <button
-                    type="button"
-                    className="button primary"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload size={13} /> Select .klarf / .001 File
-                  </button>
-                  <button
-                    type="button"
-                    className="button secondary"
-                    onClick={loadSyntheticKlarfPreset}
-                  >
-                    <Sparkles size={13} /> Load Synthetic Scratch KLARF
-                  </button>
-                </div>
-                <textarea
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    fontFamily: 'monospace',
-                    fontSize: '11px',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    border: '1px solid var(--border)',
-                  }}
-                  placeholder="Paste raw KLARF 1.2 ASCII text or upload file..."
-                  value={rawTextInput}
-                  onChange={(e) => setRawTextInput(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="button secondary"
-                  style={{ marginTop: '6px' }}
-                  onClick={() => {
-                    if (rawTextInput.trim()) {
-                      const parsed = parseKlarf(rawTextInput);
-                      applyKlarfToMap(parsed);
-                    }
-                  }}
-                >
-                  Parse Text
-                </button>
-              </div>
-            )}
-
-            {importTab === 'g85' && (
-              <div>
-                <p className="note" style={{ marginBottom: '8px' }}>
-                  Paste standard SEMI G85 ASCII wafer map or select a map file (.txt / .g85).
-                </p>
-                <textarea
-                  rows={5}
-                  style={{
-                    width: '100%',
-                    fontFamily: 'monospace',
-                    fontSize: '11px',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    border: '1px solid var(--border)',
-                  }}
-                  placeholder="WAFER_ID:W01&#10;MAP_DATA:&#10;...000100...&#10;...001100..."
-                  value={rawTextInput}
-                  onChange={(e) => setRawTextInput(e.target.value)}
-                />
-                <div className="action-row" style={{ marginTop: '8px' }}>
-                  <button type="button" className="button primary" onClick={handleImportG85}>
-                    Parse & Load G85 Map
-                  </button>
-                  <button
-                    type="button"
-                    className="button secondary"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    Upload G85 File
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".std,.stdf,.klarf,.kla,.001,.txt,.g85,.map,.csv"
-              style={{ display: 'none' }}
-              onChange={handleFileUpload}
-            />
-          </div>
+          <WaferImportPanel
+            diameter={values.diameter}
+            pitchX={values.xPitch}
+            pitchY={values.yPitch}
+            dies={dies}
+            onImport={handleImport}
+          />
         )}
 
         <hr className="divider" />

@@ -22,7 +22,7 @@ export const tool = defineTool({
     'teos',
     'polysilicon',
   ],
-  category: 'Thin Films & Deposition',
+  category: 'Thin Film & Deposition',
   icon: Waves,
   createdAt: '2026-09-15',
 });

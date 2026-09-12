@@ -9,12 +9,15 @@ import {
   validateDensityInversionInputs,
   type AreaUnit,
 } from '@/lib/yield-model';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 const INITIAL = { yieldPercent: 85, area: 50, areaUnit: 'mm2' as AreaUnit };
 
 export default function DefectDensityCalculator() {
   const [values, setValues] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(values, setValues);
+  const { copied, copy } = useCopyToClipboard();
 
   const { areaCm2, errors, rows } = useMemo(() => {
     const cm2 = areaToCm2(values.area, values.areaUnit);
@@ -30,7 +33,7 @@ export default function DefectDensityCalculator() {
   const hasErrors = errors.length > 0;
   const poisson = rows.find((row) => row.model.id === 'poisson');
 
-  const copyResult = async () => {
+  const copyResult = () => {
     if (hasErrors) return;
 
     const summary = [
@@ -41,13 +44,7 @@ export default function DefectDensityCalculator() {
       ),
     ].join('\n');
 
-    try {
-      await navigator.clipboard.writeText(summary);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copy(summary);
   };
 
   return (

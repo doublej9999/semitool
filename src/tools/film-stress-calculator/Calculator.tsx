@@ -6,6 +6,8 @@ import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { calculateFilmStress, BIAXIAL_PRESETS, radiusFromBow } from '@/lib/stress';
 import { LENGTH_LABELS, LENGTH_UNITS, toMm, type LengthUnit } from '@/lib/units';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 type Direction = 'tensile' | 'compressive';
 type CurvatureMode = 'radius' | 'bow';
@@ -30,7 +32,8 @@ const metres = (value: string, unit: LengthUnit) => toMm(num(value), unit) / 100
 
 export default function FilmStressCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const bowResult = useMemo(
     () => radiusFromBow(num(state.scanLength) / 1000, num(state.bow) / 1e6),
@@ -52,7 +55,7 @@ export default function FilmStressCalculator() {
     [state, radiusM],
   );
 
-  const copyResult = async () => {
+  const copyResult = () => {
     if (!result.ok) return;
     const lines = [
       `Film thickness: ${state.filmThickness} ${LENGTH_LABELS[state.filmUnit]}`,
@@ -62,13 +65,7 @@ export default function FilmStressCalculator() {
       `Film stress: ${fmt(result.stressPa / 1e6)} MPa (${result.tensile ? 'tensile' : 'compressive'})`,
       `Thickness ratio: ${fmt(result.thicknessRatio)}`,
     ];
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copy(lines.join('\n'));
   };
 
   return (

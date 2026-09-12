@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { parseAndRollup } from '@/lib/bin';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 const SAMPLE = `PASS 9000 *
 OPEN 480
@@ -15,7 +17,8 @@ const INITIAL = { bins: SAMPLE };
 
 export default function BinYieldCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy: copyResult } = useCopyToClipboard();
 
   const result = useMemo(() => {
     try {
@@ -42,14 +45,8 @@ export default function BinYieldCalculator() {
     ];
   }, [result]);
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+  const copy = () => {
+    void copyResult(lines.join('\n'));
   };
 
   return (

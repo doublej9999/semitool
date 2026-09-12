@@ -13,10 +13,12 @@ import {
   type LengthUnit,
   type VoltageUnit,
 } from '@/lib/sheet-resistance';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 type Mode = 'probe' | 'convert';
 
-interface ProbeState {
+type ProbeState = {
   spacing: string;
   spacingUnit: LengthUnit;
   currentValue: string;
@@ -25,14 +27,14 @@ interface ProbeState {
   voltageUnit: VoltageUnit;
   thickness: string;
   thicknessUnit: LengthUnit;
-}
+};
 
-interface ConvertState {
+type ConvertState = {
   sheetResistance: string;
   resistivity: string;
   thickness: string;
   thicknessUnit: LengthUnit;
-}
+};
 
 const INITIAL_PROBE: ProbeState = {
   spacing: '1',
@@ -118,10 +120,15 @@ function Measurement<T extends string>({
 }
 
 export default function SheetResistanceCalculator() {
-  const [mode, setMode] = useState<Mode>('probe');
+  const [modeState, setModeState] = useState({ mode: 'probe' as Mode });
+  useUrlParamsState(modeState, setModeState);
+  const mode = modeState.mode;
+  const setMode = (next: Mode) => setModeState({ mode: next });
   const [probe, setProbe] = useState<ProbeState>(INITIAL_PROBE);
+  useUrlParamsState(probe, setProbe);
   const [convert, setConvert] = useState<ConvertState>(INITIAL_CONVERT);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(convert, setConvert);
+  const { copied, copy } = useCopyToClipboard();
 
   const probeResult = useMemo(
     () =>
@@ -176,13 +183,7 @@ export default function SheetResistanceCalculator() {
 
     if (lines.length === 0) return;
 
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    await copy(lines.join('\n'));
   };
 
   return (

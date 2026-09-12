@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { fitWeibull, weibullReliability, weibullUnreliability } from '@/lib/weibull';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const SAMPLE = ['50', '100', '150', '200', '250', '300'].join('\n');
 
@@ -367,7 +369,8 @@ function WeibullPlot({ sortedTimes, beta, etaHours, b10Hours, b50Hours }: Weibul
 
 export default function WeibullLifeCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -409,16 +412,6 @@ export default function WeibullLifeCalculator() {
     return head;
   }, [result]);
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  };
-
   const weakFit = result.ok && result.rSquared < 0.9;
 
   return (
@@ -450,7 +443,7 @@ export default function WeibullLifeCalculator() {
           treated as a failure: run-out or suspended units would need a censored estimator, which this fit is not.
         </p>
         <div className="action-row">
-          <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
+          <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
             {copied ? 'Copied' : 'Copy result'}
           </button>

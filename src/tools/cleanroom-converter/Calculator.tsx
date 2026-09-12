@@ -11,6 +11,8 @@ import {
   ISO_CLASSES_INFO,
   FFU_CONFIGS,
 } from '@/lib/cleanroom';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 const INITIAL = {
   isoClass: 5 as IsoClassNumber,
@@ -36,7 +38,8 @@ const ISO_OPTIONS: { iso: IsoClassNumber; label: string }[] = [
 
 export default function CleanroomCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   // When changing ISO class, also update ACH default to that class's standard midpoint
   const handleIsoChange = (newIso: IsoClassNumber) => {
@@ -103,7 +106,7 @@ export default function CleanroomCalculator() {
     });
   }, [state.isoClass, lNum, wNum, hNum, achNum, state.dimensionUnit, state.ffuSize, isValidInput]);
 
-  const copyResult = async () => {
+  const copyResult = () => {
     if (!result) return;
     const lines = [
       'Cleanroom Classification & Airflow Calculation',
@@ -128,13 +131,7 @@ export default function CleanroomCalculator() {
       ),
     ];
 
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copy(lines.join('\n'));
   };
 
   const isLaminar = result ? result.isoClass <= 5 : true;

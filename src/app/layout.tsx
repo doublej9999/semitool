@@ -1,8 +1,11 @@
 import type { Metadata } from 'next';
 import AppShell from '@/components/shell/AppShell';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
+import { ogImageUrl } from '@/lib/seo';
 import 'katex/dist/katex.min.css';
 import './globals.css';
+
+const defaultOgImage = ogImageUrl({ title: 'Semiconductor Engineering Tools' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -28,11 +31,13 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: `${SITE_NAME} — Semiconductor Engineering Tools`,
     description: SITE_DESCRIPTION,
+    images: [{ url: defaultOgImage, width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${SITE_NAME} — Semiconductor Engineering Tools`,
     description: SITE_DESCRIPTION,
+    images: [defaultOgImage],
   },
   robots: { index: true, follow: true },
 };

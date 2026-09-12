@@ -12,6 +12,8 @@ import {
   timeToFractionFailures,
   validateLifeTest,
 } from '@/lib/reliability';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 const INITIAL = { failures: '10', devices: '1000', hours: '1000', mission: '8760' };
 
@@ -19,7 +21,8 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function FitMtbfCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy: copyResult } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -66,14 +69,8 @@ export default function FitMtbfCalculator() {
     ];
   }, [result]);
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+  const copy = () => {
+    void copyResult(lines.join('\n'));
   };
 
   return (

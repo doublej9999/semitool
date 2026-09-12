@@ -7,6 +7,8 @@ import SeriesField from '@/components/tools/SeriesField';
 import { formatNumber as fmt } from '@/lib/format';
 import { parseSeries, summariseSeries } from '@/lib/series';
 import CsvBatchUpload from '@/components/tools/CsvBatchUpload';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 const INITIAL = {
   series: '42.1, 41.8, 42.4\n41.9, 42.6, 42.0\n42.3, 41.7, 42.2',
   targetCd: '',
@@ -16,7 +18,8 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function CdUniformityCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const parsed = useMemo(() => parseSeries(state.series), [state.series]);
   const summary = useMemo(
@@ -30,7 +33,7 @@ export default function CdUniformityCalculator() {
   const deviationPercent =
     deviation !== null && hasTarget ? (deviation / target) * 100 : null;
 
-  const copyResult = async () => {
+  const copyResult = () => {
     if (summary === null) return;
     const lines = [
       `Sites: ${summary.n}`,
@@ -45,13 +48,7 @@ export default function CdUniformityCalculator() {
       summary.halfRangePercent !== null ? `Half range / mean: ${fmt(summary.halfRangePercent)} %` : null,
     ].filter((line): line is string => line !== null);
 
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copy(lines.join('\n'));
   };
 
   return (

@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { Copy, Eraser, RotateCcw } from 'lucide-react';
 import { generateMark, type DateFormat } from '@/lib/marking';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   lotId: 'ABC123',
@@ -28,21 +30,12 @@ const TEXT_FIELDS: { key: 'lotId' | 'waferNumber' | 'productId' | 'layer' | 'dat
 
 export default function WaferMarkCalculator() {
   const [values, setValues] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(values, setValues);
+  const { copied, copy } = useCopyToClipboard();
 
   const result = useMemo(() => generateMark(values), [values]);
 
   const update = (key: string, value: string | number | boolean) => setValues((previous) => ({ ...previous, [key]: value }));
-
-  const copyMark = async () => {
-    try {
-      await navigator.clipboard.writeText(result.mark);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  };
 
   return (
     <div className="calc-grid">
@@ -160,7 +153,7 @@ export default function WaferMarkCalculator() {
         </div>
 
         <div className="action-row">
-          <button className="button primary" type="button" disabled={result.errors.length > 0} onClick={copyMark}>
+          <button className="button primary" type="button" disabled={result.errors.length > 0} onClick={() => void copy(result.mark)}>
             <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy mark'}
           </button>
         </div>

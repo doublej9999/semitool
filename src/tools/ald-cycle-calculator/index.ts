@@ -23,7 +23,7 @@ export const tool = defineTool({
     'purge time',
     'pulse time',
   ],
-  category: 'Thin Films & Deposition',
+  category: 'Thin Film & Deposition',
   icon: Layers,
   createdAt: '2026-09-15',
 });

@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { calculateDiffusion } from '@/lib/diffusion';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 const TIME_UNITS = [
   { id: 's', label: 'seconds', seconds: 1 },
@@ -18,7 +20,8 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function DiffusionLengthCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy: copyResult } = useCopyToClipboard();
 
   const unit = TIME_UNITS.find((entry) => entry.id === state.timeUnit) ?? TIME_UNITS[0];
   const timeSeconds = num(state.time) * unit.seconds;
@@ -44,14 +47,8 @@ export default function DiffusionLengthCalculator() {
     ];
   }, [result]);
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+  const copy = () => {
+    void copyResult(lines.join('\n'));
   };
 
   return (

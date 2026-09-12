@@ -12,6 +12,7 @@ import {
   type TemperatureMode,
   type TemperatureUnit,
 } from '@/lib/temperature';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const MODE_LABELS: Record<TemperatureMode, string> = {
   absolute: 'An absolute temperature',
@@ -19,7 +20,10 @@ const MODE_LABELS: Record<TemperatureMode, string> = {
 };
 
 export default function TemperatureConverter() {
-  const [mode, setMode] = useState<TemperatureMode>('absolute');
+  const [modeState, setModeState] = useState({ mode: 'absolute' as TemperatureMode });
+  useUrlParamsState(modeState, setModeState);
+  const { mode } = modeState;
+  const setMode = (next: TemperatureMode) => setModeState({ mode: next });
 
   const labelSet = mode === 'absolute' ? TEMPERATURE_LABELS : TEMPERATURE_DIFFERENCE_LABELS;
   const units = TEMPERATURE_UNITS.map((unit) => ({ id: unit, label: labelSet[unit] }));

@@ -22,7 +22,7 @@ export const tool = defineTool({
     'oxide mask',
     'solid solubility',
   ],
-  category: 'Thermal & Furnace',
+  category: 'Thermal & Diffusion',
   icon: Flame,
   createdAt: '2026-09-15',
 });

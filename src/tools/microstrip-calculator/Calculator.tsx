@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { microstripAnalyze, microstripSynthesize, SPEED_OF_LIGHT_MPS } from '@/lib/tline';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 type Mode = 'analyze' | 'synthesize';
 
@@ -25,7 +27,8 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function MicrostripCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -90,16 +93,6 @@ export default function MicrostripCalculator() {
     head.push(`Delay = ${fmt(result.delayPsPerMm)} ps/mm`);
     return head;
   }, [result, state.heightUm, state.er, state.frequencyGhz]);
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  };
 
   return (
     <div className="calc-grid">
@@ -178,7 +171,7 @@ export default function MicrostripCalculator() {
           reproduces the target impedance rather than carrying the fit&apos;s own error.
         </p>
         <div className="action-row">
-          <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
+          <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
             {copied ? 'Copied' : 'Copy result'}
           </button>

@@ -1,9 +1,37 @@
 import { describe, expect, it } from 'vitest';
 import { matchLocaleFromCountry, matchLocaleFromBrowser, SUPPORTED_LOCALES } from './context';
-import { getTranslation, translateCategory } from './translations';
+import { getTranslation, registerDictionary, translateCategory } from './translations';
 import { searchTools } from '../search';
-import { getTranslatedTool, translateToolName, TOOL_TRANSLATIONS } from './tool-translations';
+import {
+  getToolTranslations,
+  getTranslatedTool,
+  registerToolTranslations,
+  translateToolName,
+} from './tool-translations';
+import { en as enDict } from './dictionaries/en';
+import { zhCN as zhCnDict } from './dictionaries/zh-CN';
+import { zhTW as zhTwDict } from './dictionaries/zh-TW';
+import { ko as koDict } from './dictionaries/ko';
+import { ja as jaDict } from './dictionaries/ja';
+import { en as enToolDict } from './tool-dictionaries/en';
+import { zhCN as zhCnToolDict } from './tool-dictionaries/zh-CN';
+import { zhTW as zhTwToolDict } from './tool-dictionaries/zh-TW';
+import { ko as koToolDict } from './tool-dictionaries/ko';
+import { ja as jaToolDict } from './tool-dictionaries/ja';
 import { tools } from '@/tools';
+import type { Tool } from '@/tools/tools.types';
+
+// Prime the lazy dictionary caches so sync getters resolve every locale in node.
+registerDictionary('en', enDict);
+registerDictionary('zh-CN', zhCnDict);
+registerDictionary('zh-TW', zhTwDict);
+registerDictionary('ko', koDict);
+registerDictionary('ja', jaDict);
+registerToolTranslations('en', enToolDict);
+registerToolTranslations('zh-CN', zhCnToolDict);
+registerToolTranslations('zh-TW', zhTwToolDict);
+registerToolTranslations('ko', koToolDict);
+registerToolTranslations('ja', jaToolDict);
 
 describe('i18n Locale Resolution', () => {
   it('maps country codes to correct regional languages', () => {
@@ -63,7 +91,7 @@ describe('i18n Locale Resolution', () => {
       category: 'Wafer & Die',
       keywords: ['gross die'],
       icon: () => null,
-    } as any;
+    } as unknown as Tool;
 
     expect(translateToolName(sampleTool.path, 'zh-CN')).toContain('晶圆');
     expect(translateToolName(sampleTool.path, 'ja')).toBeDefined();
@@ -78,7 +106,7 @@ describe('i18n Locale Resolution', () => {
   it('covers all tools in tool registry across all supported locales', () => {
     const locales = ['en', 'zh-CN', 'zh-TW', 'ja', 'ko'] as const;
     for (const locale of locales) {
-      const dict = TOOL_TRANSLATIONS[locale];
+      const dict = getToolTranslations(locale);
       expect(dict).toBeDefined();
       for (const tool of tools) {
         const trans = dict[tool.path];

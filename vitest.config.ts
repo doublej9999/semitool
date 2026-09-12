@@ -10,6 +10,13 @@ export default defineConfig({
     },
   },
   test: {
+    // Node is the default: the pure-logic unit tests are cheaper without a DOM.
     environment: 'node',
+    // Component and hook tests need a DOM: run .tsx test files (and explicitly
+    // listed DOM-dependent suites) in jsdom, everything else in node.
+    environmentMatchGlobs: [
+      ['**/*.test.tsx', 'jsdom'],
+      ['**/*.test.ts', 'node'],
+    ],
   },
 });

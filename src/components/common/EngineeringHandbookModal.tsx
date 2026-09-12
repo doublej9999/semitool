@@ -11,7 +11,7 @@ import {
   CLEANROOM_STANDARDS,
   HANDBOOK_FORMULAS,
 } from '@/lib/semiconductor-constants';
-import MathFormula from '@/components/tools/MathFormula';
+import MathFormula from '@/components/tools/MathFormulaClient';
 type Tab = 'formulas' | 'constants' | 'materials' | 'cleanroom';
 
 export default function EngineeringHandbookModal() {

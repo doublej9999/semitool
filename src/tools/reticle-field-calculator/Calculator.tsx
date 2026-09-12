@@ -7,6 +7,8 @@ import {
   calculateReticleField,
   type LengthUnit,
 } from '@/lib/reticle';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   fieldWidth: '26',
@@ -34,7 +36,8 @@ function fmt(value: number, significant = 4): string {
 
 export default function ReticleFieldCalculator() {
   const [values, setValues] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(values, setValues);
+  const { copied, copy } = useCopyToClipboard();
 
   const result = useMemo(
     () =>
@@ -58,7 +61,7 @@ export default function ReticleFieldCalculator() {
   const update = <K extends keyof typeof INITIAL>(key: K, value: (typeof INITIAL)[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
 
-  const copyResult = async () => {
+  const copyResult = () => {
     if (!result.ok) return;
 
     const lines = [
@@ -74,13 +77,7 @@ export default function ReticleFieldCalculator() {
       lines.push(`Dice per wafer (upper bound): ${result.diesPerWaferUpperBound}`);
     }
 
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copy(lines.join('\n'));
   };
 
   return (

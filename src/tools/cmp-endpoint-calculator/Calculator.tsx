@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Copy, RotateCcw, Download, Info, Activity, Disc, AlertTriangle } from 'lucide-react';
-import MathFormula from '@/components/tools/MathFormula';
+import { Copy, RotateCcw, Download, Info, AlertTriangle } from 'lucide-react';
+import MathFormula from '@/components/tools/MathFormulaClient';
 import {
   calculateCmpEndpoint,
   calculateOpticalOscillationPeriod,

@@ -18,7 +18,7 @@ export const tool = defineTool({
     'bath life',
     'etch bath',
   ],
-  category: 'wet-process',
+  category: 'Wet Process & Clean',
   icon: FlaskConical,
   createdAt: '2026-09-15',
   isNew: true,

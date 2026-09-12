@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useSyncExternalStore } from 'react';
+import { ensureDictionary, isDictionaryLoaded } from './translations';
+import { ensureToolTranslations } from './tool-translations';
 
 export type SupportedLocale = 'en' | 'zh-CN' | 'zh-TW' | 'ko' | 'ja';
 
@@ -22,11 +24,31 @@ export const LOCALE_STORAGE_KEY = 'semitools:locale';
 export const DEFAULT_LOCALE: SupportedLocale = 'en';
 
 let currentLocale: SupportedLocale = DEFAULT_LOCALE;
+// The locale whose dictionary chunk has actually loaded. Components render this
+// locale (falling back to English copy until then) so the UI never mixes halves
+// of two dictionaries; useLocale() flips once the chunk arrives.
+let readyLocale: SupportedLocale = DEFAULT_LOCALE;
 let isHydrated = false;
 const listeners = new Set<() => void>();
 
 function notify() {
   listeners.forEach((listener) => listener());
+}
+
+function loadLocaleDictionary(locale: SupportedLocale) {
+  if (isDictionaryLoaded(locale)) {
+    if (readyLocale !== locale) {
+      readyLocale = locale;
+      notify();
+    }
+    return;
+  }
+  void Promise.all([ensureDictionary(locale), ensureToolTranslations(locale)]).then(() => {
+    if (currentLocale === locale) {
+      readyLocale = locale;
+      notify();
+    }
+  });
 }
 
 /**
@@ -119,7 +141,7 @@ export function setLocale(locale: SupportedLocale, persist = true) {
   if (typeof document !== 'undefined') {
     document.documentElement.lang = locale;
   }
-  notify();
+  loadLocaleDictionary(locale);
 }
 
 export function useLocale(): SupportedLocale {
@@ -128,7 +150,7 @@ export function useLocale(): SupportedLocale {
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
-    () => currentLocale,
+    () => readyLocale,
     () => DEFAULT_LOCALE,
   );
 }

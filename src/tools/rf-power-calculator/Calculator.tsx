@@ -14,6 +14,8 @@ import {
   wattsToDbw,
   type PowerUnit,
 } from '@/lib/power';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 type Mode = 'power' | 'voltage';
 
@@ -38,7 +40,8 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function RfPowerCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -85,16 +88,6 @@ export default function RfPowerCalculator() {
       `Voltage = ${fmt(result.vrms)} V RMS = ${fmt(result.vpeak)} V peak = ${fmt(result.vpp)} V peak-to-peak`,
     ];
   }, [result]);
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  };
 
   return (
     <div className="calc-grid">
@@ -164,7 +157,7 @@ export default function RfPowerCalculator() {
         </p>
 
         <div className="action-row">
-          <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
+          <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
             {copied ? 'Copied' : 'Copy result'}
           </button>

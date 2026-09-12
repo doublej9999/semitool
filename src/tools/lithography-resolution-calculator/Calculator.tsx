@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { calculateLithography, K1_DIFFRACTION_LIMIT, MAX_IMMERSION_NA, WAVELENGTHS } from '@/lib/lithography';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   wavelengthId: 'arf',
@@ -18,7 +20,8 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 
 export default function LithographyResolutionCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy } = useCopyToClipboard();
 
   const wavelengthNm =
     state.wavelengthId === 'custom'
@@ -36,7 +39,7 @@ export default function LithographyResolutionCalculator() {
     [wavelengthNm, state.numericalAperture, state.k1, state.k2],
   );
 
-  const copyResult = async () => {
+  const copyResult = () => {
     if (!result.ok) return;
     const lines = [
       `Wavelength: ${fmt(wavelengthNm)} nm`,
@@ -45,13 +48,7 @@ export default function LithographyResolutionCalculator() {
       `Resolution: ${fmt(result.resolutionNm)} nm`,
       `Depth of focus: ${fmt(result.depthOfFocusNm)} nm`,
     ];
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copy(lines.join('\n'));
   };
 
   return (

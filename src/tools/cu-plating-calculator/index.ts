@@ -6,7 +6,7 @@ export const tool = defineTool({
   name: 'Copper Electroplating & Damascene Calculator',
   description:
     'Copper electrochemical deposition (ECD), Dual Damascene trench superfilling, seed layer terminal effect, and Faraday electrolysis kinetics.',
-  category: 'thin-film',
+  category: 'Thin Film & Deposition',
   keywords: [
     'copper plating',
     'ecd',

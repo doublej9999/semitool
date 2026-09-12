@@ -11,6 +11,8 @@ import {
   wilsonInterval,
   type Interval,
 } from '@/lib/confidence';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL_SAMPLE = { total: '720', passes: '697' };
 const INITIAL_PLAN = { expectedYield: '96.8', halfWidth: '1' };
@@ -52,9 +54,14 @@ function intervalRow(label: string, interval: Interval) {
 
 export default function YieldConfidenceCalculator() {
   const [sample, setSample] = useState(INITIAL_SAMPLE);
+  useUrlParamsState(sample, setSample);
   const [plan, setPlan] = useState(INITIAL_PLAN);
-  const [confidence, setConfidence] = useState(0.95);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(plan, setPlan);
+  const [confidenceState, setConfidenceState] = useState({ confidence: 0.95 });
+  useUrlParamsState(confidenceState, setConfidenceState);
+  const confidence = confidenceState.confidence;
+  const setConfidence = (value: number) => setConfidenceState({ confidence: value });
+  const { copied, copy } = useCopyToClipboard();
 
   const total = sample.total.trim() === '' ? Number.NaN : Number(sample.total);
   const passes = sample.passes.trim() === '' ? Number.NaN : Number(sample.passes);
@@ -92,13 +99,7 @@ export default function YieldConfidenceCalculator() {
       `Clopper-Pearson interval: ${pct(intervalResult.exact.low)} to ${pct(intervalResult.exact.high)}`,
     ].join('\n');
 
-    try {
-      await navigator.clipboard.writeText(summary);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    await copy(summary);
   };
 
   return (

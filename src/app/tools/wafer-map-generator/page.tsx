@@ -3,20 +3,9 @@ import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import WaferMapGenerator from '@/tools/wafer-map-generator/Calculator';
 import { tool } from '@/tools/wafer-map-generator';
-import { absoluteUrl } from '@/lib/site';
+import { buildToolMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: tool.name,
-  description: tool.description,
-  keywords: tool.keywords,
-  alternates: { canonical: tool.path },
-  openGraph: {
-    title: `${tool.name} — SemiTools`,
-    description: tool.description,
-    url: absoluteUrl(tool.path),
-    type: 'website',
-  },
-};
+export const metadata: Metadata = buildToolMetadata(tool);
 
 export default function WaferMapGeneratorPage() {
   return (

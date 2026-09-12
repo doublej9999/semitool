@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { calculateThroughput } from '@/lib/throughput';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   processTimeMin: 2,
@@ -18,7 +20,8 @@ function rate(value: number): string {
 
 export default function ThroughputCalculator() {
   const [values, setValues] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(values, setValues);
+  const { copied, copy } = useCopyToClipboard();
 
   const result = useMemo(() => calculateThroughput(values), [values]);
 
@@ -38,13 +41,7 @@ export default function ThroughputCalculator() {
       `Good wafers per day: ${result.goodWafersPerDay.toFixed(1)}`,
     ].join('\n');
 
-    try {
-      await navigator.clipboard.writeText(summary);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    await copy(summary);
   };
 
   const update = (key: keyof typeof INITIAL, value: string) =>

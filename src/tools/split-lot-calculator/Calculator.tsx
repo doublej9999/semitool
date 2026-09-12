@@ -7,6 +7,8 @@ import {
   type SplitRecipe,
 } from '@/lib/split-lot';
 import { downloadCsv, downloadSvg } from '@/lib/export';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 import { AlertTriangle, Plus, Trash2, Download, Copy, Check } from 'lucide-react';
 
 const DEFAULT_PARAMS: RecipeParameter[] = [
@@ -66,10 +68,13 @@ const DEFAULT_SPLITS: SplitRecipe[] = [
 export default function SplitLotCalculator() {
   const [params, setParams] = useState<RecipeParameter[]>(DEFAULT_PARAMS);
   const [splits, setSplits] = useState<SplitRecipe[]>(DEFAULT_SPLITS);
-  const [baselineResponse, setBaselineResponse] = useState<number>(480);
-  const [responseLabel, setResponseLabel] = useState<string>('Etch Rate');
-  const [responseUnit, setResponseUnit] = useState<string>('nm/min');
-  const [copied, setCopied] = useState(false);
+  const [responseMeta, setResponseMeta] = useState({ baselineResponse: 480, responseLabel: 'Etch Rate', responseUnit: 'nm/min' });
+  useUrlParamsState(responseMeta, setResponseMeta);
+  const { baselineResponse, responseLabel, responseUnit } = responseMeta;
+  const setBaselineResponse = (value: number) => setResponseMeta((previous) => ({ ...previous, baselineResponse: value }));
+  const setResponseLabel = (value: string) => setResponseMeta((previous) => ({ ...previous, responseLabel: value }));
+  const setResponseUnit = (value: string) => setResponseMeta((previous) => ({ ...previous, responseUnit: value }));
+  const { copied, copy } = useCopyToClipboard();
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const baselineRespId = useId();
@@ -186,13 +191,7 @@ export default function SplitLotCalculator() {
       summaryText += '\n';
     }
 
-    try {
-      await navigator.clipboard.writeText(summaryText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
+    await copy(summaryText);
   };
 
   return (

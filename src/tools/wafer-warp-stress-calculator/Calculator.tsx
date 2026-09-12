@@ -8,12 +8,10 @@ import {
   CheckCircle2,
   Copy,
   Download,
-  Info,
   Layers,
   RotateCcw,
   Sparkles,
 } from 'lucide-react';
-import MathFormula from '@/components/tools/MathFormula';
 import { downloadCsv } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';

@@ -9,6 +9,8 @@ import {
   type DiameterUnit,
   type LengthUnit,
 } from '@/lib/wafer-area';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   diameter: '300',
@@ -31,8 +33,12 @@ function fmt(value: number, significant = 4): string {
 
 export default function WaferAreaCalculator() {
   const [values, setValues] = useState(INITIAL);
-  const [measured, setMeasured] = useState('');
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(values, setValues);
+  const [measuredState, setMeasuredState] = useState({ measured: '' });
+  useUrlParamsState(measuredState, setMeasuredState);
+  const measured = measuredState.measured;
+  const setMeasured = (value: string) => setMeasuredState({ measured: value });
+  const { copied, copy } = useCopyToClipboard();
 
   const result = useMemo(
     () =>
@@ -68,13 +74,7 @@ export default function WaferAreaCalculator() {
       lines.push(`Measured die count: ${measured} (${result.utilizationPercent.toFixed(2)}% of usable area)`);
     }
 
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    await copy(lines.join('\n'));
   };
 
   return (

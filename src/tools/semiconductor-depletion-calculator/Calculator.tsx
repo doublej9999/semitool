@@ -7,6 +7,8 @@ import {
   calculateDepletion,
   type SemiconductorDepletionSuccess,
 } from '@/lib/semiconductor-physics';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const PRESETS = [
   { name: 'Symmetric (10¹⁶ cm⁻³)', na: '1e16', nd: '1e16', t: '300', vr: '0' },
@@ -28,7 +30,8 @@ function parseSci(str: string): number {
 
 export default function SemiconductorDepletionCalculator() {
   const [state, setState] = useState(INITIAL);
-  const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+  const { copied, copy: copyResult } = useCopyToClipboard();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((prev) => ({ ...prev, [key]: value }));
@@ -47,7 +50,7 @@ export default function SemiconductorDepletionCalculator() {
     });
   }, [state]);
 
-  const copy = async () => {
+  const copy = () => {
     if (!result.ok) return;
     const lines = [
       'PN Junction Depletion Analysis',
@@ -65,13 +68,7 @@ export default function SemiconductorDepletionCalculator() {
       `Estimated Breakdown Vbd: ${fmt(result.breakdownVoltageV)} V`,
     ];
 
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copyResult(lines.join('\n'));
   };
 
   return (

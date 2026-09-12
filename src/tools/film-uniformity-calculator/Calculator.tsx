@@ -7,6 +7,8 @@ import { formatNumber as fmt } from '@/lib/format';
 import { parseSeries, summariseSeries } from '@/lib/series';
 import SeriesField from '@/components/tools/SeriesField';
 import CsvBatchUpload from '@/components/tools/CsvBatchUpload';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 
 const INITIAL_SERIES = '100.5, 101.2, 99.4, 100.8, 102.1, 98.9, 100.0, 101.5, 99.8';
 const INITIAL_TARGET = '100';
@@ -14,9 +16,12 @@ const INITIAL_TARGET = '100';
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function FilmUniformityCalculator() {
-  const [series, setSeries] = useState(INITIAL_SERIES);
-  const [target, setTarget] = useState(INITIAL_TARGET);
-  const [copied, setCopied] = useState(false);
+  const [state, setState] = useState({ series: INITIAL_SERIES, target: INITIAL_TARGET });
+  useUrlParamsState(state, setState);
+  const { series, target } = state;
+  const setSeries = (value: string) => setState((previous) => ({ ...previous, series: value }));
+  const setTarget = (value: string) => setState((previous) => ({ ...previous, target: value }));
+  const { copied, copy } = useCopyToClipboard();
 
   const parsed = useMemo(() => parseSeries(series), [series]);
   const summary = useMemo(
@@ -25,7 +30,7 @@ export default function FilmUniformityCalculator() {
   );
   const targetValue = num(target);
 
-  const copyResult = async () => {
+  const copyResult = () => {
     if (!summary) return;
     const lines = [
       `Readings: ${summary.n}`,
@@ -35,13 +40,7 @@ export default function FilmUniformityCalculator() {
       `Sample sigma: ${summary.sigma === null ? 'n/a' : fmt(summary.sigma) + ' nm'}`,
       `Half range / mean: ${summary.halfRangePercent === null ? 'n/a' : fmt(summary.halfRangePercent) + ' %'}`,
     ];
-    try {
-      await navigator.clipboard.writeText(lines.join('\n'));
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
+    void copy(lines.join('\n'));
   };
 
   return (
