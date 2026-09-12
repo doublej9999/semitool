@@ -56,7 +56,7 @@ export default function ToolSidebar({ onNavigate }: { onNavigate?: () => void })
         <span className="sider-hero-sub">{t.brandSubtitle}</span>
       </Link>
 
-      <nav className="sider-menu" aria-label="Tools">
+      <nav className="sider-menu" aria-label={t.tools}>
         {groups.map((group) => {
           const isCollapsed = group.collapsible && collapsed[group.name] === true;
 

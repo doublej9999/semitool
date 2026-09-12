@@ -33,7 +33,7 @@ export default function ToolPageActions({ toolName }: { toolName: string }) {
         type="button"
         className="button secondary tool-action-btn"
         onClick={shareLink}
-        title={`Copy direct link to this ${toolName} calculation`}
+        title={t.shareCalculation}
       >
         {copied ? (
           <>
@@ -52,7 +52,7 @@ export default function ToolPageActions({ toolName }: { toolName: string }) {
         type="button"
         className="button secondary tool-action-btn"
         onClick={printReport}
-        title="Print or export engineering calculation report as PDF"
+        title={t.printPdfReport}
       >
         <Printer size={14} aria-hidden="true" />
         <span>{t.printPdfReport}</span>

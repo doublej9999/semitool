@@ -26,12 +26,29 @@ describe('i18n Locale Resolution', () => {
     expect(matchLocaleFromBrowser(['fr-FR', 'es-ES'])).toBe('en');
   });
 
-  it('provides translations for all supported locales', () => {
+  it('provides complete translations for all supported locales with no missing keys', () => {
+    const baseKeys = Object.keys(getTranslation('en')) as (keyof ReturnType<typeof getTranslation>)[];
+    expect(baseKeys.length).toBeGreaterThan(120);
+
     for (const locale of SUPPORTED_LOCALES) {
       const trans = getTranslation(locale.code);
-      expect(trans.tools.length).toBeGreaterThan(0);
-      expect(trans.about.length).toBeGreaterThan(0);
-      expect(trans.catWaferDie.length).toBeGreaterThan(0);
+      for (const key of baseKeys) {
+        expect(trans[key], `Locale ${locale.code} missing key: ${key}`).toBeDefined();
+        expect(typeof trans[key]).toBe('string');
+        expect(trans[key].trim().length, `Locale ${locale.code} key ${key} is empty`).toBeGreaterThan(0);
+      }
+
+      // Check specific core domains
+      expect(trans.travelerModalTitle.length).toBeGreaterThan(0);
+      expect(trans.handbookTitle.length).toBeGreaterThan(0);
+      expect(trans.scratchpadTitle.length).toBeGreaterThan(0);
+      expect(trans.csvUploadBtn.length).toBeGreaterThan(0);
+      expect(trans.valueLabel.length).toBeGreaterThan(0);
+      expect(trans.unitColumn.length).toBeGreaterThan(0);
+      expect(trans.privacyHeading.length).toBeGreaterThan(0);
+      expect(trans.aboutHeading.length).toBeGreaterThan(0);
+      expect(trans.contactHeading.length).toBeGreaterThan(0);
+      expect(trans.notFoundHeading.length).toBeGreaterThan(0);
 
       const catTranslated = translateCategory('Wafer & Die', locale.code);
       expect(catTranslated.length).toBeGreaterThan(0);

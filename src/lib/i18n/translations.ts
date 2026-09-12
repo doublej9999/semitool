@@ -217,7 +217,12 @@ export interface Translations {
   contactBugLink: string;
   contactSourceTitle: string;
   contactReportTitle: string;
-  contactReportText: string;
+    contactReportText: string;
+
+    notFoundEyebrow: string;
+    notFoundHeading: string;
+    notFoundLead: string;
+    notFoundBrowseBtn: string;
 }
 
 export const DICTIONARY: Record<SupportedLocale, Translations> = {
@@ -427,6 +432,11 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     contactSourceTitle: 'Source code and repository',
     contactReportTitle: 'When reporting a calculation issue',
     contactReportText: 'Include the tool name, exact inputs with units, the result you expected, the result you obtained, and any relevant engineering textbook or fab spec reference.',
+
+    notFoundEyebrow: '404',
+    notFoundHeading: 'This page is not part of SemiTools',
+    notFoundLead: 'The address you followed does not match any tool. Tools live under /tools/<tool-name> — the toolbox page lists every one of them.',
+    notFoundBrowseBtn: 'Browse all tools',
   },
 
   'zh-CN': {
@@ -635,6 +645,11 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     contactSourceTitle: '开源仓库与版本发布历史',
     contactReportTitle: '反馈计算问题时的建议',
     contactReportText: '请提供工具名称、具体的输入数值与单位、您的预期结果、实际计算结果，以及参考的教科书或行业技术文献，以便我们迅速核对并修复。',
+
+    notFoundEyebrow: '404 - 页面未找到',
+    notFoundHeading: '该页面不存在于 SemiTools 中',
+    notFoundLead: '您访问的网址不属于任何计算工具。所有计算工具均位于 /tools/<tool-name> 路径下，工具箱页面已列出全部可用工具。',
+    notFoundBrowseBtn: '浏览全部计算工具',
   },
 
   'zh-TW': {
@@ -843,6 +858,11 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     contactSourceTitle: '原始碼與儲存庫',
     contactReportTitle: '回報問題時之建議',
     contactReportText: '請附上工具名稱、輸入參數與單位、預期數值、實際數值以及參考工程文獻，以利快速修正。',
+
+    notFoundEyebrow: '404 - 找不到頁面',
+    notFoundHeading: '此頁面不存在於 SemiTools',
+    notFoundLead: '您所開啟的網址不屬於任何計算工具。所有工具皆位於 /tools/<tool-name>，工具箱頁面已列出所有工具。',
+    notFoundBrowseBtn: '瀏覽全部工具',
   },
 
   ko: {
@@ -1051,6 +1071,11 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     contactSourceTitle: '소스 코드 및 릴리스 내역',
     contactReportTitle: '계산 오류 제보 시 권장 사항',
     contactReportText: '도구명, 정확한 입력값과 단위, 예상 결과와 실제 결과, 참조하신 공학 문헌을 함께 기재해 주시면 신속히 반영됩니다.',
+
+    notFoundEyebrow: '404 - 페이지를 찾을 수 없음',
+    notFoundHeading: '요청하신 페이지가 존재하지 않습니다',
+    notFoundLead: '접속하신 주소와 일치하는 계산 도구가 없습니다. 모든 도구는 /tools/<tool-name> 경로에 위치해 있습니다.',
+    notFoundBrowseBtn: '모든 도구 둘러보기',
   },
 
   ja: {
@@ -1259,6 +1284,11 @@ export const DICTIONARY: Record<SupportedLocale, Translations> = {
     contactSourceTitle: 'ソースコードリポジトリ',
     contactReportTitle: '不具合をご報告いただく際のお願い',
     contactReportText: 'ツール名、入力値と単位、期待される計算結果、実際の計算結果、参考とされた文献などを記載いただけますと迅速に対応できます。',
+
+    notFoundEyebrow: '404 - ページが見つかりません',
+    notFoundHeading: 'お探しのページは存在しません',
+    notFoundLead: '指定されたURLはどのツールとも一致しません。ツールはすべて /tools/<tool-name> に配置されており、ツールボックスから一覧をご確認いただけます。',
+    notFoundBrowseBtn: 'すべてのツールを見る',
   },
 };
 
