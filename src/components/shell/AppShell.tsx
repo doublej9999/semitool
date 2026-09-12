@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Home, Menu, PanelLeftClose, PanelLeftOpen, ShieldCheck, GitFork, Keyboard } from 'lucide-react';
+import { Home, Menu, PanelLeftClose, PanelLeftOpen, ShieldCheck, GitFork, Keyboard, Layers } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import EngineeringHandbookModal from '@/components/common/EngineeringHandbookModal';
 import FabScratchpadModal from '@/components/common/FabScratchpadModal';
 import VirtualGenealogyModal from '@/components/common/VirtualGenealogyModal';
+import FabWorkspaceModal from '@/components/common/FabWorkspaceModal';
 import PwaStatusIndicator from '@/components/common/PwaStatusIndicator';
 import LanguagePicker from './LanguagePicker';
 import ToolSidebar from './ToolSidebar';
@@ -26,6 +27,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [gloveMode, setGloveMode] = useState<boolean>(false);
   const [genealogyOpen, setGenealogyOpen] = useState<boolean>(false);
   const [shortcutsHintOpen, setShortcutsHintOpen] = useState<boolean>(false);
+  const [workspaceOpen, setWorkspaceOpen] = useState<boolean>(false);
 
   const drawerOpen = drawerPath === pathname;
   const locale = useLocale();
@@ -100,6 +102,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G')) {
         e.preventDefault();
         setGenealogyOpen((prev) => !prev);
+      }
+
+      // 'Ctrl+W' or 'Cmd+W' -> toggle fab workspace
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W')) {
+        e.preventDefault();
+        setWorkspaceOpen((prev) => !prev);
       }
     };
 
@@ -207,6 +215,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <GitFork size={18} />
             </button>
 
+            {/* Film Stack & Fab Project Workspace */}
+            <button
+              type="button"
+              className="icon-button"
+              onClick={() => setWorkspaceOpen(true)}
+              aria-label={isZh ? '膜层堆叠与晶圆翘曲工作区 (Ctrl+W)' : 'Film Stack & Fab Project Workspace (Ctrl+W)'}
+              title={isZh ? '膜层工程工作区 (Ctrl+W)' : 'Fab Workspace (Ctrl+W)'}
+            >
+              <Layers size={18} />
+            </button>
+
             {/* Global Shortcuts Help Button */}
             <button
               type="button"
@@ -254,6 +273,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <VirtualGenealogyModal
         isOpen={genealogyOpen}
         onClose={() => setGenealogyOpen(false)}
+      />
+
+      {/* Fab Film Stack Workspace Modal */}
+      <FabWorkspaceModal
+        isOpen={workspaceOpen}
+        onClose={() => setWorkspaceOpen(false)}
       />
 
       {/* Cleanroom Keyboard Shortcuts Dialog */}
@@ -314,6 +339,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '晶圆批次谱系与分批图' : 'Lot Split Genealogy'}:</span>
                 <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>Ctrl + G</kbd>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '膜层堆叠与晶圆翘曲工作区' : 'Film Stack & Warp Workspace'}:</span>
+                <kbd style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--paper, #f1f5f9)', border: '1px solid var(--line, #cbd5e1)', fontWeight: 600 }}>Ctrl + W</kbd>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: 'var(--ink-soft, #475569)' }}>{isZh ? '快捷工艺草稿本 / 备忘' : 'Fab Scratchpad'}:</span>
