@@ -10,6 +10,7 @@ import {
   timeToThickness,
   type OxideRegime,
 } from '@/lib/oxide';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const MODES = [
   { id: 'grow', label: 'Time to thickness' },
@@ -42,6 +43,8 @@ const REGIME_LABEL: Record<OxideRegime, string> = {
 export default function ThermalOxideCalculator() {
   const [state, setState] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
+  useUrlParamsState(state, setState);
+
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => {

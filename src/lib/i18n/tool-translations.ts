@@ -603,6 +603,47 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "mean free path",
         "semiconductor plasma"
       ]
+    },
+    "/tools/ald-cycle-calculator": {
+      "name": "ALD Cycle & Precursor Exposure Calculator",
+      "description": "Atomic layer deposition (ALD) cycle timing, Langmuir precursor exposure saturation (θ), growth per cycle (GPC), and total thickness solver.",
+      "keywords": [
+        "ald",
+        "atomic layer deposition",
+        "ald cycle",
+        "gpc",
+        "growth per cycle",
+        "precursor exposure",
+        "langmuir",
+        "saturation curve",
+        "tma",
+        "al2o3",
+        "hfo2",
+        "tio2",
+        "precursor consumption",
+        "purge time",
+        "pulse time"
+      ]
+    },
+    "/tools/dopant-diffusion-calculator": {
+      "name": "Dopant Diffusion & Junction Depth Calculator",
+      "description": "Constant-source (erfc) and limited-source (Gaussian) dopant diffusion in Silicon, Arrhenius D(T) coefficients (B, P, As, Sb), junction depth (xj), and oxide mask thickness.",
+      "keywords": [
+        "dopant diffusion",
+        "junction depth",
+        "xj",
+        "fick law",
+        "erfc",
+        "gaussian diffusion",
+        "predeposition",
+        "drive-in",
+        "boron diffusion",
+        "phosphorus diffusion",
+        "arsenic diffusion",
+        "thermal budget",
+        "oxide mask",
+        "solid solubility"
+      ]
     }
   },
   "zh-CN": {
@@ -1237,6 +1278,45 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "鞘层电容",
         "平均自由程"
       ]
+    },
+    "/tools/ald-cycle-calculator": {
+      "name": "原子层沉积 (ALD) 周期与前驱体曝光计算器",
+      "description": "原子层沉积（ALD）单周期时序、朗缪尔（Langmuir）前驱体曝光饱和度（θ）、每周期生长速率（GPC）及薄膜厚度与前驱体消耗量计算。",
+      "keywords": [
+        "原子层沉积",
+        "ALD",
+        "ALD周期",
+        "每周期生长速率",
+        "GPC",
+        "前驱体曝光",
+        "朗缪尔饱和",
+        "TMA",
+        "氧化铝",
+        "氧化铪",
+        "前驱体消耗",
+        "吹扫时间",
+        "脉冲时间"
+      ]
+    },
+    "/tools/dopant-diffusion-calculator": {
+      "name": "杂质热扩散与结深计算器",
+      "description": "恒定表面源（erfc）与有限表面源（高斯分布）硅中杂质热扩散计算、阿伦尼乌斯扩散系数 D(T)（硼 B、磷 P、砷 As、锑 Sb）、冶金结深 xj 及二氧化硅掩膜厚度估算。",
+      "keywords": [
+        "杂质扩散",
+        "热扩散",
+        "结深",
+        "xj",
+        "菲克定律",
+        "预淀积",
+        "再分布",
+        "推进扩散",
+        "高斯扩散",
+        "erfc",
+        "硼扩散",
+        "磷扩散",
+        "热预算",
+        "氧化物掩膜"
+      ]
     }
   },
   "zh-TW": {
@@ -1804,6 +1884,45 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "鞘層電容",
         "平均自由徑"
       ]
+    },
+    "/tools/ald-cycle-calculator": {
+      "name": "原子層沉積 (ALD) 週期與前驅物曝光計算器",
+      "description": "原子層沉積（ALD）單週期時序、朗繆爾（Langmuir）前驅物曝光飽和度（θ）、每週期生長速率（GPC）及薄膜厚度與前驅物消耗量計算。",
+      "keywords": [
+        "原子層沉積",
+        "ALD",
+        "ALD週期",
+        "每週期生長速率",
+        "GPC",
+        "前驅物曝光",
+        "朗繆爾飽和",
+        "TMA",
+        "氧化鋁",
+        "氧化鉿",
+        "前驅物消耗",
+        "吹掃時間",
+        "脈衝時間"
+      ]
+    },
+    "/tools/dopant-diffusion-calculator": {
+      "name": "雜質熱擴散與接面深度計算器",
+      "description": "恆定表面源（erfc）與有限表面源（高斯分佈）矽中雜質熱擴散計算、阿基尼斯擴散係數 D(T)（硼 B、磷 P、砷 As、銻 Sb）、冶金接面深度 xj 及二氧化矽遮罩厚度估算。",
+      "keywords": [
+        "雜質擴散",
+        "熱擴散",
+        "接面深度",
+        "xj",
+        "菲克定律",
+        "預沉積",
+        "再分佈",
+        "推進擴散",
+        "高斯擴散",
+        "erfc",
+        "硼擴散",
+        "磷擴散",
+        "熱預算",
+        "氧化層遮罩"
+      ]
     }
   },
   "ja": {
@@ -2358,6 +2477,44 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "ICPプラズマ",
         "平均自由行程"
       ]
+    },
+    "/tools/ald-cycle-calculator": {
+      "name": "原子層堆積 (ALD) サイクル・プリカーサ露光量計算ツール",
+      "description": "原子層堆積（ALD）のサイクルシーケンス、ラングミュア（Langmuir）飽和度（θ）、1サイクルあたり成長膜厚（GPC）、合計膜厚およびプリカーサ消費量を算出。",
+      "keywords": [
+        "原子層堆積",
+        "ALD",
+        "ALDサイクル",
+        "GPC",
+        "飽和曲線",
+        "ラングミュア",
+        "プリカーサ露光量",
+        "パージ時間",
+        "TMA",
+        "Al2O3",
+        "HfO2",
+        "段差被覆性",
+        "前駆体消費量"
+      ]
+    },
+    "/tools/dopant-diffusion-calculator": {
+      "name": "不純物熱拡散・接合深さ計算ツール (xj)",
+      "description": "定表面濃度（erfc）および有限拡散源（ガウス分布）によるシリコン熱拡散、アレニウス拡散係数 D(T)（B, P, As, Sb）、冶金接合深さ xj、酸化膜マスク必要厚さを算出。",
+      "keywords": [
+        "不純物拡散",
+        "熱拡散",
+        "接合深さ",
+        "xj",
+        "フィックの法則",
+        "プリデポジション",
+        "ドライブイン",
+        "ガウス分布",
+        "erfc",
+        "ボロン拡散",
+        "リン拡散",
+        "サーマルバジェット",
+        "酸化膜マスク"
+      ]
     }
   },
   "ko": {
@@ -2909,6 +3066,44 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "RIE 식각",
         "ICP 플라즈마",
         "평균 자유 행로"
+      ]
+    },
+    "/tools/ald-cycle-calculator": {
+      "name": "원자층 증착 (ALD) 사이클 및 전구체 노출 계산기",
+      "description": "원자층 증착(ALD) 사이클 시퀀스, 랭뮤어(Langmuir) 흡착 포화도(θ), 사이클당 증착 두께(GPC), 총 박막 두께 및 전구체 소모량 정밀 계산.",
+      "keywords": [
+        "원자층 증착",
+        "ALD",
+        "ALD 사이클",
+        "GPC",
+        "포화 곡선",
+        "랭뮤어",
+        "전구체 노출",
+        "퍼지 시간",
+        "TMA",
+        "Al2O3",
+        "HfO2",
+        "단차 피복성",
+        "전구체 소모량"
+      ]
+    },
+    "/tools/dopant-diffusion-calculator": {
+      "name": "도펀트 열확산 및 접합 깊이 계산기 (xj)",
+      "description": "일정 표면 농도(erfc) 및 한정 표면원(가우시안 분포) 실리콘 열확산, 아레니우스 확산 계수 D(T) (B, P, As, Sb), 야금학적 접합 깊이 xj 및 산화막 마스크 두께 계산.",
+      "keywords": [
+        "도펀트 확산",
+        "열확산",
+        "접합 깊이",
+        "xj",
+        "픽의 법칙",
+        "프리데포지션",
+        "드라이브인",
+        "가우시안 확산",
+        "erfc",
+        "붕소 확산",
+        "인 확산",
+        "열 예산",
+        "산화막 마스크"
       ]
     }
   }

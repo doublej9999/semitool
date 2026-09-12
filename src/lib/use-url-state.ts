@@ -8,7 +8,7 @@ import { useEffect, useCallback } from 'react';
  *
  * Uses window.history.replaceState so back button is not flooded.
  */
-export function useUrlParamsState<T extends Record<string, string | number>>(
+export function useUrlParamsState<T extends Record<string, string | number | boolean>>(
   state: T,
   setState: React.Dispatch<React.SetStateAction<T>>,
 ) {
@@ -37,6 +37,10 @@ export function useUrlParamsState<T extends Record<string, string | number>>(
             } else if (typeof prevVal === 'string') {
               // @ts-expect-error dynamic assignment
               next[key] = val;
+              modified = true;
+            } else if (typeof prevVal === 'boolean') {
+              // @ts-expect-error dynamic assignment
+              next[key] = val === 'true' || val === '1';
               modified = true;
             }
           }

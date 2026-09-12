@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { calculateEtch } from '@/lib/etch';
+import { useUrlParamsState } from '@/lib/use-url-state';
 
 const INITIAL = {
   beforeNm: '500',
@@ -20,6 +21,8 @@ const optional = (value: string) => (value.trim() === '' ? null : Number(value))
 
 export default function EtchRateCalculator() {
   const [state, setState] = useState(INITIAL);
+  useUrlParamsState(state, setState);
+
   const [copied, setCopied] = useState(false);
 
   const result = useMemo(
