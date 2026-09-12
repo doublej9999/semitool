@@ -1,8 +1,9 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { Copy, RotateCcw, Play, Download, BarChart2 } from 'lucide-react';
+import { Copy, RotateCcw, Play, Download, BarChart2, FileSpreadsheet } from 'lucide-react';
 import { calculateCapability } from '@/lib/capability';
+import FabMetrologyImportModal from '@/components/tools/FabMetrologyImportModal';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import {
   runMonteCarloSimulation,
@@ -27,7 +28,7 @@ export default function ProcessCapabilityCalculator() {
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
-
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   // Monte Carlo simulation state
   const [runSimulation, setRunSimulation] = useState(false);
   const [mcSamples, setMcSamples] = useState('2000');
@@ -220,7 +221,33 @@ export default function ProcessCapabilityCalculator() {
           Leave one spec limit blank for a one-sided specification. The mean and sigma must be measured on the same
           characteristic and in the same unit as the limits.
         </p>
+        <div className="action-row" style={{ flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+          <button
+            type="button"
+            className="button outline"
+            onClick={() => setIsImportModalOpen(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <FileSpreadsheet size={16} aria-hidden="true" />
+            Import Metrology CSV / Auto-Fit
+          </button>
+        </div>
 
+        <FabMetrologyImportModal
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          defaultUnit={values.unit}
+          onApplyStats={(meanVal, sigmaVal, lsl, usl, unitVal) => {
+            setValues((prev) => ({
+              ...prev,
+              mean: meanVal.toFixed(4),
+              sigma: sigmaVal.toFixed(4),
+              lower: lsl !== undefined ? lsl.toString() : prev.lower,
+              upper: usl !== undefined ? usl.toString() : prev.upper,
+              unit: unitVal || prev.unit,
+            }));
+          }}
+        />
         {/* Monte Carlo Process Simulation Settings */}
         <div style={{ marginTop: '16px', padding: '12px', background: 'var(--panel-subtle)', borderRadius: '8px', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>

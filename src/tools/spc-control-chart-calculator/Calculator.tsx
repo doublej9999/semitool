@@ -1,9 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Copy, RotateCcw } from 'lucide-react';
+import { Copy, RotateCcw, FileSpreadsheet } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { parseSubgroups, xbarRChart } from '@/lib/spc';
+import { useUrlParamsState } from '@/lib/use-url-state';
+import FabMetrologyImportModal from '@/components/tools/FabMetrologyImportModal';
 
 const SAMPLE = [
   '10.1, 10.3, 9.9, 10.1',
@@ -14,7 +16,12 @@ const SAMPLE = [
   '10.1, 10.1, 9.9, 10.3',
 ].join('\n');
 
-const INITIAL = { subgroups: SAMPLE };
+interface SpcCalculatorState {
+  subgroups: string;
+  [key: string]: string | number | boolean;
+}
+
+const INITIAL: SpcCalculatorState = { subgroups: SAMPLE };
 
 interface XBarChartProps {
   means: number[];
@@ -537,8 +544,10 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
 }
 
 export default function SpcControlChartCalculator() {
-  const [state, setState] = useState(INITIAL);
+  const [state, setState] = useState<SpcCalculatorState>(INITIAL);
+  useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const result = useMemo(() => {
     try {
@@ -616,7 +625,16 @@ export default function SpcControlChartCalculator() {
           meaningful. Lines starting with # are ignored, so you can paste a block from a datalog and comment the
           ones you exclude.
         </p>
-        <div className="action-row">
+        <div className="action-row" style={{ flexWrap: 'wrap', gap: '8px' }}>
+          <button
+            type="button"
+            className="button outline"
+            onClick={() => setIsImportModalOpen(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <FileSpreadsheet size={16} aria-hidden="true" />
+            Fab Metrology Import / CSV
+          </button>
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
             {copied ? 'Copied' : 'Copy result'}
@@ -626,6 +644,12 @@ export default function SpcControlChartCalculator() {
             Reset
           </button>
         </div>
+
+        <FabMetrologyImportModal
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          onApplySubgroups={(text) => setState({ ...state, subgroups: text })}
+        />
       </section>
 
       <section className="panel">

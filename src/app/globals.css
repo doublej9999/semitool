@@ -2013,3 +2013,65 @@ kbd {
     font-size: 8.5pt !important;
   }
 }
+/* ==========================================================================
+   Cleanroom Glove-Friendly Touch & High-Contrast Mode
+   Optimized for nitrile cleanroom gloves, yellow litho lighting, and shopfloor tablets.
+   ========================================================================== */
+body.cleanroom-glove-mode {
+  font-size: 17px;
+  line-height: 1.6;
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+body.cleanroom-glove-mode button,
+body.cleanroom-glove-mode input,
+body.cleanroom-glove-mode select,
+body.cleanroom-glove-mode textarea {
+  min-height: 48px !important;
+  font-size: 16px !important;
+}
+
+body.cleanroom-glove-mode input,
+body.cleanroom-glove-mode select,
+body.cleanroom-glove-mode textarea {
+  padding: 10px 14px !important;
+  border-width: 2px !important;
+  border-color: #94a3b8 !important;
+  border-radius: 8px !important;
+}
+
+body.cleanroom-glove-mode input:focus,
+body.cleanroom-glove-mode select:focus,
+body.cleanroom-glove-mode textarea:focus {
+  border-color: var(--teal, #0d7c82) !important;
+  outline: 3px solid rgba(13, 124, 130, 0.35) !important;
+}
+
+body.cleanroom-glove-mode .button,
+body.cleanroom-glove-mode .icon-button {
+  min-height: 46px !important;
+  min-width: 46px !important;
+  padding: 10px 18px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+}
+
+body.cleanroom-glove-mode .panel,
+body.cleanroom-glove-mode .card {
+  border: 2px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.cleanroom-glove-mode .result-value {
+  font-size: 38px !important;
+  font-weight: 800 !important;
+  color: var(--teal-dark, #0a5f66) !important;
+}
+
+body.cleanroom-glove-mode .metric {
+  padding: 14px !important;
+  border-width: 2px !important;
+}

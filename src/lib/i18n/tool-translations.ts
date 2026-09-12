@@ -735,6 +735,50 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "planarization",
         "pad wear"
       ]
+    },
+    "/tools/wafer-warp-stress-calculator": {
+      "name": "Wafer Bow, Warp & Thin Film Stress Calculator",
+      "description": "Calculate thin film residual stress via Stoney equation, wafer bow and warp curvature, thermal expansion mismatch stress, and critical cracking thickness.",
+      "keywords": [
+        "stoney equation",
+        "wafer bow",
+        "wafer warp",
+        "film stress",
+        "thermal mismatch",
+        "biaxial modulus",
+        "thin film residual stress",
+        "curvature"
+      ]
+    },
+    "/tools/wet-bench-calculator": {
+      "name": "Wet Bench Chemical Lifetime & Spike Calculator",
+      "description": "RCA clean (SC-1/SC-2), SPM Piranha, and BOE etch bath lifetime, chemical spike dosing, and dissolved silicon loading decay.",
+      "keywords": [
+        "wet bench",
+        "rca clean",
+        "sc-1",
+        "sc-2",
+        "piranha",
+        "spm",
+        "boe",
+        "chemical spike",
+        "bath life",
+        "etch bath"
+      ]
+    },
+    "/tools/cu-plating-calculator": {
+      "name": "Copper Electroplating & Damascene Calculator",
+      "description": "Copper electrochemical deposition (ECD), Dual Damascene trench superfilling, seed layer terminal effect, and Faraday electrolysis kinetics.",
+      "keywords": [
+        "copper plating",
+        "ecd",
+        "electroplating",
+        "damascene",
+        "superfilling",
+        "faraday law",
+        "terminal effect",
+        "current density"
+      ]
     }
   },
   "zh-CN": {
@@ -1498,7 +1542,51 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "沟槽深度",
         "平坦化"
       ]
-    }
+    },
+    "/tools/wafer-warp-stress-calculator": {
+      "name": "晶圆弯曲、翘曲与薄膜残余应力计算器",
+      "description": "基于 Stoney 方程计算薄膜残余应力、晶圆弯曲度（Bow）与翘曲度（Warp）曲率半径转换、热膨胀失配应力及薄膜开裂/剥离临界厚度。",
+      "keywords": [
+        "Stoney 方程",
+        "晶圆弯曲",
+        "晶圆翘曲",
+        "薄膜应力",
+        "热失配应力",
+        "双轴弹性模量",
+        "残余应力",
+        "曲率半径"
+      ]
+    },
+    "/tools/wet-bench-calculator": {
+      "name": "湿法清洗槽寿命与加药补加计算器",
+      "description": "RCA清洗（SC-1/SC-2）、SPM硫酸双氧水去胶及BOE缓冲氧化硅刻蚀槽寿命评估、化学药液定时定量补加与硅负载老化模型。",
+      "keywords": [
+        "湿法清洗",
+        "RCA清洗",
+        "SC-1",
+        "SC-2",
+        "SPM",
+        "BOE",
+        "药液补加",
+        "槽寿命",
+        "刻蚀槽"
+      ]
+    },
+    "/tools/cu-plating-calculator": {
+      "name": "铜互连电镀与双大马士革超充填计算器",
+      "description": "铜电化学沉积 (ECD)、双大马士革沟槽超保形填充 (Superfilling)、晶圆种子层终端效应 (Terminal Effect) 与法拉第电解动力学。",
+      "keywords": [
+        "铜互连",
+        "电镀",
+        "ECD",
+        "大马士革",
+        "超充填",
+        "法拉第定律",
+        "终端效应",
+        "电流密度",
+        "添加剂"
+      ]
+    },
   },
   "zh-TW": {
     "/tools/wafer-die-calculator": {
@@ -2194,7 +2282,51 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "溝槽深度",
         "平坦化"
       ]
-    }
+    },
+    "/tools/wafer-warp-stress-calculator": {
+      "name": "晶圓彎曲、翹曲與薄膜殘餘應力計算器",
+      "description": "基於 Stoney 方程式計算薄膜殘餘應力、晶圓彎曲度（Bow）與翹曲度（Warp）曲率半徑轉換、熱膨脹失配應力及薄膜裂紋/剝離臨界厚度。",
+      "keywords": [
+        "Stoney 方程式",
+        "晶圓彎曲",
+        "晶圓翹曲",
+        "薄膜應力",
+        "熱失配應力",
+        "雙軸彈性模量",
+        "殘餘應力",
+        "曲率半徑"
+      ]
+    },
+    "/tools/wet-bench-calculator": {
+      "name": "濕法清洗槽壽命與加藥補充計算器",
+      "description": "RCA清洗（SC-1/SC-2）、SPM硫酸雙氧水去阻劑及BOE緩衝氧化矽蝕刻槽壽命評估、化學藥液定時定量補加與矽負載老化模型。",
+      "keywords": [
+        "濕法清洗",
+        "RCA清洗",
+        "SC-1",
+        "SC-2",
+        "SPM",
+        "BOE",
+        "藥液補充",
+        "槽壽命",
+        "蝕刻槽"
+      ]
+    },
+    "/tools/cu-plating-calculator": {
+      "name": "銅互連電鍍與雙大馬士革超充填計算器",
+      "description": "銅電化學沉積 (ECD)、雙大馬士革溝槽超保形填充 (Superfilling)、晶圓種子層終端效應 (Terminal Effect) 與法拉第電解動力學。",
+      "keywords": [
+        "銅互連",
+        "電鍍",
+        "ECD",
+        "大馬士革",
+        "超充填",
+        "法拉第定律",
+        "終端效應",
+        "電流密度",
+        "添加劑"
+      ]
+    },
   },
   "ja": {
     "/tools/wafer-die-calculator": {
@@ -2873,6 +3005,50 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "光学フリンジ",
         "平坦化"
       ]
+    },
+    "/tools/wafer-warp-stress-calculator": {
+      "name": "ウェーハボウ・ワープ＆薄膜応力計算ツール",
+      "description": "Stoney式に基づく薄膜残留応力、ウェーハのボウ (Bow) およびワープ (Warp) 曲率半径換算、熱膨張係数差による熱応力、臨界クラック膜厚を算出。",
+      "keywords": [
+        "Stoney式",
+        "ウェーハボウ",
+        "ウェーハワープ",
+        "薄膜応力",
+        "熱膨張ミスマッチ",
+        "二軸弾性係数",
+        "残留応力",
+        "曲率半径"
+      ]
+    },
+    "/tools/wet-bench-calculator": {
+      "name": "ウェットベンチ薬液寿命・スパイク補充計算ツール",
+      "description": "RCA洗浄（SC-1/SC-2）、SPMピラニア洗浄、BOEエッチングバスの寿命予測、薬品スパイク補充量、および溶存シリコン蓄積モデル。",
+      "keywords": [
+        "ウェットベンチ",
+        "RCA洗浄",
+        "SC-1",
+        "SC-2",
+        "ピラニア",
+        "SPM",
+        "BOE",
+        "薬液補充",
+        "バス寿命",
+        "エッチング槽"
+      ]
+    },
+    "/tools/cu-plating-calculator": {
+      "name": "Cu 電解めっき・ダマシン超充填計算ツール",
+      "description": "銅電気化学めっき (ECD)、デュアルダマシン微細トレンチのボトムアップ超充填、シード層ターミナル効果、ファラデー電気分解解析。",
+      "keywords": [
+        "Cuめっき",
+        "電解めっき",
+        "ECD",
+        "ダマシン",
+        "スーパーフィリング",
+        "ファラデーの法則",
+        "ターミナル効果",
+        "添加剤"
+      ]
     }
   },
   "ko": {
@@ -3550,6 +3726,50 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "광학 간섭",
         "평탄화",
         "그루브 마모"
+      ]
+    },
+    "/tools/wafer-warp-stress-calculator": {
+      "name": "웨이퍼 보우·와프 및 박막 잔류응력 계산기",
+      "description": "Stoney 공식을 이용한 박막 잔류 응력, 웨이퍼 보우(Bow) 및 와프(Warp) 곡률 반경 환산, 열팽창계수 부정합 열응력 및 임계 균열 두께 계산.",
+      "keywords": [
+        "Stoney 공식",
+        "웨이퍼 보우",
+        "웨이퍼 와프",
+        "박막 응력",
+        "열팽창 불일치",
+        "이축 탄성계수",
+        "잔류 응력",
+        "곡률 반경"
+      ]
+    },
+    "/tools/wet-bench-calculator": {
+      "name": "웨트 벤치 화학 약액 수명 및 스파이크 보충 계산기",
+      "description": "RCA 세정(SC-1/SC-2), SPM 피라냐, BOE 식각 배스 수명 평가, 화학 약액 스파이크 보충량 및 용해 실리콘 누적 감쇠 모델.",
+      "keywords": [
+        "웨트 벤치",
+        "RCA 세정",
+        "SC-1",
+        "SC-2",
+        "피라냐",
+        "SPM",
+        "BOE",
+        "약액 보충",
+        "배스 수명",
+        "식각조"
+      ]
+    },
+    "/tools/cu-plating-calculator": {
+      "name": "구리 전기도금 및 다마신 슈퍼필링 계산기",
+      "description": "구리 전기화학 증착(ECD), 듀얼 다마신 트렌치 바텀업 슈퍼필링, 시드층 터미널 효과 및 패러데이 전기분해 역학 계산.",
+      "keywords": [
+        "구리 도금",
+        "전기도금",
+        "ECD",
+        "다마신",
+        "슈퍼필링",
+        "패러데이 법칙",
+        "터미널 효과",
+        "전류 밀도"
       ]
     }
   }

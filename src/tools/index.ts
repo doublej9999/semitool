@@ -56,6 +56,9 @@ import { tool as splitLotCalculator } from './split-lot-calculator';
 import { tool as curveFittingCalculator } from './curve-fitting-calculator';
 import { tool as ardeEtchCalculator } from './arde-etch-calculator';
 import { tool as cmpEndpointCalculator } from './cmp-endpoint-calculator';
+import { tool as waferWarpStressCalculator } from './wafer-warp-stress-calculator';
+import { tool as wetBenchCalculator } from './wet-bench-calculator';
+import { tool as cuPlatingCalculator } from './cu-plating-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
 /**
@@ -125,6 +128,9 @@ export const tools: Tool[] = [
   curveFittingCalculator,
   ardeEtchCalculator,
   cmpEndpointCalculator,
+  waferWarpStressCalculator,
+  wetBenchCalculator,
+  cuPlatingCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];
