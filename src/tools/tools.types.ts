@@ -9,6 +9,8 @@ import type { LucideIcon } from 'lucide-react';
  * during hydration.
  */
 export interface Tool {
+  /** Optional unique identifier */
+  id?: string;
   /** Display name, also used as the H1 on the tool page. */
   name: string;
   /** Absolute route, e.g. `/tools/wafer-die-calculator`. */

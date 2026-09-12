@@ -707,6 +707,34 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "oxidation rate constants",
         "diffusion activation energy"
       ]
+    },
+    "/tools/arde-etch-calculator": {
+      "name": "ARDE & Microloading Calculator",
+      "description": "Aspect-ratio-dependent etching (RIE lag), pattern microloading, and selectivity simulation.",
+      "keywords": [
+        "arde",
+        "rie lag",
+        "microloading",
+        "aspect ratio",
+        "etch rate",
+        "selectivity",
+        "taper angle",
+        "coburn winter"
+      ]
+    },
+    "/tools/cmp-endpoint-calculator": {
+      "name": "CMP Endpoint & Pad Life Calculator",
+      "description": "Chemical mechanical planarization motor current endpoint, optical fringe timing, and pad conditioning wear.",
+      "keywords": [
+        "cmp",
+        "endpoint",
+        "pad life",
+        "conditioning",
+        "optical fringe",
+        "preston",
+        "planarization",
+        "pad wear"
+      ]
     }
   },
   "zh-CN": {
@@ -1443,6 +1471,33 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "氧化速率常数",
         "扩散激活能"
       ]
+    },
+    "/tools/arde-etch-calculator": {
+      "name": "高深宽比刻蚀与微负载效应计算器 (ARDE)",
+      "description": "深宽比相关刻蚀效应 (ARDE / RIE Lag)、图形微负载效应（Microloading）及掩膜选择比与侧壁陡直度仿真。",
+      "keywords": [
+        "ARDE",
+        "RIE滞后",
+        "微负载效应",
+        "深宽比",
+        "刻蚀速率",
+        "选择比",
+        "侧壁倾角",
+        "Coburn-Winter"
+      ]
+    },
+    "/tools/cmp-endpoint-calculator": {
+      "name": "CMP 终点检测与研磨垫寿命计算器",
+      "description": "化学机械平坦化电机电流终点判定、光学干涉条纹周期测厚与金刚石修整器研磨垫磨损预测。",
+      "keywords": [
+        "CMP",
+        "终点检测",
+        "研磨垫寿命",
+        "光学干涉条纹",
+        "修整器磨损",
+        "沟槽深度",
+        "平坦化"
+      ]
     }
   },
   "zh-TW": {
@@ -2112,6 +2167,33 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "氧化速率常數",
         "擴散活化能"
       ]
+    },
+    "/tools/arde-etch-calculator": {
+      "name": "高深寬比蝕刻與微負載效應計算器 (ARDE)",
+      "description": "深寬比相關蝕刻效應 (ARDE / RIE Lag)、圖形微負載效應（Microloading）及光阻選擇比與側壁傾角模擬。",
+      "keywords": [
+        "ARDE",
+        "RIE滯後",
+        "微負載效應",
+        "深寬比",
+        "蝕刻速率",
+        "選擇比",
+        "側壁傾角",
+        "Coburn-Winter"
+      ]
+    },
+    "/tools/cmp-endpoint-calculator": {
+      "name": "CMP 終點檢測與研磨墊壽命計算器",
+      "description": "化學機械平坦化馬達電流終點判定、光學干涉條紋週期測厚與鑽石修整盤研磨墊損耗預測。",
+      "keywords": [
+        "CMP",
+        "終點檢測",
+        "研磨墊壽命",
+        "光學干涉條紋",
+        "修整器磨損",
+        "溝槽深度",
+        "平坦化"
+      ]
     }
   },
   "ja": {
@@ -2764,6 +2846,33 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "反応速度論",
         "酸化速度定数"
       ]
+    },
+    "/tools/arde-etch-calculator": {
+      "name": "高アスペクト比エッチング (ARDE)・マイクロローディング計算ツール",
+      "description": "アスペクト比依存エッチング (RIE Lag)、パターン密度マイクロローディング効果、およびマスク選択比・テーパー角シミュレーション。",
+      "keywords": [
+        "ARDE",
+        "RIEラグ",
+        "マイクロローディング",
+        "アスペクト比",
+        "エッチングレート",
+        "選択比",
+        "テーパー角",
+        "ドライエッチング"
+      ]
+    },
+    "/tools/cmp-endpoint-calculator": {
+      "name": "CMP 終点検出・研磨パッド寿命計算ツール",
+      "description": "化学機械研磨 (CMP) のモーター電流終点検出、光学干渉フリンジ周期解析、およびダイヤモンドコンディショナーによるパッド溝摩耗予測。",
+      "keywords": [
+        "CMP",
+        "終点検出",
+        "パッド寿命",
+        "コンディショニング",
+        "光干渉",
+        "光学フリンジ",
+        "平坦化"
+      ]
     }
   },
   "ko": {
@@ -3413,6 +3522,34 @@ export const TOOL_TRANSLATIONS: Record<SupportedLocale, Record<string, ToolTrans
         "파라미터 추출",
         "반응 속도론",
         "산화 속도 상수"
+      ]
+    },
+    "/tools/arde-etch-calculator": {
+      "name": "고종횡비 식각 (ARDE) 및 마이크로로딩 계산기",
+      "description": "종횡비 의존성 식각(ARDE / RIE Lag), 패턴 밀도 마이크로로딩 효과 및 마스크 선택비와 측벽 테이퍼 각도 시뮬레이션.",
+      "keywords": [
+        "ARDE",
+        "RIE 래그",
+        "마이크로로딩",
+        "종횡비",
+        "식각률",
+        "선택비",
+        "테이퍼 각도",
+        "플라즈마 식각"
+      ]
+    },
+    "/tools/cmp-endpoint-calculator": {
+      "name": "CMP 종말점 검출 및 패드 수명 계산기",
+      "description": "화학기계적 연마(CMP) 모터 전류 종말점(EPD), 광학 간섭 무늬 주기 및 다이아몬드 컨디셔너 패드 홈 마모 수명 예측.",
+      "keywords": [
+        "CMP",
+        "종말점",
+        "EPD",
+        "패드 수명",
+        "컨디셔닝",
+        "광학 간섭",
+        "평탄화",
+        "그루브 마모"
       ]
     }
   }

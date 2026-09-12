@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Wifi, WifiOff, DownloadCloud } from 'lucide-react';
+import { Wifi, WifiOff, DownloadCloud, RefreshCw, HardDrive } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 
@@ -14,6 +14,9 @@ export default function PwaStatusIndicator() {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [hasUpdate, setHasUpdate] = useState(false);
+  const [cacheSizeMb, setCacheSizeMb] = useState<number | null>(null);
+  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const locale = useLocale();
   const t = getTranslation(locale);
 
@@ -41,6 +44,37 @@ export default function PwaStatusIndicator() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
+    // ServiceWorker update detection
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then((reg) => {
+        if (!reg) return;
+        if (reg.waiting) {
+          setWaitingWorker(reg.waiting);
+          setHasUpdate(true);
+        }
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                setWaitingWorker(newWorker);
+                setHasUpdate(true);
+              }
+            });
+          }
+        });
+      });
+    }
+
+    // Storage estimate
+    if (typeof navigator !== 'undefined' && 'storage' in navigator && navigator.storage.estimate) {
+      navigator.storage.estimate().then((est) => {
+        if (est.usage) {
+          setCacheSizeMb(Math.round((est.usage / (1024 * 1024)) * 10) / 10);
+        }
+      }).catch(() => {});
+    }
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
@@ -62,7 +96,12 @@ export default function PwaStatusIndicator() {
       // Ignored
     }
   };
-
+  const handleUpdateClick = () => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+    }
+    window.location.reload();
+  };
   return (
     <div
       className="pwa-status-container"
@@ -93,6 +132,30 @@ export default function PwaStatusIndicator() {
         >
           <DownloadCloud size={13} aria-hidden="true" />
           <span>{t.installPwa}</span>
+        </button>
+      )}
+      {/* Update Prompt if Service Worker detected a new version */}
+      {hasUpdate && (
+        <button
+          type="button"
+          className="button primary pwa-update-btn"
+          onClick={handleUpdateClick}
+          title="A new version of SemiTools is ready. Click to reload and apply."
+          style={{
+            padding: '0.25rem 0.6rem',
+            fontSize: '0.72rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.3rem',
+            height: '28px',
+            backgroundColor: 'var(--amber, #d97706)',
+            borderColor: 'var(--amber, #d97706)',
+            color: '#ffffff',
+            fontWeight: 600,
+          }}
+        >
+          <RefreshCw size={12} className="spin-slow" />
+          <span>Update Ready</span>
         </button>
       )}
 

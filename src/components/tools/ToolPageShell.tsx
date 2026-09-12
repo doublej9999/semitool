@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import ToolCard from './ToolCard';
 import ToolPageHeader from './ToolPageHeader';
 import I18nHeading from './I18nHeading';
+import { ProcessWorkflowBar } from './ProcessWorkflowBar';
 import { getRelatedTools } from '@/tools';
 import { absoluteUrl } from '@/lib/site';
 import type { Tool } from '@/tools/tools.types';
@@ -62,6 +63,7 @@ export default function ToolPageShell({ tool, faq, formula, notes, children }: T
 
       <div className="tool-page-content">{children}</div>
 
+      <ProcessWorkflowBar currentToolPath={tool.path} />
       {formula ? (
         <section className="info-card" aria-labelledby="formula-heading">
           <I18nHeading id="formula-heading" translationKey="formulaMethod" fallback="Formula and method" />

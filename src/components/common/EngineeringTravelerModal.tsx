@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FileText, Printer, X, QrCode } from 'lucide-react';
+import { FileText, Printer, X, Download, Save, History, Trash2, Check } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 
@@ -142,6 +142,122 @@ export default function EngineeringTravelerModal({
 
   const [activeInputs, setActiveInputs] = useState<Record<string, string | number>>(defaultInputs);
   const [activeResults, setActiveResults] = useState<Record<string, string | number>>(defaultResults);
+  const [savedHistory, setSavedHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Load history from localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('semitools_traveler_history');
+      if (raw) setSavedHistory(JSON.parse(raw));
+    } catch {
+      // ignore local storage error
+    }
+  }, [isOpen]);
+
+  const handleSaveTraveler = () => {
+    const record = {
+      id: `TRV-${Date.now()}`,
+      timestamp: Date.now(),
+      date: dateStr,
+      toolName,
+      lotId,
+      waferIds,
+      recipeName,
+      chamberId,
+      operator,
+      targetSpec,
+      notes,
+      inputs: activeInputs,
+      results: activeResults,
+    };
+    const updated = [record, ...savedHistory.filter((r) => r.lotId !== lotId || r.toolName !== toolName)].slice(0, 30);
+    setSavedHistory(updated);
+    try {
+      localStorage.setItem('semitools_traveler_history', JSON.stringify(updated));
+    } catch {}
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2000);
+  };
+
+  const handleLoadRecord = (rec: any) => {
+    setLotId(rec.lotId || lotId);
+    setWaferIds(rec.waferIds || waferIds);
+    setRecipeName(rec.recipeName || recipeName);
+    setChamberId(rec.chamberId || chamberId);
+    setOperator(rec.operator || operator);
+    setTargetSpec(rec.targetSpec || '');
+    setNotes(rec.notes || notes);
+    if (rec.inputs) setActiveInputs(rec.inputs);
+    if (rec.results) setActiveResults(rec.results);
+    setShowHistory(false);
+  };
+
+  const handleDeleteRecord = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const filtered = savedHistory.filter((r) => r.id !== id);
+    setSavedHistory(filtered);
+    try {
+      localStorage.setItem('semitools_traveler_history', JSON.stringify(filtered));
+    } catch {}
+  };
+
+  const handleExportJson = () => {
+    const payload = {
+      travelerId: `TRV-${lotId}-${dateStr}`,
+      exportTimestamp: new Date().toISOString(),
+      tool: toolName,
+      lotId,
+      waferIds,
+      recipeName,
+      chamberId,
+      operator,
+      targetSpec,
+      notes,
+      parameters: {
+        inputs: activeInputs,
+        results: activeResults,
+      },
+      compliance: 'SEMI Standards Generic Traveler V1.0',
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Traveler_${lotId}_${dateStr}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCsv = () => {
+    const rows = [
+      ['Field', 'Value'],
+      ['Lot ID', lotId],
+      ['Wafers', waferIds],
+      ['Tool / Process', toolName],
+      ['Recipe', recipeName],
+      ['Chamber / Track', chamberId],
+      ['Operator', operator],
+      ['Run Date', dateStr],
+      ['Target Spec', targetSpec],
+      ['Notes', notes.replace(/"/g, '""')],
+      ['', ''],
+      ['-- INPUT PARAMETERS --', ''],
+      ...Object.entries(activeInputs).map(([k, v]) => [k, String(v)]),
+      ['', ''],
+      ['-- CALCULATED METRICS --', ''],
+      ...Object.entries(activeResults).map(([k, v]) => [k, String(v)]),
+    ];
+    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(',')).join('\\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Traveler_${lotId}_${dateStr}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Lock body scroll, listen for Escape key, and auto-populate parameters
   useEffect(() => {
@@ -288,14 +404,54 @@ export default function EngineeringTravelerModal({
                   {t.travelerModalTitle}
                 </h2>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center' }}>
                 <button
                   type="button"
-                  className="button primary"
-                  onClick={handlePrint}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                  className="button secondary sm"
+                  onClick={handleSaveTraveler}
+                  title="Save run to local browser archive"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
                 >
-                  <Printer size={15} />
+                  {saveSuccess ? <Check size={14} color="#059669" /> : <Save size={14} />}
+                  <span>{saveSuccess ? 'Saved' : 'Archive'}</span>
+                </button>
+                <button
+                  type="button"
+                  className="button secondary sm"
+                  onClick={() => setShowHistory(!showHistory)}
+                  title="View saved traveler history"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
+                >
+                  <History size={14} />
+                  <span>History ({savedHistory.length})</span>
+                </button>
+                <button
+                  type="button"
+                  className="button secondary sm"
+                  onClick={handleExportJson}
+                  title="Export MES JSON file"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
+                >
+                  <Download size={14} />
+                  <span>JSON</span>
+                </button>
+                <button
+                  type="button"
+                  className="button secondary sm"
+                  onClick={handleExportCsv}
+                  title="Export CSV file"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
+                >
+                  <Download size={14} />
+                  <span>CSV</span>
+                </button>
+                <button
+                  type="button"
+                  className="button primary sm"
+                  onClick={handlePrint}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '12px' }}
+                >
+                  <Printer size={14} />
                   <span>{t.travelerPrintBtn}</span>
                 </button>
                 <button
@@ -309,6 +465,85 @@ export default function EngineeringTravelerModal({
               </div>
             </div>
 
+            {/* Saved History Drawer / List (hidden in print) */}
+            {showHistory && (
+              <div
+                className="no-print"
+                style={{
+                  marginBottom: '1rem',
+                  padding: '0.75rem',
+                  backgroundColor: 'var(--card, #ffffff)',
+                  border: '1px solid var(--teal, #0d7c82)',
+                  borderRadius: '6px',
+                  maxHeight: '180px',
+                  overflowY: 'auto',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink)' }}>
+                    Archived Traveler Runs ({savedHistory.length})
+                  </span>
+                  <button
+                    type="button"
+                    className="icon-button sm"
+                    onClick={() => setShowHistory(false)}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+                {savedHistory.length === 0 ? (
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', padding: '6px 0' }}>
+                    No archived runs yet. Click "Archive" to store this traveler.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    {savedHistory.map((rec) => (
+                      <div
+                        key={rec.id}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '6px 8px',
+                          background: 'var(--paper, #f8fafc)',
+                          borderRadius: '4px',
+                          fontSize: '11.5px',
+                          border: '1px solid var(--line, #e2e8f0)',
+                        }}
+                      >
+                        <div
+                          style={{ cursor: 'pointer', flex: 1 }}
+                          onClick={() => handleLoadRecord(rec)}
+                        >
+                          <strong>{rec.lotId}</strong> ({rec.toolName}) - {rec.date}
+                          <span style={{ marginLeft: '8px', color: 'var(--muted)' }}>
+                            {Object.keys(rec.inputs || {}).length} inputs
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button
+                            type="button"
+                            className="button secondary sm"
+                            style={{ fontSize: '10.5px', padding: '2px 6px' }}
+                            onClick={() => handleLoadRecord(rec)}
+                          >
+                            Restore
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-button sm"
+                            style={{ padding: '2px 4px' }}
+                            onClick={(e) => handleDeleteRecord(rec.id, e)}
+                          >
+                            <Trash2 size={13} color="#ef4444" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             {/* Quick Editor Controls (hidden in print) */}
             <div
               className="no-print"

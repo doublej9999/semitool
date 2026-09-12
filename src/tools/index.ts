@@ -54,6 +54,8 @@ import { tool as cvdKineticsCalculator } from './cvd-kinetics-calculator';
 import { tool as fourPointProbeCalculator } from './four-point-probe-calculator';
 import { tool as splitLotCalculator } from './split-lot-calculator';
 import { tool as curveFittingCalculator } from './curve-fitting-calculator';
+import { tool as ardeEtchCalculator } from './arde-etch-calculator';
+import { tool as cmpEndpointCalculator } from './cmp-endpoint-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
 /**
@@ -121,6 +123,8 @@ export const tools: Tool[] = [
   fourPointProbeCalculator,
   splitLotCalculator,
   curveFittingCalculator,
+  ardeEtchCalculator,
+  cmpEndpointCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

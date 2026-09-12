@@ -11,7 +11,7 @@ import {
   CLEANROOM_STANDARDS,
   HANDBOOK_FORMULAS,
 } from '@/lib/semiconductor-constants';
-
+import MathFormula from '@/components/tools/MathFormula';
 type Tab = 'formulas' | 'constants' | 'materials' | 'cleanroom';
 
 export default function EngineeringHandbookModal() {
@@ -266,24 +266,30 @@ export default function EngineeringHandbookModal() {
                         </span>
                       </div>
 
-                      <div
-                        style={{
-                          background: 'var(--card, #ffffff)',
-                          padding: '12px 14px',
-                          borderRadius: '6px',
-                          border: '1px solid var(--line, #dbe2e4)',
-                          borderLeft: '3px solid var(--teal, #0d7c82)',
-                          fontFamily: 'var(--font-mono, monospace)',
-                          fontSize: '13.5px',
-                          color: 'var(--ink, #152127)',
-                          margin: '10px 0',
-                          overflowX: 'auto',
-                          fontWeight: '500',
-                          letterSpacing: '0.01em',
-                        }}
-                      >
-                        {f.formulaPlain}
-                      </div>
+                      {f.formulaLatex ? (
+                        <div style={{ margin: '12px 0' }}>
+                          <MathFormula math={f.formulaLatex} block />
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            background: 'var(--card, #ffffff)',
+                            padding: '12px 14px',
+                            borderRadius: '6px',
+                            border: '1px solid var(--line, #dbe2e4)',
+                            borderLeft: '3px solid var(--teal, #0d7c82)',
+                            fontFamily: 'var(--font-mono, monospace)',
+                            fontSize: '13.5px',
+                            color: 'var(--ink, #152127)',
+                            margin: '10px 0',
+                            overflowX: 'auto',
+                            fontWeight: '500',
+                            letterSpacing: '0.01em',
+                          }}
+                        >
+                          {f.formulaPlain}
+                        </div>
+                      )}
 
                       <p style={{ fontSize: '12.5px', lineHeight: '1.5', color: 'var(--ink, #152127)', margin: '8px 0' }}>
                         {f.explanation}
