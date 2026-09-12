@@ -258,7 +258,7 @@ export const en: Translations = {
   "fabWsStress": "Stress (MPa)",
   "fabWsRefractiveIndex": "Refractive Index n",
   "fabWsProcess": "Process",
-  "fabWsAutoSavedNotice": "Auto-saved to offline local storage. Toggle anytime with Ctrl+W.",
+  "fabWsAutoSavedNotice": "Auto-saved to offline local storage. Toggle anytime with Alt+W.",
   "fabWsDoneClose": "Done & Close",
   "fabWsStressTensile": "tensile",
   "fabWsStressCompressive": "compressive",

@@ -258,7 +258,7 @@ export const zhTW: Translations = {
   "fabWsStress": "固有應力 (MPa)",
   "fabWsRefractiveIndex": "折射率 n (@633nm)",
   "fabWsProcess": "工藝方法",
-  "fabWsAutoSavedNotice": "工作區資料已透過 LocalStorage 自動離線儲存。快捷鍵 Ctrl+W 隨時開啟。",
+  "fabWsAutoSavedNotice": "工作區資料已透過 LocalStorage 自動離線儲存。快捷鍵 Alt+W 隨時開啟。",
   "fabWsDoneClose": "完成並關閉",
   "fabWsStressTensile": "張應力 (Tensile)",
   "fabWsStressCompressive": "壓應力 (Compressive)",

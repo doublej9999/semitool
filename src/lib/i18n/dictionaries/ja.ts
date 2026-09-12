@@ -258,7 +258,7 @@ export const ja: Translations = {
   "fabWsStress": "固有応力 (MPa)",
   "fabWsRefractiveIndex": "屈折率 n (@633nm)",
   "fabWsProcess": "成膜プロセス",
-  "fabWsAutoSavedNotice": "データはブラウザのLocalStorageに自動保存されます。Ctrl+Wで即座に開閉可能。",
+  "fabWsAutoSavedNotice": "データはブラウザのLocalStorageに自動保存されます。Alt+Wで即座に開閉可能。",
   "fabWsDoneClose": "完了して閉じる",
   "fabWsStressTensile": "引張応力 (Tensile)",
   "fabWsStressCompressive": "圧縮応力 (Compressive)",

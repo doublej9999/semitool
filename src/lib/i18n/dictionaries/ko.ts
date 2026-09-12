@@ -258,7 +258,7 @@ export const ko: Translations = {
   "fabWsStress": "고유 응력 (MPa)",
   "fabWsRefractiveIndex": "굴절률 n (@633nm)",
   "fabWsProcess": "공정 방식",
-  "fabWsAutoSavedNotice": "작업 데이터는 브라우저 LocalStorage에 자동 저장됩니다. Ctrl+W로 언제든지 열 수 있습니다.",
+  "fabWsAutoSavedNotice": "작업 데이터는 브라우저 LocalStorage에 자동 저장됩니다. Alt+W로 언제든지 열 수 있습니다.",
   "fabWsDoneClose": "완료 및 닫기",
   "fabWsStressTensile": "인장 응력 (Tensile)",
   "fabWsStressCompressive": "압축 응력 (Compressive)",
