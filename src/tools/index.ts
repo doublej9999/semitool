@@ -9,6 +9,7 @@ import { tool as diffusionLengthCalculator } from './diffusion-length-calculator
 import { tool as etchRateCalculator } from './etch-rate-calculator';
 import { tool as filmStressCalculator } from './film-stress-calculator';
 import { tool as filmUniformityCalculator } from './film-uniformity-calculator';
+import { tool as filmColorCalculator } from './film-color-calculator';
 import { tool as fitMtbfCalculator } from './fit-mtbf-calculator';
 import { tool as gasFlowConverter } from './gas-flow-converter';
 import { tool as cleanroomCalculator } from './cleanroom-converter';
@@ -29,6 +30,7 @@ import { tool as spcControlChartCalculator } from './spc-control-chart-calculato
 import { tool as stubMatchingCalculator } from './stub-matching-calculator';
 import { tool as temperatureConverter } from './temperature-converter';
 import { tool as thermalOxideCalculator } from './thermal-oxide-calculator';
+import { tool as thermalResistanceCalculator } from './thermal-resistance-calculator';
 import { tool as thicknessConverter } from './thickness-converter';
 import { tool as throughputCalculator } from './throughput-calculator';
 import { tool as timeConstantCalculator } from './time-constant-calculator';
@@ -95,6 +97,8 @@ export const tools: Tool[] = [
   cleanroomCalculator,
   mosfetThresholdCalculator,
   carrierMobilityCalculator,
+  filmColorCalculator,
+  thermalResistanceCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

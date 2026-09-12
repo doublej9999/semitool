@@ -51,6 +51,8 @@ Semiconductor engineering calculators that run entirely in the browser. Every to
 | Cleanroom Classification & Airflow Calculator | `/tools/cleanroom-converter` | ISO 14644-1 and FED-STD-209E cleanroom particle limits, required air change rates (ACH), total airflow (CFM / m³/h) and FFU ceiling coverage |
 | MOSFET Threshold & Gate Oxide Calculator | `/tools/mosfet-threshold-calculator` | Threshold voltage, equivalent oxide thickness (EOT), gate capacitance, flatband voltage, body effect and subthreshold swing for NMOS and PMOS transistors |
 | Carrier Mobility & Silicon Resistivity Calculator | `/tools/carrier-mobility-calculator` | Caughey-Thomas electron and hole mobility, bulk silicon resistivity, conductivity and dopant concentration bisection solver |
+| Thin Film Color & Interference Calculator | `/tools/film-color-calculator` | Specular power reflectance, CIE 1931 color synthesis, sRGB swatch and Pliskin oxide color scale for dielectric films on silicon |
+| Chip Thermal Resistance & Junction Temp Calculator | `/tools/thermal-resistance-calculator` | Steady-state junction temperature, package thermal resistance (θJC), TIM layer (BLT and k), heat sink (θSA) and thermal margin |
 ## Stack
 
 Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-react · Fuse.js · Vitest
