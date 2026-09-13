@@ -19,6 +19,15 @@ import { loadCachedStdf } from '@/tools/stdf-klarf-explorer/idb';
 
 const MANIFEST = describeUserDataKeys();
 
+/**
+ * Anonymous aggregate traffic measurement (Cloudflare Web Analytics) is
+ * decided at build time: the beacon renders only when
+ * NEXT_PUBLIC_CF_BEACON_TOKEN is set (src/app/layout.tsx). NEXT_PUBLIC_ vars
+ * are inlined identically for server and client, so this row is honest and
+ * hydration-stable in both states.
+ */
+const CF_ANALYTICS_ACTIVE = Boolean(process.env.NEXT_PUBLIC_CF_BEACON_TOKEN);
+
 const BADGE_STYLE: CSSProperties = {
   display: 'inline-block',
   padding: '1px 8px',
@@ -169,6 +178,19 @@ export default function PrivacyDataSection() {
             <span style={presenceBadge(idbPresent)}>{presenceLabel(idbPresent)}</span>
           </div>
           <code style={KEY_STYLE}>IndexedDB: semitools-stdf-cache</code>
+        </li>
+        <li>
+          <div style={ROW_STYLE}>
+            <strong style={{ color: 'var(--ink)' }}>Anonymous aggregate traffic measurement</strong>
+            {CF_ANALYTICS_ACTIVE ? (
+              <span style={{ color: 'var(--ink-soft)' }}>
+                Active — Cloudflare Web Analytics, cookie-free, no personal data, aggregate
+                page-view counts only
+              </span>
+            ) : (
+              <span style={BADGE_STYLE}>not active</span>
+            )}
+          </div>
         </li>
       </ul>
 

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & usage help
+    url: https://semitool.vercel.app/contact
+    about: Usage questions and feedback via the contact page (bug reports go through the bug template above).

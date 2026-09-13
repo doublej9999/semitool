@@ -16,7 +16,17 @@ import bundleAnalyzer from "@next/bundle-analyzer";
 //   used for file downloads, which CSP does not restrict.
 // - connect-src 'self': there are no runtime fetches to external origins —
 //   GitHub links are plain <a> navigations, which CSP does not restrict.
+// - Cloudflare Web Analytics beacon (see src/app/layout.tsx): the beacon is
+//   rendered only when NEXT_PUBLIC_CF_BEACON_TOKEN is set at build time. When
+//   it is, script-src must allow the beacon origin (static.
+//   cloudflareinsights.com/beacon.min.js) and connect-src must allow the same
+//   origin for its reports back to /cdn-cgi/rum. When the token is unset — the
+//   default — the beacon never renders and the CSP below stays exactly as-is,
+//   with no external origins of any kind.
 const isDev = process.env.NODE_ENV === "development";
+const cfBeaconOrigin = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
+  ? " https://static.cloudflareinsights.com"
+  : "";
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -30,11 +40,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}${cfBeaconOrigin}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self'",
-      "connect-src 'self'",
+      `connect-src 'self'${cfBeaconOrigin}`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

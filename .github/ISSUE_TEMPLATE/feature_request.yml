@@ -1,0 +1,33 @@
+name: Feature or tool request
+description: Suggest a new calculator/tool or an improvement to an existing one.
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Request type
+      options:
+        - New tool / calculator
+        - Improvement to an existing tool
+        - New model or material data for an existing tool
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The engineering task / problem
+      placeholder: |
+        What calculation do you (or your team) do repeatedly, and why does the
+        current toolbox not cover it?
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Known formula / model / standard (if any)
+      placeholder: e.g. ASTM F84, SEMI standard, textbook equation — with a reference
+  - type: textarea
+    id: example
+    attributes:
+      label: Example inputs and a sanity-checked expected output

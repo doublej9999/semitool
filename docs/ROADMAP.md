@@ -57,6 +57,14 @@ A living document so direction is not re-derived every session. Last updated: 20
 - Explorer slimming: KLARF parsing moved into the worker (same inline-fallback ladder), the demo generator lazy-loaded and the parser libraries dynamic at the fallback call sites — the STDF / KLARF Explorer route dropped 697.6 → 685.4 kB First Load JS and is no longer the heaviest (SPC now is, at 690.0 kB); the bundle budget gate was retuned 700 → 710 kB (2.9% headroom over the new heaviest route)
 - React Compiler evaluated and REJECTED: runtime-correct (876 tests + 10 E2E green) but +10-35 kB First Load JS per route (6 routes broke the 710 kB gate) and 4x slower builds (2.4s → 9.6s), while the hand-written `useMemo` coverage already handles the expensive paths. Verdict and re-evaluation criteria live in a comment in `next.config.ts` — do not re-litigate without new facts (raised budgets or a materially smaller compiler output)
 
+**Shipped 2026-09 (round 6)**
+
+- MIT LICENSE added and the `license` field set in `package.json`
+- Version 1.3.0: the first tagged release
+- CONTRIBUTING.md: registry-first tool addition, five-locale i18n, the accuracy policy and all gates green, stated as PR requirements
+- GitHub issue templates (bug / feature) plus a PR template: bug reports must include inputs with units and the expected result's source, and public issues must not contain confidential wafer data
+- Dormant anonymous analytics plumbing: the Cloudflare Web Analytics beacon renders only when `NEXT_PUBLIC_CF_BEACON_TOKEN` is set (off by default — zero requests, zero DOM change), the CSP relaxation in `next.config.ts` is gated on the same variable, and the privacy page carries a disclosure row that is honest in both states
+
 ## Next candidates
 
 Ordered. Re-evaluate rather than execute blindly.
@@ -65,6 +73,8 @@ Ordered. Re-evaluate rather than execute blindly.
 2. **Tool cluster growth — fourth DFM tool and beyond.** The parasitics estimator, DRC rule-of-thumb checker and ESD estimator are shipped; a serpentine resistor or antenna checker is the natural fourth. Grow along the V1 PRD's Wafer / Process / Electrical / Manufacturing clusters instead of ad-hoc additions.
 3. **Tool finder in the command palette.** The synonym/intent map itself is no longer a backlog item (232 phrases, coverage-gated); what remains is surfacing the finder inside the command palette so it is reachable beyond the home page.
 4. **hreflang / i18n routing — decision recorded, traffic-gated.** Full locale routing means 5 × 65 prerendered pages, and hreflang alternates are only honest once the per-tool FAQ and notes copy is translated too — thousands of strings, not just shell UI. Trigger: sustained non-English organic traffic. Until then the app keeps client-side locale switching and English-only metadata.
+5. **Enable Cloudflare Web Analytics.** Needs an account and `NEXT_PUBLIC_CF_BEACON_TOKEN`; the CSP relaxation, the beacon render and the privacy-page disclosure are already wired (off by default).
+6. **Enable GitHub Discussions.** Repo-settings toggle only; the issue-template `contact_links` already point to the contact page.
 
 ## Conventions for contributors
 

@@ -1,6 +1,13 @@
 # Changelog
 
-All notable changes to SemiTools are documented here. The project has no versioned releases yet; everything lands under Unreleased until one is cut.
+All notable changes to SemiTools are documented here.
+
+## [1.3.0] - 2026-09-13
+
+First tagged release: 65 tools across 10 categories, five-locale UI, dark mode,
+PWA with offline fallback, STDF/KLARF import with worker parsing, XLSX/PDF/SVG
+export, error boundaries and security headers. See the grouped notes below —
+everything under this heading ships in 1.3.0.
 
 ## [Unreleased]
 

@@ -320,6 +320,14 @@ Every tool gets a dynamic Open Graph card from the `/api/og` route (title and ca
 
 ## Privacy
 
-No analytics, no cookies, no server-side storage of inputs. Favourites, sidebar preferences, locale, the Fab Workspace session and the scratchpad stay in `localStorage`. Locale detection is browser-language-only — no IP or GeoIP lookups.
+No analytics, no cookies, no server-side storage of inputs. Anonymous aggregate traffic measurement can be enabled via `NEXT_PUBLIC_CF_BEACON_TOKEN` (cookie-free Cloudflare Web Analytics, aggregate page-view counts only, no personal data) and is disclosed on the privacy page when active; the default is off, with nothing requested or rendered. Favourites, sidebar preferences, locale, the Fab Workspace session and the scratchpad stay in `localStorage`. Locale detection is browser-language-only — no IP or GeoIP lookups.
 
 The privacy page puts that data in your hands: a one-click JSON export of every stored key plus the STDF/KLARF Explorer's cached load from IndexedDB (`src/lib/user-data.ts`), and a two-step "clear browsing data" that keeps UI preferences such as language and theme by default. Every route is also served with security headers from `next.config.ts`: a Content-Security-Policy locked to same-origin resources (`'unsafe-eval'` appears in script-src only outside production), `X-Frame-Options: DENY`, nosniff, a strict-origin-when-cross-origin Referrer-Policy and a Permissions-Policy that disables camera, microphone, geolocation and the interest-cohort API.
+
+## License
+
+MIT — see [LICENSE](LICENSE), also declared as the `license` field in `package.json`. The current release is **1.3.0**, the first tagged version.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR: tool additions are registry-first (`src/tools/<slug>/` metadata + UI, the registry entry and the route page), user-facing strings must land in all five locales (`en`, `zh-CN`, `zh-TW`, `ko`, `ja`), the accuracy policy above is binding, and lint, tests, build, the bundle budget check and the E2E suite must all be green. GitHub issue templates cover bugs and feature requests: bug reports must include the inputs **with units** and the source of the expected result (literature reference or controlled file), and public issues must not contain confidential wafer data — synthetic examples are enough.

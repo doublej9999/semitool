@@ -1,7 +1,8 @@
 {
   "name": "semitools",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/sw-version.mjs && next build",

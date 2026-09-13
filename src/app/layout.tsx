@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import AppShell from '@/components/shell/AppShell';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 import { ogImageUrl } from '@/lib/seo';
@@ -62,6 +63,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <AppShell>{children}</AppShell>
+        {/* Dormant anonymous analytics: Cloudflare Web Analytics is cookie-free
+            and aggregates page-view counts only (no personal data, no
+            fingerprinting). The beacon renders ONLY when
+            NEXT_PUBLIC_CF_BEACON_TOKEN is set at build time — unset (the
+            default) nothing renders: zero requests, zero DOM change. The
+            matching conditional CSP lives in next.config.ts. */}
+        {process.env.NEXT_PUBLIC_CF_BEACON_TOKEN ? (
+          <Script
+            defer
+            strategy="afterInteractive"
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: process.env.NEXT_PUBLIC_CF_BEACON_TOKEN })}
+          />
+        ) : null}
       </body>
     </html>
   );
