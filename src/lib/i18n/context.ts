@@ -2,6 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from 'react';
 import { ensureDictionary, isDictionaryLoaded } from './translations';
+import { ensureGlossary } from './glossary';
 import { ensureToolTranslations } from './tool-translations';
 
 export type SupportedLocale = 'en' | 'zh-CN' | 'zh-TW' | 'ko' | 'ja';
@@ -43,7 +44,7 @@ function loadLocaleDictionary(locale: SupportedLocale) {
     }
     return;
   }
-  void Promise.all([ensureDictionary(locale), ensureToolTranslations(locale)]).then(() => {
+  void Promise.all([ensureDictionary(locale), ensureToolTranslations(locale), ensureGlossary(locale)]).then(() => {
     if (currentLocale === locale) {
       readyLocale = locale;
       notify();

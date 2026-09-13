@@ -6,7 +6,7 @@
  * Mounts only while the modal is open.
  */
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Layers,
   Sparkles,
@@ -21,6 +21,8 @@ import {
   FileCheck,
   GitBranch,
   Sigma,
+  Workflow,
+  CheckCircle2,
 } from 'lucide-react';
 import {
   FilmStackProject,
@@ -39,11 +41,29 @@ import ModalShell from '@/components/common/ModalShell';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 import type { Translations } from '@/lib/i18n/types';
-import { useFabSession } from '@/lib/fab-session';
+import { translateToolName } from '@/lib/i18n/tool-translations';
+import {
+  addCustomFlow,
+  exportFabSessionJson,
+  getFabSession,
+  importFabSessionJson,
+  removeCustomFlow,
+  resetFlowProgress,
+  toggleFlowStep,
+  useFabSession,
+  type CustomFlow,
+} from '@/lib/fab-session';
+import { toolsByCategory } from '@/tools';
 
 interface FabWorkspacePanelProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+/** Inline feedback for the Fab session export/import transfer row. */
+interface SessionTransferStatus {
+  kind: 'ok' | 'error';
+  message: string;
 }
 
 /** Substrate display names resolved through the typed dictionaries; unknown ids fall back to the catalog name. */
@@ -65,12 +85,27 @@ function getSubstrateName(sub: SubstrateProperties, t: Translations): string {
 export default function FabWorkspacePanel({ isOpen, onClose }: FabWorkspacePanelProps) {
   const locale = useLocale();
   const t = getTranslation(locale);
-  const { activeLot, lastMetrology } = useFabSession();
+  const { activeLot, lastMetrology, customFlows, flowProgress } = useFabSession();
 
   const [project, setProject] = useState<FilmStackProject>(() => createDefaultFilmStackProject());
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Process Flows view: session document transfer + custom flow manager.
+  const [view, setView] = useState<'stack' | 'flows'>('stack');
+  const [flowsBuilderOpen, setFlowsBuilderOpen] = useState(false);
+  const [flowName, setFlowName] = useState('');
+  const [pickedTools, setPickedTools] = useState<string[]>([]);
+  const [sessionTransferStatus, setSessionTransferStatus] = useState<SessionTransferStatus | null>(null);
+  const sessionFileRef = useRef<HTMLInputElement>(null);
+
+  // Flash the transfer feedback, then clear it.
+  useEffect(() => {
+    if (!sessionTransferStatus) return;
+    const timer = window.setTimeout(() => setSessionTransferStatus(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [sessionTransferStatus]);
 
   // Reload from LocalStorage every time the modal opens. React-recommended
   // "adjust state when a prop changes" pattern: track the previous value and
@@ -218,6 +253,182 @@ export default function FabWorkspacePanel({ isOpen, onClose }: FabWorkspacePanel
   };
 
   const selectedLayer = project.layers.find((l) => l.id === selectedLayerId) || null;
+
+  // ---- Fab session transfer: export/import the whole unified session document ----
+
+  // Client-side download of the session envelope (same Blob + object URL anchor
+  // pattern as src/lib/export.ts downloadCsv).
+  const handleExportSession = () => {
+    const blob = new Blob([exportFabSessionJson()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `semitools-fab-session-${new Date().toISOString().slice(0, 10)}.json`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const handleImportSessionFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = typeof event.target?.result === 'string' ? event.target.result : '';
+      const result = importFabSessionJson(text);
+      if (result.ok) {
+        setSessionTransferStatus({
+          kind: 'ok',
+          message: `${t.fabWsImport} · ${getFabSession().customFlows.length} ${t.wfCustomFlows}`,
+        });
+      } else {
+        setSessionTransferStatus({ kind: 'error', message: result.error });
+      }
+    };
+    reader.onerror = (event) => {
+      console.error('Failed to read session file:', event.target?.error);
+    };
+    reader.readAsText(file);
+  };
+
+  // ---- Custom flow builder (mirrors the workflow bar's builder) ----
+
+  const movePickedFlowTool = (index: number, delta: number) => {
+    setPickedTools((prev) => {
+      const next = [...prev];
+      const target = index + delta;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  };
+
+  const handleSaveFlow = () => {
+    const trimmedName = flowName.trim();
+    if (!trimmedName || pickedTools.length < 2) return;
+    addCustomFlow(trimmedName, pickedTools);
+    setFlowName('');
+    setPickedTools([]);
+    setFlowsBuilderOpen(false);
+  };
+
+  const handleCancelFlowBuilder = () => {
+    setFlowsBuilderOpen(false);
+    setFlowName('');
+    setPickedTools([]);
+  };
+
+  // ---- Saved custom flow card: per-step completion toggles + progress ----
+
+  const renderSessionFlowCard = (flow: CustomFlow) => {
+    const done = flowProgress[flow.id] ?? [];
+    const total = flow.toolPaths.length;
+    const doneCount = flow.toolPaths.reduce((acc, _path, idx) => acc + (done.includes(idx) ? 1 : 0), 0);
+    const createdMs = new Date(flow.createdAtIso).getTime();
+
+    return (
+      <div
+        key={flow.id}
+        style={{
+          border: '1px solid var(--line, #cbd5e1)',
+          borderRadius: '8px',
+          padding: '0.8rem 0.9rem',
+          backgroundColor: 'var(--card, #ffffff)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+            <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--ink, #0f172a)' }}>{flow.name}</span>
+            {Number.isFinite(createdMs) && (
+              <span style={{ fontSize: '0.72rem', color: 'var(--ink-soft, #64748b)' }}>
+                {new Date(createdMs).toLocaleDateString(locale)}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                padding: '0.1rem 0.5rem',
+                borderRadius: '999px',
+                backgroundColor: doneCount === total && total > 0 ? 'rgba(5, 150, 105, 0.12)' : 'rgba(13, 124, 130, 0.1)',
+                color: doneCount === total && total > 0 ? '#059669' : 'var(--teal-dark, #0b5e63)',
+              }}
+            >
+              <CheckCircle2 size={12} />
+              {t.wfStepsDone.replace('{done}', String(doneCount)).replace('{total}', String(total))}
+            </span>
+            <button
+              type="button"
+              onClick={() => resetFlowProgress(flow.id)}
+              title={t.reset}
+              aria-label={t.reset}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-soft, #475569)', display: 'inline-flex', padding: '0.15rem' }}
+            >
+              <RotateCcw size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => removeCustomFlow(flow.id)}
+              title={t.wfDeleteFlow}
+              aria-label={t.wfDeleteFlow}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red, #dc2626)', display: 'inline-flex', padding: '0.15rem' }}
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.7rem' }}>
+          {flow.toolPaths.map((toolPath, idx) => {
+            const isDone = done.includes(idx);
+            return (
+              <React.Fragment key={`${toolPath}-${idx}`}>
+                <button
+                  type="button"
+                  onClick={() => toggleFlowStep(flow.id, idx)}
+                  aria-pressed={isDone}
+                  title={t.wfToggleStep}
+                  aria-label={`${t.wfToggleStep}: ${translateToolName(toolPath, locale) || toolPath}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '6px',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    fontWeight: isDone ? 600 : 500,
+                    color: isDone ? 'var(--teal-dark, #0b5e63)' : 'var(--ink-soft, #475569)',
+                    backgroundColor: isDone ? 'rgba(13, 124, 130, 0.1)' : 'var(--card, #ffffff)',
+                    border: isDone ? '1px solid rgba(13, 124, 130, 0.35)' : '1px solid var(--line, #dbe2e4)',
+                  }}
+                >
+                  <CheckCircle2 size={13} style={{ color: isDone ? '#059669' : 'var(--line-strong, #cbd5e1)', flexShrink: 0 }} />
+                  <span>
+                    {idx + 1}. {translateToolName(toolPath, locale) || toolPath}
+                  </span>
+                </button>
+                {idx < flow.toolPaths.length - 1 && (
+                  <span style={{ color: 'var(--line-strong, #cbd5e1)', fontSize: '0.75rem' }}>→</span>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   const localizedWarpWarning = () => {
     const absBow = Math.abs(physics.waferBowUm);
@@ -483,7 +694,61 @@ export default function FabWorkspacePanel({ isOpen, onClose }: FabWorkspacePanel
           </div>
         </div>
 
-        {/* Content Body */}
+        {/* View switch: film-stack editor vs process flows manager */}
+        <div
+          role="tablist"
+          style={{
+            display: 'flex',
+            gap: '0.25rem',
+            padding: '0.45rem 1.4rem 0',
+            borderBottom: '1px solid var(--line, #e2e8f0)',
+            background: 'var(--card, #ffffff)',
+          }}
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === 'stack'}
+            onClick={() => setView('stack')}
+            style={{
+              appearance: 'none',
+              background: 'none',
+              border: 'none',
+              borderBottom: view === 'stack' ? '2px solid var(--teal, #0d7c82)' : '2px solid transparent',
+              marginBottom: '-1px',
+              padding: '0.5rem 0.9rem',
+              fontSize: '0.8rem',
+              fontWeight: view === 'stack' ? 700 : 500,
+              color: view === 'stack' ? 'var(--teal-dark, #0b5e63)' : 'var(--ink-soft, #64748b)',
+              cursor: 'pointer',
+            }}
+          >
+            {t.fabWsFilmStackSteps}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === 'flows'}
+            onClick={() => setView('flows')}
+            style={{
+              appearance: 'none',
+              background: 'none',
+              border: 'none',
+              borderBottom: view === 'flows' ? '2px solid var(--teal, #0d7c82)' : '2px solid transparent',
+              marginBottom: '-1px',
+              padding: '0.5rem 0.9rem',
+              fontSize: '0.8rem',
+              fontWeight: view === 'flows' ? 700 : 500,
+              color: view === 'flows' ? 'var(--teal-dark, #0b5e63)' : 'var(--ink-soft, #64748b)',
+              cursor: 'pointer',
+            }}
+          >
+            {t.wfCustomFlows}
+          </button>
+        </div>
+
+        {view === 'stack' && (
+        /* Film-stack editor body: metrics, warp warnings, cross-section and layer editor */
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
           {/* Top Metrics Cards */}
           <div
@@ -953,6 +1218,210 @@ export default function FabWorkspacePanel({ isOpen, onClose }: FabWorkspacePanel
             </div>
           </div>
         </div>
+        )}
+
+        {view === 'flows' && (
+        /* Process Flows manager: Fab session document transfer + custom flow CRUD */
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Section header: flows count + session transfer actions + builder toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.6rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '0.68rem',
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                color: 'var(--teal-dark, #0b5e63)',
+              }}
+            >
+              <Workflow size={13} />
+              {t.wfCustomFlows} ({customFlows.length})
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="button outline"
+                style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                onClick={handleExportSession}
+                title={t.fabWsExportTitle}
+              >
+                <Download size={14} />
+                {t.fabWsExport}
+              </button>
+              <button
+                type="button"
+                className="button outline"
+                style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                onClick={() => sessionFileRef.current?.click()}
+                title={t.fabWsImportTitle}
+              >
+                <Upload size={14} />
+                {t.fabWsImport}
+              </button>
+              <button
+                type="button"
+                className="button primary"
+                style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                onClick={() => setFlowsBuilderOpen((prev) => !prev)}
+              >
+                <Plus size={14} />
+                {t.wfNewCustomFlow}
+              </button>
+            </div>
+          </div>
+
+          <input
+            type="file"
+            ref={sessionFileRef}
+            style={{ display: 'none' }}
+            accept=".json,application/json"
+            onChange={handleImportSessionFile}
+          />
+
+          {/* Inline transfer feedback (success / error), auto-cleared */}
+          {sessionTransferStatus && (
+            <div
+              role="status"
+              aria-live="polite"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.55rem 0.8rem',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: 500,
+                backgroundColor: sessionTransferStatus.kind === 'ok' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                border:
+                  sessionTransferStatus.kind === 'ok' ? '1px solid rgba(5, 150, 105, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+                color: sessionTransferStatus.kind === 'ok' ? '#059669' : '#b91c1c',
+              }}
+            >
+              {sessionTransferStatus.kind === 'ok' ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} style={{ flexShrink: 0 }} />}
+              <span>{sessionTransferStatus.message}</span>
+            </div>
+          )}
+
+          {/* Custom flow builder: name + ordered tool pick from the registry */}
+          {flowsBuilderOpen && (
+            <div
+              style={{
+                padding: '0.9rem',
+                borderRadius: '8px',
+                backgroundColor: 'var(--card, #ffffff)',
+                border: '1px dashed var(--line-strong, #cbd5e1)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.6rem',
+              }}
+            >
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={flowName}
+                  onChange={(e) => setFlowName(e.target.value)}
+                  placeholder={t.wfFlowNameLabel}
+                  aria-label={t.wfFlowNameLabel}
+                  style={{ flex: '1 1 180px', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--line, #dbe2e4)', fontSize: '0.8rem' }}
+                />
+                <select
+                  value=""
+                  aria-label={t.wfPickToolsLabel}
+                  onChange={(e) => {
+                    if (e.target.value) setPickedTools((prev) => (prev.includes(e.target.value) ? prev : [...prev, e.target.value]));
+                  }}
+                  style={{ flex: '1 1 220px', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--line, #dbe2e4)', fontSize: '0.8rem' }}
+                >
+                  <option value="">{t.wfPickToolsLabel}</option>
+                  {toolsByCategory.map((category) => (
+                    <optgroup key={category.name} label={category.name}>
+                      {category.components.map((tool) => (
+                        <option key={tool.path} value={tool.path}>
+                          {translateToolName(tool.path, locale) || tool.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
+
+              {pickedTools.length > 0 && (
+                <ol style={{ margin: 0, paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', fontSize: '0.78rem' }}>
+                  {pickedTools.map((toolPath, idx) => (
+                    <li key={toolPath} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <span style={{ flex: 1, color: 'var(--ink, #0f172a)' }}>
+                        {idx + 1}. {translateToolName(toolPath, locale) || toolPath}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => movePickedFlowTool(idx, -1)}
+                        disabled={idx === 0}
+                        aria-label="Move step up"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem', opacity: idx === 0 ? 0.3 : 1 }}
+                      >
+                        <ChevronUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => movePickedFlowTool(idx, 1)}
+                        disabled={idx === pickedTools.length - 1}
+                        aria-label="Move step down"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem', opacity: idx === pickedTools.length - 1 ? 0.3 : 1 }}
+                      >
+                        <ChevronDown size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPickedTools((prev) => prev.filter((p) => p !== toolPath))}
+                        aria-label="Remove step"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red, #dc2626)', padding: '0.1rem' }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+              )}
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  className="button primary sm"
+                  onClick={handleSaveFlow}
+                  disabled={!flowName.trim() || pickedTools.length < 2}
+                  style={{ fontSize: '0.75rem' }}
+                >
+                  {t.wfSaveFlow}
+                </button>
+                <button type="button" className="button secondary sm" onClick={handleCancelFlowBuilder} style={{ fontSize: '0.75rem' }}>
+                  {t.wfCancelFlow}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Saved flows: progress chip, reset progress, delete, per-step completion toggles */}
+          {customFlows.length === 0 && !flowsBuilderOpen ? (
+            <div
+              style={{
+                padding: '1.2rem',
+                textAlign: 'center',
+                color: 'var(--ink-soft, #64748b)',
+                fontSize: '0.85rem',
+                border: '1px dashed var(--line, #cbd5e1)',
+                borderRadius: '8px',
+              }}
+            >
+              {t.genealogyEmptyTitle}
+            </div>
+          ) : (
+            customFlows.map(renderSessionFlowCard)
+          )}
+        </div>
+        )}
 
         {/* Footer */}
         <div

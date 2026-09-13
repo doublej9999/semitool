@@ -18,5 +18,8 @@ export default defineConfig({
       ['**/*.test.tsx', 'jsdom'],
       ['**/*.test.ts', 'node'],
     ],
+    // Playwright owns the e2e/ directory; vitest's default glob would try to
+    // run those specs with the wrong test runner.
+    exclude: ['e2e/**', 'node_modules/**'],
   },
 });

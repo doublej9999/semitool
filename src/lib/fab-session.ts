@@ -53,6 +53,19 @@ const EMPTY_SESSION: FabSessionState = {
   customFlows: [],
 };
 
+/** Envelope kind/version written by `exportFabSessionJson` and required by `importFabSessionJson`. */
+export const FAB_SESSION_EXPORT_KIND = 'semitools-fab-session';
+export const FAB_SESSION_EXPORT_VERSION = 1;
+
+export interface FabSessionExportEnvelope {
+  kind: string;
+  version: number;
+  exportedAtIso: string;
+  state: FabSessionState;
+}
+
+export type FabSessionImportResult = { ok: true } | { ok: false; error: string };
+
 let state: FabSessionState = EMPTY_SESSION;
 let hydrated = false;
 const listeners = new Set<() => void>();
@@ -139,6 +152,98 @@ function loadFromStorage(): void {
 /** Current session snapshot; safe to call outside React (empty until hydration). */
 export function getFabSession(): FabSessionState {
   return hydrated ? state : EMPTY_SESSION;
+}
+
+/**
+ * Serializes the whole session (film-stack project, genealogy lot, metrology
+ * summary, workflow progress and custom flows) into a versioned JSON envelope
+ * for backup or transfer between browsers.
+ */
+export function exportFabSessionJson(): string {
+  const envelope: FabSessionExportEnvelope = {
+    kind: FAB_SESSION_EXPORT_KIND,
+    version: FAB_SESSION_EXPORT_VERSION,
+    exportedAtIso: new Date().toISOString(),
+    state: getFabSession(),
+  };
+  return JSON.stringify(envelope, null, 2);
+}
+
+/**
+ * Validates an exported session document (envelope kind/version plus state
+ * shape) and atomically replaces the store state with it, persisting through
+ * to localStorage and notifying subscribers. Returns a structured error
+ * instead of throwing.
+ */
+export function importFabSessionJson(json: string): FabSessionImportResult {
+  try {
+    const parsed: unknown = JSON.parse(json);
+    if (!isRecord(parsed) || parsed.kind !== FAB_SESSION_EXPORT_KIND) {
+      return { ok: false, error: 'Not a Fab session export document' };
+    }
+    if (parsed.version !== FAB_SESSION_EXPORT_VERSION) {
+      return { ok: false, error: 'Unsupported Fab session version' };
+    }
+    const next = parseImportedSessionState(parsed.state);
+    if (!next) {
+      return { ok: false, error: 'Invalid Fab session data' };
+    }
+    state = next;
+    hydrated = true;
+    writeThrough();
+    emit();
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'Malformed Fab session JSON' };
+  }
+}
+
+/** Strict shape validation for an imported state document; null when invalid. */
+function parseImportedSessionState(value: unknown): FabSessionState | null {
+  if (!isRecord(value)) return null;
+  const { activeProject, activeLot, lastMetrology, flowProgress, customFlows } = value;
+  if (activeProject !== null && !isRecord(activeProject)) return null;
+  if (activeLot !== null && !isRecord(activeLot)) return null;
+  if (lastMetrology !== null && !isRecord(lastMetrology)) return null;
+  if (!isRecord(flowProgress)) return null;
+
+  const progress: Record<string, number[]> = {};
+  for (const [flowId, indices] of Object.entries(flowProgress)) {
+    if (!Array.isArray(indices)) return null;
+    const steps: number[] = [];
+    for (const step of indices) {
+      if (typeof step !== 'number' || !Number.isFinite(step)) return null;
+      steps.push(step);
+    }
+    progress[flowId] = steps;
+  }
+
+  if (!Array.isArray(customFlows)) return null;
+  const flows: CustomFlow[] = [];
+  for (const entry of customFlows) {
+    if (!isRecord(entry)) return null;
+    if (typeof entry.id !== 'string' || typeof entry.name !== 'string') return null;
+    if (!Array.isArray(entry.toolPaths)) return null;
+    const paths: string[] = [];
+    for (const path of entry.toolPaths) {
+      if (typeof path !== 'string') return null;
+      paths.push(path);
+    }
+    flows.push({
+      id: entry.id,
+      name: entry.name,
+      toolPaths: paths,
+      createdAtIso: typeof entry.createdAtIso === 'string' ? entry.createdAtIso : '',
+    });
+  }
+
+  return {
+    activeProject: activeProject as FilmStackProject | null,
+    activeLot: activeLot as LotGenealogy | null,
+    lastMetrology: lastMetrology as FabMetrologySummary | null,
+    flowProgress: progress,
+    customFlows: flows,
+  };
 }
 
 export function setActiveProject(project: FilmStackProject): void {

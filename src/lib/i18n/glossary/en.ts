@@ -1,0 +1,136 @@
+/**
+ * Shared fab-term glossary: single translations for labels that repeat across
+ * many calculator UIs (field names, process names, common units). Keys are
+ * stable slugs; calculators look them up with useGlossary() and fall back to
+ * the English value here, then to the key itself. Only replace a hardcoded
+ * label with a glossary lookup when the strings match exactly — never rewrite
+ * tool-specific copy to force a match.
+ */
+export const GLOSSARY: Record<string, string> = {
+  // Wafer & geometry
+  waferDiameter: 'Wafer diameter',
+  waferThickness: 'Wafer thickness',
+  waferArea: 'Wafer area',
+  waferCount: 'Wafer count',
+  substrateThickness: 'Substrate thickness',
+  edgeExclusion: 'Edge exclusion',
+  dieWidth: 'Die width',
+  dieHeight: 'Die height',
+  dieSize: 'Die size',
+  dieArea: 'Die area',
+  streetWidth: 'Street width',
+  reticleField: 'Reticle / exposure field',
+  grossDie: 'Gross die per wafer',
+
+  // Films & process
+  filmThickness: 'Film thickness',
+  targetThickness: 'Target thickness',
+  depositionRate: 'Deposition rate',
+  etchRate: 'Etch rate',
+  etchTime: 'Etch time',
+  selectivity: 'Selectivity',
+  uniformity: 'Uniformity',
+  filmStress: 'Film stress',
+  curvature: 'Curvature',
+  bowHeight: 'Bow',
+  warpHeight: 'Warp',
+  oxideThickness: 'Oxide thickness',
+  growthTime: 'Growth time',
+  oxidationTemperature: 'Oxidation temperature',
+  diffusionCoefficient: 'Diffusion coefficient',
+  junctionDepth: 'Junction depth',
+  dopingConcentration: 'Doping concentration',
+  implantDose: 'Implant dose',
+  implantEnergy: 'Implant energy',
+  annealTemperature: 'Anneal temperature',
+  removalRate: 'Removal rate',
+  downForce: 'Downforce',
+  platenSpeed: 'Platen speed',
+  slurryFlow: 'Slurry flow',
+  cycleTime: 'Cycle time',
+  throughputLabel: 'Throughput',
+  plasmaPower: 'Plasma power',
+  rfBiasPower: 'RF / bias power',
+  chamberPressure: 'Chamber pressure',
+  gasFlowRate: 'Gas flow rate',
+  dcBias: 'DC bias',
+  gasName: 'Process gas',
+
+  // Electrical & device
+  supplyVoltage: 'Supply voltage',
+  thresholdVoltage: 'Threshold voltage',
+  gateVoltage: 'Gate voltage',
+  drainCurrent: 'Drain current',
+  leakageCurrent: 'Leakage current',
+  carrierMobility: 'Carrier mobility',
+  contactResistance: 'Contact resistance',
+  probeSpacing: 'Probe spacing',
+  probeCurrent: 'Probe current',
+  measuredVoltage: 'Measured voltage',
+  temperatureCoefficient: 'Temperature coefficient',
+  thermalConductivity: 'Thermal conductivity',
+  thermalResistanceLabel: 'Thermal resistance',
+  powerDensity: 'Power density',
+  junctionTemperature: 'Junction temperature',
+  ambientTemperature: 'Ambient temperature',
+  bodyBias: 'Body bias',
+
+  // Yield & reliability
+  yieldLabel: 'Yield',
+  defectDensityLabel: 'Defect density',
+  lineYield: 'Line yield',
+  dieYield: 'Die yield',
+  lotSize: 'Lot size',
+  sampleSize: 'Sample size',
+  failureCount: 'Number of failures',
+  testHours: 'Test hours',
+  missionTime: 'Mission time',
+  confidenceLevel: 'Confidence level',
+
+  // Materials & physics
+  materialLabel: 'Material',
+  densityLabel: 'Density',
+  youngsModulus: "Young's modulus",
+  poissonRatio: "Poisson's ratio",
+  refractiveIndex: 'Refractive index',
+  extinctionCoefficient: 'Extinction coefficient',
+  wavelengthLabel: 'Wavelength',
+  angleOfIncidence: 'Angle of incidence',
+  polarizationLabel: 'Polarization',
+  frequencyLabel: 'Frequency',
+  electronTemperature: 'Electron temperature',
+  debyeLengthLabel: 'Debye length',
+  plasmaDensity: 'Plasma density',
+
+  // Generic physics quantities
+  voltage: 'Voltage',
+  current: 'Current',
+  powerLabel: 'Power',
+  resistance: 'Resistance',
+  capacitance: 'Capacitance',
+  inductance: 'Inductance',
+  impedanceLabel: 'Impedance',
+  velocity: 'Velocity',
+  timeConstantLabel: 'Time constant',
+  efficiency: 'Efficiency',
+  totalArea: 'Total area',
+  totalThickness: 'Total thickness',
+  layerCount: 'Number of layers',
+  layerThickness: 'Layer thickness',
+
+  // Generic UI nouns
+  valueLabel2: 'Value',
+  unitLabel: 'Unit',
+  resultLabel: 'Result',
+  calculateLabel: 'Calculate',
+  advancedOptions: 'Advanced options',
+  assumptionsLabel: 'Assumptions',
+  referenceLabel: 'Reference',
+  formulaLabel: 'Formula',
+  exampleLabel: 'Example',
+  warningLabel: 'Warning',
+  notApplicable: 'N/A',
+};
+
+/** Eager English map (type + fallback source). */
+export const en = GLOSSARY;

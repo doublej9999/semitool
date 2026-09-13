@@ -130,3 +130,120 @@ describe('fab-session store', () => {
     expect(raw.lastMetrology.source).toBe('test');
   });
 });
+
+describe('fab-session export/import', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    cleanup();
+    window.localStorage.clear();
+    vi.resetModules();
+  });
+
+  it('round-trips a full session through export and import', async () => {
+    const mod = await loadFreshModule();
+    const { result } = renderHook(() => {
+      mod.useHydrateFabSession();
+      return mod.useFabSession();
+    });
+
+    act(() => {
+      mod.setActiveProject(createDefaultFilmStackProject('Round Trip'));
+      mod.setActiveLot(createNewLot('LOT-RT', 'DEV-RT', 300, 12));
+      mod.setLastMetrology({
+        source: 'round-trip',
+        subgroupCount: 2,
+        totalPoints: 10,
+        mean: 10,
+        stdDev: 0.5,
+        outlierMethod: 'none',
+        timestampIso: '2026-01-02T03:04:05.000Z',
+      });
+      const flow = mod.addCustomFlow('RT Flow', ['/tools/wet-bench-calculator', '/tools/etch-rate-calculator']);
+      mod.toggleFlowStep(flow.id, 1);
+    });
+
+    const before = result.current;
+    const json = mod.exportFabSessionJson();
+    const envelope = JSON.parse(json);
+    expect(envelope.kind).toBe('semitools-fab-session');
+    expect(envelope.version).toBe(1);
+    expect(typeof envelope.exportedAtIso).toBe('string');
+    expect(envelope.state.customFlows).toHaveLength(1);
+
+    // Import into a pristine store (fresh module) and require exact equality.
+    const mod2 = await loadFreshModule();
+    const importResult = mod2.importFabSessionJson(json);
+    expect(importResult).toEqual({ ok: true });
+    expect(mod2.getFabSession()).toEqual(before);
+    expect(JSON.parse(window.localStorage.getItem(mod2.FAB_SESSION_STORAGE_KEY) as string)).toEqual(before);
+  });
+
+  it('imports into a pristine (never hydrated) store and persists through', async () => {
+    const mod = await loadFreshModule();
+    const json = JSON.stringify({
+      kind: 'semitools-fab-session',
+      version: 1,
+      exportedAtIso: '2026-01-01T00:00:00.000Z',
+      state: {
+        activeProject: null,
+        activeLot: null,
+        lastMetrology: null,
+        flowProgress: { f1: [0, 2] },
+        customFlows: [
+          { id: 'f1', name: 'Hand Made', toolPaths: ['/tools/wet-bench-calculator', '/tools/etch-rate-calculator'], createdAtIso: '2026-01-01T00:00:00.000Z' },
+        ],
+      },
+    });
+
+    expect(mod.importFabSessionJson(json)).toEqual({ ok: true });
+    const session = mod.getFabSession();
+    expect(session.customFlows[0].name).toBe('Hand Made');
+    expect(session.flowProgress.f1).toEqual([0, 2]);
+    expect(JSON.parse(window.localStorage.getItem(mod.FAB_SESSION_STORAGE_KEY) as string).customFlows[0].name).toBe('Hand Made');
+  });
+
+  it('rejects corrupt JSON and wrong envelopes without mutating state', async () => {
+    const mod = await loadFreshModule();
+    const { result } = renderHook(() => {
+      mod.useHydrateFabSession();
+      return mod.useFabSession();
+    });
+
+    act(() => {
+      mod.addCustomFlow('Keep Me', ['/tools/wet-bench-calculator', '/tools/etch-rate-calculator']);
+    });
+    const snapshot = result.current;
+
+    const corrupt = mod.importFabSessionJson('{oops');
+    expect(corrupt.ok).toBe(false);
+    if (!corrupt.ok) expect(typeof corrupt.error).toBe('string');
+
+    expect(mod.importFabSessionJson(JSON.stringify({ kind: 'other-tool-state', version: 1, state: {} }))).toMatchObject({ ok: false });
+    expect(mod.importFabSessionJson(JSON.stringify({ kind: 'semitools-fab-session', version: 99, state: {} }))).toMatchObject({ ok: false });
+    expect(mod.importFabSessionJson(JSON.stringify({ kind: 'semitools-fab-session', version: 1, state: { customFlows: 'nope' } }))).toMatchObject({ ok: false });
+    expect(
+      mod.importFabSessionJson(
+        JSON.stringify({
+          kind: 'semitools-fab-session',
+          version: 1,
+          state: { activeProject: null, activeLot: null, lastMetrology: null, flowProgress: { f1: ['zero'] }, customFlows: [] },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      mod.importFabSessionJson(
+        JSON.stringify({
+          kind: 'semitools-fab-session',
+          version: 1,
+          state: { activeProject: null, activeLot: null, lastMetrology: null, flowProgress: {}, customFlows: [{ id: 'x', name: 'X', toolPaths: [42] }] },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+
+    expect(result.current).toEqual(snapshot);
+    expect(JSON.parse(window.localStorage.getItem(mod.FAB_SESSION_STORAGE_KEY) as string).customFlows).toHaveLength(1);
+  });
+});
