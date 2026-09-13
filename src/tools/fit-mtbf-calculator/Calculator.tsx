@@ -14,12 +14,14 @@ import {
 } from '@/lib/reliability';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = { failures: '10', devices: '1000', hours: '1000', mission: '8760' };
 
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function FitMtbfCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy: copyResult } = useCopyToClipboard();
@@ -138,7 +140,7 @@ export default function FitMtbfCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (

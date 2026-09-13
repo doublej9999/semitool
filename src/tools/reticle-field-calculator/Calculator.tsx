@@ -9,6 +9,7 @@ import {
 } from '@/lib/reticle';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   fieldWidth: '26',
@@ -35,6 +36,7 @@ function fmt(value: number, significant = 4): string {
 }
 
 export default function ReticleFieldCalculator() {
+  const g = useGlossary();
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const { copied, copy } = useCopyToClipboard();
@@ -129,7 +131,7 @@ export default function ReticleFieldCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="reticle-die-w">Die width</label>
+            <label htmlFor="reticle-die-w">{g('dieWidth')}</label>
             <div className="inline-field">
               <input
                 id="reticle-die-w"
@@ -156,7 +158,7 @@ export default function ReticleFieldCalculator() {
 
           <div className="field">
             <label htmlFor="reticle-die-h">
-              Die height<span className="unit">{values.dieUnit}</span>
+              {g('dieHeight')}<span className="unit">{values.dieUnit}</span>
             </label>
             <input
               id="reticle-die-h"
@@ -197,7 +199,7 @@ export default function ReticleFieldCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="reticle-wafer">Wafer diameter</label>
+            <label htmlFor="reticle-wafer">{g('waferDiameter')}</label>
             <div className="inline-field">
               <input
                 id="reticle-wafer"
@@ -223,7 +225,7 @@ export default function ReticleFieldCalculator() {
           </div>
 
           <div className="field">
-            <label htmlFor="reticle-exclusion">Edge exclusion</label>
+            <label htmlFor="reticle-exclusion">{g('edgeExclusion')}</label>
             <div className="inline-field">
               <input
                 id="reticle-exclusion"
@@ -301,7 +303,7 @@ export default function ReticleFieldCalculator() {
               <thead>
                 <tr>
                   <th scope="col">Quantity</th>
-                  <th scope="col">Value</th>
+                  <th scope="col">{g('valueLabel2')}</th>
                   <th scope="col">How it is obtained</th>
                 </tr>
               </thead>

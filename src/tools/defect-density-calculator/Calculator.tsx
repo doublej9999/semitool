@@ -11,6 +11,7 @@ import {
 } from '@/lib/yield-model';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = { yieldPercent: 85, area: 50, areaUnit: 'mm2' as AreaUnit };
 
@@ -18,6 +19,7 @@ export default function DefectDensityCalculator() {
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const { areaCm2, errors, rows } = useMemo(() => {
     const cm2 = areaToCm2(values.area, values.areaUnit);
@@ -135,7 +137,7 @@ export default function DefectDensityCalculator() {
                 <tr>
                   <th scope="col">Model</th>
                   <th scope="col">Defects per die</th>
-                  <th scope="col">Defect density</th>
+                  <th scope="col">{g('defectDensityLabel')}</th>
                 </tr>
               </thead>
               <tbody>

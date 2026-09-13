@@ -7,6 +7,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { fromDppm, fromSigma, fromYieldPercent, type YieldDppmResult } from '@/lib/dppm';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 type Mode = 'yield' | 'dppm' | 'sigma';
 
@@ -24,6 +25,7 @@ export default function YieldDppmCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -105,7 +107,7 @@ export default function YieldDppmCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (
@@ -114,14 +116,14 @@ export default function YieldDppmCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Yield</span>
+            <span className="unit">{g('yieldLabel')}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.yieldPercent)}
               <span className="result-suffix"> %</span>
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Yield</dt>
+                <dt>{g('yieldLabel')}</dt>
                 <dd>{fmt(result.yieldPercent)} %</dd>
               </div>
               <div>

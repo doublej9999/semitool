@@ -15,6 +15,7 @@ import {
 } from '@/lib/rf';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 type Mode = 'returnLoss' | 'gamma' | 'vswr';
 
@@ -29,6 +30,7 @@ const INITIAL = { mode: 'returnLoss' as Mode, value: '20' };
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function ReturnLossCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -123,7 +125,7 @@ export default function ReturnLossCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (

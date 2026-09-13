@@ -6,6 +6,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { stubMatch, stubVerification } from '@/lib/stub';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   z0Ohm: '50',
@@ -28,6 +29,7 @@ export default function StubMatchingCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -127,7 +129,7 @@ export default function StubMatchingCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="st-freq">Frequency (GHz)</label>
+          <label htmlFor="st-freq">{g('frequencyLabel')} (GHz)</label>
           <input
             id="st-freq"
             type="number"
@@ -163,7 +165,7 @@ export default function StubMatchingCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (

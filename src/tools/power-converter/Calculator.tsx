@@ -2,6 +2,7 @@
 'use client';
 
 import UnitConverter from '@/components/tools/UnitConverter';
+import { useGlossary } from '@/lib/i18n/glossary';
 import {
   POWER_LABELS,
   POWER_UNITS,
@@ -13,9 +14,10 @@ import {
 const units = POWER_UNITS.map((unit) => ({ id: unit, label: POWER_LABELS[unit] }));
 
 export default function PowerConverter() {
+  const g = useGlossary();
   return (
     <UnitConverter
-      title="Power"
+      title={g('powerLabel')}
       resultTitle="Converted power"
       units={units}
       headlineUnit="dBm"

@@ -13,6 +13,7 @@ import {
 } from '@/lib/confidence';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL_SAMPLE = { total: '720', passes: '697' };
 const INITIAL_PLAN = { expectedYield: '96.8', halfWidth: '1' };
@@ -62,6 +63,7 @@ export default function YieldConfidenceCalculator() {
   const confidence = confidenceState.confidence;
   const setConfidence = (value: number) => setConfidenceState({ confidence: value });
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const total = sample.total.trim() === '' ? Number.NaN : Number(sample.total);
   const passes = sample.passes.trim() === '' ? Number.NaN : Number(sample.passes);
@@ -137,7 +139,7 @@ export default function YieldConfidenceCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="confidence-level">Confidence level</label>
+          <label htmlFor="confidence-level">{g('confidenceLevel')}</label>
           <ConfidenceSelect id="confidence-level" value={confidence} onChange={setConfidence} />
         </div>
 

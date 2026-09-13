@@ -1,4 +1,4 @@
-const CACHE_NAME = 'semitools-cache-29fe30d';
+const CACHE_NAME = 'semitools-cache-ebfdef4';
 
 const CORE_ASSETS = [
   '/',

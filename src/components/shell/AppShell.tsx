@@ -118,6 +118,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Explicit hydration marker: lets E2E tests wait for interactive state
+  // instead of inferring it from side effects (SSR HTML has no attribute).
+  useEffect(() => {
+    document.documentElement.dataset.appHydrated = 'true';
+  }, []);
+
   const shellClass = ['app-shell', railCollapsed ? 'is-rail-collapsed' : '', drawerOpen ? 'is-drawer-open' : '']
     .filter(Boolean)
     .join(' ');

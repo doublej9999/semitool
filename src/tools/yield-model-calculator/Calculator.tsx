@@ -10,6 +10,7 @@ import {
   type AreaUnit,
 } from '@/lib/yield-model';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = { density: 0.5, area: 50, areaUnit: 'mm2' as AreaUnit };
 
@@ -17,6 +18,7 @@ export default function YieldModelCalculator() {
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
+  const g = useGlossary();
 
   const { areaCm2, errors, rows } = useMemo(() => {
     const cm2 = areaToCm2(values.area, values.areaUnit);
@@ -131,8 +133,8 @@ export default function YieldModelCalculator() {
               <thead>
                 <tr>
                   <th scope="col">Model</th>
-                  <th scope="col">Formula</th>
-                  <th scope="col">Yield</th>
+                  <th scope="col">{g('formulaLabel')}</th>
+                  <th scope="col">{g('yieldLabel')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -148,7 +150,7 @@ export default function YieldModelCalculator() {
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Defect density</span>
+                <span>{g('defectDensityLabel')}</span>
                 <strong>{values.density} /cm²</strong>
               </div>
               <div className="metric">

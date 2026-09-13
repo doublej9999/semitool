@@ -7,6 +7,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { parseAndRollup } from '@/lib/bin';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const SAMPLE = `PASS 9000 *
 OPEN 480
@@ -19,6 +20,7 @@ export default function BinYieldCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy: copyResult } = useCopyToClipboard();
+  const g = useGlossary();
 
   const result = useMemo(() => {
     try {
@@ -81,7 +83,7 @@ export default function BinYieldCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (

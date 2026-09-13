@@ -54,7 +54,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "try{var t=localStorage.getItem('semitools:theme');var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}";
 
   return (
-    <html lang="en">
+    // suppressHydrationWarning: the inline bootstrap legitimately mutates
+    // data-theme before React hydrates — the mismatch on <html> is by design.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>

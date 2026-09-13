@@ -4,11 +4,13 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { estimateDies } from '@/lib/wafer';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 const INITIAL = { diameter: 300, width: 10, height: 10, street: 0.1, edge: 3 };
 
 export default function WaferDieCalculator() {
   const [values, setValues] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
+  const g = useGlossary();
 
   useUrlParamsState(values, setValues);
 
@@ -50,15 +52,15 @@ export default function WaferDieCalculator() {
       <section className="panel" aria-labelledby="die-inputs">
         <h2 id="die-inputs">Wafer and die inputs</h2>
 
-        <Num label="Wafer diameter" value={values.diameter} unit="mm" onChange={(value) => update('diameter', value)} />
+        <Num label={g('waferDiameter')} value={values.diameter} unit="mm" onChange={(value) => update('diameter', value)} />
 
         <div className="form-row">
-          <Num label="Die width" value={values.width} unit="mm" onChange={(value) => update('width', value)} />
-          <Num label="Die height" value={values.height} unit="mm" onChange={(value) => update('height', value)} />
+          <Num label={g('dieWidth')} value={values.width} unit="mm" onChange={(value) => update('width', value)} />
+          <Num label={g('dieHeight')} value={values.height} unit="mm" onChange={(value) => update('height', value)} />
         </div>
 
-        <Num label="Street width" value={values.street} unit="mm" onChange={(value) => update('street', value)} min={0} />
-        <Num label="Edge exclusion" value={values.edge} unit="mm" onChange={(value) => update('edge', value)} min={0} />
+        <Num label={g('streetWidth')} value={values.street} unit="mm" onChange={(value) => update('street', value)} min={0} />
+        <Num label={g('edgeExclusion')} value={values.edge} unit="mm" onChange={(value) => update('edge', value)} min={0} />
 
         <p className="note">
           All lengths use millimetres. Street width is the scribe lane between two dies; the placement pitch is die size

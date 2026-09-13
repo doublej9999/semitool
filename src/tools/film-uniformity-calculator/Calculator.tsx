@@ -9,6 +9,7 @@ import SeriesField from '@/components/tools/SeriesField';
 import CsvBatchUpload from '@/components/tools/CsvBatchUpload';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL_SERIES = '100.5, 101.2, 99.4, 100.8, 102.1, 98.9, 100.0, 101.5, 99.8';
 const INITIAL_TARGET = '100';
@@ -16,6 +17,7 @@ const INITIAL_TARGET = '100';
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function FilmUniformityCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState({ series: INITIAL_SERIES, target: INITIAL_TARGET });
   useUrlParamsState(state, setState);
   const { series, target } = state;
@@ -65,7 +67,7 @@ export default function FilmUniformityCalculator() {
 
         <div className="field">
           <label htmlFor="uniformity-target">
-            Target thickness<span className="unit">nm</span>
+            {g('targetThickness')}<span className="unit">nm</span>
           </label>
           <input
             id="uniformity-target"
@@ -103,7 +105,7 @@ export default function FilmUniformityCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="uniformity-result">
-        <h2 id="uniformity-result">Uniformity</h2>
+        <h2 id="uniformity-result">{g('uniformity')}</h2>
 
         {!summary ? (
           <div className="error" role="alert">

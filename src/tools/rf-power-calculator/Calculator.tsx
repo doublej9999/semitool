@@ -16,6 +16,7 @@ import {
 } from '@/lib/power';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 type Mode = 'power' | 'voltage';
 
@@ -39,6 +40,7 @@ const INITIAL = { mode: 'power' as Mode, value: '0', powerUnit: 'dBm' as PowerUn
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function RfPowerCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -103,7 +105,7 @@ export default function RfPowerCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="rf-value">Value</label>
+            <label htmlFor="rf-value">{g('valueLabel2')}</label>
             <input
               id="rf-value"
               type="number"
@@ -113,7 +115,7 @@ export default function RfPowerCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="rf-unit">Unit</label>
+            <label htmlFor="rf-unit">{g('unitLabel')}</label>
             {state.mode === 'power' ? (
               <select
                 id="rf-unit"
@@ -173,7 +175,7 @@ export default function RfPowerCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (
@@ -189,11 +191,11 @@ export default function RfPowerCalculator() {
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Power</dt>
+                <dt>{g('powerLabel')}</dt>
                 <dd>{fmt(result.watts)} W</dd>
               </div>
               <div>
-                <dt>Power</dt>
+                <dt>{g('powerLabel')}</dt>
                 <dd>{fmt(result.milliwatts)} mW</dd>
               </div>
               <div>

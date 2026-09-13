@@ -6,6 +6,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { parseSubgroups, xbarRChart } from '@/lib/spc';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { downloadXlsx } from '@/lib/export';
+import { useGlossary } from '@/lib/i18n/glossary';
 import FabMetrologyImportModal from '@/components/tools/FabMetrologyImportModal';
 
 const SAMPLE = [
@@ -545,6 +546,7 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
 }
 
 export default function SpcControlChartCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState<SpcCalculatorState>(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
@@ -679,7 +681,7 @@ export default function SpcControlChartCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (

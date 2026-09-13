@@ -9,6 +9,7 @@ import {
 import { downloadCsv, downloadSvg } from '@/lib/export';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 import { AlertTriangle, Plus, Trash2, Download, Copy, Check } from 'lucide-react';
 
 const DEFAULT_PARAMS: RecipeParameter[] = [
@@ -66,6 +67,7 @@ const DEFAULT_SPLITS: SplitRecipe[] = [
 ];
 
 export default function SplitLotCalculator() {
+  const g = useGlossary();
   const [params, setParams] = useState<RecipeParameter[]>(DEFAULT_PARAMS);
   const [splits, setSplits] = useState<SplitRecipe[]>(DEFAULT_SPLITS);
   const [responseMeta, setResponseMeta] = useState({ baselineResponse: 480, responseLabel: 'Etch Rate', responseUnit: 'nm/min' });
@@ -250,7 +252,7 @@ export default function SplitLotCalculator() {
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left' }}>
                   <th style={{ padding: '6px 8px' }}>Parameter</th>
-                  <th style={{ padding: '6px 8px' }}>Unit</th>
+                  <th style={{ padding: '6px 8px' }}>{g('unitLabel')}</th>
                   <th style={{ padding: '6px 8px', background: 'rgba(13, 124, 130, 0.08)' }}>POR Baseline</th>
                   {splits.map((s) => (
                     <th key={s.id} style={{ padding: '6px 8px' }}>

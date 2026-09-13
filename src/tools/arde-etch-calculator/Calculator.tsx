@@ -12,6 +12,7 @@ import {
 import { downloadCsv } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 interface ArdeState {
   [key: string]: string | number | boolean;
@@ -51,6 +52,7 @@ export default function ArdeEtchCalculator() {
   const [copied, setCopied] = useState(false);
 
   useUrlParamsState(state, setState);
+  const g = useGlossary();
 
   const cdNm = state.cdUnit === 'um' ? state.cd * 1000 : state.cd;
   const depthNm = state.depthUnit === 'um' ? state.depth * 1000 : state.depth;
@@ -207,7 +209,7 @@ export default function ArdeEtchCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="cd-unit">Unit</label>
+            <label htmlFor="cd-unit">{g('unitLabel')}</label>
             <select
               id="cd-unit"
               value={state.cdUnit}
@@ -234,7 +236,7 @@ export default function ArdeEtchCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="depth-unit">Unit</label>
+            <label htmlFor="depth-unit">{g('unitLabel')}</label>
             <select
               id="depth-unit"
               value={state.depthUnit}

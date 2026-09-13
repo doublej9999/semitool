@@ -11,6 +11,7 @@ import {
 } from '@/lib/oxide';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { downloadCsv, downloadSvg } from '@/lib/export';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const MODES = [
   { id: 'grow', label: 'Time to thickness' },
@@ -44,6 +45,7 @@ export default function ThermalOxideCalculator() {
   const [state, setState] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
   useUrlParamsState(state, setState);
+  const g = useGlossary();
 
   const kineticsSvgRef = useRef<SVGSVGElement | null>(null);
   const consumptionSvgRef = useRef<SVGSVGElement | null>(null);
@@ -261,7 +263,7 @@ export default function ThermalOxideCalculator() {
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="ox-target">Target thickness (nm)</label>
+            <label htmlFor="ox-target">{g('targetThickness')} (nm)</label>
             <input
               id="ox-target"
               type="number"
@@ -309,7 +311,7 @@ export default function ThermalOxideCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!active.ok ? (
           <div className="error" role="alert">
             {active.errors.map((error) => (
@@ -319,7 +321,7 @@ export default function ThermalOxideCalculator() {
         ) : (
           <>
             <span className="unit">
-              {state.mode === 'grow' ? 'Oxide thickness' : 'Oxidation time'}
+              {state.mode === 'grow' ? g('oxideThickness') : 'Oxidation time'}
             </span>
             <div className="result-value" aria-live="polite">
               {state.mode === 'grow' && grow.ok

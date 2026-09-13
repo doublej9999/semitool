@@ -9,6 +9,7 @@ import { parseSeries, summariseSeries } from '@/lib/series';
 import CsvBatchUpload from '@/components/tools/CsvBatchUpload';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 const INITIAL = {
   series: '42.1, 41.8, 42.4\n41.9, 42.6, 42.0\n42.3, 41.7, 42.2',
   targetCd: '',
@@ -20,6 +21,7 @@ export default function CdUniformityCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const parsed = useMemo(() => parseSeries(state.series), [state.series]);
   const summary = useMemo(
@@ -104,7 +106,7 @@ export default function CdUniformityCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="cdu-result">
-        <h2 id="cdu-result">Uniformity</h2>
+        <h2 id="cdu-result">{g('uniformity')}</h2>
 
         {summary === null ? (
           <p className="note">Enter at least one valid measurement to see the statistics.</p>

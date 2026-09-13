@@ -15,6 +15,7 @@ import {
 } from '@/lib/sheet-resistance';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 type Mode = 'probe' | 'convert';
 
@@ -120,6 +121,7 @@ function Measurement<T extends string>({
 }
 
 export default function SheetResistanceCalculator() {
+  const g = useGlossary();
   const [modeState, setModeState] = useState({ mode: 'probe' as Mode });
   useUrlParamsState(modeState, setModeState);
   const mode = modeState.mode;
@@ -203,7 +205,7 @@ export default function SheetResistanceCalculator() {
           <>
             <Measurement
               id="sheet-spacing"
-              label="Probe spacing"
+              label={g('probeSpacing')}
               value={probe.spacing}
               unit={probe.spacingUnit}
               units={LENGTH_UNITS}
@@ -213,7 +215,7 @@ export default function SheetResistanceCalculator() {
             <div className="form-row">
               <Measurement
                 id="sheet-current"
-                label="Current"
+                label={g('current')}
                 value={probe.currentValue}
                 unit={probe.currentUnit}
                 units={CURRENT_UNITS}
@@ -222,7 +224,7 @@ export default function SheetResistanceCalculator() {
               />
               <Measurement
                 id="sheet-voltage"
-                label="Voltage"
+                label={g('voltage')}
                 value={probe.voltage}
                 unit={probe.voltageUnit}
                 units={VOLTAGE_UNITS}
@@ -232,7 +234,7 @@ export default function SheetResistanceCalculator() {
             </div>
             <Measurement
               id="sheet-thickness"
-              label="Film thickness"
+              label={g('filmThickness')}
               value={probe.thickness}
               unit={probe.thicknessUnit}
               units={LENGTH_UNITS}
@@ -276,7 +278,7 @@ export default function SheetResistanceCalculator() {
             </div>
             <Measurement
               id="convert-thickness"
-              label="Film thickness"
+              label={g('filmThickness')}
               value={convert.thickness}
               unit={convert.thicknessUnit}
               units={LENGTH_UNITS}

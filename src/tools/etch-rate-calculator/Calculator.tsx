@@ -6,6 +6,7 @@ import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { calculateEtch } from '@/lib/etch';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   beforeNm: '500',
@@ -24,6 +25,7 @@ export default function EtchRateCalculator() {
   useUrlParamsState(state, setState);
 
   const [copied, setCopied] = useState(false);
+  const g = useGlossary();
 
   const result = useMemo(
     () =>
@@ -95,7 +97,7 @@ export default function EtchRateCalculator() {
 
         <div className="field">
           <label htmlFor="etch-time">
-            Etch time<span className="unit">s</span>
+            {g('etchTime')}<span className="unit">s</span>
           </label>
           <input
             id="etch-time"
@@ -151,7 +153,7 @@ export default function EtchRateCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="etch-result">
-        <h2 id="etch-result">Etch rate</h2>
+        <h2 id="etch-result">{g('etchRate')}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -161,7 +163,7 @@ export default function EtchRateCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Etch rate</span>
+            <span className="unit">{g('etchRate')}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.rateNmPerMinute)}
               <span className="result-suffix"> nm/min</span>
@@ -173,7 +175,7 @@ export default function EtchRateCalculator() {
                 <strong>{fmt(result.removedNm)} nm</strong>
               </div>
               <div className="metric">
-                <span>Etch rate</span>
+                <span>{g('etchRate')}</span>
                 <strong>{fmt(result.rateNmPerSecond)} nm/s</strong>
               </div>
               <div className="metric">
@@ -182,7 +184,7 @@ export default function EtchRateCalculator() {
               </div>
               {result.selectivity !== null ? (
                 <div className="metric">
-                  <span>Selectivity</span>
+                  <span>{g('selectivity')}</span>
                   <strong>{fmt(result.selectivity)} : 1</strong>
                 </div>
               ) : null}

@@ -12,6 +12,7 @@ import {
   getMaterialIndexAt,
 } from '@/lib/optical-tmm';
 import MathFormula from '@/components/tools/MathFormulaClient';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 interface TmmStackLayer {
   id: string;
@@ -100,6 +101,7 @@ export default function TmmMode() {
   const [showR, setShowR] = useState(true);
   const [showT, setShowT] = useState(true);
   const [showA, setShowA] = useState(true);
+  const g = useGlossary();
 
   // ARC Optimizer state
   const [arcTargetWl, setArcTargetWl] = useState<number>(550);
@@ -306,7 +308,7 @@ export default function TmmMode() {
           </div>
 
           <div className="field">
-            <label htmlFor="tmm-pol">Polarization</label>
+            <label htmlFor="tmm-pol">{g('polarizationLabel')}</label>
             <select
               id="tmm-pol"
               value={tmmPolarization}

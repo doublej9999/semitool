@@ -9,6 +9,7 @@ import type { StdfParseSummary } from '@/lib/stdf-parser';
 import type { KlarfSummary } from '@/lib/klarf-parser';
 import { downloadSvg } from '@/lib/export';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 import type { WaferImportPayload } from './WaferImportPanel';
 
 /**
@@ -67,6 +68,7 @@ export default function WaferMapGenerator() {
   const [klarfSummary, setKlarfSummary] = useState<KlarfSummary | null>(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const g = useGlossary();
 
   const update = (key: keyof typeof INITIAL, value: number) => setValues((previous) => ({ ...previous, [key]: value }));
 
@@ -162,13 +164,13 @@ export default function WaferMapGenerator() {
         <h2 id="map-inputs">Wafer geometry</h2>
 
         <div className="grid">
-          <Num label="Wafer diameter" value={values.diameter} unit="mm" onChange={(val) => update('diameter', val)} min={25} />
-          <Num label="Edge exclusion" value={values.edge} unit="mm" onChange={(val) => update('edge', val)} min={0} />
+          <Num label={g('waferDiameter')} value={values.diameter} unit="mm" onChange={(val) => update('diameter', val)} min={25} />
+          <Num label={g('edgeExclusion')} value={values.edge} unit="mm" onChange={(val) => update('edge', val)} min={0} />
         </div>
 
         <div className="grid">
-          <Num label="Die width" value={values.width} unit="mm" onChange={(val) => update('width', val)} min={0.1} />
-          <Num label="Die height" value={values.height} unit="mm" onChange={(val) => update('height', val)} min={0.1} />
+          <Num label={g('dieWidth')} value={values.width} unit="mm" onChange={(val) => update('width', val)} min={0.1} />
+          <Num label={g('dieHeight')} value={values.height} unit="mm" onChange={(val) => update('height', val)} min={0.1} />
         </div>
 
         <div className="grid">

@@ -27,6 +27,7 @@ import {
 import { downloadCsv } from '@/lib/export';
 import { formatSubgroupsForSpc } from '@/lib/metrology-batch';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 import { loadCachedStdf, saveCachedStdf, type CachedStdfEntry } from './idb';
 import type { StdfParseResponse } from './stdf-worker';
 import { buildDemoStdf } from './demo';
@@ -138,6 +139,7 @@ export default function StdfKlarfExplorer() {
   const [urlState, setUrlState] = useState({ q: '' });
   useUrlParamsState(urlState, setUrlState);
   const search = urlState.q;
+  const g = useGlossary();
 
   // Best-effort look at the IndexedDB cache on mount — offered as a restore
   // button, never auto-loaded.
@@ -588,7 +590,7 @@ export default function StdfKlarfExplorer() {
                 <strong>{stdf.failedParts}</strong>
               </div>
               <div className="metric">
-                <span>Yield</span>
+                <span>{g('yieldLabel')}</span>
                 <strong style={{ color: stdf.yieldPercent >= 80 ? '#1b806a' : '#b0413a' }}>
                   {stdf.yieldPercent.toFixed(1)}%
                 </strong>
@@ -1139,6 +1141,7 @@ const CLUSTER_COLORS: Record<KlarfSummary['clusters'][number]['category'], strin
 };
 
 function KlarfView({ summary }: { summary: KlarfSummary }) {
+  const g = useGlossary();
   const classEntries = Object.entries(summary.classes)
     .map(([classNumber, count]) => ({ classNumber: Number(classNumber), count }))
     .sort((a, b) => a.classNumber - b.classNumber);
@@ -1177,7 +1180,7 @@ function KlarfView({ summary }: { summary: KlarfSummary }) {
           <strong>{summary.defectiveDieCount}</strong>
         </div>
         <div className="metric">
-          <span>Density</span>
+          <span>{g('densityLabel')}</span>
           <strong>{summary.defectDensityPerCm2}/cm²</strong>
         </div>
         <div className="metric">

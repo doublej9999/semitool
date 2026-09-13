@@ -7,6 +7,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { calculateLithography, K1_DIFFRACTION_LIMIT, MAX_IMMERSION_NA, WAVELENGTHS } from '@/lib/lithography';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   wavelengthId: 'arf',
@@ -19,6 +20,7 @@ const INITIAL = {
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function LithographyResolutionCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -75,7 +77,7 @@ export default function LithographyResolutionCalculator() {
         {state.wavelengthId === 'custom' ? (
           <div className="field">
             <label htmlFor="litho-custom-wavelength">
-              Wavelength<span className="unit">nm</span>
+              {g('wavelengthLabel')}<span className="unit">nm</span>
             </label>
             <input
               id="litho-custom-wavelength"

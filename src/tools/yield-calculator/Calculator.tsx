@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { calculateYield } from '@/lib/yield';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = { gross: 720, good: 697, defect: 23 };
 
@@ -11,6 +12,7 @@ export default function YieldCalculator() {
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
+  const g = useGlossary();
 
   const update = (key: keyof typeof INITIAL, value: number) => setValues((previous) => ({ ...previous, [key]: value }));
 
@@ -61,7 +63,7 @@ export default function YieldCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="yield-result">
-        <h2 id="yield-result">Result</h2>
+        <h2 id="yield-result">{g('resultLabel')}</h2>
 
         {hasErrors ? (
           <div className="error" role="alert">
@@ -71,7 +73,7 @@ export default function YieldCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Yield</span>
+            <span className="unit">{g('yieldLabel')}</span>
             <div className="result-value" aria-live="polite">
               {result.yield?.toFixed(2)}%
             </div>

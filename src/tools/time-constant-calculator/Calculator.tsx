@@ -17,6 +17,7 @@ import {
 } from '@/lib/time';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const RESISTANCE_UNITS = [
   { id: 'ohm', label: 'Ω', factor: 1 },
@@ -40,6 +41,7 @@ export default function TimeConstantCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -95,7 +97,7 @@ export default function TimeConstantCalculator() {
         <h2>Inputs</h2>
         <div className="form-row">
           <div className="field">
-            <label htmlFor="tau-r">Resistance</label>
+            <label htmlFor="tau-r">{g('resistance')}</label>
             <input
               id="tau-r"
               type="number"
@@ -105,7 +107,7 @@ export default function TimeConstantCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="tau-r-unit">Unit</label>
+            <label htmlFor="tau-r-unit">{g('unitLabel')}</label>
             <select
               id="tau-r-unit"
               value={state.resistanceUnit}
@@ -121,7 +123,7 @@ export default function TimeConstantCalculator() {
         </div>
         <div className="form-row">
           <div className="field">
-            <label htmlFor="tau-c">Capacitance</label>
+            <label htmlFor="tau-c">{g('capacitance')}</label>
             <input
               id="tau-c"
               type="number"
@@ -131,7 +133,7 @@ export default function TimeConstantCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="tau-c-unit">Unit</label>
+            <label htmlFor="tau-c-unit">{g('unitLabel')}</label>
             <select
               id="tau-c-unit"
               value={state.capacitanceUnit}
@@ -162,7 +164,7 @@ export default function TimeConstantCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (

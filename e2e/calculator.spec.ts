@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers';
 
 /**
  * URL-state smoke for a calculator: inputs debounce-sync into the query

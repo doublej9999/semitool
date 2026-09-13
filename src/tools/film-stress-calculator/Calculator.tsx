@@ -8,6 +8,7 @@ import { calculateFilmStress, BIAXIAL_PRESETS, radiusFromBow } from '@/lib/stres
 import { LENGTH_LABELS, LENGTH_UNITS, toMm, type LengthUnit } from '@/lib/units';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 type Direction = 'tensile' | 'compressive';
 type CurvatureMode = 'radius' | 'bow';
@@ -34,6 +35,7 @@ export default function FilmStressCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const bowResult = useMemo(
     () => radiusFromBow(num(state.scanLength) / 1000, num(state.bow) / 1e6),
@@ -76,7 +78,7 @@ export default function FilmStressCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="stress-film">
-              Film thickness<span className="unit">{LENGTH_LABELS[state.filmUnit]}</span>
+              {g('filmThickness')}<span className="unit">{LENGTH_LABELS[state.filmUnit]}</span>
             </label>
             <div className="inline-field">
               <input
@@ -103,7 +105,7 @@ export default function FilmStressCalculator() {
           </div>
           <div className="field">
             <label htmlFor="stress-substrate">
-              Substrate thickness<span className="unit">{LENGTH_LABELS[state.substrateUnit]}</span>
+              {g('substrateThickness')}<span className="unit">{LENGTH_LABELS[state.substrateUnit]}</span>
             </label>
             <div className="inline-field">
               <input
@@ -233,7 +235,7 @@ export default function FilmStressCalculator() {
             </div>
             <div className="field">
               <label htmlFor="stress-bow">
-                Bow<span className="unit">um</span>
+                {g('bowHeight')}<span className="unit">um</span>
               </label>
               <input
                 id="stress-bow"
@@ -272,7 +274,7 @@ export default function FilmStressCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="stress-result">
-        <h2 id="stress-result">Film stress</h2>
+        <h2 id="stress-result">{g('filmStress')}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -282,7 +284,7 @@ export default function FilmStressCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Film stress</span>
+            <span className="unit">{g('filmStress')}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.stressPa / 1e6)}
               <span className="result-suffix"> MPa</span>

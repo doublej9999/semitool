@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers';
 
 /**
  * STDF/KLARF Explorer smoke: the synthetic demo must produce the yield

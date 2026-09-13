@@ -126,6 +126,8 @@ Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-reac
 
 All calculations are client-side. There is no account, database, payment or server-side compute.
 
+The interface theme is light / dark / system, with a no-flash inline bootstrap that paints `<html data-theme>` before first render. The app is a PWA: a service worker precaches core assets and an offline fallback page covers navigations the cache misses.
+
 ## Architecture
 
 ```
@@ -212,7 +214,7 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 
 ## Internationalization (i18n)
 
-Five locales — English, 简体中文, 繁體中文, 한국어 and 日本語 — with client-side switching (no per-locale routes). Shell/UI strings live in `src/lib/i18n/dictionaries/` and per-tool strings in `src/lib/i18n/tool-dictionaries/`; both are split one file per locale and loaded lazily, so a visitor downloads only their own language. Search, the command palette, tool pages and the modals are all localized.
+Five locales — English, 简体中文, 繁體中文, 한국어 and 日本語 — with client-side switching (no per-locale routes). Shell/UI strings live in `src/lib/i18n/dictionaries/` and per-tool strings in `src/lib/i18n/tool-dictionaries/`; both are split one file per locale and loaded lazily, so a visitor downloads only their own language. Search, the command palette, tool pages and the modals are all localized. A shared fab-term glossary (`src/lib/i18n/glossary/`, ~110 terms) backs `useGlossary()`, which calculators use to pull common field and process labels from one translated table instead of hardcoding English.
 
 ## Fab Workspace
 
@@ -233,7 +235,8 @@ Everything shares one fab session (`semitools_fab_session_v1` in `localStorage`)
 ## Data import & export
 
 - **Export:** CSV from the data tools, SVG from the wafer map, and real XLSX (ExcelJS) / PDF (jsPDF) downloads where a file beats a clipboard copy; `src/lib/export.ts` is the shared implementation.
-- **Import:** ATE STDF V4 and KLARF 1.x files parse in the browser — a wafer map on the wafer-map generator and full per-test statistics, bin distribution and yield in the STDF / KLARF Explorer.
+- **Import:** ATE STDF V4 and KLARF 1.x files parse in the browser — a wafer map on the wafer-map generator and full per-test statistics, bin distribution and yield in the STDF / KLARF Explorer. STDF parsing runs in a background Web Worker and the last file is cached in IndexedDB, so the explorer reopens with the previous load.
+- **Correlation:** A PTR-vs-PTR view in the STDF / KLARF Explorer aligns two parametric tests by part and reports the Pearson correlation, with the strongest test pairs ranked.
 - **Metrology CSV import** parses subgroup matrices and long wafer-site tables, auto-detects target / limits / unit, screens outliers (Tukey IQR or 3-sigma) and bridges the cleaned statistics into the SPC and process-capability tools.
 
 ## Accuracy policy
@@ -285,6 +288,8 @@ npm run build   # production build
 npm run start   # serve the production build
 npm run lint    # ESLint
 npm run test    # Vitest: 82 test files / 690+ tests across lib, registry, i18n, parsers and components
+npm run analyze # bundle analysis (@next/bundle-analyzer)
+npm run e2e     # Playwright E2E smoke suite (10 specs across 5 files); `npm run e2e:ui` opens the UI runner
 ```
 
 CI (`.github/workflows/ci.yml`) runs lint, test and build on every push and pull request.

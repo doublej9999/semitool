@@ -11,6 +11,7 @@ import {
 } from '@/lib/wafer-area';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   diameter: '300',
@@ -39,6 +40,7 @@ export default function WaferAreaCalculator() {
   const measured = measuredState.measured;
   const setMeasured = (value: string) => setMeasuredState({ measured: value });
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const result = useMemo(
     () =>
@@ -84,7 +86,7 @@ export default function WaferAreaCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="wafer-area-diameter">Wafer diameter</label>
+            <label htmlFor="wafer-area-diameter">{g('waferDiameter')}</label>
             <div className="inline-field">
               <input
                 id="wafer-area-diameter"
@@ -110,7 +112,7 @@ export default function WaferAreaCalculator() {
           </div>
 
           <div className="field">
-            <label htmlFor="wafer-area-exclusion">Edge exclusion</label>
+            <label htmlFor="wafer-area-exclusion">{g('edgeExclusion')}</label>
             <div className="inline-field">
               <input
                 id="wafer-area-exclusion"
@@ -138,7 +140,7 @@ export default function WaferAreaCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="wafer-area-die-w">Die width</label>
+            <label htmlFor="wafer-area-die-w">{g('dieWidth')}</label>
             <div className="inline-field">
               <input
                 id="wafer-area-die-w"
@@ -165,7 +167,7 @@ export default function WaferAreaCalculator() {
 
           <div className="field">
             <label htmlFor="wafer-area-die-h">
-              Die height<span className="unit">{values.dieUnit}</span>
+              {g('dieHeight')}<span className="unit">{values.dieUnit}</span>
             </label>
             <input
               id="wafer-area-die-h"
@@ -231,7 +233,7 @@ export default function WaferAreaCalculator() {
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Wafer area</span>
+                <span>{g('waferArea')}</span>
                 <strong>{fmt(result.waferAreaCm2)} cm&#178;</strong>
               </div>
               <div className="metric">
@@ -243,7 +245,7 @@ export default function WaferAreaCalculator() {
                 <strong>{result.edgeLossPercent.toFixed(2)}%</strong>
               </div>
               <div className="metric">
-                <span>Die area</span>
+                <span>{g('dieArea')}</span>
                 <strong>{fmt(result.dieAreaCm2)} cm&#178;</strong>
               </div>
             </div>
@@ -265,13 +267,13 @@ export default function WaferAreaCalculator() {
               <thead>
                 <tr>
                   <th scope="col">Quantity</th>
-                  <th scope="col">Value</th>
+                  <th scope="col">{g('valueLabel2')}</th>
                   <th scope="col">How it is obtained</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Wafer area</th>
+                  <th scope="row">{g('waferArea')}</th>
                   <td className="mono">{fmt(result.waferAreaCm2)} cm&#178;</td>
                   <td className="mono">&#960; r&#178;</td>
                 </tr>
@@ -281,7 +283,7 @@ export default function WaferAreaCalculator() {
                   <td className="mono">&#960; (r &#8722; e)&#178;</td>
                 </tr>
                 <tr>
-                  <th scope="row">Die area</th>
+                  <th scope="row">{g('dieArea')}</th>
                   <td className="mono">{fmt(result.dieAreaCm2)} cm&#178;</td>
                   <td className="mono">width &#215; height</td>
                 </tr>

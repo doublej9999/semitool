@@ -6,6 +6,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { microstripAnalyze, microstripSynthesize, SPEED_OF_LIGHT_MPS } from '@/lib/tline';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 type Mode = 'analyze' | 'synthesize';
 
@@ -26,6 +27,7 @@ const INITIAL = {
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function MicrostripCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -156,7 +158,7 @@ export default function MicrostripCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="ms-freq">Frequency (GHz)</label>
+          <label htmlFor="ms-freq">{g('frequencyLabel')} (GHz)</label>
           <input
             id="ms-freq"
             type="number"
@@ -183,7 +185,7 @@ export default function MicrostripCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (
@@ -192,7 +194,7 @@ export default function MicrostripCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">{result.mode === 'synthesize' ? 'Trace width' : 'Impedance'}</span>
+            <span className="unit">{result.mode === 'synthesize' ? 'Trace width' : g('impedanceLabel')}</span>
             <div className="result-value" aria-live="polite">
               {result.mode === 'synthesize' ? fmt(result.widthUm) : fmt(result.z0Ohm)}
               <span className="result-suffix">{result.mode === 'synthesize' ? ' µm' : ' Ω'}</span>

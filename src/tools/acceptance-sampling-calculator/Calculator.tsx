@@ -6,6 +6,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { acceptProbability, ocCurve, solveZeroAcceptSample } from '@/lib/sampling';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 type Mode = 'evaluate' | 'solve';
 
@@ -31,6 +32,7 @@ export default function AcceptanceSamplingCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy: copyResult } = useCopyToClipboard();
+  const g = useGlossary();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -161,7 +163,7 @@ export default function AcceptanceSamplingCalculator() {
         {state.mode === 'evaluate' ? (
           <>
             <div className="field">
-              <label htmlFor="as-n">Sample size</label>
+              <label htmlFor="as-n">{g('sampleSize')}</label>
               <input
                 id="as-n"
                 type="number"
@@ -232,7 +234,7 @@ export default function AcceptanceSamplingCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (
@@ -270,7 +272,7 @@ export default function AcceptanceSamplingCalculator() {
               ) : (
                 <>
                   <div>
-                    <dt>Sample size</dt>
+                    <dt>{g('sampleSize')}</dt>
                     <dd>{fmt(result.sampleSize)}</dd>
                   </div>
                   <div>

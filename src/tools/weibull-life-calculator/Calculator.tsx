@@ -6,6 +6,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { fitWeibull, weibullReliability, weibullUnreliability } from '@/lib/weibull';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const SAMPLE = ['50', '100', '150', '200', '250', '300'].join('\n');
 
@@ -371,6 +372,7 @@ export default function WeibullLifeCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -455,7 +457,7 @@ export default function WeibullLifeCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (

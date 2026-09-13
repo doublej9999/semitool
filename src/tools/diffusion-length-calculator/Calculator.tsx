@@ -7,6 +7,7 @@ import { formatNumber as fmt } from '@/lib/format';
 import { calculateDiffusion } from '@/lib/diffusion';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const TIME_UNITS = [
   { id: 's', label: 'seconds', seconds: 1 },
@@ -22,6 +23,7 @@ export default function DiffusionLengthCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy: copyResult } = useCopyToClipboard();
+  const g = useGlossary();
 
   const unit = TIME_UNITS.find((entry) => entry.id === state.timeUnit) ?? TIME_UNITS[0];
   const timeSeconds = num(state.time) * unit.seconds;
@@ -77,7 +79,7 @@ export default function DiffusionLengthCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="diff-unit">Unit</label>
+            <label htmlFor="diff-unit">{g('unitLabel')}</label>
             <select
               id="diff-unit"
               value={state.timeUnit}
@@ -108,7 +110,7 @@ export default function DiffusionLengthCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {!result.ok ? (
           <div className="error" role="alert">
             {result.errors.map((error) => (

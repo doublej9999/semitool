@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { calculateDieCost } from '@/lib/die-cost';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = { waferCost: 3000, extraCostPerWafer: 0, grossDie: 720, goodDie: 697 };
 
@@ -15,6 +16,7 @@ export default function DieCostCalculator() {
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
+  const g = useGlossary();
 
   const result = useMemo(() => calculateDieCost(values), [values]);
 
@@ -141,7 +143,7 @@ export default function DieCostCalculator() {
                 <strong>{money(result.costPerGrossDie, 4)}</strong>
               </div>
               <div className="metric">
-                <span>Yield</span>
+                <span>{g('yieldLabel')}</span>
                 <strong>{result.yieldPercent.toFixed(2)}%</strong>
               </div>
               <div className="metric">

@@ -6,6 +6,7 @@ import { Copy, RotateCcw } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { calculateArrhenius, extractActivationEnergy } from '@/lib/arrhenius';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const MODES = [
   { id: 'predict', label: 'Predict a rate at a temperature' },
@@ -28,6 +29,7 @@ export default function ArrheniusCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
+  const g = useGlossary();
 
   const update = (key: keyof typeof INITIAL, value: string) =>
     setState((previous) => ({ ...previous, [key]: value }));
@@ -219,7 +221,7 @@ export default function ArrheniusCalculator() {
       </section>
 
       <section className="panel">
-        <h2>Result</h2>
+        <h2>{g('resultLabel')}</h2>
         {state.mode === 'predict' ? (
           !predict.ok ? (
             <div className="error" role="alert">
