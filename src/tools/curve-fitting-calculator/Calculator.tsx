@@ -10,7 +10,7 @@ import {
   type DealGroveFitResult,
   type LinearRegressionResult,
 } from '@/lib/curve-fitting';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadSvg, downloadXlsx } from '@/lib/export';
 import { Download, Copy, Check, Info } from 'lucide-react';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
@@ -83,34 +83,58 @@ export default function CurveFittingCalculator() {
     return linearRegression(rawPoints);
   }, [mode, rawPoints]);
 
-  const exportFitCsv = () => {
+  const buildExportRows = () => {
     if (mode === 'arrhenius' && arrheniusResult) {
-      const headers = ['Temp (°C)', 'Temp (K)', '1000/T (K⁻¹)', 'Measured Rate', 'ln(Rate)', 'Predicted Rate'];
-      const rows = arrheniusResult.points.map((pt) => [
-        pt.tempC,
-        pt.tempK.toFixed(2),
-        pt.invTK.toFixed(4),
-        pt.rate,
-        pt.lnRate.toFixed(4),
-        pt.predictedRate.toFixed(4),
-      ]);
-      downloadCsv('arrhenius_fit_results.csv', headers, rows);
-    } else if (mode === 'deal-grove' && dealGroveResult) {
-      const headers = ['Oxidation Time (hr)', 'Oxide Thickness (μm)', 'Deal-Grove Predicted Time (hr)'];
-      const rows = dealGroveResult.points.map((pt) => [
-        pt.timeHours,
-        pt.thicknessUm,
-        pt.predictedTimeHours.toFixed(4),
-      ]);
-      downloadCsv('deal_grove_fit_results.csv', headers, rows);
-    } else if (mode === 'linear' && linearResult) {
-      const headers = ['X', 'Y', 'Predicted Y', 'Residual (Y - Y_pred)'];
-      const rows = rawPoints.map((pt) => {
-        const yPred = linearResult.slope * pt.x + linearResult.intercept;
-        return [pt.x, pt.y, yPred.toFixed(4), (pt.y - yPred).toFixed(4)];
-      });
-      downloadCsv('linear_regression_results.csv', headers, rows);
+      return {
+        filename: 'arrhenius_fit_results',
+        sheetName: 'Arrhenius Fit',
+        headers: ['Temp (°C)', 'Temp (K)', '1000/T (K⁻¹)', 'Measured Rate', 'ln(Rate)', 'Predicted Rate'],
+        rows: arrheniusResult.points.map((pt) => [
+          pt.tempC,
+          pt.tempK.toFixed(2),
+          pt.invTK.toFixed(4),
+          pt.rate,
+          pt.lnRate.toFixed(4),
+          pt.predictedRate.toFixed(4),
+        ]),
+      };
     }
+    if (mode === 'deal-grove' && dealGroveResult) {
+      return {
+        filename: 'deal_grove_fit_results',
+        sheetName: 'Deal-Grove Fit',
+        headers: ['Oxidation Time (hr)', 'Oxide Thickness (μm)', 'Deal-Grove Predicted Time (hr)'],
+        rows: dealGroveResult.points.map((pt) => [
+          pt.timeHours,
+          pt.thicknessUm,
+          pt.predictedTimeHours.toFixed(4),
+        ]),
+      };
+    }
+    if (mode === 'linear' && linearResult) {
+      return {
+        filename: 'linear_regression_results',
+        sheetName: 'Linear Regression',
+        headers: ['X', 'Y', 'Predicted Y', 'Residual (Y - Y_pred)'],
+        rows: rawPoints.map((pt) => {
+          const yPred = linearResult.slope * pt.x + linearResult.intercept;
+          return [pt.x, pt.y, yPred.toFixed(4), (pt.y - yPred).toFixed(4)];
+        }),
+      };
+    }
+    return null;
+  };
+
+  const exportFitCsv = () => {
+    const data = buildExportRows();
+    if (!data) return;
+    downloadCsv(data.filename, data.headers, data.rows);
+  };
+
+  const exportFitXlsx = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadXlsx(`${data.filename}.xlsx`, data.sheetName, data.headers, data.rows);
   };
 
   const copySummary = () => {
@@ -220,6 +244,14 @@ export default function CurveFittingCalculator() {
                 title="Export regression data as CSV"
               >
                 <Download size={13} /> CSV
+              </button>
+              <button
+                type="button"
+                className="button secondary sm"
+                onClick={exportFitXlsx}
+                title="Export regression data as XLSX"
+              >
+                <Download size={13} /> XLSX
               </button>
             </div>
           </div>

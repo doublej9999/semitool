@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Wifi, WifiOff, DownloadCloud, RefreshCw, HardDrive } from 'lucide-react';
+import { WifiOff, DownloadCloud, RefreshCw } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 
@@ -15,7 +15,9 @@ export default function PwaStatusIndicator() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [hasUpdate, setHasUpdate] = useState(false);
-  const [cacheSizeMb, setCacheSizeMb] = useState<number | null>(null);
+  // The storage-estimate value is tracked for future display; only the setter
+  // is consumed by the effect below, so the value slot is intentionally elided.
+  const [, setCacheSizeMb] = useState<number | null>(null);
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const locale = useLocale();
   const t = getTranslation(locale);

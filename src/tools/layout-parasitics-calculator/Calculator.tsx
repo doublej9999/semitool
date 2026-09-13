@@ -4,7 +4,7 @@ import { useId, useMemo, useState } from 'react';
 import { Download } from 'lucide-react';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
-import { downloadCsv } from '@/lib/export';
+import { downloadCsv, downloadPdf, downloadXlsx } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import {
   DIELECTRICS,
@@ -135,34 +135,94 @@ export default function LayoutParasiticsCalculator() {
     void copy(lines.join('\n'));
   };
 
-  const exportCsvFile = () => {
+  const buildExportRows = () => {
     const r = results.resistance;
     const c = results.capacitance;
-    downloadCsv('layout-parasitics-estimate.csv', ['parameter', 'value', 'unit'], [
-      ['material', r.materialLabel, 'string'],
-      ['dielectric', dielectric.label, 'string'],
-      ['dielectric_k', dielectric.k, 'relative'],
-      ['length', state.lengthUm, 'um'],
-      ['width', state.widthUm, 'um'],
-      ['metal_thickness', state.thicknessUm, 'um'],
-      ['neighbour_spacing', c.spacingUm, 'um'],
-      ['ild_height', c.dielectricThicknessUm, 'um'],
-      ['temperature', r.temperatureC, 'C'],
-      ['effective_resistivity', r.effectiveResistivityUohmCm !== null ? r.effectiveResistivityUohmCm.toFixed(4) : 'N/A', 'uohm_cm'],
-      ['sheet_resistance', r.sheetResistanceOhmSq.toFixed(6), 'ohm_per_sq'],
-      ['squares', r.squares.toFixed(4), 'L/W'],
-      ['line_resistance', r.resistanceOhm.toFixed(6), 'ohm'],
-      ['plate_capacitance', (c.plateCapacitanceF * 1e15).toFixed(6), 'fF'],
-      ['fringe_capacitance', (c.fringeCapacitanceF * 1e15).toFixed(6), 'fF'],
-      ['total_capacitance', c.capacitanceFf.toFixed(6), 'fF'],
-      ['fringe_fraction', (c.fringeFraction * 100).toFixed(2), 'percent'],
-      ['current', state.currentMa, 'mA'],
-      ['ir_drop', results.irDrop.voltageDropMv.toFixed(4), 'mV'],
-      ['ir_drop_of_vdd', dropPercent !== null ? dropPercent.toFixed(2) : 'N/A', 'percent'],
-      ['rc_time_constant', (results.rcDelay.rcTimeConstantS * 1e12).toFixed(4), 'ps'],
-      ['prop_delay_50pct_0.69RC', results.rcDelay.propDelay50Ps.toFixed(4), 'ps'],
-      ['rise_time_10_90_0.35RC', results.rcDelay.riseTime10To90Ps.toFixed(4), 'ps'],
-    ]);
+    return {
+      headers: ['parameter', 'value', 'unit'],
+      rows: [
+        ['material', r.materialLabel, 'string'],
+        ['dielectric', dielectric.label, 'string'],
+        ['dielectric_k', dielectric.k, 'relative'],
+        ['length', state.lengthUm, 'um'],
+        ['width', state.widthUm, 'um'],
+        ['metal_thickness', state.thicknessUm, 'um'],
+        ['neighbour_spacing', c.spacingUm, 'um'],
+        ['ild_height', c.dielectricThicknessUm, 'um'],
+        ['temperature', r.temperatureC, 'C'],
+        ['effective_resistivity', r.effectiveResistivityUohmCm !== null ? r.effectiveResistivityUohmCm.toFixed(4) : 'N/A', 'uohm_cm'],
+        ['sheet_resistance', r.sheetResistanceOhmSq.toFixed(6), 'ohm_per_sq'],
+        ['squares', r.squares.toFixed(4), 'L/W'],
+        ['line_resistance', r.resistanceOhm.toFixed(6), 'ohm'],
+        ['plate_capacitance', (c.plateCapacitanceF * 1e15).toFixed(6), 'fF'],
+        ['fringe_capacitance', (c.fringeCapacitanceF * 1e15).toFixed(6), 'fF'],
+        ['total_capacitance', c.capacitanceFf.toFixed(6), 'fF'],
+        ['fringe_fraction', (c.fringeFraction * 100).toFixed(2), 'percent'],
+        ['current', state.currentMa, 'mA'],
+        ['ir_drop', results.irDrop.voltageDropMv.toFixed(4), 'mV'],
+        ['ir_drop_of_vdd', dropPercent !== null ? dropPercent.toFixed(2) : 'N/A', 'percent'],
+        ['rc_time_constant', (results.rcDelay.rcTimeConstantS * 1e12).toFixed(4), 'ps'],
+        ['prop_delay_50pct_0.69RC', results.rcDelay.propDelay50Ps.toFixed(4), 'ps'],
+        ['rise_time_10_90_0.35RC', results.rcDelay.riseTime10To90Ps.toFixed(4), 'ps'],
+      ] as (string | number)[][],
+    };
+  };
+
+  const exportCsvFile = () => {
+    const { headers, rows } = buildExportRows();
+    downloadCsv('layout-parasitics-estimate.csv', headers, rows);
+  };
+
+  const exportXlsxFile = async () => {
+    const { headers, rows } = buildExportRows();
+    await downloadXlsx('layout-parasitics-estimate.xlsx', 'Parasitics Estimate', headers, rows);
+  };
+
+  const exportPdfFile = async () => {
+    const { headers, rows } = buildExportRows();
+    await downloadPdf('layout-parasitics-estimate.pdf', 'IC Layout Parasitics Estimate', (doc) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let y = margin;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('IC Layout Parasitics Estimate', pageWidth / 2, y + 5, { align: 'center' });
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(`Generated ${new Date().toLocaleString()}`, pageWidth / 2, y, { align: 'center' });
+      y += 7;
+
+      const contentWidth = pageWidth - margin * 2;
+      const colWidths = headers.map(() => contentWidth / headers.length);
+      doc.setFontSize(7.5);
+      const drawRow = (cells: string[], bold: boolean) => {
+        const cellLines = cells.map((cell, i) =>
+          doc.splitTextToSize(cell, colWidths[i] - 3) as string[],
+        );
+        const rowHeight = Math.max(1, ...cellLines.map((l) => l.length)) * 3.4 + 2.6;
+        if (y + rowHeight > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        cells.forEach((_, i) => {
+          const x = margin + i * colWidths[i];
+          if (bold) {
+            doc.setFillColor(241, 245, 249);
+            doc.rect(x, y, colWidths[i], rowHeight, 'F');
+          }
+          doc.rect(x, y, colWidths[i], rowHeight, 'S');
+          cellLines[i].forEach((line, li) => doc.text(line, x + 1.5, y + 2 + (li + 0.75) * 3.4));
+        });
+        y += rowHeight;
+      };
+
+      drawRow(headers, true);
+      rows.forEach((row) => drawRow(row.map(String), false));
+    });
   };
 
   return (
@@ -293,6 +353,14 @@ export default function LayoutParasiticsCalculator() {
           <button type="button" className="btn btn-secondary" onClick={exportCsvFile}>
             <Download size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
             Export CSV
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={exportXlsxFile}>
+            <Download size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
+            Export XLSX
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={exportPdfFile}>
+            <Download size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
+            Export PDF
           </button>
         </div>
       </section>

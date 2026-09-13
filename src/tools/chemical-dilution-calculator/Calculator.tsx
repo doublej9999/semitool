@@ -10,7 +10,7 @@ import {
   type WetBenchRecipePreset,
 } from '@/lib/chemical-dilution';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadPdf, downloadSvg, downloadXlsx } from '@/lib/export';
 import { useGlossary } from '@/lib/i18n/glossary';
 
 const PALETTE = ['#0284c7', '#0d9488', '#ea580c', '#d97706', '#6366f1', '#ec4899'];
@@ -168,45 +168,112 @@ export default function ChemicalDilutionCalculator() {
       setCopied(false);
     }
   };
-  const handleExportCsv = () => {
+  const buildExportRows = () => {
     if (state.mode === 'recipe' && recipeResult) {
-      const headers = [
-        'Component',
-        'Chemical Key',
-        'Ratio Parts',
-        'Volume (mL)',
-        'Volume (L)',
-        'Volume Percent (%)',
-        'Total Mass (g)',
-        'Active Chemical Mass (g)',
-        'Effective Wt Percent (%)',
-      ];
-      const rows = recipeResult.components.map((c) => [
-        c.name,
-        c.chemicalKey,
-        c.ratioPart,
-        c.volumeMl.toFixed(1),
-        c.volumeLiters.toFixed(4),
-        c.volumePct.toFixed(2),
-        c.massGrams.toFixed(1),
-        c.activeChemicalMassGrams.toFixed(1),
-        c.effectiveConcentrationWtPct.toFixed(2),
-      ]);
-      downloadCsv(`recipe_${recipeResult.recipeName.replace(/[^a-zA-Z0-9_-]/g, '_')}_${recipeResult.totalVolumeLiters}L`, headers, rows);
-    } else if (state.mode === 'c1v1' && c1v1Result) {
-      const headers = ['Parameter', 'Value', 'Unit'];
-      const rows = [
-        ['Stock Concentration (C1)', c1v1Result.stockConcentration, '%'],
-        ['Target Concentration (C2)', c1v1Result.targetConcentration, '%'],
-        ['Target Volume (V2)', c1v1Result.targetVolumeLiters, 'L'],
-        ['Required Stock Volume (V1)', c1v1Result.stockVolumeMl.toFixed(1), 'mL'],
-        ['Required Stock Volume (V1, L)', c1v1Result.stockVolumeLiters.toFixed(4), 'L'],
-        ['Required DI Water Volume', c1v1Result.solventWaterVolumeMl.toFixed(1), 'mL'],
-        ['Required DI Water Volume (L)', c1v1Result.solventWaterVolumeLiters.toFixed(4), 'L'],
-        ['Dilution Factor', c1v1Result.dilutionFactor.toFixed(2), 'x'],
-      ];
-      downloadCsv(`c1v1_dilution_${c1v1Result.stockConcentration}pct_to_${c1v1Result.targetConcentration}pct`, headers, rows);
+      return {
+        filename: `recipe_${recipeResult.recipeName.replace(/[^a-zA-Z0-9_-]/g, '_')}_${recipeResult.totalVolumeLiters}L`,
+        sheetName: 'Recipe Components',
+        title: `Wet Bench Recipe: ${recipeResult.recipeName}`,
+        headers: [
+          'Component',
+          'Chemical Key',
+          'Ratio Parts',
+          'Volume (mL)',
+          'Volume (L)',
+          'Volume Percent (%)',
+          'Total Mass (g)',
+          'Active Chemical Mass (g)',
+          'Effective Wt Percent (%)',
+        ],
+        rows: recipeResult.components.map((c) => [
+          c.name,
+          c.chemicalKey,
+          c.ratioPart,
+          c.volumeMl.toFixed(1),
+          c.volumeLiters.toFixed(4),
+          c.volumePct.toFixed(2),
+          c.massGrams.toFixed(1),
+          c.activeChemicalMassGrams.toFixed(1),
+          c.effectiveConcentrationWtPct.toFixed(2),
+        ]),
+      };
     }
+    if (state.mode === 'c1v1' && c1v1Result) {
+      return {
+        filename: `c1v1_dilution_${c1v1Result.stockConcentration}pct_to_${c1v1Result.targetConcentration}pct`,
+        sheetName: 'C1V1 Dilution',
+        title: 'Chemical Dilution (C1·V1 = C2·V2)',
+        headers: ['Parameter', 'Value', 'Unit'],
+        rows: [
+          ['Stock Concentration (C1)', c1v1Result.stockConcentration, '%'],
+          ['Target Concentration (C2)', c1v1Result.targetConcentration, '%'],
+          ['Target Volume (V2)', c1v1Result.targetVolumeLiters, 'L'],
+          ['Required Stock Volume (V1)', c1v1Result.stockVolumeMl.toFixed(1), 'mL'],
+          ['Required Stock Volume (V1, L)', c1v1Result.stockVolumeLiters.toFixed(4), 'L'],
+          ['Required DI Water Volume', c1v1Result.solventWaterVolumeMl.toFixed(1), 'mL'],
+          ['Required DI Water Volume (L)', c1v1Result.solventWaterVolumeLiters.toFixed(4), 'L'],
+          ['Dilution Factor', c1v1Result.dilutionFactor.toFixed(2), 'x'],
+        ],
+      };
+    }
+    return null;
+  };
+  const handleExportCsv = () => {
+    const data = buildExportRows();
+    if (!data) return;
+    downloadCsv(data.filename, data.headers, data.rows);
+  };
+  const handleExportXlsx = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadXlsx(`${data.filename}.xlsx`, data.sheetName, data.headers, data.rows);
+  };
+  const handleExportPdf = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadPdf(`${data.filename}.pdf`, data.title, (doc) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let y = margin;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(data.title, pageWidth / 2, y + 5, { align: 'center' });
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(`Generated ${new Date().toLocaleString()}`, pageWidth / 2, y, { align: 'center' });
+      y += 7;
+
+      const contentWidth = pageWidth - margin * 2;
+      const colWidths = data.headers.map(() => contentWidth / data.headers.length);
+      doc.setFontSize(7.5);
+      const drawRow = (cells: string[], bold: boolean) => {
+        const cellLines = cells.map((cell, i) =>
+          doc.splitTextToSize(cell, colWidths[i] - 3) as string[],
+        );
+        const rowHeight = Math.max(1, ...cellLines.map((l) => l.length)) * 3.4 + 2.6;
+        if (y + rowHeight > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        cells.forEach((_, i) => {
+          const x = margin + i * colWidths[i];
+          if (bold) {
+            doc.setFillColor(241, 245, 249);
+            doc.rect(x, y, colWidths[i], rowHeight, 'F');
+          }
+          doc.rect(x, y, colWidths[i], rowHeight, 'S');
+          cellLines[i].forEach((line, li) => doc.text(line, x + 1.5, y + 2 + (li + 0.75) * 3.4));
+        });
+        y += rowHeight;
+      };
+
+      drawRow(data.headers, true);
+      data.rows.forEach((row) => drawRow(row.map(String), false));
+    });
   };
   const handleExportSvg = () => {
     if (svgRef.current) {
@@ -371,6 +438,20 @@ export default function ChemicalDilutionCalculator() {
             onClick={handleExportCsv}
           >
             <Download size={14} aria-hidden="true" /> Export CSV
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={handleExportXlsx}
+          >
+            <Download size={14} aria-hidden="true" /> Export XLSX
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={handleExportPdf}
+          >
+            <Download size={14} aria-hidden="true" /> Export PDF
           </button>
           <button
             className="button secondary"

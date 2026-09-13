@@ -28,14 +28,12 @@ export function linearRegression(points: DataPoint[]): LinearRegressionResult | 
   let sumY = 0;
   let sumXY = 0;
   let sumX2 = 0;
-  let sumY2 = 0;
 
   for (const { x, y } of valid) {
     sumX += x;
     sumY += y;
     sumXY += x * y;
     sumX2 += x * x;
-    sumY2 += y * y;
   }
 
   const denom = n * sumX2 - sumX * sumX;

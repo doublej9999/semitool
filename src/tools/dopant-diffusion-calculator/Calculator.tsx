@@ -12,7 +12,7 @@ import {
   calculateMinimumOxideMaskThickness,
   erfc,
 } from '@/lib/dopant-diffusion';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadSvg, downloadXlsx } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
 
@@ -190,10 +190,10 @@ export default function DopantDiffusionCalculator() {
     };
   }, [state, predepResult, driveInResult, D_Si, timeSeconds]);
 
-  const handleExportProfileCsv = () => {
+  const buildProfileExportRows = () => {
     const isPredep = state.processType === 'predeposition';
     const active = isPredep ? predepResult : driveInResult;
-    if (!active || !chartData) return;
+    if (!active || !chartData) return null;
 
     const cb = Number.parseFloat(state.backgroundDopingCm3) || 1e16;
     const headers = [
@@ -210,10 +210,27 @@ export default function DopantDiffusionCalculator() {
       (p.concentrationCm3 / active.surfaceConcentrationCm3).toExponential(4),
       (p.concentrationCm3 / cb).toFixed(3),
     ]);
+    return { headers, rows };
+  };
+
+  const handleExportProfileCsv = () => {
+    const data = buildProfileExportRows();
+    if (!data) return;
     downloadCsv(
       `dopant_profile_${state.dopant}_${state.processType}_${state.tempCelsius}C_${state.timeMinutes}min`,
-      headers,
-      rows
+      data.headers,
+      data.rows
+    );
+  };
+
+  const handleExportProfileXlsx = async () => {
+    const data = buildProfileExportRows();
+    if (!data) return;
+    await downloadXlsx(
+      `dopant_profile_${state.dopant}_${state.processType}_${state.tempCelsius}C_${state.timeMinutes}min.xlsx`,
+      'Dopant Profile',
+      data.headers,
+      data.rows
     );
   };
 
@@ -534,6 +551,15 @@ export default function DopantDiffusionCalculator() {
                     >
                       <Download size={13} aria-hidden="true" />
                       <span>Export CSV</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      style={{ fontSize: '0.78rem', padding: '4px 10px' }}
+                      onClick={handleExportProfileXlsx}
+                    >
+                      <Download size={13} aria-hidden="true" />
+                      <span>Export XLSX</span>
                     </button>
                     <button
                       type="button"

@@ -10,7 +10,7 @@ import {
   type OxideRegime,
 } from '@/lib/oxide';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadSvg, downloadXlsx } from '@/lib/export';
 import { useGlossary } from '@/lib/i18n/glossary';
 
 const MODES = [
@@ -159,8 +159,8 @@ export default function ThermalOxideCalculator() {
     }
   };
 
-  const exportCsvFile = () => {
-    if (!curveData || !active.ok) return;
+  const buildExportRows = () => {
+    if (!curveData || !active.ok) return null;
 
     const headers = [
       'time_hours',
@@ -180,7 +180,19 @@ export default function ThermalOxideCalculator() {
       bUm2PerHourValue,
       p.thicknessNm < (aUmValue * 500) ? 'Linear' : 'Parabolic',
     ]);
-    downloadCsv('deal-grove-oxidation-kinetics.csv', headers, rows);
+    return { headers, rows };
+  };
+
+  const exportCsvFile = () => {
+    const data = buildExportRows();
+    if (!data) return;
+    downloadCsv('deal-grove-oxidation-kinetics.csv', data.headers, data.rows);
+  };
+
+  const exportXlsxFile = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadXlsx('deal-grove-oxidation-kinetics.xlsx', 'Oxidation Kinetics', data.headers, data.rows);
   };
 
   // Dimensions for charts
@@ -306,6 +318,10 @@ export default function ThermalOxideCalculator() {
           <button type="button" className="button secondary" onClick={exportCsvFile} disabled={!active.ok}>
             <Download size={16} aria-hidden="true" />
             Export CSV
+          </button>
+          <button type="button" className="button secondary" onClick={exportXlsxFile} disabled={!active.ok}>
+            <Download size={16} aria-hidden="true" />
+            Export XLSX
           </button>
         </div>
       </section>

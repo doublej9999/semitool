@@ -4,7 +4,7 @@ import { useId, useMemo, useRef, useState } from 'react';
 import { Copy, RotateCcw, Download, Info, AlertCircle, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadSvg, downloadXlsx } from '@/lib/export';
 import { useGlossary } from '@/lib/i18n/glossary';
 import {
   calculateCvdKinetics,
@@ -123,8 +123,8 @@ export default function CvdKineticsCalculator() {
     }
   };
 
-  const handleExportDepletionCsv = () => {
-    if (!result.ok || result.depletionProfile.length === 0) return;
+  const buildDepletionRows = () => {
+    if (!result.ok || result.depletionProfile.length === 0) return null;
     const headers = ['Position x (cm)', 'Concentration Cg (cm^-3)', 'Growth Rate (nm/min)', 'Depletion Loss (%)'];
     const rows = result.depletionProfile.map((pt) => [
       pt.positionCm,
@@ -132,11 +132,11 @@ export default function CvdKineticsCalculator() {
       pt.growthRateNmPerMin,
       pt.fractionalLossPercent,
     ]);
-    downloadCsv(`cvd_depletion_profile_${state.recipeId}`, headers, rows);
+    return { headers, rows };
   };
 
-  const handleExportArrheniusCsv = () => {
-    if (!result.ok || result.arrheniusCurve.length === 0) return;
+  const buildArrheniusRows = () => {
+    if (!result.ok || result.arrheniusCurve.length === 0) return null;
     const headers = ['Temperature (°C)', '1000/T (K^-1)', 'Growth Rate (nm/min)', 'log10(Growth Rate)', 'Regime'];
     const rows = result.arrheniusCurve.map((pt) => [
       pt.tempCelsius,
@@ -145,7 +145,31 @@ export default function CvdKineticsCalculator() {
       pt.logGrowthRate,
       pt.regime,
     ]);
-    downloadCsv(`cvd_arrhenius_curve_${state.recipeId}`, headers, rows);
+    return { headers, rows };
+  };
+
+  const handleExportDepletionCsv = () => {
+    const data = buildDepletionRows();
+    if (!data) return;
+    downloadCsv(`cvd_depletion_profile_${state.recipeId}`, data.headers, data.rows);
+  };
+
+  const handleExportDepletionXlsx = async () => {
+    const data = buildDepletionRows();
+    if (!data) return;
+    await downloadXlsx(`cvd_depletion_profile_${state.recipeId}.xlsx`, 'Depletion Profile', data.headers, data.rows);
+  };
+
+  const handleExportArrheniusCsv = () => {
+    const data = buildArrheniusRows();
+    if (!data) return;
+    downloadCsv(`cvd_arrhenius_curve_${state.recipeId}`, data.headers, data.rows);
+  };
+
+  const handleExportArrheniusXlsx = async () => {
+    const data = buildArrheniusRows();
+    if (!data) return;
+    await downloadXlsx(`cvd_arrhenius_curve_${state.recipeId}.xlsx`, 'Arrhenius Curve', data.headers, data.rows);
   };
 
   const handleExportDepletionSvg = () => {
@@ -222,8 +246,11 @@ export default function CvdKineticsCalculator() {
 
     const waferX = pad.left + (Math.min(state.waferPositionXCm, maxX) / maxX) * pW;
 
+    // pW, pH, pad.left and pad.top are render-invariant layout constants, so
+    // listing them satisfies exhaustive-deps without changing when this
+    // memo recomputes.
     return { maxX, maxY, coords, pathD, areaD, waferX };
-  }, [result, state.waferPositionXCm]);
+  }, [result, state.waferPositionXCm, pW, pH, pad.left, pad.top]);
 
   return (
     <div className="calculator-container" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -501,9 +528,17 @@ export default function CvdKineticsCalculator() {
                       <Download size={13} aria-hidden="true" />
                       <span>Export Depletion CSV</span>
                     </button>
+                    <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportDepletionXlsx}>
+                      <Download size={13} aria-hidden="true" />
+                      <span>Export Depletion XLSX</span>
+                    </button>
                     <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportArrheniusCsv}>
                       <Download size={13} aria-hidden="true" />
                       <span>Arrhenius CSV</span>
+                    </button>
+                    <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportArrheniusXlsx}>
+                      <Download size={13} aria-hidden="true" />
+                      <span>Arrhenius XLSX</span>
                     </button>
                     <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportDepletionSvg}>
                       <ImageIcon size={13} aria-hidden="true" />

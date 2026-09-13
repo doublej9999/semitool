@@ -17,10 +17,10 @@ interface ToolPageShellProps {
   /** Tool-specific questions; rendered as a native `details` accordion for SEO and a11y. */
   faq: FaqItem[];
   /** Formula / method block, rendered below the tool. */
-  formula?: React.ReactNode;
+  formula?: ReactNode;
   /** Assumptions and limitations worth stating explicitly. */
   notes?: string[];
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 /**

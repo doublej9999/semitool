@@ -61,7 +61,7 @@ describe('favorites store', () => {
 
   it('persists toggles to localStorage and re-reads them in a fresh module instance', async () => {
     const store = await loadStore();
-    const { result } = mountFavorites(store);
+    mountFavorites(store);
 
     act(() => {
       store.toggleFavoritePath(TOOL_A);

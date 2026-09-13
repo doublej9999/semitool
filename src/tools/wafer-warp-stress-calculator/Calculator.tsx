@@ -12,7 +12,7 @@ import {
   RotateCcw,
   Sparkles,
 } from 'lucide-react';
-import { downloadCsv } from '@/lib/export';
+import { downloadCsv, downloadPdf, downloadXlsx } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import {
@@ -184,8 +184,8 @@ export default function WaferWarpStressCalculator() {
     }
   };
 
-  const handleExportCsv = () => {
-    if (!result.ok) return;
+  const buildExportRows = () => {
+    if (!result.ok) return null;
     const headers = ['Parameter', 'Value', 'Unit', 'Notes'];
     const rows = [
       ['Substrate Material', state.substrateId, '', 'Selected substrate preset or custom'],
@@ -215,7 +215,67 @@ export default function WaferWarpStressCalculator() {
       ['Film-to-Substrate Ratio', (result.thicknessRatio * 100).toFixed(4), '%', 'Validity check (<= 1.0% required)'],
     ];
 
-    downloadCsv('wafer-warp-thin-film-stress.csv', headers, rows);
+    return { headers, rows };
+  };
+
+  const handleExportCsv = () => {
+    const data = buildExportRows();
+    if (!data) return;
+    downloadCsv('wafer-warp-thin-film-stress.csv', data.headers, data.rows);
+  };
+
+  const handleExportXlsx = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadXlsx('wafer-warp-thin-film-stress.xlsx', 'Warp & Stress Results', data.headers, data.rows);
+  };
+
+  const handleExportPdf = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadPdf('wafer-warp-thin-film-stress.pdf', 'Wafer Warp & Thin-Film Stress Report', (doc) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let y = margin;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('Wafer Warp & Thin-Film Stress Report', pageWidth / 2, y + 5, { align: 'center' });
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(`Generated ${new Date().toLocaleString()}`, pageWidth / 2, y, { align: 'center' });
+      y += 7;
+
+      const contentWidth = pageWidth - margin * 2;
+      const colWidths = data.headers.map(() => contentWidth / data.headers.length);
+      doc.setFontSize(7.5);
+      const drawRow = (cells: string[], bold: boolean) => {
+        const cellLines = cells.map((cell, i) =>
+          doc.splitTextToSize(cell, colWidths[i] - 3) as string[],
+        );
+        const rowHeight = Math.max(1, ...cellLines.map((l) => l.length)) * 3.4 + 2.6;
+        if (y + rowHeight > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        cells.forEach((_, i) => {
+          const x = margin + i * colWidths[i];
+          if (bold) {
+            doc.setFillColor(241, 245, 249);
+            doc.rect(x, y, colWidths[i], rowHeight, 'F');
+          }
+          doc.rect(x, y, colWidths[i], rowHeight, 'S');
+          cellLines[i].forEach((line, li) => doc.text(line, x + 1.5, y + 2 + (li + 0.75) * 3.4));
+        });
+        y += rowHeight;
+      };
+
+      drawRow(data.headers, true);
+      data.rows.forEach((row) => drawRow(row.map(String), false));
+    });
   };
 
   // SVG Wafer Curvature geometry
@@ -688,6 +748,26 @@ export default function WaferWarpStressCalculator() {
           >
             <Download size={16} />
             CSV
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleExportXlsx}
+            disabled={!result.ok}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <Download size={16} />
+            XLSX
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleExportPdf}
+            disabled={!result.ok}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <Download size={16} />
+            PDF
           </button>
         </div>
       </section>

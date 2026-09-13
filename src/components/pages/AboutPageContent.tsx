@@ -1,6 +1,6 @@
 'use client';
 
-import { REPO_URL, SITE_NAME } from '@/lib/site';
+import { REPO_URL } from '@/lib/site';
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 

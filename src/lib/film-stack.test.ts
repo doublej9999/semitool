@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   calculateFilmStackPhysics,
   INDUSTRIAL_STACK_TEMPLATES,
-  createDefaultFilmStackProject,
   FilmLayer,
   SUBSTRATE_CATALOG,
 } from './film-stack';
@@ -108,7 +107,7 @@ describe('Film Stack & Fab Project Workspace Physics', () => {
   });
 
   it('verifies industrial reference templates have valid physics', () => {
-    for (const [key, tmpl] of Object.entries(INDUSTRIAL_STACK_TEMPLATES)) {
+    for (const [, tmpl] of Object.entries(INDUSTRIAL_STACK_TEMPLATES)) {
       expect(tmpl.layers.length).toBeGreaterThan(0);
       const summary = calculateFilmStackPhysics(
         tmpl.substrate.material,

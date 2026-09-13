@@ -18,7 +18,7 @@ import {
   WET_BENCH_RECIPES,
   type WetBenchRecipe,
 } from '@/lib/wet-bench';
-import { downloadCsv } from '@/lib/export';
+import { downloadCsv, downloadPdf, downloadXlsx } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
 
@@ -265,7 +265,7 @@ export default function WetBenchCalculator() {
     }
   };
 
-  const handleExportCsv = () => {
+  const buildExportRows = () => {
     const headers = ['Category', 'Parameter', 'Value', 'Unit', 'Notes'];
     const rows: (string | number)[][] = [
       ['Recipe', 'Selected Recipe', selectedRecipe.name, '', selectedRecipe.chemicalSystem],
@@ -310,7 +310,67 @@ export default function WetBenchCalculator() {
       );
     }
 
-    downloadCsv(`wet-bench-spike-${state.recipeId}.csv`, headers, rows);
+    return { headers, rows };
+  };
+
+  const handleExportCsv = () => {
+    const data = buildExportRows();
+    if (!data) return;
+    downloadCsv(`wet-bench-spike-${state.recipeId}.csv`, data.headers, data.rows);
+  };
+
+  const handleExportXlsx = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadXlsx(`wet-bench-spike-${state.recipeId}.xlsx`, 'Wet Bench Report', data.headers, data.rows);
+  };
+
+  const handleExportPdf = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadPdf(`wet-bench-spike-${state.recipeId}.pdf`, `Wet Bench Spike Report: ${selectedRecipe.name}`, (doc) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let y = margin;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(`Wet Bench Spike Report: ${selectedRecipe.name}`, pageWidth / 2, y + 5, { align: 'center' });
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(`Generated ${new Date().toLocaleString()}`, pageWidth / 2, y, { align: 'center' });
+      y += 7;
+
+      const contentWidth = pageWidth - margin * 2;
+      const colWidths = data.headers.map(() => contentWidth / data.headers.length);
+      doc.setFontSize(7.5);
+      const drawRow = (cells: string[], bold: boolean) => {
+        const cellLines = cells.map((cell, i) =>
+          doc.splitTextToSize(cell, colWidths[i] - 3) as string[],
+        );
+        const rowHeight = Math.max(1, ...cellLines.map((l) => l.length)) * 3.4 + 2.6;
+        if (y + rowHeight > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        cells.forEach((_, i) => {
+          const x = margin + i * colWidths[i];
+          if (bold) {
+            doc.setFillColor(241, 245, 249);
+            doc.rect(x, y, colWidths[i], rowHeight, 'F');
+          }
+          doc.rect(x, y, colWidths[i], rowHeight, 'S');
+          cellLines[i].forEach((line, li) => doc.text(line, x + 1.5, y + 2 + (li + 0.75) * 3.4));
+        });
+        y += rowHeight;
+      };
+
+      drawRow(data.headers, true);
+      data.rows.forEach((row) => drawRow(row.map(String), false));
+    });
   };
 
   // Prepare data points for the interactive chart
@@ -791,6 +851,22 @@ export default function WetBenchCalculator() {
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
           >
             <Download size={16} /> Export CSV Report
+          </button>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={handleExportXlsx}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          >
+            <Download size={16} /> Export XLSX Report
+          </button>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={handleExportPdf}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          >
+            <Download size={16} /> Export PDF Report
           </button>
         </div>
       </div>

@@ -4,7 +4,6 @@ import {
   calculateFourPointProbe,
   calculateThicknessCorrection,
   dopingToResistivity,
-  getSiliconMobility,
   resistivityToDoping,
 } from './four-point-probe';
 

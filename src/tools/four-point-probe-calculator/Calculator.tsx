@@ -6,7 +6,7 @@ import {
   getSiliconMobility,
 } from '@/lib/four-point-probe';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadPdf, downloadSvg, downloadXlsx } from '@/lib/export';
 import { useGlossary } from '@/lib/i18n/glossary';
 
 interface FormState {
@@ -93,7 +93,7 @@ export default function FourPointProbeCalculator() {
     }
   };
 
-  const exportCsvFile = () => {
+  const buildExportRows = () => {
     const headers = [
       'parameter',
       'value',
@@ -113,7 +113,64 @@ export default function FourPointProbeCalculator() {
       ['thickness_correction_factor', result.thicknessCorrectionFactor.toFixed(6), 'ratio'],
       ['diameter_correction_factor', result.diameterCorrectionFactor.toFixed(6), 'ratio'],
     ];
+    return { headers, rows };
+  };
+
+  const exportCsvFile = () => {
+    const { headers, rows } = buildExportRows();
     downloadCsv('four-point-probe-astm-f84.csv', headers, rows);
+  };
+
+  const exportXlsxFile = async () => {
+    const { headers, rows } = buildExportRows();
+    await downloadXlsx('four-point-probe-astm-f84.xlsx', 'ASTM F84 Results', headers, rows);
+  };
+
+  const exportPdfFile = async () => {
+    const { headers, rows } = buildExportRows();
+    await downloadPdf('four-point-probe-astm-f84.pdf', 'Four-Point Probe (ASTM F84) Report', (doc) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let y = margin;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('Four-Point Probe (ASTM F84) Report', pageWidth / 2, y + 5, { align: 'center' });
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(`Generated ${new Date().toLocaleString()}`, pageWidth / 2, y, { align: 'center' });
+      y += 7;
+
+      const contentWidth = pageWidth - margin * 2;
+      const colWidths = headers.map(() => contentWidth / headers.length);
+      doc.setFontSize(7.5);
+      const drawRow = (cells: string[], bold: boolean) => {
+        const cellLines = cells.map((cell, i) =>
+          doc.splitTextToSize(cell, colWidths[i] - 3) as string[],
+        );
+        const rowHeight = Math.max(1, ...cellLines.map((l) => l.length)) * 3.4 + 2.6;
+        if (y + rowHeight > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        cells.forEach((_, i) => {
+          const x = margin + i * colWidths[i];
+          if (bold) {
+            doc.setFillColor(241, 245, 249);
+            doc.rect(x, y, colWidths[i], rowHeight, 'F');
+          }
+          doc.rect(x, y, colWidths[i], rowHeight, 'S');
+          cellLines[i].forEach((line, li) => doc.text(line, x + 1.5, y + 2 + (li + 0.75) * 3.4));
+        });
+        y += rowHeight;
+      };
+
+      drawRow(headers, true);
+      rows.forEach((row) => drawRow(row.map(String), false));
+    });
   };
 
   return (
@@ -200,6 +257,12 @@ export default function FourPointProbeCalculator() {
           </button>
           <button type="button" className="btn btn-secondary" onClick={exportCsvFile}>
             Export CSV
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={exportXlsxFile}>
+            Export XLSX
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={exportPdfFile}>
+            Export PDF
           </button>
         </div>
       </section>

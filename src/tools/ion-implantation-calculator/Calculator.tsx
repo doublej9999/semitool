@@ -11,7 +11,7 @@ import {
   type IonSpecies,
 } from '@/lib/ion-implantation';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadSvg, downloadXlsx } from '@/lib/export';
 import { useGlossary } from '@/lib/i18n/glossary';
 
 interface FormState {
@@ -113,8 +113,8 @@ export default function IonImplantationCalculator() {
     }
   };
 
-  const exportCsv = () => {
-    if (!result.ok || profilePoints.length === 0) return;
+  const buildExportRows = () => {
+    if (!result.ok || profilePoints.length === 0) return null;
     const headers = [
       'depth_nm',
       'depth_um',
@@ -139,7 +139,23 @@ export default function IonImplantationCalculator() {
       result.junctionDepthNm !== null ? result.junctionDepthNm.toFixed(2) : 'N/A',
       result.isAmorphized ? 'YES' : 'NO',
     ]);
-    downloadCsv(`ion-implant-${result.species}-${result.energyKeV}keV.csv`, headers, rows);
+    return {
+      headers,
+      rows,
+      filename: `ion-implant-${result.species}-${result.energyKeV}keV`,
+    };
+  };
+
+  const exportCsv = () => {
+    const data = buildExportRows();
+    if (!data) return;
+    downloadCsv(`${data.filename}.csv`, data.headers, data.rows);
+  };
+
+  const exportXlsx = async () => {
+    const data = buildExportRows();
+    if (!data) return;
+    await downloadXlsx(`${data.filename}.xlsx`, 'Implant Profile', data.headers, data.rows);
   };
 
   // SVG dimensions and coordinate mapping
@@ -372,6 +388,15 @@ export default function IonImplantationCalculator() {
           >
             <Download size={16} aria-hidden="true" />
             Export CSV
+          </button>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={exportXlsx}
+            disabled={!result.ok}
+          >
+            <Download size={16} aria-hidden="true" />
+            Export XLSX
           </button>
         </div>
       </section>

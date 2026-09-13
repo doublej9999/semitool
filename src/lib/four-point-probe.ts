@@ -153,7 +153,6 @@ export function calculateFourPointProbe(input: FourPointProbeInput): FourPointPr
   const rOhm = iAmps > 0 ? vVolts / iAmps : 0;
 
   const sMm = Math.max(0.1, probeSpacingMm);
-  const sCm = sMm * 0.1;
 
   let thicknessCorr = 1.0;
   let regime: 'thin-film' | 'bulk-semi-infinite' | 'intermediate' = 'thin-film';

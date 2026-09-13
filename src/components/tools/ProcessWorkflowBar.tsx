@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronDown, ChevronUp, Plus, Trash2, Workflow, CheckCircle2, Zap } from 'lucide-react';
-import { useLocale, type SupportedLocale } from '@/lib/i18n/context';
+import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
 import { translateToolName } from '@/lib/i18n/tool-translations';
 import {

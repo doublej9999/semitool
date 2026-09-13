@@ -4,6 +4,28 @@ All notable changes to SemiTools are documented here. The project has no version
 
 ## [Unreleased]
 
+### 2026-09 (round 3)
+
+**Performance**
+
+- Explorer correlation panel lazy-split, slimming the STDF / KLARF Explorer route to ~675 kB First Load JS
+
+**Features**
+
+- 63rd tool: IC Layout Parasitics Estimator — interconnect resistance, plate and fringe capacitance, IR drop and RC delay from drawn layout geometry (Metrology & Layout)
+- Local natural-language tool finder on the home page ("Describe your task"): scores the registry against localized names, descriptions and keywords plus a hand-built synonym/intent map; everything runs in the browser, no API calls
+- Deterministic synthetic demos: the STDF / KLARF generators use a seeded PRNG and a fixed epoch, so demo loads are byte-identical and the demo yield is exactly 90.0%
+
+**Localization**
+
+- Fab-term glossary grown to 129 terms; a second localization sweep moved ~44 more calculator labels onto `useGlossary()`
+
+**Tooling**
+
+- CI bundle budget gate: `npm run check:budget` fails when a gated route (`/`, `/tools`, `/tools/*`) exceeds 700 kB First Load JS; a separate Playwright E2E job uploads its report and artifacts on failure
+- GeoIP removed: the first-visit ipapi.co lookup is gone and locale detection is browser-language-only
+- Lint warnings cleared to zero (previously 21 warnings, 0 errors)
+
 ### 2026-09 (round 2)
 
 **Performance**

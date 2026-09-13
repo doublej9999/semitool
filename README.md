@@ -1,6 +1,6 @@
 # SemiTools
 
-Semiconductor engineering calculators that run entirely in the browser — 62 tools across 10 categories. Every tool states its units, shows the formula it uses, and refuses to pretend a generic estimate is a fab-specific number.
+Semiconductor engineering calculators that run entirely in the browser — 63 tools across 10 categories. Every tool states its units, shows the formula it uses, and refuses to pretend a generic estimate is a fab-specific number.
 
 **Live:** https://semitool.vercel.app
 
@@ -42,7 +42,7 @@ The table below mirrors the registry in `src/tools/index.ts` — sidebar order, 
 | Coffin-Manson Thermal Fatigue Calculator | `/tools/thermal-fatigue-calculator` | Thermal cycling fatigue life (Nf), shear strain range, solder alloy ductility (SAC305/SnPb) and field acceleration factor |
 | Split-Lot & DOE Recipe Overlay Calculator | `/tools/split-lot-calculator` | Split-lot and Design of Experiments (DOE) recipe overlay matrix, multi-wafer parameter variance tracking, response delta comparisons and run-sheet export |
 
-### Metrology & Layout (7)
+### Metrology & Layout (8)
 
 | Tool | Route | What it does |
 | --- | --- | --- |
@@ -53,6 +53,7 @@ The table below mirrors the registry in `src/tools/index.ts` — sidebar order, 
 | Wire Bonding Parasitics & Fusing Calculator | `/tools/wire-bonding-calculator` | Bond wire self-inductance, AC resistance (skin effect), Preece fusing current, and JEDEC continuous DC limits for Au, Cu, Al and Ag |
 | Four-Point Probe Calculator (ASTM F84) | `/tools/four-point-probe-calculator` | ASTM F84 / SEMI MF84 collinear four-point probe sheet resistance, wafer resistivity, thickness correction factor and NIST dopant density inversion |
 | STDF / KLARF Explorer | `/tools/stdf-klarf-explorer` | Parses ATE STDF V4 and KLA KLARF files in the browser: per-test Cpk statistics, sparkline trends, bin distribution, yield, defect clusters and one-click SPC hand-off *(new)* |
+| IC Layout Parasitics Estimator | `/tools/layout-parasitics-calculator` | Estimates interconnect resistance, plate and fringe capacitance, IR drop and RC delay from drawn layout geometry — the classic pre-tapeout sanity check for metal, poly and dielectric stacks *(new)* |
 
 ### Unit Conversion (7)
 
@@ -120,6 +121,8 @@ The table below mirrors the registry in `src/tools/index.ts` — sidebar order, 
 | --- | --- | --- |
 | Wet Bench Chemical Lifetime & Spike Calculator | `/tools/wet-bench-calculator` | RCA clean (SC-1 / SC-2), SPM Piranha and BOE etch bath lifetime, chemical spike dosing and dissolved silicon loading decay *(new)* |
 
+The home page carries a local natural-language tool finder ("Describe your task"): it scores every registry tool against the query using the localized names, descriptions and keywords plus a hand-built synonym/intent map (~135 intent phrases across English, Chinese, Japanese and Korean). Everything runs in the browser — no API calls.
+
 ## Stack
 
 Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-react · Fuse.js · KaTeX · ExcelJS · jsPDF · Vitest
@@ -140,6 +143,7 @@ src/
     common/                 ModalShell (accessible modal primitive), EngineeringHandbookModal,
                             EngineeringTravelerModal, FabScratchpadModal, FabWorkspaceModal,
                             VirtualGenealogyModal
+    home/                   ToolFinder (local natural-language tool finder on the landing page)
     tools/                  ToolCard, FavoriteButton, ToolPageShell, ToolExplorer, FavoritesSection,
                             UnitConverter, SeriesField, ProcessWorkflowBar, FabMetrologyImportModal
   lib/                      pure calculation + platform logic (no React)
@@ -191,6 +195,7 @@ src/
     i18n/                   locale resolution + translations; dictionaries/ (shell strings) and
                             tool-dictionaries/ (per-tool strings), one lazy-loaded file per locale
     search.ts               Fuse.js wrapper used by the palette and the toolbox page
+    tool-finder.ts          local natural-language tool finder: synonym/intent scoring of the registry (home page)
     favorites.ts            favourite tools store (localStorage, useSyncExternalStore)
     preferences.ts          persisted UI preferences (collapsed categories / rail)
     site.ts                 canonical URL, site name, repository URL
@@ -214,7 +219,7 @@ The layout follows [it-tools](https://github.com/corentinth/it-tools): a persist
 
 ## Internationalization (i18n)
 
-Five locales — English, 简体中文, 繁體中文, 한국어 and 日本語 — with client-side switching (no per-locale routes). Shell/UI strings live in `src/lib/i18n/dictionaries/` and per-tool strings in `src/lib/i18n/tool-dictionaries/`; both are split one file per locale and loaded lazily, so a visitor downloads only their own language. Search, the command palette, tool pages and the modals are all localized. A shared fab-term glossary (`src/lib/i18n/glossary/`, ~110 terms) backs `useGlossary()`, which calculators use to pull common field and process labels from one translated table instead of hardcoding English.
+Five locales — English, 简体中文, 繁體中文, 한국어 and 日本語 — with client-side switching (no per-locale routes). Shell/UI strings live in `src/lib/i18n/dictionaries/` and per-tool strings in `src/lib/i18n/tool-dictionaries/`; both are split one file per locale and loaded lazily, so a visitor downloads only their own language. Search, the command palette, tool pages and the modals are all localized. A shared fab-term glossary (`src/lib/i18n/glossary/`, 129 terms) backs `useGlossary()`, which calculators use to pull common field and process labels from one translated table instead of hardcoding English; two localization sweeps have moved the bulk of the calculator labels onto it.
 
 ## Fab Workspace
 
@@ -237,6 +242,7 @@ Everything shares one fab session (`semitools_fab_session_v1` in `localStorage`)
 - **Export:** CSV from the data tools, SVG from the wafer map, and real XLSX (ExcelJS) / PDF (jsPDF) downloads where a file beats a clipboard copy; `src/lib/export.ts` is the shared implementation.
 - **Import:** ATE STDF V4 and KLARF 1.x files parse in the browser — a wafer map on the wafer-map generator and full per-test statistics, bin distribution and yield in the STDF / KLARF Explorer. STDF parsing runs in a background Web Worker and the last file is cached in IndexedDB, so the explorer reopens with the previous load.
 - **Correlation:** A PTR-vs-PTR view in the STDF / KLARF Explorer aligns two parametric tests by part and reports the Pearson correlation, with the strongest test pairs ranked.
+- **Demo data:** The explorer's "Load synthetic demo" STDF and KLARF lots are fully deterministic — a seeded PRNG and a fixed epoch, so every load is byte-identical and the demo yield is exactly 90.0%.
 - **Metrology CSV import** parses subgroup matrices and long wafer-site tables, auto-detects target / limits / unit, screens outliers (Tukey IQR or 3-sigma) and bridges the cleaned statistics into the SPC and process-capability tools.
 
 ## Accuracy policy
@@ -289,10 +295,11 @@ npm run start   # serve the production build
 npm run lint    # ESLint
 npm run test    # Vitest: 82 test files / 690+ tests across lib, registry, i18n, parsers and components
 npm run analyze # bundle analysis (@next/bundle-analyzer)
+npm run check:budget # bundle budget gate: fails if a gated route ('/', '/tools', '/tools/*') exceeds its First Load JS budget (default 700 kB)
 npm run e2e     # Playwright E2E smoke suite (10 specs across 5 files); `npm run e2e:ui` opens the UI runner
 ```
 
-CI (`.github/workflows/ci.yml`) runs lint, test and build on every push and pull request.
+CI (`.github/workflows/ci.yml`) runs lint, test, build and the bundle budget check on every push and pull request, plus a separate Playwright E2E job that uploads its report and artifacts on failure.
 
 ## SEO
 
@@ -304,4 +311,4 @@ Every tool gets a dynamic Open Graph card from the `/api/og` route (title and ca
 
 ## Privacy
 
-No analytics, no cookies, no server-side storage of inputs. Favourites, sidebar preferences, locale, the Fab Workspace session and the scratchpad stay in `localStorage`.
+No analytics, no cookies, no server-side storage of inputs. Favourites, sidebar preferences, locale, the Fab Workspace session and the scratchpad stay in `localStorage`. Locale detection is browser-language-only — no IP or GeoIP lookups.

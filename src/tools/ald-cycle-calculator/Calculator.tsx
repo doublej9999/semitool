@@ -7,7 +7,7 @@ import {
   calculateAldCycle,
   getAldPreset,
 } from '@/lib/ald';
-import { downloadCsv } from '@/lib/export';
+import { downloadCsv, downloadPdf, downloadXlsx } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useGlossary } from '@/lib/i18n/glossary';
@@ -139,9 +139,9 @@ export default function AldCycleCalculator() {
       setCopied(false);
     }
   };
-  const handleExportCsv = () => {
-    const headers = ['Parameter', 'Value', 'Unit'];
-    const rows = [
+  const buildExportRows = () => ({
+    headers: ['Parameter', 'Value', 'Unit'],
+    rows: [
       ['Precursor System', preset?.name ?? state.presetId, ''],
       ['Reaction Equation', preset?.reactionEquation ?? '', ''],
       ['Process Temperature', state.temperatureC, '°C'],
@@ -164,8 +164,61 @@ export default function AldCycleCalculator() {
       ['Total Deposition Time', result.totalDepositionTimeSec.toFixed(0), 's'],
       ['Formatted Deposition Time', result.formattedTime, ''],
       ['Estimated Precursor Consumption', result.precursorConsumptionGrams.toFixed(3), 'g'],
-    ];
+    ],
+  });
+  const handleExportCsv = () => {
+    const { headers, rows } = buildExportRows();
     downloadCsv(`ald_recipe_${state.presetId}_${state.temperatureC}C`, headers, rows);
+  };
+  const handleExportXlsx = async () => {
+    const { headers, rows } = buildExportRows();
+    await downloadXlsx(`ald_recipe_${state.presetId}_${state.temperatureC}C.xlsx`, 'ALD Recipe', headers, rows);
+  };
+  const handleExportPdf = async () => {
+    const { headers, rows } = buildExportRows();
+    await downloadPdf(`ald_recipe_${state.presetId}_${state.temperatureC}C.pdf`, `ALD Cycle Recipe: ${preset?.name ?? state.presetId}`, (doc) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let y = margin;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(`ALD Cycle Recipe: ${preset?.name ?? state.presetId}`, pageWidth / 2, y + 5, { align: 'center' });
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(`Generated ${new Date().toLocaleString()}`, pageWidth / 2, y, { align: 'center' });
+      y += 7;
+
+      const contentWidth = pageWidth - margin * 2;
+      const colWidths = headers.map(() => contentWidth / headers.length);
+      doc.setFontSize(7.5);
+      const drawRow = (cells: string[], bold: boolean) => {
+        const cellLines = cells.map((cell, i) =>
+          doc.splitTextToSize(cell, colWidths[i] - 3) as string[],
+        );
+        const rowHeight = Math.max(1, ...cellLines.map((l) => l.length)) * 3.4 + 2.6;
+        if (y + rowHeight > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        cells.forEach((_, i) => {
+          const x = margin + i * colWidths[i];
+          if (bold) {
+            doc.setFillColor(241, 245, 249);
+            doc.rect(x, y, colWidths[i], rowHeight, 'F');
+          }
+          doc.rect(x, y, colWidths[i], rowHeight, 'S');
+          cellLines[i].forEach((line, li) => doc.text(line, x + 1.5, y + 2 + (li + 0.75) * 3.4));
+        });
+        y += rowHeight;
+      };
+
+      drawRow(headers, true);
+      rows.forEach((row) => drawRow(row.map(String), false));
+    });
   };
 
 
@@ -355,6 +408,14 @@ export default function AldCycleCalculator() {
           <button type="button" className="button secondary" onClick={handleExportCsv}>
             <Download size={14} aria-hidden="true" />
             <span>Export CSV</span>
+          </button>
+          <button type="button" className="button secondary" onClick={handleExportXlsx}>
+            <Download size={14} aria-hidden="true" />
+            <span>Export XLSX</span>
+          </button>
+          <button type="button" className="button secondary" onClick={handleExportPdf}>
+            <Download size={14} aria-hidden="true" />
+            <span>Export PDF</span>
           </button>
         </div>
       </section>

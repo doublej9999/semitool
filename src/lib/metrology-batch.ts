@@ -344,7 +344,7 @@ export function parseMetrologyCsv(text: string, options: MetrologyParseOptions =
   const numericMatrix: number[][] = [];
   const flatNumbers: number[] = [];
 
-  dataRows.forEach((tokens, rIdx) => {
+  dataRows.forEach((tokens) => {
     // If first column looks like a label (e.g. W01, LotA), skip it
     let startIdx = 0;
     if (tokens.length > 1 && isNaN(Number(tokens[0])) && !isNaN(Number(tokens[1]))) {

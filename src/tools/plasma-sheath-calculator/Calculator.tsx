@@ -11,7 +11,7 @@ import {
   type SheathSpatialPoint,
 } from '@/lib/plasma-sheath';
 import { useUrlParamsState } from '@/lib/use-url-state';
-import { downloadCsv, downloadSvg } from '@/lib/export';
+import { downloadCsv, downloadPdf, downloadSvg, downloadXlsx } from '@/lib/export';
 import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
@@ -155,8 +155,8 @@ export default function PlasmaSheathCalculator() {
     }
   };
 
-  const handleExportProfileCsv = () => {
-    if (!result || profilePoints.length === 0) return;
+  const buildProfileExportRows = () => {
+    if (!result || profilePoints.length === 0) return null;
     const headers = [
       'Position_x_um',
       'Region',
@@ -173,12 +173,11 @@ export default function PlasmaSheathCalculator() {
       p.electronDensityNormalized.toString(),
       p.ionVelocityMPerSec.toString(),
     ]);
-    const gasTag = selectedPreset?.id ?? 'custom';
-    downloadCsv(`plasma_sheath_profile_${gasTag}_${state.sheathVoltageV}V`, headers, rows);
+    return { headers, rows };
   };
 
-  const handleExportSummaryCsv = () => {
-    if (!result) return;
+  const buildSummaryExportRows = () => {
+    if (!result) return null;
     const headers = ['Parameter', 'Value', 'Unit', 'Description'];
     const rows = [
       ['Working Gas / Ion', selectedPreset ? selectedPreset.name : 'Custom', '—', selectedPreset?.typicalProcess ?? 'Custom plasma process'],
@@ -198,8 +197,84 @@ export default function PlasmaSheathCalculator() {
       ['Collisionality Ratio (s / lambda_i)', result.collisionalityRatio ? fmt(result.collisionalityRatio, 2) : '—', '—', 'Ratio of sheath width to mean free path'],
       ['Sheath Regime', result.regimeDescription, '—', 'Transport classification'],
     ];
+    return { headers, rows };
+  };
+
+  const handleExportProfileCsv = () => {
+    const data = buildProfileExportRows();
+    if (!data) return;
     const gasTag = selectedPreset?.id ?? 'custom';
-    downloadCsv(`plasma_sheath_parameters_${gasTag}_${state.sheathVoltageV}V`, headers, rows);
+    downloadCsv(`plasma_sheath_profile_${gasTag}_${state.sheathVoltageV}V`, data.headers, data.rows);
+  };
+
+  const handleExportProfileXlsx = async () => {
+    const data = buildProfileExportRows();
+    if (!data) return;
+    const gasTag = selectedPreset?.id ?? 'custom';
+    await downloadXlsx(`plasma_sheath_profile_${gasTag}_${state.sheathVoltageV}V.xlsx`, 'Sheath Profile', data.headers, data.rows);
+  };
+
+  const handleExportSummaryCsv = () => {
+    const data = buildSummaryExportRows();
+    if (!data) return;
+    const gasTag = selectedPreset?.id ?? 'custom';
+    downloadCsv(`plasma_sheath_parameters_${gasTag}_${state.sheathVoltageV}V`, data.headers, data.rows);
+  };
+
+  const handleExportSummaryXlsx = async () => {
+    const data = buildSummaryExportRows();
+    if (!data) return;
+    const gasTag = selectedPreset?.id ?? 'custom';
+    await downloadXlsx(`plasma_sheath_parameters_${gasTag}_${state.sheathVoltageV}V.xlsx`, 'Plasma Parameters', data.headers, data.rows);
+  };
+
+  const handleExportSummaryPdf = async () => {
+    const data = buildSummaryExportRows();
+    if (!data) return;
+    const gasTag = selectedPreset?.id ?? 'custom';
+    await downloadPdf(`plasma_sheath_parameters_${gasTag}_${state.sheathVoltageV}V.pdf`, 'Plasma Sheath Parameter Report', (doc) => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let y = margin;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('Plasma Sheath Parameter Report', pageWidth / 2, y + 5, { align: 'center' });
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(`Generated ${new Date().toLocaleString()}`, pageWidth / 2, y, { align: 'center' });
+      y += 7;
+
+      const contentWidth = pageWidth - margin * 2;
+      const colWidths = data.headers.map(() => contentWidth / data.headers.length);
+      doc.setFontSize(7.5);
+      const drawRow = (cells: string[], bold: boolean) => {
+        const cellLines = cells.map((cell, i) =>
+          doc.splitTextToSize(cell, colWidths[i] - 3) as string[],
+        );
+        const rowHeight = Math.max(1, ...cellLines.map((l) => l.length)) * 3.4 + 2.6;
+        if (y + rowHeight > pageHeight - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        cells.forEach((_, i) => {
+          const x = margin + i * colWidths[i];
+          if (bold) {
+            doc.setFillColor(241, 245, 249);
+            doc.rect(x, y, colWidths[i], rowHeight, 'F');
+          }
+          doc.rect(x, y, colWidths[i], rowHeight, 'S');
+          cellLines[i].forEach((line, li) => doc.text(line, x + 1.5, y + 2 + (li + 0.75) * 3.4));
+        });
+        y += rowHeight;
+      };
+
+      drawRow(data.headers, true);
+      data.rows.forEach((row) => drawRow(row.map(String), false));
+    });
   };
 
   // SVG dimensions and scaling
@@ -406,11 +481,38 @@ export default function PlasmaSheathCalculator() {
           <button
             className="button secondary"
             type="button"
+            onClick={handleExportProfileXlsx}
+            disabled={!result}
+            title="Download spatial sheath potential & density profile as XLSX"
+          >
+            <Download size={14} aria-hidden="true" /> Export Profile XLSX
+          </button>
+          <button
+            className="button secondary"
+            type="button"
             onClick={handleExportSummaryCsv}
             disabled={!result}
             title="Download comprehensive plasma parameters as CSV"
           >
             <Download size={14} aria-hidden="true" /> Export Summary
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={handleExportSummaryXlsx}
+            disabled={!result}
+            title="Download comprehensive plasma parameters as XLSX"
+          >
+            <Download size={14} aria-hidden="true" /> Export Summary XLSX
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={handleExportSummaryPdf}
+            disabled={!result}
+            title="Download comprehensive plasma parameters as a PDF report"
+          >
+            <Download size={14} aria-hidden="true" /> Summary PDF
           </button>
         </div>
 

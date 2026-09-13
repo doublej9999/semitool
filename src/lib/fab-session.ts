@@ -273,7 +273,10 @@ export function toggleFlowStep(flowId: string, stepIndex: number): void {
 }
 
 export function resetFlowProgress(flowId: string): void {
-  const { [flowId]: _removed, ...rest } = state.flowProgress;
+  // Rest-omit without an unused binding: copy-then-delete preserves the key
+  // order of the remaining entries, exactly like destructuring-rest would.
+  const rest = { ...state.flowProgress };
+  delete rest[flowId];
   state = { ...state, flowProgress: rest };
   writeThrough();
   emit();

@@ -12,7 +12,6 @@ import {
   solveTmmAtWavelength,
   calculateMultilayerOpticalSpectrum,
   calculateOptimalSingleLayerArc,
-  OPTICAL_MATERIALS,
 } from './optical-tmm';
 
 describe('optical-tmm complex number mathematics', () => {

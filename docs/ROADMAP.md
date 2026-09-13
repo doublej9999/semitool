@@ -25,19 +25,27 @@ A living document so direction is not re-derived every session. Last updated: 20
 - Workspace Process Flows view: custom-flow manager and fab-session document export / import
 - Fab-term glossary (~110 terms) plus the first wave of calculator label localization via `useGlossary()`
 
+**Shipped 2026-09 (round 3)**
+
+- 63rd tool: IC Layout Parasitics Estimator — interconnect resistance, plate / fringe capacitance, IR drop and RC delay from drawn geometry (first of the IC layout / DFM cluster)
+- Local natural-language tool finder on the home page ("Describe your task"): registry scoring plus a hand-built synonym/intent map, no API calls
+- Glossary sprint 2: fab-term glossary grown to 129 terms, and a second localization sweep moved ~44 more calculator labels onto `useGlossary()`
+- Deterministic synthetic demos: the STDF / KLARF generators use a seeded PRNG and a fixed epoch, so demo loads are byte-identical (demo yield exactly 90.0%)
+- Explorer route slimming: correlation panel lazy-split, bringing the STDF / KLARF Explorer route to ~675 kB First Load JS
+- CI gates: bundle budget check (`npm run check:budget`, 700 kB per-route First Load JS) in the verify job, plus a separate Playwright E2E job with artifact upload on failure
+- GeoIP removal: the first-visit ipapi.co lookup is gone; locale detection is browser-language-only
+- XLSX / PDF export rollout finished across the remaining CSV-only tools
+- Lint zero: the remaining 21 warnings cleared (0 errors, 0 warnings)
+
 ## Next candidates
 
 Ordered. Re-evaluate rather than execute blindly.
 
-1. **Per-tool performance budget in CI.** `npm run analyze` gives a local bundle report now, but CI still runs only lint / test / build; a size budget per route keeps the heavy dependencies (exceljs, jspdf, katex) code-split as tools multiply.
-2. **Calculator label localization coverage push.** The fab-term glossary holds ~110 terms and covers the first wave of `useGlossary()` labels; extend it to tool-specific labels (per-tool keys or glossary growth) so the calculators localize as thoroughly as the shell.
-3. **Dev-only `data-theme` hydration warning.** The inline theme bootstrap in `src/app/layout.tsx` sets `document.documentElement.dataset.theme` before hydration while the server HTML has no attribute, so dev builds log a mismatch on `<html>`; either suppress it deliberately or move the bootstrap to a Next-sanctioned pattern.
-4. **Demo yield determinism.** The STDF synthetic generator (`src/lib/stdf-parser.ts`) flips pass/fail with `Math.random()`, so demo loads are never reproducible between runs; wire it to a seedable PRNG (`createRng` already exists in `src/lib/monte-carlo.ts`, and the KLARF sample generator in `src/lib/klarf-parser.ts` shares the issue).
-5. **E2E in CI.** The Playwright smoke suite runs locally via `npm run e2e`, but `.github/workflows/ci.yml` still runs only lint / test / build; one workflow step would pin the shell shortcuts and workspace session on every push.
-6. **hreflang / i18n routing decision.** Only if organic non-English traffic grows; client-side switching keeps the URL space simple today, and per-locale routes would be a large change for the sitemap and canonical strategy.
-7. **XLSX / PDF export rollout.** Extend the real-file export buttons to the remaining CSV-only tools, reusing `src/lib/export.ts`.
-8. **IC layout / DFM tool cluster expansion.** Grow along the V1 PRD's Wafer / Process / Electrical / Manufacturing clusters instead of ad-hoc additions.
-9. **Lint warning cleanup.** 21 warnings remain (0 errors), mostly `no-unused-vars` in tests and tools plus one `react-hooks/exhaustive-deps`; getting to zero keeps real signal visible.
+1. **Bundle budget tightening.** A flat 700 kB per-route gate now runs in CI (`npm run check:budget`), but the gate is uniform, not per-tool; tighten per-route budgets and keep trimming the heaviest routes (the explorer sits at ~675 kB, close to the gate) as tools multiply.
+2. **hreflang / i18n routing decision.** Only if organic non-English traffic grows. Full locale routing is a standalone architectural project — client-side switching keeps the URL space simple today but limits SEO to English metadata for now.
+3. **IC layout / DFM tool cluster expansion.** First tool shipped (IC Layout Parasitics Estimator); DRC checker and ESD estimator are the natural next steps. Grow along the V1 PRD's Wafer / Process / Electrical / Manufacturing clusters instead of ad-hoc additions.
+4. **AI tool finder enhancements.** Grow the synonym/intent map (135 intent phrases today) and its CJK coverage; surface the finder inside the command palette so it is reachable beyond the home page.
+5. **URL-state coverage for the unit converters.** 60 of 63 calculators serialize inputs to the URL; the three pure converters (thickness, pressure, power) go through the shared `UnitConverter`, which does not use `useUrlParamsState` yet.
 
 ## Conventions for contributors
 
