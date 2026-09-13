@@ -20,10 +20,17 @@ const MODE_LABELS: Record<TemperatureMode, string> = {
 };
 
 export default function TemperatureConverter() {
-  const [modeState, setModeState] = useState({ mode: 'absolute' as TemperatureMode });
-  useUrlParamsState(modeState, setModeState);
-  const { mode } = modeState;
-  const setMode = (next: TemperatureMode) => setModeState({ mode: next });
+  // One URL-synced object for the whole page: useUrlParamsState rewrites the
+  // entire query string, so mode and the converter's value/unit must share a
+  // single hook rather than the converter syncing itself with a second one.
+  const [state, setState] = useState({
+    mode: 'absolute' as TemperatureMode,
+    tempValue: '25',
+    tempUnit: 'C',
+  });
+  useUrlParamsState(state, setState);
+  const { mode, tempValue, tempUnit } = state;
+  const setMode = (next: TemperatureMode) => setState((current) => ({ ...current, mode: next }));
 
   const labelSet = mode === 'absolute' ? TEMPERATURE_LABELS : TEMPERATURE_DIFFERENCE_LABELS;
   const units = TEMPERATURE_UNITS.map((unit) => ({ id: unit, label: labelSet[unit] }));
@@ -36,6 +43,10 @@ export default function TemperatureConverter() {
       headlineUnit="F"
       initialValue="25"
       initialUnit="C"
+      value={tempValue}
+      unit={tempUnit}
+      onValueChange={(next) => setState((current) => ({ ...current, tempValue: next }))}
+      onUnitChange={(next) => setState((current) => ({ ...current, tempUnit: next }))}
       controls={
         <div className="field">
           <label htmlFor="temperature-mode">What are you converting?</label>

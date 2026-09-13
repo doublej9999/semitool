@@ -37,15 +37,28 @@ A living document so direction is not re-derived every session. Last updated: 20
 - XLSX / PDF export rollout finished across the remaining CSV-only tools
 - Lint zero: the remaining 21 warnings cleared (0 errors, 0 warnings)
 
+**Shipped 2026-09 (round 4)**
+
+- 64th tool: DRC Rule-of-Thumb Checker — drawn width, spacing, pitch and contact/via enclosure checked against literature-typical rules for 180 nm to 7 nm FinFET process families (second of the IC layout / DFM cluster)
+- Error boundaries: root `app/error.tsx`, a `/tools` segment boundary and a window-level `global-error.tsx`, so a crashing calculator shows a recovery screen instead of a white page
+- Security headers on every route via `next.config.ts`: CSP (`default-src 'self'`, `'unsafe-eval'` only outside production), X-Frame-Options DENY, nosniff, strict-origin-when-cross-origin and a locked-down Permissions-Policy
+- Dependabot: weekly npm and github-actions updates (one grouped minor/patch PR for npm; next/react majors deliberately ignored)
+- Privacy-page data control: one-click JSON export of everything the app stores (localStorage plus the STDF/KLARF Explorer's IndexedDB cache) and a two-step clear that keeps UI preferences by default (`src/lib/user-data.ts`)
+- URL-state sync completed: all 64 tools restore state from the URL — 61 calculators via `useUrlParamsState` directly, the thickness / pressure / power converters via the shared `UnitConverter` with a `urlKeyPrefix`
+- Tool finder intent map grown to 232 phrases (from 135), with a coverage-gate test that fails when any registered tool is not reachable as a top-3 result for at least one phrase
+- Component smoke tests for the five most complex calculators (film color, wafer map, wafer warp/stress, wet bench, STDF/KLARF explorer)
+- Icon payload investigation closed: the ~164 kB icon-chunk premise was wrong — the real icon payload is 73.7 kB across 2 shared chunks, tree-shaking verified working, zero unused icons. Recorded here so nobody re-investigates.
+
 ## Next candidates
 
 Ordered. Re-evaluate rather than execute blindly.
 
 1. **Bundle budget tightening.** A flat 700 kB per-route gate now runs in CI (`npm run check:budget`), but the gate is uniform, not per-tool; tighten per-route budgets and keep trimming the heaviest routes (the explorer sits at ~675 kB, close to the gate) as tools multiply.
-2. **hreflang / i18n routing decision.** Only if organic non-English traffic grows. Full locale routing is a standalone architectural project — client-side switching keeps the URL space simple today but limits SEO to English metadata for now.
-3. **IC layout / DFM tool cluster expansion.** First tool shipped (IC Layout Parasitics Estimator); DRC checker and ESD estimator are the natural next steps. Grow along the V1 PRD's Wafer / Process / Electrical / Manufacturing clusters instead of ad-hoc additions.
-4. **AI tool finder enhancements.** Grow the synonym/intent map (135 intent phrases today) and its CJK coverage; surface the finder inside the command palette so it is reachable beyond the home page.
-5. **URL-state coverage for the unit converters.** 60 of 63 calculators serialize inputs to the URL; the three pure converters (thickness, pressure, power) go through the shared `UnitConverter`, which does not use `useUrlParamsState` yet.
+2. **Third DFM tool (ESD estimator), then beyond.** The parasitics estimator and the DRC rule-of-thumb checker are shipped; an ESD estimator is the natural third. Grow along the V1 PRD's Wafer / Process / Electrical / Manufacturing clusters instead of ad-hoc additions.
+3. **Tool finder in the command palette.** The synonym/intent map itself is no longer a backlog item (232 phrases, coverage-gated); what remains is surfacing the finder inside the command palette so it is reachable beyond the home page.
+4. **Reduced-motion support.** Nothing in `src/` references `prefers-reduced-motion`; the theme-switch transitions (body / panel / info-card) and any animated panels should collapse under the media query.
+5. **Chart color tokens for dark mode.** Charts still hardcode hex: the SPC control chart paints its plot background `#ffffff` (a white box in dark mode) and the STDF / KLARF Explorer's sparklines, defect-class colors and spec-limit lines use fixed hex values instead of theme tokens.
+6. **hreflang / i18n routing — decision recorded, traffic-gated.** Full locale routing means 5 × 64 prerendered pages, and hreflang alternates are only honest once the per-tool FAQ and notes copy is translated too — thousands of strings, not just shell UI. Trigger: sustained non-English organic traffic. Until then the app keeps client-side locale switching and English-only metadata.
 
 ## Conventions for contributors
 

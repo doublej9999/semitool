@@ -15,6 +15,7 @@ export default function PressureConverter() {
       headlineUnit="Torr"
       initialValue="1"
       initialUnit="atm"
+      urlKeyPrefix="pressure"
       convert={(value, unit) => {
         if (!Number.isFinite(value)) return { ok: false, errors: ['Enter a pressure to convert.'] };
         if (value < 0) return { ok: false, errors: ['A pressure cannot be negative.'] };

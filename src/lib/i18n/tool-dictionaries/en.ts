@@ -807,5 +807,24 @@ export const en: Record<string, ToolTranslation> = {
       "metal line",
       "pre-tapeout"
     ]
+  },
+  "/tools/drc-rule-checker": {
+    "name": "DRC Rule-of-Thumb Checker",
+    "description": "Check drawn width, spacing, pitch and contact/via enclosure values against literature-typical design rules for 180 nm to 7 nm FinFET process families, with pass/fail margins, a per-layer rule table and CSV export — a pre-layout sanity check, not a foundry DRC deck.",
+    "keywords": [
+      "drc",
+      "design rules",
+      "rule of thumb",
+      "minimum width",
+      "minimum spacing",
+      "minimum pitch",
+      "enclosure",
+      "min area",
+      "process node",
+      "finfet",
+      "tapeout",
+      "dfm",
+      "layout check"
+    ]
   }
 };

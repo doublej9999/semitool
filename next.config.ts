@@ -2,9 +2,57 @@ import path from "node:path";
 import type { NextConfig } from "next";
 import bundleAnalyzer from "@next/bundle-analyzer";
 
+// Security headers applied to every route (source "/(.*)" covers the root
+// path too). CSP notes, all verified against the actual app code:
+// - script-src 'unsafe-inline': the root layout ships a tiny inline
+//   theme-bootstrap script and Next.js injects inline bootstrap payloads.
+// - 'unsafe-eval' is added to script-src outside production only: in dev
+//   React uses eval for debug tooling (bundled Next.js CSP guide); neither
+//   React nor Next.js use eval in production.
+// - style-src 'unsafe-inline': the app styles elements inline everywhere.
+// - font-src 'self' is enough: katex.min.css references its fonts with
+//   relative url(fonts/...) paths, so Next bundles them as same-origin assets.
+// - img-src data: covers inline SVG data URIs; blob: URLs in src/ are only
+//   used for file downloads, which CSP does not restrict.
+// - connect-src 'self': there are no runtime fetches to external origins —
+//   GitHub links are plain <a> navigations, which CSP does not restrict.
+const isDev = process.env.NODE_ENV === "development";
+
+const securityHeaders = [
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  },
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data:",
+      "font-src 'self'",
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; "),
+  },
+];
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
+    ];
   },
 };
 

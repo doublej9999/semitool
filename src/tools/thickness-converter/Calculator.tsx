@@ -15,6 +15,7 @@ export default function ThicknessConverter() {
       headlineUnit="nm"
       initialValue="1000"
       initialUnit="angstrom"
+      urlKeyPrefix="thickness"
       convert={(value, unit) => {
         if (!Number.isFinite(value)) return { ok: false, errors: ['Enter a length to convert.'] };
         if (value < 0) return { ok: false, errors: ['A length cannot be negative.'] };

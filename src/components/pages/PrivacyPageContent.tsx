@@ -2,6 +2,7 @@
 
 import { useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
+import PrivacyDataSection from './PrivacyDataSection';
 
 export default function PrivacyPageContent() {
   const locale = useLocale();
@@ -15,6 +16,8 @@ export default function PrivacyPageContent() {
 
       <h2>{t.privacySec1Title}</h2>
       <p>{t.privacySec1Text}</p>
+
+      <PrivacyDataSection />
 
       <h2>{t.privacySec2Title}</h2>
       <p>{t.privacySec2Text}</p>

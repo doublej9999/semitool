@@ -1,0 +1,32 @@
+# Dependabot dependency updates.
+#
+# npm: weekly on Monday, one grouped PR for minor+patch, majors for next/react
+# ignored (this project deliberately rides current majors; major bumps need
+# manual testing).
+# github-actions: weekly, keeps the CI workflow actions current.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "next"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "react"
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"

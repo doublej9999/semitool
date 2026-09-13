@@ -23,6 +23,7 @@ export default function PowerConverter() {
       headlineUnit="dBm"
       initialValue="1"
       initialUnit="W"
+      urlKeyPrefix="power"
       convert={(value, unit) => {
         if (!Number.isFinite(value)) return { ok: false, errors: ['Enter a power to convert.'] };
         if (belowZeroPower(value, unit as PowerUnit)) {

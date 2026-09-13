@@ -23,9 +23,17 @@ const fmt = (value: number) => Number(value.toPrecision(6)).toString();
 
 export default function GasFlowConverter() {
   const g = useGlossary();
-  const [state, setState] = useState({ gasId: GASES[0].id, temperature: 0 as ReferenceTemperature });
+  // One URL-synced object for the whole page: useUrlParamsState rewrites the
+  // entire query string, so gas/reference and the converter's value/unit must
+  // share a single hook rather than the converter syncing itself.
+  const [state, setState] = useState({
+    gasId: GASES[0].id,
+    temperature: 0 as ReferenceTemperature,
+    flowValue: '100',
+    flowUnit: 'sccm',
+  });
   useUrlParamsState(state, setState);
-  const { gasId, temperature } = state;
+  const { gasId, temperature, flowValue, flowUnit } = state;
 
   const gas = GASES.find((entry) => entry.id === gasId) ?? GASES[0];
   const molarVolume = molarVolumeCm3(temperature);
@@ -38,6 +46,10 @@ export default function GasFlowConverter() {
       headlineUnit="slm"
       initialValue="100"
       initialUnit="sccm"
+      value={flowValue}
+      unit={flowUnit}
+      onValueChange={(next) => setState((current) => ({ ...current, flowValue: next }))}
+      onUnitChange={(next) => setState((current) => ({ ...current, flowUnit: next }))}
       controls={
         <>
           <div className="field">

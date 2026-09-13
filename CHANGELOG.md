@@ -4,6 +4,30 @@ All notable changes to SemiTools are documented here. The project has no version
 
 ## [Unreleased]
 
+### 2026-09 (round 4)
+
+**Robustness & Security**
+
+- Error boundaries at three levels — root `app/error.tsx`, a `/tools` segment boundary and a window-level `global-error.tsx` — so a crashing calculator shows a recovery screen instead of a white page
+- Security headers on every route (`next.config.ts`): Content-Security-Policy (`default-src 'self'`, `'unsafe-eval'` only outside production), X-Frame-Options DENY, nosniff, strict-origin-when-cross-origin and a locked-down Permissions-Policy
+- Dependabot: weekly npm and github-actions updates (one grouped minor/patch PR for npm; next/react majors ignored deliberately)
+
+**Features**
+
+- 64th tool: DRC Rule-of-Thumb Checker (Metrology & Layout) — drawn width, spacing, pitch and contact/via enclosure checked against literature-typical rules for 180 nm to 7 nm FinFET process families
+- Privacy-page data control: one-click JSON export of all stored user data (localStorage plus the STDF/KLARF Explorer's IndexedDB cache) and a two-step "clear browsing data" that keeps UI preferences by default
+- Tool finder intent map grown to 232 phrases (from 135), with a coverage-gate test that fails when any registered tool is not reachable as a top-3 result for at least one phrase
+- URL-state sync completed: all 64 tools restore and share state from the URL — the three `UnitConverter`-based converters (thickness, pressure, power) now serialize via a `urlKeyPrefix`
+
+**Quality**
+
+- Component smoke tests for the five most complex calculators (film color, wafer map, wafer warp/stress, wet bench, STDF/KLARF explorer)
+- Tests for the new robustness surface: error boundaries (`app/error.test.tsx`), the user-data export/clear (`user-data.test.tsx`) and the DRC rule catalog (`drc-rules.test.ts`); the suite now stands at 95 test files / 850+ tests
+
+**Docs**
+
+- Icon payload investigation closed: the ~164 kB icon-chunk premise was wrong — the real payload is 73.7 kB across 2 shared chunks, tree-shaking verified working, zero unused icons (verdict recorded in the roadmap)
+
 ### 2026-09 (round 3)
 
 **Performance**

@@ -1,6 +1,6 @@
 # SemiTools
 
-Semiconductor engineering calculators that run entirely in the browser — 63 tools across 10 categories. Every tool states its units, shows the formula it uses, and refuses to pretend a generic estimate is a fab-specific number.
+Semiconductor engineering calculators that run entirely in the browser — 64 tools across 10 categories. Every tool states its units, shows the formula it uses, and refuses to pretend a generic estimate is a fab-specific number.
 
 **Live:** https://semitool.vercel.app
 
@@ -42,7 +42,7 @@ The table below mirrors the registry in `src/tools/index.ts` — sidebar order, 
 | Coffin-Manson Thermal Fatigue Calculator | `/tools/thermal-fatigue-calculator` | Thermal cycling fatigue life (Nf), shear strain range, solder alloy ductility (SAC305/SnPb) and field acceleration factor |
 | Split-Lot & DOE Recipe Overlay Calculator | `/tools/split-lot-calculator` | Split-lot and Design of Experiments (DOE) recipe overlay matrix, multi-wafer parameter variance tracking, response delta comparisons and run-sheet export |
 
-### Metrology & Layout (8)
+### Metrology & Layout (9)
 
 | Tool | Route | What it does |
 | --- | --- | --- |
@@ -54,6 +54,7 @@ The table below mirrors the registry in `src/tools/index.ts` — sidebar order, 
 | Four-Point Probe Calculator (ASTM F84) | `/tools/four-point-probe-calculator` | ASTM F84 / SEMI MF84 collinear four-point probe sheet resistance, wafer resistivity, thickness correction factor and NIST dopant density inversion |
 | STDF / KLARF Explorer | `/tools/stdf-klarf-explorer` | Parses ATE STDF V4 and KLA KLARF files in the browser: per-test Cpk statistics, sparkline trends, bin distribution, yield, defect clusters and one-click SPC hand-off *(new)* |
 | IC Layout Parasitics Estimator | `/tools/layout-parasitics-calculator` | Estimates interconnect resistance, plate and fringe capacitance, IR drop and RC delay from drawn layout geometry — the classic pre-tapeout sanity check for metal, poly and dielectric stacks *(new)* |
+| DRC Rule-of-Thumb Checker | `/tools/drc-rule-checker` | Checks drawn width, spacing, pitch and contact/via enclosure against literature-typical design rules for 180 nm to 7 nm FinFET process families, with pass/fail margins and a per-layer rule table *(new)* |
 
 ### Unit Conversion (7)
 
@@ -121,7 +122,7 @@ The table below mirrors the registry in `src/tools/index.ts` — sidebar order, 
 | --- | --- | --- |
 | Wet Bench Chemical Lifetime & Spike Calculator | `/tools/wet-bench-calculator` | RCA clean (SC-1 / SC-2), SPM Piranha and BOE etch bath lifetime, chemical spike dosing and dissolved silicon loading decay *(new)* |
 
-The home page carries a local natural-language tool finder ("Describe your task"): it scores every registry tool against the query using the localized names, descriptions and keywords plus a hand-built synonym/intent map (~135 intent phrases across English, Chinese, Japanese and Korean). Everything runs in the browser — no API calls.
+The home page carries a local natural-language tool finder ("Describe your task"): it scores every registry tool against the query using the localized names, descriptions and keywords plus a hand-built synonym/intent map (232 intent phrases across English, Chinese, Japanese and Korean; a coverage-gate test fails when any registered tool is not reachable as a top-3 result for at least one phrase). Everything runs in the browser — no API calls.
 
 ## Stack
 
@@ -129,13 +130,14 @@ Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-reac
 
 All calculations are client-side. There is no account, database, payment or server-side compute.
 
-The interface theme is light / dark / system, with a no-flash inline bootstrap that paints `<html data-theme>` before first render. The app is a PWA: a service worker precaches core assets and an offline fallback page covers navigations the cache misses.
+The interface theme is light / dark / system, with a no-flash inline bootstrap that paints `<html data-theme>` before first render. The app is a PWA: a service worker precaches core assets and an offline fallback page covers navigations the cache misses. If a calculator crashes at render time, error boundaries at the root, the `/tools` segment and the window level show a recovery screen instead of a white page.
 
 ## Architecture
 
 ```
 src/
-  app/                      routes, metadata, sitemap, robots, 404
+  app/                      routes, metadata, sitemap, robots, 404, error boundaries
+                            (root, /tools segment, window-level global-error)
     tools/<slug>/page.tsx   server component: per-tool metadata + SEO content, renders the calculator
     api/og/route.tsx        dynamic Open Graph card per tool (title + category params)
   components/
@@ -187,16 +189,22 @@ src/
     stdf-parser.ts          ATE STDF V4 record parsing (PTR / PRR / MIR, bins, wafers)
     klarf-parser.ts         KLA KLARF 1.x defect/wafer parsing
     metrology-batch.ts      metrology CSV parsing, limit auto-detection, Tukey / 3-sigma outlier screening
+    drc-rules.ts            rule-of-thumb DRC catalog: width / spacing / pitch / enclosure rules
+                            for 180 nm to 7 nm process nodes, with per-layer rule tables
     fab-session.ts          unified Fab Workspace session store (film stack, genealogy lot,
                             metrology summary, workflow progress, custom flows; localStorage)
     film-stack.ts           film stack project model
     lot-genealogy.ts        virtual lot genealogy model
-    use-url-state.ts        hook that serialises tool inputs to URL query params (replaceState)
+    use-url-state.ts        hook that serialises tool inputs to URL query params (replaceState);
+                            all 64 tools are URL-restorable (the thickness / pressure / power
+                            converters via the shared UnitConverter's urlKeyPrefix)
     i18n/                   locale resolution + translations; dictionaries/ (shell strings) and
                             tool-dictionaries/ (per-tool strings), one lazy-loaded file per locale
     search.ts               Fuse.js wrapper used by the palette and the toolbox page
     tool-finder.ts          local natural-language tool finder: synonym/intent scoring of the registry (home page)
     favorites.ts            favourite tools store (localStorage, useSyncExternalStore)
+    user-data.ts            privacy-page user-data export (JSON) and clear of every stored
+                            key (localStorage + IndexedDB), keeping UI preferences by default
     preferences.ts          persisted UI preferences (collapsed categories / rail)
     site.ts                 canonical URL, site name, repository URL
   tools/                    tool registry, mirroring the it-tools structure
@@ -293,7 +301,7 @@ npm run dev     # local development
 npm run build   # production build
 npm run start   # serve the production build
 npm run lint    # ESLint
-npm run test    # Vitest: 82 test files / 690+ tests across lib, registry, i18n, parsers and components
+npm run test    # Vitest: 95 test files / 850+ tests across lib, registry, i18n, parsers and components
 npm run analyze # bundle analysis (@next/bundle-analyzer)
 npm run check:budget # bundle budget gate: fails if a gated route ('/', '/tools', '/tools/*') exceeds its First Load JS budget (default 700 kB)
 npm run e2e     # Playwright E2E smoke suite (10 specs across 5 files); `npm run e2e:ui` opens the UI runner
@@ -312,3 +320,5 @@ Every tool gets a dynamic Open Graph card from the `/api/og` route (title and ca
 ## Privacy
 
 No analytics, no cookies, no server-side storage of inputs. Favourites, sidebar preferences, locale, the Fab Workspace session and the scratchpad stay in `localStorage`. Locale detection is browser-language-only — no IP or GeoIP lookups.
+
+The privacy page puts that data in your hands: a one-click JSON export of every stored key plus the STDF/KLARF Explorer's cached load from IndexedDB (`src/lib/user-data.ts`), and a two-step "clear browsing data" that keeps UI preferences such as language and theme by default. Every route is also served with security headers from `next.config.ts`: a Content-Security-Policy locked to same-origin resources (`'unsafe-eval'` appears in script-src only outside production), `X-Frame-Options: DENY`, nosniff, a strict-origin-when-cross-origin Referrer-Policy and a Permissions-Policy that disables camera, microphone, geolocation and the interest-cohort API.
