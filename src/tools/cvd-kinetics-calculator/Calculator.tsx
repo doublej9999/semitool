@@ -555,8 +555,8 @@ export default function CvdKineticsCalculator() {
                       const rateVal = chartData.maxY * f;
                       return (
                         <g key={f}>
-                          <line x1={pad.left} y1={y} x2={pad.left + pW} y2={y} stroke="var(--border)" strokeDasharray="3 3" opacity={0.6} />
-                          <text x={pad.left - 8} y={y + 4} fontSize="9" fill="var(--text-dim)" textAnchor="end" fontFamily="var(--font-mono)">
+                          <line x1={pad.left} y1={y} x2={pad.left + pW} y2={y} stroke="var(--chart-grid)" strokeDasharray="3 3" opacity={0.6} />
+                          <text x={pad.left - 8} y={y + 4} fontSize="9" fill="var(--chart-axis)" textAnchor="end" fontFamily="var(--font-mono)">
                             {rateVal.toFixed(1)}
                           </text>
                         </g>
@@ -569,8 +569,8 @@ export default function CvdKineticsCalculator() {
                       const xCm = chartData.maxX * f;
                       return (
                         <g key={f}>
-                          <line x1={x} y1={pad.top} x2={x} y2={pad.top + pH} stroke="var(--border)" strokeDasharray="3 3" opacity={0.6} />
-                          <text x={x} y={pad.top + pH + 16} fontSize="9" fill="var(--text-dim)" textAnchor="middle" fontFamily="var(--font-mono)">
+                          <line x1={x} y1={pad.top} x2={x} y2={pad.top + pH} stroke="var(--chart-grid)" strokeDasharray="3 3" opacity={0.6} />
+                          <text x={x} y={pad.top + pH + 16} fontSize="9" fill="var(--chart-axis)" textAnchor="middle" fontFamily="var(--font-mono)">
                             {xCm.toFixed(0)}
                           </text>
                         </g>
@@ -581,7 +581,7 @@ export default function CvdKineticsCalculator() {
                     <path d={chartData.areaD} fill="rgba(33, 150, 243, 0.12)" />
 
                     {/* Depletion Curve Line */}
-                    <path d={chartData.pathD} fill="none" stroke="var(--teal)" strokeWidth="2.5" />
+                    <path d={chartData.pathD} fill="none" stroke="var(--chart-accent)" strokeWidth="2.5" />
 
                     {/* Current Wafer Position Line */}
                     <line
@@ -589,23 +589,23 @@ export default function CvdKineticsCalculator() {
                       y1={pad.top}
                       x2={chartData.waferX}
                       y2={pad.top + pH}
-                      stroke="#e06c75"
+                      stroke="var(--chart-limit)"
                       strokeWidth="1.8"
                       strokeDasharray="4 3"
                     />
-                    <text x={chartData.waferX + 5} y={pad.top + 16} fontSize="9" fill="#e06c75" fontWeight="600">
+                    <text x={chartData.waferX + 5} y={pad.top + 16} fontSize="9" fill="var(--chart-limit)" fontWeight="600">
                       Wafer (x = {state.waferPositionXCm} cm)
                     </text>
 
                     {/* Axis labels */}
-                    <text x={pad.left + pW / 2} y={pad.top + pH + 34} fontSize="10" fill="var(--text-dim)" textAnchor="middle">
+                    <text x={pad.left + pW / 2} y={pad.top + pH + 34} fontSize="10" fill="var(--chart-axis)" textAnchor="middle">
                       Susceptor Distance x (cm)
                     </text>
                     <text
                       x={14}
                       y={pad.top + pH / 2}
                       fontSize="10"
-                      fill="var(--text-dim)"
+                      fill="var(--chart-axis)"
                       textAnchor="middle"
                       transform={`rotate(-90, 14, ${pad.top + pH / 2})`}
                     >

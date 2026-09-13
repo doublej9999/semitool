@@ -793,5 +793,24 @@ export const zhTW: Record<string, ToolTranslation> = {
       "佈局檢查",
       "經驗值"
     ]
+  },
+  "/tools/esd-estimator-calculator": {
+    "name": "ESD 保護估算器",
+    "description": "從保護元件尺寸估算晶片上靜電放電（ESD）耐受度（HBM、MM、CDM）——二極體周長、閘極接地 NMOS 閘寬或電源鉗位寬度——並對照 JEDEC 等級目標給出反向尺寸建議；經驗法則估算，並非下線驗證的簽核結果。",
+    "keywords": [
+      "靜電",
+      "靜電放電",
+      "ESD保護",
+      "人體模型",
+      "機器模型",
+      "帶電元件模型",
+      "保護二極體",
+      "閘極接地NMOS",
+      "電源鉗位",
+      "JEDEC等級",
+      "傳輸線脈衝",
+      "TLP",
+      "IO保護"
+    ]
   }
 };

@@ -336,12 +336,12 @@ export default function CurveFittingCalculator() {
             <svg
               ref={svgRef}
               viewBox="0 0 460 220"
-              style={{ width: '100%', height: 'auto', background: 'var(--paper)', borderRadius: 6 }}
+              style={{ width: '100%', height: 'auto', background: 'var(--chart-bg)', borderRadius: 6 }}
               aria-label="Curve Fitting Scatter and Fit Line"
             >
               {/* Axes */}
-              <line x1="50" y1="20" x2="50" y2="180" stroke="var(--border)" strokeWidth="1" />
-              <line x1="50" y1="180" x2="430" y2="180" stroke="var(--border)" strokeWidth="1" />
+              <line x1="50" y1="20" x2="50" y2="180" stroke="var(--chart-grid)" strokeWidth="1" />
+              <line x1="50" y1="180" x2="430" y2="180" stroke="var(--chart-grid)" strokeWidth="1" />
 
               {/* Render dynamic scatter points & fit curve based on mode */}
               {mode === 'arrhenius' && arrheniusResult && (() => {
@@ -366,7 +366,7 @@ export default function CurveFittingCalculator() {
                       y1={toSvgY(Math.log(first.predictedRate))}
                       x2={toSvgX(last.invTK)}
                       y2={toSvgY(Math.log(last.predictedRate))}
-                      stroke="var(--teal)"
+                      stroke="var(--chart-accent)"
                       strokeWidth="2"
                     />
                     {pts.map((p, idx) => (
@@ -375,15 +375,15 @@ export default function CurveFittingCalculator() {
                         cx={toSvgX(p.invTK)}
                         cy={toSvgY(p.lnRate)}
                         r="4"
-                        fill="var(--teal)"
-                        stroke="#fff"
+                        fill="var(--chart-accent)"
+                        stroke="var(--chart-bg)"
                         strokeWidth="1.5"
                       />
                     ))}
-                    <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--ink)">
+                    <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--chart-axis)">
                       1000 / T (K⁻¹)
                     </text>
-                    <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--ink)" transform="rotate(-90 20 100)">
+                    <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--chart-axis)" transform="rotate(-90 20 100)">
                       ln(Rate)
                     </text>
                   </>
@@ -409,22 +409,22 @@ export default function CurveFittingCalculator() {
 
                 return (
                   <>
-                    <path d={pathD} fill="none" stroke="var(--teal)" strokeWidth="2" />
+                    <path d={pathD} fill="none" stroke="var(--chart-accent)" strokeWidth="2" />
                     {pts.map((p, idx) => (
                       <circle
                         key={idx}
                         cx={toSvgX(p.thicknessUm)}
                         cy={toSvgY(p.timeHours)}
                         r="4"
-                        fill="var(--teal)"
-                        stroke="#fff"
+                        fill="var(--chart-accent)"
+                        stroke="var(--chart-bg)"
                         strokeWidth="1.5"
                       />
                     ))}
-                    <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--ink)">
+                    <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--chart-axis)">
                       Oxide Thickness x_ox (μm)
                     </text>
-                    <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--ink)" transform="rotate(-90 20 100)">
+                    <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--chart-axis)" transform="rotate(-90 20 100)">
                       Time (hr)
                     </text>
                   </>
@@ -452,7 +452,7 @@ export default function CurveFittingCalculator() {
                       y1={toSvgY(y1)}
                       x2={toSvgX(maxX)}
                       y2={toSvgY(y2)}
-                      stroke="var(--teal)"
+                      stroke="var(--chart-accent)"
                       strokeWidth="2"
                     />
                     {rawPoints.map((p, idx) => (
@@ -461,15 +461,15 @@ export default function CurveFittingCalculator() {
                         cx={toSvgX(p.x)}
                         cy={toSvgY(p.y)}
                         r="4"
-                        fill="var(--teal)"
-                        stroke="#fff"
+                        fill="var(--chart-accent)"
+                        stroke="var(--chart-bg)"
                         strokeWidth="1.5"
                       />
                     ))}
-                    <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--ink)">
+                    <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--chart-axis)">
                       Independent X
                     </text>
-                    <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--ink)" transform="rotate(-90 20 100)">
+                    <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--chart-axis)" transform="rotate(-90 20 100)">
                       Dependent Y
                     </text>
                   </>

@@ -49,16 +49,22 @@ A living document so direction is not re-derived every session. Last updated: 20
 - Component smoke tests for the five most complex calculators (film color, wafer map, wafer warp/stress, wet bench, STDF/KLARF explorer)
 - Icon payload investigation closed: the ~164 kB icon-chunk premise was wrong — the real icon payload is 73.7 kB across 2 shared chunks, tree-shaking verified working, zero unused icons. Recorded here so nobody re-investigates.
 
+**Shipped 2026-09 (round 5)**
+
+- 65th tool: ESD Protection Estimator (Metrology & Layout) — on-chip ESD robustness (HBM, MM, CDM) estimated from protection-device sizing, checked against JEDEC class targets with inverse sizing suggestions (third of the IC layout / DFM cluster)
+- Reduced-motion support: a global `prefers-reduced-motion: reduce` block kills transitions and animations app-wide (`!important` overrides even inline styles) and neutralizes the entrance keyframes
+- Chart color tokens: ten `--chart-*` tokens defined for light, dark and print, adopted across the SPC, wafer-map, curve-fitting, dopant-diffusion, CVD-kinetics and thermal-oxide charts plus the explorer sparklines/scatter — charts no longer paint white boxes in dark mode (distinct semantic palettes kept: KLARF cluster quartet, wafer-map Skip gray, dopant/CVD alpha washes). Known limitation: `downloadSvg` serializes live SVG with unresolved `var()` references, so exported .svg files don't resolve the tokens in standalone viewers (pre-existing behavior, now affects more colors; a future fix could inline computed values)
+- Explorer slimming: KLARF parsing moved into the worker (same inline-fallback ladder), the demo generator lazy-loaded and the parser libraries dynamic at the fallback call sites — the STDF / KLARF Explorer route dropped 697.6 → 685.4 kB First Load JS and is no longer the heaviest (SPC now is, at 690.0 kB); the bundle budget gate was retuned 700 → 710 kB (2.9% headroom over the new heaviest route)
+- React Compiler evaluated and REJECTED: runtime-correct (876 tests + 10 E2E green) but +10-35 kB First Load JS per route (6 routes broke the 710 kB gate) and 4x slower builds (2.4s → 9.6s), while the hand-written `useMemo` coverage already handles the expensive paths. Verdict and re-evaluation criteria live in a comment in `next.config.ts` — do not re-litigate without new facts (raised budgets or a materially smaller compiler output)
+
 ## Next candidates
 
 Ordered. Re-evaluate rather than execute blindly.
 
-1. **Bundle budget tightening.** A flat 700 kB per-route gate now runs in CI (`npm run check:budget`), but the gate is uniform, not per-tool; tighten per-route budgets and keep trimming the heaviest routes (the explorer sits at ~675 kB, close to the gate) as tools multiply.
-2. **Third DFM tool (ESD estimator), then beyond.** The parasitics estimator and the DRC rule-of-thumb checker are shipped; an ESD estimator is the natural third. Grow along the V1 PRD's Wafer / Process / Electrical / Manufacturing clusters instead of ad-hoc additions.
+1. **Bundle budget tightening / SPC route slimming.** The flat gate now sits at 710 kB per route (`npm run check:budget`) with the SPC route the heaviest at ~690 kB — the next lever is slimming that route (the explorer already went 697.6 → 685.4 kB in round 5), plus per-route budgets as tools multiply.
+2. **Tool cluster growth — fourth DFM tool and beyond.** The parasitics estimator, DRC rule-of-thumb checker and ESD estimator are shipped; a serpentine resistor or antenna checker is the natural fourth. Grow along the V1 PRD's Wafer / Process / Electrical / Manufacturing clusters instead of ad-hoc additions.
 3. **Tool finder in the command palette.** The synonym/intent map itself is no longer a backlog item (232 phrases, coverage-gated); what remains is surfacing the finder inside the command palette so it is reachable beyond the home page.
-4. **Reduced-motion support.** Nothing in `src/` references `prefers-reduced-motion`; the theme-switch transitions (body / panel / info-card) and any animated panels should collapse under the media query.
-5. **Chart color tokens for dark mode.** Charts still hardcode hex: the SPC control chart paints its plot background `#ffffff` (a white box in dark mode) and the STDF / KLARF Explorer's sparklines, defect-class colors and spec-limit lines use fixed hex values instead of theme tokens.
-6. **hreflang / i18n routing — decision recorded, traffic-gated.** Full locale routing means 5 × 64 prerendered pages, and hreflang alternates are only honest once the per-tool FAQ and notes copy is translated too — thousands of strings, not just shell UI. Trigger: sustained non-English organic traffic. Until then the app keeps client-side locale switching and English-only metadata.
+4. **hreflang / i18n routing — decision recorded, traffic-gated.** Full locale routing means 5 × 65 prerendered pages, and hreflang alternates are only honest once the per-tool FAQ and notes copy is translated too — thousands of strings, not just shell UI. Trigger: sustained non-English organic traffic. Until then the app keeps client-side locale switching and English-only metadata.
 
 ## Conventions for contributors
 

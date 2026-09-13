@@ -1,6 +1,6 @@
 # SemiTools
 
-Semiconductor engineering calculators that run entirely in the browser — 64 tools across 10 categories. Every tool states its units, shows the formula it uses, and refuses to pretend a generic estimate is a fab-specific number.
+Semiconductor engineering calculators that run entirely in the browser — 65 tools across 10 categories. Every tool states its units, shows the formula it uses, and refuses to pretend a generic estimate is a fab-specific number.
 
 **Live:** https://semitool.vercel.app
 
@@ -36,25 +36,26 @@ The table below mirrors the registry in `src/tools/index.ts` — sidebar order, 
 | Bin Yield Calculator | `/tools/bin-yield-calculator` | Roll up wafer-sort bin counts into per-bin share, cumulative yield, the pass fraction and the measured defect rate in DPPM |
 | FIT & MTBF Calculator | `/tools/fit-mtbf-calculator` | Failure rate, FIT and MTBF from a life test, with the DPPM over a mission time and the time to a 1% or 10% failing fraction |
 | Yield ⇄ DPPM Calculator | `/tools/yield-dppm-calculator` | Convert between yield, DPPM, DPB and the equivalent one-sided sigma and Cpk, in any direction |
-| Weibull Life Calculator | `/tools/weibull-life-calculator` | Weibull fit by median rank: shape and scale, the fit correlation, B1 / B10 / B50 life, MTBF and the reliability at a mission time |
-| SPC Control Chart Calculator | `/tools/spc-control-chart-calculator` | X-bar and R control limits, out-of-limit points, seven-in-a-row runs and the within-subgroup sigma |
-| Acceptance Sampling Calculator | `/tools/acceptance-sampling-calculator` | The operating characteristic of a sample plan, and the zero acceptance sample size that rejects a lot as bad as a stated fraction |
+| Weibull Life Calculator | `/tools/weibull-life-calculator` | Weibull fit by median rank: shape and scale, the fit correlation, B1 / B10 / B50 life, MTBF and the reliability at a mission time *(new)* |
+| SPC Control Chart Calculator | `/tools/spc-control-chart-calculator` | X-bar and R control limits, out-of-limit points, seven-in-a-row runs and the within-subgroup sigma *(new)* |
+| Acceptance Sampling Calculator | `/tools/acceptance-sampling-calculator` | The operating characteristic of a sample plan, and the zero acceptance sample size that rejects a lot as bad as a stated fraction *(new)* |
 | Coffin-Manson Thermal Fatigue Calculator | `/tools/thermal-fatigue-calculator` | Thermal cycling fatigue life (Nf), shear strain range, solder alloy ductility (SAC305/SnPb) and field acceleration factor |
 | Split-Lot & DOE Recipe Overlay Calculator | `/tools/split-lot-calculator` | Split-lot and Design of Experiments (DOE) recipe overlay matrix, multi-wafer parameter variance tracking, response delta comparisons and run-sheet export |
 
-### Metrology & Layout (9)
+### Metrology & Layout (10)
 
 | Tool | Route | What it does |
 | --- | --- | --- |
 | Sheet Resistance Calculator | `/tools/sheet-resistance-calculator` | Sheet resistance, resistivity and conductivity from a four-point probe measurement, plus a sheet resistance / resistivity converter |
 | Reticle Field Calculator | `/tools/reticle-field-calculator` | Dice per field, field utilisation and scribe-lane effect, plus shots per wafer and the dice they can carry |
-| PN Junction Depletion Calculator | `/tools/semiconductor-depletion-calculator` | Built-in potential, depletion width, electric field, junction capacitance and breakdown voltage under reverse bias for PN junctions |
-| MOSFET Threshold & Gate Oxide Calculator | `/tools/mosfet-threshold-calculator` | Threshold voltage, equivalent oxide thickness (EOT), gate capacitance, flatband voltage, body effect and subthreshold swing for NMOS and PMOS transistors |
-| Wire Bonding Parasitics & Fusing Calculator | `/tools/wire-bonding-calculator` | Bond wire self-inductance, AC resistance (skin effect), Preece fusing current, and JEDEC continuous DC limits for Au, Cu, Al and Ag |
+| PN Junction Depletion Calculator | `/tools/semiconductor-depletion-calculator` | Built-in potential, depletion width, electric field, junction capacitance and breakdown voltage under reverse bias for PN junctions *(new)* |
+| MOSFET Threshold & Gate Oxide Calculator | `/tools/mosfet-threshold-calculator` | Threshold voltage, equivalent oxide thickness (EOT), gate capacitance, flatband voltage, body effect and subthreshold swing for NMOS and PMOS transistors *(new)* |
+| Wire Bonding Parasitics & Fusing Calculator | `/tools/wire-bonding-calculator` | Bond wire self-inductance, AC resistance (skin effect), Preece fusing current, and JEDEC continuous DC limits for Au, Cu, Al and Ag *(new)* |
 | Four-Point Probe Calculator (ASTM F84) | `/tools/four-point-probe-calculator` | ASTM F84 / SEMI MF84 collinear four-point probe sheet resistance, wafer resistivity, thickness correction factor and NIST dopant density inversion |
 | STDF / KLARF Explorer | `/tools/stdf-klarf-explorer` | Parses ATE STDF V4 and KLA KLARF files in the browser: per-test Cpk statistics, sparkline trends, bin distribution, yield, defect clusters and one-click SPC hand-off *(new)* |
 | IC Layout Parasitics Estimator | `/tools/layout-parasitics-calculator` | Estimates interconnect resistance, plate and fringe capacitance, IR drop and RC delay from drawn layout geometry — the classic pre-tapeout sanity check for metal, poly and dielectric stacks *(new)* |
 | DRC Rule-of-Thumb Checker | `/tools/drc-rule-checker` | Checks drawn width, spacing, pitch and contact/via enclosure against literature-typical design rules for 180 nm to 7 nm FinFET process families, with pass/fail margins and a per-layer rule table *(new)* |
+| ESD Protection Estimator | `/tools/esd-estimator-calculator` | Estimates on-chip ESD robustness (HBM, MM, CDM) from protection-device sizing — diode perimeter, GGNMOS gate width or supply-clamp width — checked against JEDEC class targets, with inverse sizing suggestions; rule-of-thumb scaling, not silicon sign-off *(new)* |
 
 ### Unit Conversion (7)
 
@@ -100,8 +101,8 @@ The table below mirrors the registry in `src/tools/index.ts` — sidebar order, 
 | Diffusion Length Calculator | `/tools/diffusion-length-calculator` | Diffusion length and thermal budget from a diffusivity and a time, with the characteristic, erfc and Gaussian length scales labelled separately |
 | Arrhenius Rate Calculator | `/tools/arrhenius-calculator` | Arrhenius rate from a prefactor and an activation energy, and the activation energy and prefactor extracted from two rates at two temperatures |
 | Deal-Grove Thermal Oxide Calculator | `/tools/thermal-oxide-calculator` | Oxide thickness from an oxidation time or the time to a target thickness, with an initial oxide, the linear / parabolic regime and the silicon consumed |
-| Ion Implantation & Doping Calculator | `/tools/ion-implantation-calculator` | Projected range Rp, straggle delta Rp, peak concentration and junction depth from implant energy, species and dose in silicon |
-| Carrier Mobility & Silicon Resistivity Calculator | `/tools/carrier-mobility-calculator` | Caughey-Thomas electron and hole mobility, bulk silicon resistivity, conductivity and dopant concentration bisection solver |
+| Ion Implantation & Doping Calculator | `/tools/ion-implantation-calculator` | Projected range Rp, straggle delta Rp, peak concentration and junction depth from implant energy, species and dose in silicon *(new)* |
+| Carrier Mobility & Silicon Resistivity Calculator | `/tools/carrier-mobility-calculator` | Caughey-Thomas electron and hole mobility, bulk silicon resistivity, conductivity and dopant concentration bisection solver *(new)* |
 | Chip Thermal Resistance & Junction Temp Calculator | `/tools/thermal-resistance-calculator` | Steady-state junction temperature, package thermal resistance (θJC), TIM layer (BLT and k), heat sink (θSA) and thermal margin |
 | Dopant Diffusion & Junction Depth Calculator | `/tools/dopant-diffusion-calculator` | Constant-source (erfc) and limited-source (Gaussian) dopant diffusion in silicon, Arrhenius D(T) coefficients (B, P, As, Sb), junction depth (xj) and oxide mask thickness |
 | Curve Fitting & Parameter Extraction Calculator | `/tools/curve-fitting-calculator` | Arrhenius activation energy (Ea), Deal-Grove oxidation rate constants (B, B/A) and least-squares linear regression with R² goodness-of-fit |
@@ -130,7 +131,7 @@ Next.js (App Router) · TypeScript · React 19 · Tailwind CSS v4 · lucide-reac
 
 All calculations are client-side. There is no account, database, payment or server-side compute.
 
-The interface theme is light / dark / system, with a no-flash inline bootstrap that paints `<html data-theme>` before first render. The app is a PWA: a service worker precaches core assets and an offline fallback page covers navigations the cache misses. If a calculator crashes at render time, error boundaries at the root, the `/tools` segment and the window level show a recovery screen instead of a white page.
+The interface theme is light / dark / system, with a no-flash inline bootstrap that paints `<html data-theme>` before first render. Charts read from a shared set of ten `--chart-*` color tokens (light, dark and print palettes), so dark mode recolors plot backgrounds, series and limit lines instead of painting white boxes. Animations and transitions collapse under `prefers-reduced-motion`. The app is a PWA: a service worker precaches core assets and an offline fallback page covers navigations the cache misses. If a calculator crashes at render time, error boundaries at the root, the `/tools` segment and the window level show a recovery screen instead of a white page.
 
 ## Architecture
 
@@ -196,7 +197,7 @@ src/
     film-stack.ts           film stack project model
     lot-genealogy.ts        virtual lot genealogy model
     use-url-state.ts        hook that serialises tool inputs to URL query params (replaceState);
-                            all 64 tools are URL-restorable (the thickness / pressure / power
+                            all 65 tools are URL-restorable (the thickness / pressure / power
                             converters via the shared UnitConverter's urlKeyPrefix)
     i18n/                   locale resolution + translations; dictionaries/ (shell strings) and
                             tool-dictionaries/ (per-tool strings), one lazy-loaded file per locale
@@ -248,7 +249,7 @@ Everything shares one fab session (`semitools_fab_session_v1` in `localStorage`)
 ## Data import & export
 
 - **Export:** CSV from the data tools, SVG from the wafer map, and real XLSX (ExcelJS) / PDF (jsPDF) downloads where a file beats a clipboard copy; `src/lib/export.ts` is the shared implementation.
-- **Import:** ATE STDF V4 and KLARF 1.x files parse in the browser — a wafer map on the wafer-map generator and full per-test statistics, bin distribution and yield in the STDF / KLARF Explorer. STDF parsing runs in a background Web Worker and the last file is cached in IndexedDB, so the explorer reopens with the previous load.
+- **Import:** ATE STDF V4 and KLARF 1.x files parse in the browser — a wafer map on the wafer-map generator and full per-test statistics, bin distribution and yield in the STDF / KLARF Explorer. STDF and KLARF parsing both run in a background Web Worker (with inline parsing as the fallback) and the last file is cached in IndexedDB, so the explorer reopens with the previous load.
 - **Correlation:** A PTR-vs-PTR view in the STDF / KLARF Explorer aligns two parametric tests by part and reports the Pearson correlation, with the strongest test pairs ranked.
 - **Demo data:** The explorer's "Load synthetic demo" STDF and KLARF lots are fully deterministic — a seeded PRNG and a fixed epoch, so every load is byte-identical and the demo yield is exactly 90.0%.
 - **Metrology CSV import** parses subgroup matrices and long wafer-site tables, auto-detects target / limits / unit, screens outliers (Tukey IQR or 3-sigma) and bridges the cleaned statistics into the SPC and process-capability tools.
@@ -303,7 +304,7 @@ npm run start   # serve the production build
 npm run lint    # ESLint
 npm run test    # Vitest: 95 test files / 850+ tests across lib, registry, i18n, parsers and components
 npm run analyze # bundle analysis (@next/bundle-analyzer)
-npm run check:budget # bundle budget gate: fails if a gated route ('/', '/tools', '/tools/*') exceeds its First Load JS budget (default 700 kB)
+npm run check:budget # bundle budget gate: fails if a gated route ('/', '/tools', '/tools/*') exceeds its First Load JS budget (default 710 kB)
 npm run e2e     # Playwright E2E smoke suite (10 specs across 5 files); `npm run e2e:ui` opens the UI runner
 ```
 

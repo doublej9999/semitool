@@ -775,5 +775,23 @@ export const ko: Record<string, ToolTranslation> = {
       "테이프아웃",
       "레이아웃 검사"
     ]
+  },
+  "/tools/esd-estimator-calculator": {
+    "name": "ESD 보호 추정기",
+    "description": "보호 소자 크기(다이오드 둘레, 게이트 접지 NMOS 게이트 폭, 전원 클램프 폭)로 칩 내부 ESD 내성(HBM, MM, CDM)을 추정하고 JEDEC 등급 목표와 비교하며 역산 크기 제안까지 제공합니다 — 경험칙 추정이며 실리콘으로 검증된 사인오프가 아닙니다.",
+    "keywords": [
+      "정전기",
+      "정전기 방전",
+      "ESD 보호",
+      "인체 모델",
+      "기계 모델",
+      "대전 소자 모델",
+      "보호 다이오드",
+      "게이트 접지 NMOS",
+      "전원 클램프",
+      "JEDEC 등급",
+      "TLP",
+      "IO 보호"
+    ]
   }
 };

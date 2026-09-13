@@ -50,6 +50,20 @@
   --rail-width: 0px;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  /* Chart color contract — consumed by the SVG charts in tool calculators
+     (SPC control charts, explorer sparklines/scatter, wafer maps, profile
+     plots). Light values mirror the previously hardcoded chart palette so
+     existing visuals are unchanged. */
+  --chart-bg: #ffffff;        /* plot background */
+  --chart-grid: #e2e8f0;      /* gridlines */
+  --chart-axis: #475569;      /* axis lines + tick text */
+  --chart-text: #0f172a;      /* annotation text */
+  --chart-accent: #0d7c82;    /* primary series (teal) */
+  --chart-series-2: #d97706;  /* secondary series */
+  --chart-series-3: #6366f1;  /* tertiary series */
+  --chart-limit: #dc2626;     /* spec/control limit lines */
+  --chart-pass: #059669;      /* pass markers */
+  --chart-fail: #b0413a;      /* fail markers (--red family) */
 }
 
 /* ==========================================================================
@@ -80,6 +94,18 @@
   --gold: #d9ac63;
   --blue: #6faef7;
   --amber-soft: #2b2410;
+  /* Dark chart palette — plot background matches the --paper surface family;
+     series/limit colors lifted for contrast on near-black surfaces. */
+  --chart-bg: #10161b;
+  --chart-grid: #2b3841;
+  --chart-axis: #b8c4cc;
+  --chart-text: #e3e9ed;
+  --chart-accent: #5bc8c2;
+  --chart-series-2: #dca55c;
+  --chart-series-3: #818cf8;
+  --chart-limit: #e0857e;
+  --chart-pass: #34d399;
+  --chart-fail: #e0857e;
 }
 
 /* Class-level hardcoded light colors that need a dark counterpart. */
@@ -1763,6 +1789,17 @@ kbd {
     --gold: #b45309;
     --blue: #2563eb;
     --amber-soft: #fffbeb;
+    /* Chart tokens pinned to the light palette for printed reports. */
+    --chart-bg: #ffffff;
+    --chart-grid: #e2e8f0;
+    --chart-axis: #475569;
+    --chart-text: #0f172a;
+    --chart-accent: #0d7c82;
+    --chart-series-2: #d97706;
+    --chart-series-3: #6366f1;
+    --chart-limit: #dc2626;
+    --chart-pass: #059669;
+    --chart-fail: #b0413a;
   }
 
   /* Hide all surrounding chrome, navigation, footers and supplementary docs */
@@ -2005,6 +2042,22 @@ kbd {
     margin: 12mm 15mm;
   }
 
+  /* Chart tokens pinned to the light palette for printing, whatever the UI
+     theme (mirrors the theme-guard reset in the print block above). */
+  :root,
+  [data-theme] {
+    --chart-bg: #ffffff;
+    --chart-grid: #e2e8f0;
+    --chart-axis: #475569;
+    --chart-text: #0f172a;
+    --chart-accent: #0d7c82;
+    --chart-series-2: #d97706;
+    --chart-series-3: #6366f1;
+    --chart-limit: #dc2626;
+    --chart-pass: #059669;
+    --chart-fail: #b0413a;
+  }
+
   *,
   *::before,
   *::after {
@@ -2185,4 +2238,16 @@ body.cleanroom-glove-mode .result-value {
 body.cleanroom-glove-mode .metric {
   padding: 14px !important;
   border-width: 2px !important;
+}
+
+/* ==========================================================================
+   Respect reduced-motion preferences: kill transitions/animations globally.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

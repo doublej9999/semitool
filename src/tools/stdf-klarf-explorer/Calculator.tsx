@@ -11,8 +11,13 @@ import {
   Sparkles,
   Upload,
 } from 'lucide-react';
-import { parseStdfV4, type StdfParseSummary, type StdfParametricTestRecord } from '@/lib/stdf-parser';
-import { generateSyntheticKlarf, parseKlarf, type KlarfSummary } from '@/lib/klarf-parser';
+// Type-only imports: the parsers themselves are loaded on demand (see the
+// `import('@/lib/...')` fallback call sites below). Normal parsing runs in
+// the background worker — which bundles its own copies — so the main-thread
+// parsers are only fetched when the worker is unavailable or failed, keeping
+// them (and monte-carlo, via klarf-parser) out of the initial route bundle.
+import type { StdfParseSummary, StdfParametricTestRecord } from '@/lib/stdf-parser';
+import type { KlarfSummary } from '@/lib/klarf-parser';
 import {
   binSummary,
   groupByTest,
@@ -25,8 +30,7 @@ import { formatSubgroupsForSpc } from '@/lib/metrology-batch';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useGlossary } from '@/lib/i18n/glossary';
 import { loadCachedStdf, saveCachedStdf, type CachedStdfEntry } from './idb';
-import type { StdfParseResponse } from './stdf-worker';
-import { buildDemoStdf } from './demo';
+import type { WorkerRequest, WorkerResponse } from './stdf-worker';
 
 interface TestRow {
   key: string;
@@ -155,6 +159,7 @@ export default function StdfKlarfExplorer() {
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [parsing, setParsing] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [cachedEntry, setCachedEntry] = useState<CachedStdfEntry | null>(null);
   const [limits, setLimits] = useState<Record<string, LimitInput>>({});
   const [loadId, setLoadId] = useState(0);
@@ -249,61 +254,99 @@ export default function StdfKlarfExplorer() {
   }, []);
 
   /**
+   * Sends one request to the background parser worker and resolves with the
+   * matching summary. Handles worker construction (marking the session as
+   * worker-less when unavailable), request-id matching so concurrent loads
+   * cannot consume each other's response, and the failure path: any error
+   * terminates the worker, so the caller retries inline.
+   */
+  const requestWorkerParse = useCallback(
+    async <S,>(
+      build: (id: number) => { request: WorkerRequest; transfer: Transferable[] },
+      successType: 'parsed' | 'klarf-parsed',
+    ): Promise<S> => {
+      let worker = workerRef.current;
+      if (!worker) {
+        try {
+          worker = new Worker(new URL('./stdf-worker.ts', import.meta.url));
+        } catch (error) {
+          // Worker construction is unavailable (old browser, locked-down env):
+          // degrade to inline parsing for the rest of the session.
+          workerFailedRef.current = true;
+          throw new WorkerParseError(error instanceof Error ? error.message : String(error));
+        }
+        workerRef.current = worker;
+      }
+
+      const requestId = nextRequestIdRef.current++;
+      const { request, transfer } = build(requestId);
+      return await new Promise<S>((resolve, reject) => {
+        const active = worker!;
+        const cleanup = () => {
+          active.removeEventListener('message', onMessage);
+          active.removeEventListener('error', onError);
+        };
+        const fail = (message: string, buffer?: ArrayBuffer) => {
+          cleanup();
+          active.terminate();
+          workerRef.current = null;
+          reject(new WorkerParseError(message, buffer));
+        };
+        const onMessage = (event: MessageEvent<WorkerResponse>) => {
+          const response = event.data;
+          // Responses carry the request id: ignore anything not ours (a
+          // concurrent load owns its own listener).
+          if (!response || response.id !== requestId) return;
+          if (response.type === successType) {
+            cleanup();
+            resolve(response.summary as S);
+          } else if (response.type === 'error') {
+            // The worker hands the input buffer back (STDF only) so we can
+            // retry inline.
+            fail(response.message, response.buffer);
+          }
+        };
+        const onError = (event: ErrorEvent) => {
+          // The worker crashed (transferred buffer is unrecoverable): stop
+          // using workers for the session to avoid repeat crashes.
+          workerFailedRef.current = true;
+          fail(event.message || `Background ${successType === 'parsed' ? 'STDF' : 'KLARF'} parser crashed.`);
+        };
+        active.addEventListener('message', onMessage);
+        active.addEventListener('error', onError);
+        active.postMessage(request, transfer);
+      });
+    },
+    [],
+  );
+
+  /**
    * Parses STDF in the background worker (raised PTR cap). Rejects with a
    * `WorkerParseError` carrying a usable buffer whenever one survived, so
    * the caller can retry inline.
    */
-  const parseStdfViaWorker = useCallback(async (buffer: ArrayBuffer): Promise<StdfParseSummary> => {
-    let worker = workerRef.current;
-    if (!worker) {
-      try {
-        worker = new Worker(new URL('./stdf-worker.ts', import.meta.url));
-      } catch (error) {
-        // Worker construction is unavailable (old browser, locked-down env):
-        // degrade to inline parsing for the rest of the session.
-        workerFailedRef.current = true;
-        throw new WorkerParseError(error instanceof Error ? error.message : String(error), buffer);
-      }
-      workerRef.current = worker;
-    }
+  const parseStdfViaWorker = useCallback(
+    (buffer: ArrayBuffer): Promise<StdfParseSummary> =>
+      requestWorkerParse<StdfParseSummary>(
+        (id) => ({ request: { type: 'parse', id, buffer }, transfer: [buffer] }),
+        'parsed',
+      ),
+    [requestWorkerParse],
+  );
 
-    const requestId = nextRequestIdRef.current++;
-    return await new Promise<StdfParseSummary>((resolve, reject) => {
-      const active = worker!;
-      const cleanup = () => {
-        active.removeEventListener('message', onMessage);
-        active.removeEventListener('error', onError);
-      };
-      const fail = (message: string, buffer?: ArrayBuffer) => {
-        cleanup();
-        active.terminate();
-        workerRef.current = null;
-        reject(new WorkerParseError(message, buffer));
-      };
-      const onMessage = (event: MessageEvent<StdfParseResponse>) => {
-        const response = event.data;
-        // Responses carry the request id: ignore anything not ours (a
-        // concurrent load owns its own listener).
-        if (!response || response.id !== requestId) return;
-        if (response.type === 'parsed') {
-          cleanup();
-          resolve(response.summary);
-        } else {
-          // The worker hands the input buffer back so we can retry inline.
-          fail(response.message, response.buffer);
-        }
-      };
-      const onError = (event: ErrorEvent) => {
-        // The worker crashed (transferred buffer is unrecoverable): stop
-        // using workers for the session to avoid repeat crashes.
-        workerFailedRef.current = true;
-        fail(event.message || 'Background STDF parser crashed.');
-      };
-      active.addEventListener('message', onMessage);
-      active.addEventListener('error', onError);
-      active.postMessage({ type: 'parse', id: requestId, buffer }, [buffer]);
-    });
-  }, []);
+  /**
+   * Parses KLARF in the background worker. The request text is structured
+   * cloned (not transferred), so the main thread keeps its own copy and can
+   * always retry inline after a `WorkerParseError`.
+   */
+  const parseKlarfViaWorker = useCallback(
+    (text: string): Promise<KlarfSummary> =>
+      requestWorkerParse<KlarfSummary>(
+        (id) => ({ request: { type: 'parse-klarf', id, text }, transfer: [] }),
+        'klarf-parsed',
+      ),
+    [requestWorkerParse],
+  );
 
   const loadStdf = useCallback(
     async (data: ArrayBuffer | Uint8Array, name: string) => {
@@ -313,6 +356,17 @@ export default function StdfKlarfExplorer() {
         const buffer = toArrayBuffer(data);
         let summary: StdfParseSummary | null = null;
         let workerFailure: WorkerParseError | null = null;
+
+        // Main-thread parser, fetched on demand: only the worker-less and
+        // worker-failed fallbacks ever pay for this chunk.
+        const parseStdfInline = async (inlineBuffer: ArrayBuffer): Promise<StdfParseSummary | null> => {
+          try {
+            const { parseStdfV4 } = await import('@/lib/stdf-parser');
+            return parseStdfV4(inlineBuffer);
+          } catch {
+            return null;
+          }
+        };
 
         // STDF parsing runs off the main thread when workers are available;
         // SSR, tests and locked-down environments take the synchronous
@@ -329,15 +383,11 @@ export default function StdfKlarfExplorer() {
                   ? buffer
                   : null;
             if (retryBuffer) {
-              try {
-                summary = parseStdfV4(retryBuffer);
-              } catch {
-                summary = null;
-              }
+              summary = await parseStdfInline(retryBuffer);
             }
           }
         } else if (buffer.byteLength > 0) {
-          summary = parseStdfV4(buffer);
+          summary = await parseStdfInline(buffer);
         }
 
         if (summary && applyStdfSummary(summary, name)) {
@@ -357,20 +407,100 @@ export default function StdfKlarfExplorer() {
     [applyStdfSummary, parseStdfViaWorker],
   );
 
-  const loadKlarf = useCallback((text: string, name: string) => {
-    const summary = parseKlarf(text);
-    const hasContent = Boolean(summary.header.lotId || summary.header.waferId) || summary.totalDefects > 0;
-    if (!hasContent) {
-      setError(`"${name}" does not contain recognizable KLARF records (LotID / WaferID / DefectList).`);
-      return;
-    }
-
-    setKlarf(summary);
-    setStdf(null);
-    setLimits({});
-    setFileName(name);
+  /**
+   * Generates and loads the synthetic demo STDF. The generator chunk
+   * (`./demo`) is imported on demand: the demo is a one-shot convenience, so
+   * the initial route bundle does not pay for it.
+   */
+  const loadDemoStdf = useCallback(async () => {
+    if (demoLoading) return;
+    setDemoLoading(true);
     setError(null);
-  }, []);
+    try {
+      const { buildDemoStdf } = await import('./demo');
+      await loadStdf(buildDemoStdf(), 'synthetic-demo.std');
+    } catch (error) {
+      setError(
+        `Failed to generate the synthetic demo: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    } finally {
+      setDemoLoading(false);
+    }
+  }, [demoLoading, loadStdf]);
+
+  /**
+   * Parses KLARF with the same ladder as STDF: background worker when
+   * available, inline retry after a worker failure, inline directly when
+   * workers are unavailable. The request text is never transferred, so the
+   * inline retry is always possible.
+   */
+  const loadKlarf = useCallback(
+    async (text: string, name: string) => {
+      setParsing(true);
+      setError(null);
+      try {
+        // Main-thread parser, fetched on demand: only the worker-less and
+        // worker-failed fallbacks ever pay for this chunk (and monte-carlo,
+        // which klarf-parser pulls in).
+        const parseKlarfInline = async (): Promise<KlarfSummary | null> => {
+          try {
+            const { parseKlarf } = await import('@/lib/klarf-parser');
+            return parseKlarf(text);
+          } catch {
+            return null;
+          }
+        };
+
+        let summary: KlarfSummary | null = null;
+        let workerFailure: WorkerParseError | null = null;
+
+        if (typeof window !== 'undefined' && typeof Worker !== 'undefined' && !workerFailedRef.current) {
+          try {
+            summary = await parseKlarfViaWorker(text);
+          } catch (error) {
+            workerFailure = error instanceof WorkerParseError ? error : new WorkerParseError(String(error));
+            summary = await parseKlarfInline();
+          }
+        } else {
+          // SSR, tests and locked-down environments parse inline.
+          summary = await parseKlarfInline();
+        }
+
+        const hasContent =
+          Boolean(summary?.header.lotId || summary?.header.waferId) || (summary?.totalDefects ?? 0) > 0;
+        if (summary && hasContent) {
+          setKlarf(summary);
+          setStdf(null);
+          setLimits({});
+          setFileName(name);
+          setError(null);
+        } else if (summary) {
+          setError(`"${name}" does not contain recognizable KLARF records (LotID / WaferID / DefectList).`);
+        } else {
+          setError(
+            workerFailure
+              ? `Background KLARF parsing failed (${workerFailure.message}). Drop the file again to retry.`
+              : `"${name}" could not be parsed as KLARF.`,
+          );
+        }
+      } finally {
+        setParsing(false);
+      }
+    },
+    [parseKlarfViaWorker],
+  );
+
+  /**
+   * Generates (chunk fetched on demand) and loads the synthetic demo KLARF.
+   */
+  const loadDemoKlarf = useCallback(async () => {
+    try {
+      const { generateSyntheticKlarf } = await import('@/lib/klarf-parser');
+      await loadKlarf(generateSyntheticKlarf({ lotId: 'LOT-DEMO-7721', waferId: 'W08' }), 'synthetic-demo.klarf');
+    } catch (error) {
+      setError(`Failed to generate the demo KLARF: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }, [loadKlarf]);
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -382,7 +512,7 @@ export default function StdfKlarfExplorer() {
         const asKlarf = isKlarfByExtension || (!isStdfByExtension && looksLikeKlarfBuffer(buffer));
 
         if (asKlarf) {
-          loadKlarf(new TextDecoder().decode(buffer), file.name);
+          await loadKlarf(new TextDecoder().decode(buffer), file.name);
         } else {
           await loadStdf(buffer, file.name);
         }
@@ -410,7 +540,7 @@ export default function StdfKlarfExplorer() {
     const text = event.clipboardData?.getData('text') ?? '';
     if (text && looksLikeKlarfText(text)) {
       event.preventDefault();
-      loadKlarf(text, 'pasted-klarf.txt');
+      void loadKlarf(text, 'pasted-klarf.txt');
     }
   };
 
@@ -514,15 +644,16 @@ export default function StdfKlarfExplorer() {
           <button
             className="button secondary"
             type="button"
-            disabled={parsing}
-            onClick={() => void loadStdf(buildDemoStdf(), 'synthetic-demo.std')}
+            disabled={parsing || demoLoading}
+            onClick={() => void loadDemoStdf()}
           >
-            <Sparkles size={14} aria-hidden="true" /> Load synthetic demo (STDF)
+            <Sparkles size={14} aria-hidden="true" /> {demoLoading ? 'Generating demo…' : 'Load synthetic demo (STDF)'}
           </button>
           <button
             className="button secondary"
             type="button"
-            onClick={() => loadKlarf(generateSyntheticKlarf({ lotId: 'LOT-DEMO-7721', waferId: 'W08' }), 'synthetic-demo.klarf')}
+            disabled={parsing}
+            onClick={() => void loadDemoKlarf()}
           >
             <Sparkles size={14} aria-hidden="true" /> Load demo KLARF
           </button>
@@ -540,7 +671,7 @@ export default function StdfKlarfExplorer() {
 
         {parsing ? (
           <p role="status" className="note" style={{ marginTop: '12px', fontWeight: 600 }}>
-            Parsing STDF in a background worker…
+            Parsing in a background worker…
           </p>
         ) : null}
 
@@ -577,9 +708,9 @@ export default function StdfKlarfExplorer() {
           </p>
         ) : (
           <p className="note" style={{ margin: 0 }}>
-            Nothing loaded yet. Everything runs locally in your browser — no file is uploaded. STDF is parsed in a
-            background worker (PTR cap raised to 200,000 records) and the last parsed file is cached locally in
-            IndexedDB so it can be restored after a reload.
+            Nothing loaded yet. Everything runs locally in your browser — no file is uploaded. STDF and KLARF are
+            parsed in a background worker (STDF PTR cap raised to 200,000 records) and the last parsed STDF file is
+            cached locally in IndexedDB so it can be restored after a reload.
           </p>
         )}
 
@@ -890,16 +1021,20 @@ function Sparkline({ values, lsl, usl }: { values: number[]; lsl?: number; usl?:
       aria-label={`Trend of ${values.length} results${lsl !== undefined || usl !== undefined ? ' with spec limits' : ''}`}
     >
       {lsl !== undefined ? (
-        <line x1={pad} x2={width - pad} y1={y(lsl)} y2={y(lsl)} stroke="#d1625a" strokeDasharray="4 3" strokeWidth="1" />
+        <line x1={pad} x2={width - pad} y1={y(lsl)} y2={y(lsl)} stroke="var(--chart-limit)" strokeDasharray="4 3" strokeWidth="1" />
       ) : null}
       {usl !== undefined ? (
-        <line x1={pad} x2={width - pad} y1={y(usl)} y2={y(usl)} stroke="#d1625a" strokeDasharray="4 3" strokeWidth="1" />
+        <line x1={pad} x2={width - pad} y1={y(usl)} y2={y(usl)} stroke="var(--chart-limit)" strokeDasharray="4 3" strokeWidth="1" />
       ) : null}
-      <polyline points={points} fill="none" stroke="#3c9aa4" strokeWidth="1.5" strokeLinejoin="round" />
+      <polyline points={points} fill="none" stroke="var(--chart-accent)" strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   );
 }
 
+// Documented exception to the --chart-* tokens: these four hues are semantic
+// defect categories of the KLARF spatial analysis (isolated / scratch /
+// hotspot / cluster), not theme-dependent chart styling — they stay hardcoded
+// so the category legend reads identically in light and dark mode.
 const CLUSTER_COLORS: Record<KlarfSummary['clusters'][number]['category'], string> = {
   isolated: '#b4bec4',
   scratch: '#d1625a',

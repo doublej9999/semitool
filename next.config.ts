@@ -46,6 +46,12 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // React Compiler evaluated 2026-09 (babel-plugin-react-compiler@1.0.0, SWC-selective):
+  // runtime-correct (876 tests + 10 E2E green) but +10-35 kB First Load JS per route
+  // (6 routes broke the 710 kB budget gate) and 4x slower builds (2.4s -> 9.6s). The
+  // calculators already memoize their expensive computations via useMemo, so the
+  // auto-memoization win was marginal against those costs. Re-evaluate only if
+  // route budgets are raised or the compiler's output size shrinks materially.
   async headers() {
     return [
       {

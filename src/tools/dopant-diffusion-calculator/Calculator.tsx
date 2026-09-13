@@ -584,7 +584,7 @@ export default function DopantDiffusionCalculator() {
                               y1={y}
                               x2={chartData.pad.left + chartData.pW}
                               y2={y}
-                              stroke="var(--border)"
+                              stroke="var(--chart-grid)"
                               strokeDasharray="3 3"
                               opacity={0.6}
                             />
@@ -592,7 +592,7 @@ export default function DopantDiffusionCalculator() {
                               x={chartData.pad.left - 8}
                               y={y + 3}
                               fontSize="9"
-                              fill="var(--text-dim)"
+                              fill="var(--chart-axis)"
                               textAnchor="end"
                               fontFamily="var(--font-mono)"
                             >
@@ -613,7 +613,7 @@ export default function DopantDiffusionCalculator() {
                               y1={chartData.pad.top}
                               x2={x}
                               y2={chartData.pad.top + chartData.pH}
-                              stroke="var(--border)"
+                              stroke="var(--chart-grid)"
                               strokeDasharray="3 3"
                               opacity={0.6}
                             />
@@ -621,7 +621,7 @@ export default function DopantDiffusionCalculator() {
                               x={x}
                               y={chartData.pad.top + chartData.pH + 16}
                               fontSize="9"
-                              fill="var(--text-dim)"
+                              fill="var(--chart-axis)"
                               textAnchor="middle"
                               fontFamily="var(--font-mono)"
                             >
@@ -640,7 +640,7 @@ export default function DopantDiffusionCalculator() {
                         y1={chartData.cbY}
                         x2={chartData.pad.left + chartData.pW}
                         y2={chartData.cbY}
-                        stroke="#d19a66"
+                        stroke="var(--chart-series-2)"
                         strokeWidth="1.6"
                         strokeDasharray="4 3"
                       />
@@ -648,7 +648,7 @@ export default function DopantDiffusionCalculator() {
                         x={chartData.pad.left + chartData.pW - 6}
                         y={chartData.cbY - 5}
                         fontSize="9"
-                        fill="#d19a66"
+                        fill="var(--chart-series-2)"
                         textAnchor="end"
                         fontWeight="500"
                       >
@@ -663,7 +663,7 @@ export default function DopantDiffusionCalculator() {
                             y1={chartData.pad.top}
                             x2={chartData.xjX}
                             y2={chartData.pad.top + chartData.pH}
-                            stroke="#e06c75"
+                            stroke="var(--chart-limit)"
                             strokeWidth="1.6"
                             strokeDasharray="4 3"
                           />
@@ -671,7 +671,7 @@ export default function DopantDiffusionCalculator() {
                             cx={chartData.xjX}
                             cy={chartData.cbY}
                             r="4.5"
-                            fill="#e06c75"
+                            fill="var(--chart-limit)"
                             stroke="var(--surface-sunken)"
                             strokeWidth="1.5"
                           />
@@ -679,7 +679,7 @@ export default function DopantDiffusionCalculator() {
                             x={chartData.xjX + 6}
                             y={chartData.pad.top + 14}
                             fontSize="9"
-                            fill="#e06c75"
+                            fill="var(--chart-limit)"
                             fontWeight="600"
                           >
                             x_j = {chartData.xj.toFixed(3)} μm ({(chartData.xj * 1000).toFixed(0)} nm)
@@ -688,14 +688,14 @@ export default function DopantDiffusionCalculator() {
                       )}
 
                       {/* Profile Curve Line */}
-                      <path d={chartData.pathD} fill="none" stroke="var(--teal)" strokeWidth="2.5" />
+                      <path d={chartData.pathD} fill="none" stroke="var(--chart-accent)" strokeWidth="2.5" />
 
                       {/* Surface Concentration Point */}
                       <circle
                         cx={chartData.pad.left}
                         cy={chartData.scaleY(chartData.cs)}
                         r="4"
-                        fill="var(--teal)"
+                        fill="var(--chart-accent)"
                         stroke="var(--surface-sunken)"
                         strokeWidth="1.5"
                       />
@@ -703,7 +703,7 @@ export default function DopantDiffusionCalculator() {
                         x={chartData.pad.left + 8}
                         y={chartData.scaleY(chartData.cs) + 12}
                         fontSize="9"
-                        fill="var(--teal)"
+                        fill="var(--chart-accent)"
                         fontWeight="600"
                       >
                         C_s = {chartData.cs.toExponential(2)}
@@ -714,7 +714,7 @@ export default function DopantDiffusionCalculator() {
                         x={chartData.pad.left + chartData.pW / 2}
                         y={chartData.pad.top + chartData.pH + 34}
                         fontSize="10"
-                        fill="var(--text-dim)"
+                        fill="var(--chart-axis)"
                         textAnchor="middle"
                       >
                         Depth into Silicon Substrate (μm)
@@ -724,7 +724,7 @@ export default function DopantDiffusionCalculator() {
                         x={-(chartData.pad.top + chartData.pH / 2)}
                         y={18}
                         fontSize="10"
-                        fill="var(--text-dim)"
+                        fill="var(--chart-axis)"
                         textAnchor="middle"
                       >
                         Concentration (cm⁻³, log₁₀)

@@ -860,5 +860,24 @@ export const zhCN: Record<string, ToolTranslation> = {
       "版图检查",
       "经验值"
     ]
+  },
+  "/tools/esd-estimator-calculator": {
+    "name": "ESD 保护估算器",
+    "description": "从保护器件尺寸估算片上静电放电（ESD）鲁棒性（HBM、MM、CDM）——二极管周长、栅极接地 NMOS 栅宽或电源钳位宽度——并对照 JEDEC 等级目标给出反向尺寸建议；经验规则估算，并非流片验证的签核结果。",
+    "keywords": [
+      "静电",
+      "静电放电",
+      "ESD防护",
+      "人体模型",
+      "机器模型",
+      "带电器件模型",
+      "保护二极管",
+      "栅极接地NMOS",
+      "电源钳位",
+      "JEDEC等级",
+      "传输线脉冲",
+      "TLP",
+      "IO保护"
+    ]
   }
 };

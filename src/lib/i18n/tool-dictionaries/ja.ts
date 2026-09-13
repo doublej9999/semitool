@@ -776,5 +776,23 @@ export const ja: Record<string, ToolTranslation> = {
       "レイアウトチェック",
       "目安"
     ]
+  },
+  "/tools/esd-estimator-calculator": {
+    "name": "ESD保護推定ツール",
+    "description": "保護デバイスのサイズ（ダイオード周長、ゲート接地NMOSのゲート幅、電源クランプ幅）からチップ上のESD耐量（HBM、MM、CDM）を推定し、JEDECクラス目標と照合、逆算サイズ提案まで行います — 目安の経験則推定であり、シリコン検証済みのサインオフではありません。",
+    "keywords": [
+      "静電気",
+      "静電気放電",
+      "ESD保護",
+      "人体モデル",
+      "機械モデル",
+      "帯電デバイスモデル",
+      "保護ダイオード",
+      "ゲート接地NMOS",
+      "電源クランプ",
+      "JEDECクラス",
+      "TLP",
+      "IO保護"
+    ]
   }
 };

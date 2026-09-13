@@ -390,7 +390,7 @@ export default function ThermalOxideCalculator() {
                     <Download size={13} aria-hidden="true" /> Save SVG
                   </button>
                 </div>
-                <div style={{ background: '#ffffff', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                <div style={{ background: 'var(--chart-bg)', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden' }}>
                   <svg
                     ref={kineticsSvgRef}
                     viewBox={`0 0 ${width} ${height}`}
@@ -406,8 +406,8 @@ export default function ThermalOxideCalculator() {
                       const thickVal = curveData.maxThick * frac;
                       return (
                         <g key={frac}>
-                          <line x1={margin.left} y1={y} x2={margin.left + pWidth} y2={y} stroke="#ecefe0" strokeDasharray="3 3" />
-                          <text x={margin.left - 8} y={y + 4} fontSize="10" fill="#6a7a78" textAnchor="end">
+                          <line x1={margin.left} y1={y} x2={margin.left + pWidth} y2={y} stroke="var(--chart-grid)" strokeDasharray="3 3" />
+                          <text x={margin.left - 8} y={y + 4} fontSize="10" fill="var(--chart-axis)" textAnchor="end">
                             {Math.round(thickVal)}
                           </text>
                         </g>
@@ -420,8 +420,8 @@ export default function ThermalOxideCalculator() {
                       const tVal = curveData.maxT * frac;
                       return (
                         <g key={frac}>
-                          <line x1={x} y1={margin.top + pHeight} x2={x} y2={margin.top + pHeight + 4} stroke="#6a7a78" />
-                          <text x={x} y={margin.top + pHeight + 16} fontSize="10" fill="#6a7a78" textAnchor="middle">
+                          <line x1={x} y1={margin.top + pHeight} x2={x} y2={margin.top + pHeight + 4} stroke="var(--chart-axis)" />
+                          <text x={x} y={margin.top + pHeight + 16} fontSize="10" fill="var(--chart-axis)" textAnchor="middle">
                             {tVal.toFixed(1)}
                           </text>
                         </g>
@@ -440,11 +440,11 @@ export default function ThermalOxideCalculator() {
                               y1={yCross}
                               x2={margin.left + pWidth}
                               y2={yCross}
-                              stroke="#dfa243"
+                              stroke="var(--chart-series-2)"
                               strokeWidth="1.2"
                               strokeDasharray="4 4"
                             />
-                            <text x={margin.left + pWidth - 6} y={yCross - 5} fontSize="10" fill="#915a13" textAnchor="end">
+                            <text x={margin.left + pWidth - 6} y={yCross - 5} fontSize="10" fill="var(--chart-series-2)" textAnchor="end">
                               Crossover A/2 = {Math.round(crossoverNm)} nm
                             </text>
                           </g>
@@ -462,7 +462,7 @@ export default function ThermalOxideCalculator() {
                           return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
                         })
                         .join(' ');
-                      return <path d={pathD} fill="none" stroke="var(--teal)" strokeWidth="2.5" />;
+                      return <path d={pathD} fill="none" stroke="var(--chart-accent)" strokeWidth="2.5" />;
                     })()}
 
                     {/* Operating Point */}
@@ -471,9 +471,9 @@ export default function ThermalOxideCalculator() {
                       const opY = margin.top + pHeight * (1 - Math.min(activeThicknessNm, curveData.maxThick) / curveData.maxThick);
                       return (
                         <g>
-                          <line x1={opX} y1={margin.top} x2={opX} y2={margin.top + pHeight} stroke="#0d7c82" strokeDasharray="3 3" strokeWidth="1" />
-                          <circle cx={opX} cy={opY} r="5" fill="#0d7c82" stroke="#ffffff" strokeWidth="2" />
-                          <text x={Math.min(opX + 8, width - 80)} y={Math.max(opY - 8, margin.top + 12)} fontSize="11" fontWeight="600" fill="#0d7c82">
+                          <line x1={opX} y1={margin.top} x2={opX} y2={margin.top + pHeight} stroke="var(--chart-accent)" strokeDasharray="3 3" strokeWidth="1" />
+                          <circle cx={opX} cy={opY} r="5" fill="var(--chart-accent)" stroke="var(--chart-bg)" strokeWidth="2" />
+                          <text x={Math.min(opX + 8, width - 80)} y={Math.max(opY - 8, margin.top + 12)} fontSize="11" fontWeight="600" fill="var(--chart-accent)">
                             {fmt(activeThicknessNm)} nm ({fmt(activeTimeHours)} h)
                           </text>
                         </g>
@@ -481,11 +481,11 @@ export default function ThermalOxideCalculator() {
                     })()}
 
                     {/* Axes */}
-                    <line x1={margin.left} y1={margin.top} x2={margin.left} y2={margin.top + pHeight} stroke="#152127" strokeWidth="1.5" />
-                    <line x1={margin.left} y1={margin.top + pHeight} x2={margin.left + pWidth} y2={margin.top + pHeight} stroke="#152127" strokeWidth="1.5" />
+                    <line x1={margin.left} y1={margin.top} x2={margin.left} y2={margin.top + pHeight} stroke="var(--chart-axis)" strokeWidth="1.5" />
+                    <line x1={margin.left} y1={margin.top + pHeight} x2={margin.left + pWidth} y2={margin.top + pHeight} stroke="var(--chart-axis)" strokeWidth="1.5" />
 
                     {/* Labels */}
-                    <text x={margin.left + pWidth / 2} y={height - 6} fontSize="11" fontWeight="500" fill="#152127" textAnchor="middle">
+                    <text x={margin.left + pWidth / 2} y={height - 6} fontSize="11" fontWeight="500" fill="var(--chart-axis)" textAnchor="middle">
                       Oxidation Time (hours)
                     </text>
                     <text
@@ -494,7 +494,7 @@ export default function ThermalOxideCalculator() {
                       y={margin.top + pHeight / 2}
                       fontSize="11"
                       fontWeight="500"
-                      fill="#152127"
+                      fill="var(--chart-axis)"
                       textAnchor="middle"
                     >
                       Oxide Thickness (nm)
@@ -518,7 +518,7 @@ export default function ThermalOxideCalculator() {
                 </button>
               </div>
 
-              <div style={{ background: '#ffffff', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+              <div style={{ background: 'var(--chart-bg)', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden' }}>
                 <svg
                   ref={consumptionSvgRef}
                   viewBox="0 0 540 180"
@@ -535,34 +535,34 @@ export default function ThermalOxideCalculator() {
                   </text>
 
                   {/* Consumed Silicon Layer (45.6% below original surface) */}
-                  <rect x="50" y="75" width="440" height="40" fill="#f4b8b5" stroke="#b0413a" strokeWidth="1" strokeDasharray="4 2" />
+                  <rect x="50" y="75" width="440" height="40" fill="#f4b8b5" stroke="var(--chart-fail)" strokeWidth="1" strokeDasharray="4 2" />
                   <text x="270" y="99" fontSize="11" fontWeight="600" fill="#88211b" textAnchor="middle">
                     Consumed Silicon: {fmt(activeSiliconConsumedNm)} nm (45.6% of oxide)
                   </text>
 
                   {/* Expanded Oxide Layer (54.4% above original surface) */}
-                  <rect x="50" y="30" width="440" height="45" fill="rgba(13, 124, 130, 0.18)" stroke="#0d7c82" strokeWidth="1.5" />
+                  <rect x="50" y="30" width="440" height="45" fill="rgba(13, 124, 130, 0.18)" stroke="var(--chart-accent)" strokeWidth="1.5" />
                   <text x="270" y="56" fontSize="11" fontWeight="600" fill="#095559" textAnchor="middle">
                     Volume Expansion: {fmt(activeThicknessNm - activeSiliconConsumedNm)} nm (54.4% above initial plane)
                   </text>
 
                   {/* Original Silicon Surface Reference Line */}
-                  <line x1="35" y1="75" x2="505" y2="75" stroke="#152127" strokeWidth="1.8" strokeDasharray="6 3" />
-                  <text x="510" y="78" fontSize="10" fontWeight="600" fill="#152127">
+                  <line x1="35" y1="75" x2="505" y2="75" stroke="var(--chart-text)" strokeWidth="1.8" strokeDasharray="6 3" />
+                  <text x="510" y="78" fontSize="10" fontWeight="600" fill="var(--chart-text)">
                     Original Si Surface
                   </text>
 
                   {/* Dimension Bracket on Left */}
-                  <line x1="42" y1="30" x2="42" y2="115" stroke="#0d7c82" strokeWidth="2" />
-                  <line x1="38" y1="30" x2="46" y2="30" stroke="#0d7c82" strokeWidth="2" />
-                  <line x1="38" y1="115" x2="46" y2="115" stroke="#0d7c82" strokeWidth="2" />
+                  <line x1="42" y1="30" x2="42" y2="115" stroke="var(--chart-accent)" strokeWidth="2" />
+                  <line x1="38" y1="30" x2="46" y2="30" stroke="var(--chart-accent)" strokeWidth="2" />
+                  <line x1="38" y1="115" x2="46" y2="115" stroke="var(--chart-accent)" strokeWidth="2" />
                   <text
                     transform="rotate(-90 32 72)"
                     x="32"
                     y="72"
                     fontSize="10"
                     fontWeight="700"
-                    fill="#0d7c82"
+                    fill="var(--chart-accent)"
                     textAnchor="middle"
                   >
                     Total SiO₂ = {fmt(activeThicknessNm)} nm

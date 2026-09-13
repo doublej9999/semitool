@@ -39,10 +39,10 @@ const INITIAL = { diameter: 300, edge: 3, width: 10, height: 10, xPitch: 10.1, y
 const STATUSES: DieStatus[] = ['Good', 'Defect', 'Skip', 'Edge'];
 
 const STATUS_COLORS: Record<DieStatus, string> = {
-  Good: '#3c9aa4',
-  Defect: '#d1625a',
+  Good: 'var(--chart-pass)',
+  Defect: 'var(--chart-fail)',
   Skip: '#b4bec4',
-  Edge: '#dfa243',
+  Edge: 'var(--chart-series-2)',
 };
 
 function download(filename: string, content: string | Uint8Array, type: string) {
@@ -338,13 +338,13 @@ export default function WaferMapGenerator() {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <title>Wafer die map</title>
-                <circle cx="250" cy="250" r="235" fill="#ffffff" stroke="#152127" strokeWidth="2" />
+                <circle cx="250" cy="250" r="235" fill="var(--chart-bg)" stroke="var(--chart-axis)" strokeWidth="2" />
                 <circle
                   cx="250"
                   cy="250"
                   r={235 * ((values.diameter / 2 - values.edge) / (values.diameter / 2))}
                   fill="none"
-                  stroke="#dfa243"
+                  stroke="var(--chart-series-2)"
                   strokeDasharray="5 5"
                 />
                 {dies.map((die) => {
@@ -361,7 +361,7 @@ export default function WaferMapGenerator() {
                       width={dieW}
                       height={dieH}
                       fill={STATUS_COLORS[die.status]}
-                      stroke="#ffffff"
+                      stroke="var(--chart-bg)"
                       strokeWidth="0.6"
                       onClick={() => {
                         setSelected(die);

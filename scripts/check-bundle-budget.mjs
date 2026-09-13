@@ -16,7 +16,7 @@
  *
  * Environment overrides:
  *   BUDGET_BYTES       per-route budget in bytes (positive integer,
- *                      default 700000)
+ *                      default 710000)
  *   BUDGET_STATS_FILE  path to an alternative route-bundle-stats.json
  *
  * Usage: node scripts/check-bundle-budget.mjs  (or `npm run check:budget`)
@@ -26,7 +26,11 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DEFAULT_BUDGET_BYTES = 700_000;
+// Heaviest gated route after the STDF/KLARF Explorer tightening
+// (2026-09-13): /tools/spc-control-chart-calculator at 690,009 B. 710,000 is
+// the tightest 10 kB-round figure with ~2-5% headroom (2.9%) over it;
+// 700,000 would leave only 1.45% — too brittle for unrelated rebuild noise.
+const DEFAULT_BUDGET_BYTES = 710_000;
 const TOP_N = 5;
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

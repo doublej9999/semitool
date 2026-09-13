@@ -95,8 +95,8 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
         y={plotTop}
         width={plotWidth}
         height={plotHeight}
-        fill="#ffffff"
-        stroke="var(--line)"
+        fill="var(--chart-bg)"
+        stroke="var(--chart-grid)"
         strokeWidth="1"
         rx="4"
       />
@@ -111,7 +111,7 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
               y1={y}
               x2={plotRight}
               y2={y}
-              stroke="var(--line)"
+              stroke="var(--chart-grid)"
               strokeWidth="0.8"
               strokeDasharray="2 3"
             />
@@ -120,7 +120,7 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
               y={y + 3.5}
               textAnchor="end"
               fontSize="10"
-              fill="var(--muted)"
+              fill="var(--chart-axis)"
               fontFamily="var(--font-mono)"
             >
               {fmt(tick)}
@@ -135,14 +135,14 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
         y1={yUcl}
         x2={plotRight}
         y2={yUcl}
-        stroke="var(--red)"
+        stroke="var(--chart-limit)"
         strokeWidth="1.5"
         strokeDasharray="5 4"
       />
       <text
         x={plotRight + 6}
         y={labelUclY + 3.5}
-        fill="var(--red)"
+        fill="var(--chart-limit)"
         fontSize="10"
         fontFamily="var(--font-mono)"
         fontWeight="600"
@@ -156,13 +156,13 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
         y1={yCl}
         x2={plotRight}
         y2={yCl}
-        stroke="var(--teal)"
+        stroke="var(--chart-accent)"
         strokeWidth="1.5"
       />
       <text
         x={plotRight + 6}
         y={labelClY + 3.5}
-        fill="var(--teal)"
+        fill="var(--chart-accent)"
         fontSize="10"
         fontFamily="var(--font-mono)"
         fontWeight="600"
@@ -176,14 +176,14 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
         y1={yLcl}
         x2={plotRight}
         y2={yLcl}
-        stroke="var(--red)"
+        stroke="var(--chart-limit)"
         strokeWidth="1.5"
         strokeDasharray="5 4"
       />
       <text
         x={plotRight + 6}
         y={labelLclY + 3.5}
-        fill="var(--red)"
+        fill="var(--chart-limit)"
         fontSize="10"
         fontFamily="var(--font-mono)"
         fontWeight="600"
@@ -224,7 +224,7 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
                 cy={y}
                 r="8"
                 fill="none"
-                stroke="var(--red)"
+                stroke="var(--chart-fail)"
                 strokeWidth="2"
                 opacity="0.85"
               />
@@ -235,7 +235,7 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
                 cy={y}
                 r="8"
                 fill="none"
-                stroke="var(--amber)"
+                stroke="var(--chart-series-2)"
                 strokeWidth="2"
                 opacity="0.85"
               />
@@ -244,8 +244,8 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
               cx={x}
               cy={y}
               r={isOut ? 4.5 : 3.5}
-              fill={isLimitOut ? 'var(--red)' : isRunOut ? 'var(--amber)' : 'var(--teal)'}
-              stroke="#ffffff"
+              fill={isLimitOut ? 'var(--chart-fail)' : isRunOut ? 'var(--chart-series-2)' : 'var(--chart-accent)'}
+              stroke="var(--chart-bg)"
               strokeWidth="1.5"
             >
               <title>{`Subgroup ${i + 1}: Mean = ${fmt(m)} (${statusText})`}</title>
@@ -265,7 +265,7 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
               y1={plotBottom}
               x2={x}
               y2={plotBottom + 4}
-              stroke="var(--line-strong)"
+              stroke="var(--chart-axis)"
               strokeWidth="1"
             />
             <text
@@ -273,7 +273,7 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
               y={plotBottom + 15}
               textAnchor="middle"
               fontSize="10"
-              fill="var(--muted)"
+              fill="var(--chart-axis)"
               fontFamily="var(--font-mono)"
             >
               {i + 1}
@@ -288,7 +288,7 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
         y={height - 2}
         textAnchor="middle"
         fontSize="10"
-        fill="var(--muted)"
+        fill="var(--chart-axis)"
       >
         Subgroup
       </text>
@@ -364,8 +364,8 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
         y={plotTop}
         width={plotWidth}
         height={plotHeight}
-        fill="#ffffff"
-        stroke="var(--line)"
+        fill="var(--chart-bg)"
+        stroke="var(--chart-grid)"
         strokeWidth="1"
         rx="4"
       />
@@ -380,7 +380,7 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
               y1={y}
               x2={plotRight}
               y2={y}
-              stroke="var(--line)"
+              stroke="var(--chart-grid)"
               strokeWidth="0.8"
               strokeDasharray="2 3"
             />
@@ -389,7 +389,7 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
               y={y + 3.5}
               textAnchor="end"
               fontSize="10"
-              fill="var(--muted)"
+              fill="var(--chart-axis)"
               fontFamily="var(--font-mono)"
             >
               {fmt(tick)}
@@ -404,14 +404,14 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
         y1={yUcl}
         x2={plotRight}
         y2={yUcl}
-        stroke="var(--red)"
+        stroke="var(--chart-limit)"
         strokeWidth="1.5"
         strokeDasharray="5 4"
       />
       <text
         x={plotRight + 6}
         y={labelUclY + 3.5}
-        fill="var(--red)"
+        fill="var(--chart-limit)"
         fontSize="10"
         fontFamily="var(--font-mono)"
         fontWeight="600"
@@ -425,13 +425,13 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
         y1={yCl}
         x2={plotRight}
         y2={yCl}
-        stroke="var(--teal)"
+        stroke="var(--chart-accent)"
         strokeWidth="1.5"
       />
       <text
         x={plotRight + 6}
         y={labelClY + 3.5}
-        fill="var(--teal)"
+        fill="var(--chart-accent)"
         fontSize="10"
         fontFamily="var(--font-mono)"
         fontWeight="600"
@@ -445,14 +445,14 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
         y1={yLcl}
         x2={plotRight}
         y2={yLcl}
-        stroke="var(--red)"
+        stroke="var(--chart-limit)"
         strokeWidth="1.5"
         strokeDasharray={rangeLcl === 0 ? undefined : '5 4'}
       />
       <text
         x={plotRight + 6}
         y={labelLclY + 3.5}
-        fill="var(--red)"
+        fill="var(--chart-limit)"
         fontSize="10"
         fontFamily="var(--font-mono)"
         fontWeight="600"
@@ -484,7 +484,7 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
                 cy={y}
                 r="8"
                 fill="none"
-                stroke="var(--red)"
+                stroke="var(--chart-fail)"
                 strokeWidth="2"
                 opacity="0.85"
               />
@@ -493,8 +493,8 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
               cx={x}
               cy={y}
               r={isOut ? 4.5 : 3.5}
-              fill={isOut ? 'var(--red)' : 'var(--teal)'}
-              stroke="#ffffff"
+              fill={isOut ? 'var(--chart-fail)' : 'var(--chart-accent)'}
+              stroke="var(--chart-bg)"
               strokeWidth="1.5"
             >
               <title>{`Subgroup ${i + 1}: Range = ${fmt(r)} (${isOut ? 'Outside control limits' : 'In control'})`}</title>
@@ -514,7 +514,7 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
               y1={plotBottom}
               x2={x}
               y2={plotBottom + 4}
-              stroke="var(--line-strong)"
+              stroke="var(--chart-axis)"
               strokeWidth="1"
             />
             <text
@@ -522,7 +522,7 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
               y={plotBottom + 15}
               textAnchor="middle"
               fontSize="10"
-              fill="var(--muted)"
+              fill="var(--chart-axis)"
               fontFamily="var(--font-mono)"
             >
               {i + 1}
@@ -537,7 +537,7 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
         y={height - 2}
         textAnchor="middle"
         fontSize="10"
-        fill="var(--muted)"
+        fill="var(--chart-axis)"
       >
         Subgroup
       </text>
@@ -790,7 +790,7 @@ export default function SpcControlChartCalculator() {
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        background: 'var(--teal)',
+                        background: 'var(--chart-accent)',
                         display: 'inline-block',
                       }}
                     />
@@ -802,8 +802,8 @@ export default function SpcControlChartCalculator() {
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        background: 'var(--red)',
-                        boxShadow: '0 0 0 2px var(--red)',
+                        background: 'var(--chart-fail)',
+                        boxShadow: '0 0 0 2px var(--chart-fail)',
                         display: 'inline-block',
                       }}
                     />
@@ -815,19 +815,19 @@ export default function SpcControlChartCalculator() {
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        background: 'var(--amber)',
-                        boxShadow: '0 0 0 2px var(--amber)',
+                        background: 'var(--chart-series-2)',
+                        boxShadow: '0 0 0 2px var(--chart-series-2)',
                         display: 'inline-block',
                       }}
                     />
                     <span>7-point run</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ width: '14px', borderTop: '1.5px dashed var(--red)', display: 'inline-block' }} />
+                    <span style={{ width: '14px', borderTop: '1.5px dashed var(--chart-limit)', display: 'inline-block' }} />
                     <span>Control limits (UCL/LCL)</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ width: '14px', borderTop: '1.5px solid var(--teal)', display: 'inline-block' }} />
+                    <span style={{ width: '14px', borderTop: '1.5px solid var(--chart-accent)', display: 'inline-block' }} />
                     <span>Center line (CL)</span>
                   </div>
                 </div>
@@ -891,7 +891,7 @@ export default function SpcControlChartCalculator() {
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        background: 'var(--teal)',
+                        background: 'var(--chart-accent)',
                         display: 'inline-block',
                       }}
                     />
@@ -903,19 +903,19 @@ export default function SpcControlChartCalculator() {
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        background: 'var(--red)',
-                        boxShadow: '0 0 0 2px var(--red)',
+                        background: 'var(--chart-fail)',
+                        boxShadow: '0 0 0 2px var(--chart-fail)',
                         display: 'inline-block',
                       }}
                     />
                     <span>Outside limits</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ width: '14px', borderTop: '1.5px dashed var(--red)', display: 'inline-block' }} />
+                    <span style={{ width: '14px', borderTop: '1.5px dashed var(--chart-limit)', display: 'inline-block' }} />
                     <span>Range limits (UCL/LCL)</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ width: '14px', borderTop: '1.5px solid var(--teal)', display: 'inline-block' }} />
+                    <span style={{ width: '14px', borderTop: '1.5px solid var(--chart-accent)', display: 'inline-block' }} />
                     <span>Mean range (CL)</span>
                   </div>
                 </div>

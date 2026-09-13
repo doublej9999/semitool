@@ -826,5 +826,29 @@ export const en: Record<string, ToolTranslation> = {
       "dfm",
       "layout check"
     ]
+  },
+  "/tools/esd-estimator-calculator": {
+    "name": "ESD Protection Estimator",
+    "description": "Estimate on-chip ESD robustness (HBM, MM, CDM) from protection-device sizing — diode perimeter, GGNMOS gate width or supply clamp width — checked against JEDEC class targets with inverse sizing suggestions. Rule-of-thumb scaling, not silicon-validated sign-off.",
+    "keywords": [
+      "esd",
+      "esd protection",
+      "hbm",
+      "human body model",
+      "machine model",
+      "cdm",
+      "charged device model",
+      "electrostatic discharge",
+      "pad protection",
+      "diode pair",
+      "ggnmos",
+      "snapback",
+      "supply clamp",
+      "power clamp",
+      "jedec class",
+      "tlp",
+      "robustness",
+      "io protection"
+    ]
   }
 };

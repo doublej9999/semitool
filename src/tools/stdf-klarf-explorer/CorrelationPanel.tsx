@@ -213,8 +213,8 @@ function ScatterPlot({ pairs, labelA, labelB }: { pairs: AlignedPartPair[]; labe
 
   const midX = (minX + maxX) / 2;
   const midY = (minY + maxY) / 2;
-  const axisColor = '#b4bec4';
-  const textColor = '#5a6a70';
+  const axisColor = 'var(--chart-axis)';
+  const textColor = 'var(--chart-text)';
   const truncate = (label: string) => (label.length > 30 ? `${label.slice(0, 29)}…` : label);
   const shownLabelA = truncate(labelA);
   const shownLabelB = truncate(labelB);
@@ -248,7 +248,7 @@ function ScatterPlot({ pairs, labelA, labelB }: { pairs: AlignedPartPair[]; labe
       ))}
 
       {shown.map((pair, index) => (
-        <circle key={index} cx={px(pair.resultA)} cy={py(pair.resultB)} r="2.4" fill="#3c9aa4" fillOpacity="0.7" />
+        <circle key={index} cx={px(pair.resultA)} cy={py(pair.resultB)} r="2.4" fill="var(--chart-accent)" fillOpacity="0.7" />
       ))}
 
       <text x={width - padRight} y={height - 8} fontSize="10" fontWeight="600" fill={textColor} textAnchor="end">

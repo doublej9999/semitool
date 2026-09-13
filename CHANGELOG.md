@@ -4,6 +4,27 @@ All notable changes to SemiTools are documented here. The project has no version
 
 ## [Unreleased]
 
+### 2026-09 (round 5)
+
+**Accessibility**
+
+- Reduced-motion support: a global `prefers-reduced-motion: reduce` block collapses transitions and animations app-wide, overriding even inline styles, and neutralizes the entrance keyframes
+- Chart color tokens: ten `--chart-*` tokens with light, dark and print palettes, adopted across the SPC, wafer-map, curve-fitting, dopant-diffusion, CVD-kinetics and thermal-oxide charts plus the explorer sparklines/scatter — charts follow dark mode instead of painting white boxes (distinct semantic palettes kept: KLARF cluster colors, wafer-map Skip gray, dopant/CVD alpha washes)
+
+**Performance**
+
+- KLARF parsing moved into the STDF / KLARF Explorer's Web Worker (same inline-fallback ladder), the demo generator lazy-loaded and the parser libraries dynamic at the fallback call sites
+- Explorer route slimmed 697.6 → 685.4 kB First Load JS — no longer the heaviest (SPC is now, at 690.0 kB)
+- Bundle budget gate retuned 700 → 710 kB (2.9% headroom over the new heaviest route)
+
+**Features**
+
+- 65th tool: ESD Protection Estimator (Metrology & Layout) — on-chip ESD robustness (HBM, MM, CDM) estimated from protection-device sizing (diode perimeter, GGNMOS or supply-clamp width), checked against JEDEC class targets with inverse sizing suggestions
+
+**Research**
+
+- React Compiler evaluated and rejected: runtime-correct (876 tests + 10 E2E green) but +10-35 kB First Load JS per route (6 routes broke the 710 kB gate) and 4x slower builds (2.4s → 9.6s), with hand-written `useMemo` already covering the expensive paths; verdict and re-evaluation criteria recorded in `next.config.ts`
+
 ### 2026-09 (round 4)
 
 **Robustness & Security**
