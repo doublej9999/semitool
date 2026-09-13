@@ -308,6 +308,38 @@ export interface Translations {
   fabWsBranchesLabel: string;
   fabWsLinkedMetrology: string;
   fabWsNoMetrology: string;
+
+  // Lot Genealogy (VirtualLotGenealogy modal; `genealogyTitle` above labels the AppShell entry button)
+  genealogyModalTitle: string;
+  genealogyNewLot: string;
+  genealogySplitBranches: string;
+  genealogySplitWafers: string;
+  genealogyLogActiveTool: string;
+  genealogyAssignedWafers: string;
+  genealogySteps: string;
+  genealogyMetrologyPass: string;
+  genealogyCreateSplitTitle: string;
+  genealogySplitNameLabel: string;
+  genealogySplitSlotsLabel: string;
+  genealogyCancel: string;
+  genealogyConfirmSplit: string;
+  genealogyEmptyTitle: string;
+  genealogyEmptyDesc: string;
+  genealogyRecordInitial: string;
+  genealogyRecipeParams: string;
+  genealogyMetrologyVerification: string;
+  genealogyPromptLotId: string;
+  genealogyPromptPartNo: string;
+  genealogyCurrentProcessStep: string;
+  genealogyBusNotes: string;
+  genealogyProvideSplitName: string;
+  genealogyInvalidSlots: string;
+  genealogyWafersUnit: string;
+
+  // Theme toggle
+  themeLight: string;
+  themeDark: string;
+  themeSystem: string;
 }
 
 export interface ToolTranslation {

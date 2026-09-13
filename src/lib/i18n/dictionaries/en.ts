@@ -276,5 +276,36 @@ export const en: Translations = {
   "fabWsNoLotLinked": "No genealogy lot linked — open Lot Genealogy (Alt+G)",
   "fabWsBranchesLabel": "{count} branches",
   "fabWsLinkedMetrology": "Linked Metrology",
-  "fabWsNoMetrology": "No metrology imported yet"
+  "fabWsNoMetrology": "No metrology imported yet",
+
+  // Lot Genealogy
+  "genealogyModalTitle": "Virtual Lot Genealogy & Multi-Step Traveler",
+  "genealogyNewLot": "New Lot",
+  "genealogySplitBranches": "Split Branches:",
+  "genealogySplitWafers": "Split Wafers",
+  "genealogyLogActiveTool": "Log Active Tool as Step",
+  "genealogyAssignedWafers": "Assigned Wafers:",
+  "genealogySteps": "Steps:",
+  "genealogyMetrologyPass": "Metrology Pass:",
+  "genealogyCreateSplitTitle": "Create Wafer Split Branch (DoE Split)",
+  "genealogySplitNameLabel": "Split Name:",
+  "genealogySplitSlotsLabel": "Wafer Slots (e.g. 13-25 or 13,14,15):",
+  "genealogyCancel": "Cancel",
+  "genealogyConfirmSplit": "Confirm Split",
+  "genealogyEmptyTitle": "No Process Steps Recorded Yet",
+  "genealogyEmptyDesc": "Click \"Log Active Tool as Step\" above to link current calculator parameters directly into the lot run-card.",
+  "genealogyRecordInitial": "Record Initial Step",
+  "genealogyRecipeParams": "Recipe Parameters:",
+  "genealogyMetrologyVerification": "Metrology Verification:",
+  "genealogyPromptLotId": "Enter New Lot ID:",
+  "genealogyPromptPartNo": "Enter Device Part Number:",
+  "genealogyCurrentProcessStep": "Current Process Step",
+  "genealogyBusNotes": "Captured via SemiTools Data Bus",
+  "genealogyProvideSplitName": "Please provide a split branch name",
+  "genealogyInvalidSlots": "Invalid wafer slot selection. Must be a subset of wafers currently in this branch.",
+  "genealogyWafersUnit": "wfrs",
+
+  "themeLight": "Light theme",
+  "themeDark": "Dark theme",
+  "themeSystem": "Follow system"
 };

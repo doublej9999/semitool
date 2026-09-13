@@ -2,10 +2,12 @@
 
 /* ==========================================================================
    SemiTools design tokens
-   Light-only theme: the project has never shipped a dark mode, and the PRD
-   does not require one, so the palette is defined once and used everywhere.
+   Light theme is the default; the full dark palette lives in the
+   [data-theme='dark'] block right below and is activated by the theme store
+   (src/lib/preferences.ts) via documentElement.dataset.theme.
    ========================================================================== */
 :root {
+  color-scheme: light;
   --ink: #152127;
   --ink-soft: #33454e;
   --muted: #64737b;
@@ -31,10 +33,92 @@
   --surface-sunken: #edf2f1;
   --bg-subtle: #f7f9f8;
   --shadow-elevated: 0 16px 40px rgba(21, 33, 39, 0.16);
+  /* Aliases for token names referenced by newer components that were never
+     defined above (they currently resolved to inherited/initial values).
+     Mapping them onto the core palette keeps both themes coherent. */
+  --text-dim: var(--muted);
+  --primary: var(--teal);
+  --accent: var(--teal);
+  --surface: var(--paper);
+  --foreground: var(--ink);
+  --background: var(--paper);
+  --subtle-bg: #f8fafc;
+  --gold: #b45309;
+  --blue: #2563eb;
+  --amber-soft: #fffbeb;
   --sider-width: 288px;
   --rail-width: 0px;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* ==========================================================================
+   Dark theme — slate/near-black surfaces, soft borders, teal accent kept
+   vivid. Applied via <html data-theme='dark'> (see src/lib/preferences.ts).
+   WCAG-AA: body text 13.6:1, soft ink 9.4:1, muted 5.7:1 on --card.
+   ========================================================================== */
+[data-theme='dark'] {
+  color-scheme: dark;
+  --ink: #e3e9ed;
+  --ink-soft: #b8c4cc;
+  --muted: #8b9aa4;
+  --line: #2b3841;
+  --line-strong: #3e4f5a;
+  --paper: #10161b;
+  --card: #182028;
+  --teal: #0c8080;
+  --teal-dark: #5bc8c2;
+  --teal-soft: #133535;
+  --amber: #dca55c;
+  --red: #e0857e;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --surface-sunken: #0b1015;
+  --bg-subtle: #131b21;
+  --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --subtle-bg: #131b21;
+  --gold: #d9ac63;
+  --blue: #6faef7;
+  --amber-soft: #2b2410;
+}
+
+/* Class-level hardcoded light colors that need a dark counterpart. */
+[data-theme='dark'] .app-toolbar {
+  background: rgba(16, 22, 27, 0.92);
+}
+
+/* The sider hero keeps white text on a teal gradient, so pin the gradient's
+   dark end even though --teal-dark becomes the light text accent in dark mode. */
+[data-theme='dark'] .sider-hero {
+  background: linear-gradient(150deg, #0a5f66 0%, var(--teal) 55%, #1b8f86 100%);
+}
+
+[data-theme='dark'] .error {
+  background: #2a1618;
+  border-color: #5a2a2c;
+}
+
+[data-theme='dark'] .formula-latex-card {
+  background: #141c22;
+}
+
+[data-theme='dark'] .physics-alert {
+  background: #2a2410;
+  border-color: #57491c;
+  color: #d9bd72;
+}
+
+[data-theme='dark'] .physics-alert.danger {
+  background: #2d1517;
+  border-color: #5c2a2d;
+  color: #e58d86;
+}
+
+/* Smooth, minimal theme switch: only body and the main card surfaces. */
+body,
+.panel,
+.info-card {
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 * {
@@ -767,7 +851,8 @@ code {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease,
+    background-color 0.15s ease, color 0.15s ease;
 }
 
 .tool-card:hover {
@@ -1654,6 +1739,32 @@ kbd {
 }
 
 @media print {
+  /* Theme guard: printing always uses the light token set, whatever the UI
+     theme. Sits later in the cascade than [data-theme='dark'] at equal
+     specificity, so it wins while printing. */
+  :root,
+  [data-theme] {
+    color-scheme: light;
+    --ink: #152127;
+    --ink-soft: #33454e;
+    --muted: #64737b;
+    --line: #dbe2e4;
+    --line-strong: #c3cdd0;
+    --paper: #f4f6f5;
+    --card: #ffffff;
+    --teal: #0d7c82;
+    --teal-dark: #0a5f66;
+    --teal-soft: #e6f2f2;
+    --amber: #b9762a;
+    --red: #b0413a;
+    --surface-sunken: #edf2f1;
+    --bg-subtle: #f7f9f8;
+    --subtle-bg: #f8fafc;
+    --gold: #b45309;
+    --blue: #2563eb;
+    --amber-soft: #fffbeb;
+  }
+
   /* Hide all surrounding chrome, navigation, footers and supplementary docs */
   .app-sider,
   .app-toolbar,

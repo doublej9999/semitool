@@ -16,7 +16,30 @@
  *   - PRR (5, 20): Part Results Record (X/Y coordinates, Hard/Soft Bin, Pass/Fail)
  *   - PTR (15, 10): Parametric Test Record (Test number, limits, result, Cpk)
  * - Synthesizer utility to generate valid synthetic STDF V4 binary streams for verification
+ *
+ * PTR retention cap: to bound memory on huge datalogs, `parseStdfV4` keeps at
+ * most `DEFAULT_PTR_LIMIT` (5,000) PTR records in `summary.parametricTests`
+ * (bin/yield data from PRR is never capped). The limit is configurable via
+ * the optional `options.ptrLimit` parameter — e.g. the STDF/KLARF explorer's
+ * Web Worker (stdf-klarf-explorer/stdf-worker.ts) passes 200,000 — while the
+ * default keeps existing call sites (wafer-map-generator) unchanged. The
+ * returned `StdfParseSummary` is plain JSON-safe data (no class instances or
+ * functions), so it is structured-cloneable and safe to postMessage from a
+ * worker or store in IndexedDB.
  */
+
+/** Default maximum number of PTR records retained by `parseStdfV4`. */
+export const DEFAULT_PTR_LIMIT = 5000;
+
+export interface ParseStdfV4Options {
+  /**
+   * Maximum number of PTR (15,10) records retained in
+   * `summary.parametricTests`. Defaults to `DEFAULT_PTR_LIMIT` (5,000).
+   * Records beyond the cap are still counted in `recordCounts` but not
+   * retained; PRR part/bin data is always retained in full.
+   */
+  ptrLimit?: number;
+}
 
 export interface StdfHeader {
   recLen: number;
@@ -236,8 +259,12 @@ export class StdfBinaryReader {
 
 /**
  * Parses STDF V4 ArrayBuffer or Uint8Array.
+ *
+ * `options.ptrLimit` caps how many PTR records are retained (default
+ * `DEFAULT_PTR_LIMIT`, 5,000); raise it when parsing off the main thread.
  */
-export function parseStdfV4(data: ArrayBuffer | Uint8Array): StdfParseSummary {
+export function parseStdfV4(data: ArrayBuffer | Uint8Array, options: ParseStdfV4Options = {}): StdfParseSummary {
+  const ptrLimit = options.ptrLimit ?? DEFAULT_PTR_LIMIT;
   const reader = new StdfBinaryReader(data);
 
   const summary: StdfParseSummary = {
@@ -255,7 +282,6 @@ export function parseStdfV4(data: ArrayBuffer | Uint8Array): StdfParseSummary {
   };
 
   while (reader.remaining >= 4) {
-    const startRecordOffset = reader.currentOffset;
     // STDF standard 4-byte header: REC_LEN (U*2), REC_TYP (U*1), REC_SUB (U*1)
     const recLen = reader.readU2();
     const recTyp = reader.readU1();
@@ -436,8 +462,8 @@ export function parseStdfV4(data: ArrayBuffer | Uint8Array): StdfParseSummary {
 
       const passed = (testFlg & 0xC0) === 0;
 
-      // Limit array size to prevent unbounded memory on huge files
-      if (summary.parametricTests.length < 5000) {
+      // Cap retained PTR records to bound memory on huge files (configurable).
+      if (summary.parametricTests.length < ptrLimit) {
         summary.parametricTests.push({
           testNumber,
           headNum,

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import AppShell from '@/components/shell/AppShell';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 import { ogImageUrl } from '@/lib/seo';
@@ -42,9 +42,22 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+export const viewport: Viewport = {
+  colorScheme: 'light dark',
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // No-flash theme bootstrap: resolves the persisted setting ('light' | 'dark' |
+  // 'system') and paints <html data-theme> before first render. Must stay plain
+  // and tiny — it runs before hydration, so it cannot use store code.
+  const themeBootstrap =
+    "try{var t=localStorage.getItem('semitools:theme');var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}";
+
   return (
     <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+      </head>
       <body>
         <AppShell>{children}</AppShell>
       </body>

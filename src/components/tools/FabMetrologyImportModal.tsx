@@ -411,7 +411,7 @@ export default function FabMetrologyImportModal({
                       gap: '4px',
                       fontSize: '11px',
                       color: 'var(--amber, #b45309)',
-                      backgroundColor: '#fffbeb',
+                      backgroundColor: 'var(--amber-soft, #fffbeb)',
                       padding: '2px 8px',
                       borderRadius: '4px',
                       fontWeight: 600,

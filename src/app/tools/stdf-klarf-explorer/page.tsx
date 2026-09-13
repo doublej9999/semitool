@@ -50,9 +50,10 @@ export default function StdfKlarfExplorerPage() {
         </>
       }
       notes={[
-        'STDF V4 is a binary SEMI format; this tool parses the record stream client-side (FAR, MIR, MRR, WIR/WRR, WCR, HBR/SBR, PRR, PTR) with automatic endianness detection from the FAR record. Nothing is uploaded — parsing happens in your browser.',
-        'The parser caps PTR retention at 5,000 records per file to bound memory on very large datalogs; multi-wafer lots exceeding the cap will show a partial parametric sample (bin/yield data from PRR is unaffected).',
+        'STDF V4 is a binary SEMI format; this tool parses the record stream client-side (FAR, MIR, MRR, WIR/WRR, WCR, HBR/SBR, PRR, PTR) with automatic endianness detection from the FAR record. STDF bytes are parsed in a background Web Worker so large datalogs do not freeze the page; KLARF is parsed as text on the main thread. Nothing is uploaded.',
+        'PTR retention is capped to bound memory on very large datalogs: the background worker keeps up to 200,000 PTR records, while the automatic main-thread fallback (browsers without worker support) keeps 5,000. Files beyond the active cap show a partial parametric sample (bin/yield data from PRR is never capped).',
         'Per-test limits default to the LOW_LIMIT / HIGH_LIMIT values found in the file PTR records; you can override them per test with the inline LSL/USL fields to evaluate alternate spec windows.',
+        'The correlation view aligns two tests\' PTR records part-by-part — by head/site number and part execution order — and reports Pearson r and Spearman ρ over the shared parts, plus a "Strongest pairs" table ranked by |r| across the largest tests.',
         'KLARF 1.0/1.2 files are parsed as ASCII text: header tokens (LotID, WaferID, DeviceID, StepID, DiePitch), the DefectRecordSpec column schema, and the DefectList rows. Clustering is a DBSCAN-style spatial grouping that flags scratch (high aspect ratio) and hotspot (dense burst) patterns.',
         'Bin distribution uses the soft bin and falls back to the hard bin when the soft bin is 0 (not specified), matching common datalogging conventions.',
         'The synthetic demo generates a valid STDF V4 binary stream (120 parts, ~92% yield) plus four parametric tests so you can explore the workflow without production data.',
@@ -81,7 +82,12 @@ export default function StdfKlarfExplorerPage() {
         {
           question: 'Is my production datalog safe here?',
           answer:
-            'Yes. Files are read with the browser File API and parsed in JavaScript in your tab; there is no server upload, no telemetry and no persistence. Closing the tab discards everything.',
+            'Yes. Files are read with the browser File API and parsed locally in your tab (STDF in a background Web Worker); there is no server upload and no telemetry. For convenience, the last parsed STDF summary is cached locally in your browser\'s IndexedDB so the tool can offer to restore it after a reload — it never leaves your machine, and clearing this site\'s browser data removes it.',
+        },
+        {
+          question: 'How does the PTR correlation view work?',
+          answer:
+            'STDF datalogs emit one PTR per part per site in execution order, so the k-th record for a given (head, site) pair in each test\'s stream is the k-th part measured there. The explorer aligns the two tests on those occurrence indexes, drops parts that only exist in one stream or have invalid readings, then reports Pearson r (linear), Spearman ρ (rank-based, robust to nonlinearity and outliers) and the aligned sample size n. The scatter plot shows every aligned pair; the "Strongest pairs" table ranks all test pairs from the largest groups by |r| so unexpected couplings surface quickly.',
         },
       ]}
     >

@@ -276,5 +276,36 @@ export const ko: Translations = {
   "fabWsNoLotLinked": "연결된 계보 로트가 없습니다 — Lot Genealogy(Alt+G)를 열어주세요",
   "fabWsBranchesLabel": "분할 {count}개",
   "fabWsLinkedMetrology": "연결된 계측 데이터",
-  "fabWsNoMetrology": "아직 가져온 계측 데이터가 없습니다"
+  "fabWsNoMetrology": "아직 가져온 계측 데이터가 없습니다",
+
+  // Lot Genealogy
+  "genealogyModalTitle": "웨이퍼 로트 계보 및 다공정 트래블러 (Lot Genealogy)",
+  "genealogyNewLot": "새 로트",
+  "genealogySplitBranches": "공정 분기:",
+  "genealogySplitWafers": "웨이퍼 분할 (Split)",
+  "genealogyLogActiveTool": "현재 계산기 공정 기록",
+  "genealogyAssignedWafers": "할당된 웨이퍼 슬롯:",
+  "genealogySteps": "실행된 공정:",
+  "genealogyMetrologyPass": "계측 합격률:",
+  "genealogyCreateSplitTitle": "웨이퍼 분할 분기 생성 (DoE Split)",
+  "genealogySplitNameLabel": "분할 명칭 (Split Name):",
+  "genealogySplitSlotsLabel": "웨이퍼 슬롯 (예: 13-25 또는 13,14,15):",
+  "genealogyCancel": "취소",
+  "genealogyConfirmSplit": "분할 확인",
+  "genealogyEmptyTitle": "이 분기에는 아직 공정 실행 기록이 없습니다",
+  "genealogyEmptyDesc": "상단의 \"현재 계산기 공정 기록\"을 클릭하여 현재 프로세스 파라미터와 계측 결과를 런카드에 기록하세요.",
+  "genealogyRecordInitial": "첫 번째 공정 기록",
+  "genealogyRecipeParams": "레시피 파라미터 (Recipe):",
+  "genealogyMetrologyVerification": "인라인 계측 데이터 (In-line Metrology):",
+  "genealogyPromptLotId": "새 로트 ID 입력 (Lot ID):",
+  "genealogyPromptPartNo": "디바이스 품번 입력 (Part Number):",
+  "genealogyCurrentProcessStep": "현재 공정 단계",
+  "genealogyBusNotes": "SemiTools 데이터 버스를 통해 수집됨",
+  "genealogyProvideSplitName": "분할 분기 이름을 입력하세요",
+  "genealogyInvalidSlots": "유효하지 않은 웨이퍼 슬롯 선택입니다. 현재 분기의 하위 웨이퍼여야 합니다.",
+  "genealogyWafersUnit": "매",
+
+  "themeLight": "라이트 테마",
+  "themeDark": "다크 테마",
+  "themeSystem": "시스템 따라가기"
 };

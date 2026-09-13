@@ -11,6 +11,7 @@ import ModalShell from '@/components/common/ModalShell';
 import VirtualGenealogyModal from '@/components/common/VirtualGenealogyModal';
 import FabWorkspaceModal from '@/components/common/FabWorkspaceModal';
 import PwaStatusIndicator from '@/components/common/PwaStatusIndicator';
+import ThemeToggle from '@/components/common/ThemeToggle';
 import LanguagePicker from './LanguagePicker';
 import ToolSidebar from './ToolSidebar';
 import { useHydrateLocale, useLocale } from '@/lib/i18n/context';
@@ -191,6 +192,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             >
               <ShieldCheck size={18} />
             </button>
+
+            {/* Theme: light / dark / system */}
+            <ThemeToggle />
 
             {/* Virtual Lot Genealogy Button */}
             <button

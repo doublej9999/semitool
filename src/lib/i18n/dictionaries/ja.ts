@@ -276,5 +276,36 @@ export const ja: Translations = {
   "fabWsNoLotLinked": "系譜ロットが未連携です — ロット系譜 (Alt+G) を開いてください",
   "fabWsBranchesLabel": "分岐 {count} 本",
   "fabWsLinkedMetrology": "連携計測データ",
-  "fabWsNoMetrology": "計測データはまだ取り込まれていません"
+  "fabWsNoMetrology": "計測データはまだ取り込まれていません",
+
+  // Lot Genealogy
+  "genealogyModalTitle": "ウエハロット系譜・多工程トラベラー (Lot Genealogy)",
+  "genealogyNewLot": "新規ロット",
+  "genealogySplitBranches": "スプリット分岐:",
+  "genealogySplitWafers": "ウエハ分割 (Split)",
+  "genealogyLogActiveTool": "現在の計算機工程を記録",
+  "genealogyAssignedWafers": "割当ウエハスロット:",
+  "genealogySteps": "実行工程:",
+  "genealogyMetrologyPass": "計測合格率:",
+  "genealogyCreateSplitTitle": "ウエハ分割分岐の作成 (DoE Split)",
+  "genealogySplitNameLabel": "分割名 (Split Name):",
+  "genealogySplitSlotsLabel": "ウエハスロット (例: 13-25 または 13,14,15):",
+  "genealogyCancel": "キャンセル",
+  "genealogyConfirmSplit": "分割を確定",
+  "genealogyEmptyTitle": "この分岐には工程記録がまだありません",
+  "genealogyEmptyDesc": "右上の「現在の計算機工程を記録」をクリックすると、現在のプロセスパラメータと計測結果がランカードに記録されます。",
+  "genealogyRecordInitial": "最初の工程を記録",
+  "genealogyRecipeParams": "レシピパラメータ (Recipe):",
+  "genealogyMetrologyVerification": "インライン計測データ (In-line Metrology):",
+  "genealogyPromptLotId": "新規ロットIDを入力 (Lot ID):",
+  "genealogyPromptPartNo": "デバイス製品型番を入力 (Part Number):",
+  "genealogyCurrentProcessStep": "現在のプロセス工程",
+  "genealogyBusNotes": "SemiToolsデータバス経由で取得",
+  "genealogyProvideSplitName": "スプリット分岐名を入力してください",
+  "genealogyInvalidSlots": "無効なウエハスロット選択です。現在の分岐に含まれるウエハの一部である必要があります。",
+  "genealogyWafersUnit": "枚",
+
+  "themeLight": "ライトテーマ",
+  "themeDark": "ダークテーマ",
+  "themeSystem": "システムに従う"
 };

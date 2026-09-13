@@ -1,8 +1,9 @@
-const CACHE_NAME = 'semitools-cache-v1';
+const CACHE_NAME = 'semitools-cache-29fe30d';
 
 const CORE_ASSETS = [
   '/',
   '/tools',
+  '/offline',
   '/manifest.webmanifest',
   '/icon-192.png',
   '/icon-512.png',
@@ -62,7 +63,12 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/')))
+        .catch(() =>
+          caches
+            .match(request)
+            .then((cached) => cached || caches.match('/offline'))
+            .then((cached) => cached || caches.match('/'))
+        )
     );
     return;
   }

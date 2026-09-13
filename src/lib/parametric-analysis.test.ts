@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { parseStdfV4, generateSyntheticStdfV4, type StdfParametricTestRecord, type StdfPartRecord } from './stdf-parser';
 import {
+  alignByPart,
   binSummary,
+  correlateTests,
   groupByTest,
+  pearson,
+  spearman,
   splitTestGroupKey,
   summarizeTest,
   testGroupKey,
+  topCorrelations,
   trendValues,
 } from './parametric-analysis';
 
@@ -379,5 +384,224 @@ describe('STDF round trip (generate -> parse -> analyze)', () => {
       expect(trend.length).toBe(lotDieCount);
       expect(trend[0]).toBeCloseTo(parsed.parametricTests[index].result, 6);
     });
+  });
+});
+
+/** Builds a minimal in-memory PTR record for the correlation fixtures. */
+function ptr(partial: Partial<StdfParametricTestRecord> & { result: number }): StdfParametricTestRecord {
+  return { testNumber: 100, headNum: 1, siteNum: 1, testText: 'T', units: 'V', passed: true, ...partial };
+}
+
+/** Site-1 stream from raw values, one part per record. */
+function siteStream(testText: string, values: number[]): StdfParametricTestRecord[] {
+  return values.map((result) => ptr({ testText, result }));
+}
+
+describe('pearson', () => {
+  it('is 1 for perfectly correlated samples', () => {
+    expect(pearson([1, 2, 3, 4, 5], [2, 4, 6, 8, 10])).toBeCloseTo(1, 10);
+    expect(pearson([1, 2, 3, 4, 5], [3, 5, 7, 9, 11])).toBeCloseTo(1, 10);
+  });
+
+  it('is -1 for perfectly anti-correlated samples', () => {
+    expect(pearson([1, 2, 3, 4, 5], [-2, -4, -6, -8, -10])).toBeCloseTo(-1, 10);
+  });
+
+  it('matches a hand-computed coefficient for a noisy sample', () => {
+    // x=[1..5], y=[3,1,4,2,5]: cov=5, varX=varY=10 -> r = 0.5
+    expect(pearson([1, 2, 3, 4, 5], [3, 1, 4, 2, 5])).toBeCloseTo(0.5, 10);
+  });
+
+  it('returns null below 3 pairs, on zero variance, or with non-finite pairs', () => {
+    expect(pearson([1, 2], [1, 2])).toBeNull();
+    expect(pearson([5, 5, 5], [1, 2, 3])).toBeNull();
+    expect(pearson([1, 2, 3], [1, 2, 3])).toBeCloseTo(1, 10);
+    expect(pearson([1, 2, 3], [1, 2, NaN])).toBeNull();
+    expect(pearson([1, 2, 3], [1, 2, Infinity])).toBeNull();
+    expect(pearson([], [])).toBeNull();
+  });
+});
+
+describe('spearman', () => {
+  it('is 1 for any monotonic relationship, even when pearson is not', () => {
+    const x = [1, 2, 3, 4, 5];
+    const quadratic = [1, 4, 9, 16, 25];
+    expect(spearman(x, quadratic)).toBeCloseTo(1, 10);
+    expect(pearson(x, quadratic)!).toBeLessThan(0.999);
+  });
+
+  it('is -1 for perfectly inverted ranks', () => {
+    expect(spearman([1, 2, 3, 4, 5], [10, 8, 6, 4, 2])).toBeCloseTo(-1, 10);
+  });
+
+  it('averages ranks for ties (hand-computed case)', () => {
+    // x ranks: 1, 2.5, 2.5, 4; y ranks: 1, 2, 3, 4
+    // cov(rx, ry) = 4.5, var(rx) = 4.5, var(ry) = 5 -> r = 4.5 / sqrt(22.5)
+    expect(spearman([1, 2, 2, 3], [10, 20, 30, 40])).toBeCloseTo(0.9486832980505138, 10);
+  });
+
+  it('returns null below 3 pairs, on constant input, or with non-finite values', () => {
+    expect(spearman([1, 2], [1, 2])).toBeNull();
+    expect(spearman([7, 7, 7], [1, 2, 3])).toBeNull();
+    expect(spearman([1, 2, 3], [1, 2, NaN])).toBeNull();
+    expect(spearman([], [])).toBeNull();
+  });
+});
+
+describe('alignByPart', () => {
+  it('aligns interleaved multi-site streams by (head, site, execution order)', () => {
+    const a = [
+      ptr({ testText: 'A', headNum: 1, siteNum: 1, result: 1 }),
+      ptr({ testText: 'A', headNum: 1, siteNum: 2, result: 2 }),
+      ptr({ testText: 'A', headNum: 1, siteNum: 1, result: 3 }),
+      ptr({ testText: 'A', headNum: 1, siteNum: 2, result: 4 }),
+    ];
+    const b = [
+      ptr({ testText: 'B', headNum: 1, siteNum: 1, result: 10 }),
+      ptr({ testText: 'B', headNum: 1, siteNum: 2, result: 20 }),
+      ptr({ testText: 'B', headNum: 1, siteNum: 1, result: 30 }),
+      ptr({ testText: 'B', headNum: 1, siteNum: 2, result: 40 }),
+    ];
+
+    expect(alignByPart(a, b)).toEqual([
+      { headNum: 1, siteNum: 1, resultA: 1, resultB: 10 },
+      { headNum: 1, siteNum: 2, resultA: 2, resultB: 20 },
+      { headNum: 1, siteNum: 1, resultA: 3, resultB: 30 },
+      { headNum: 1, siteNum: 2, resultA: 4, resultB: 40 },
+    ]);
+  });
+
+  it('pairs occurrences even when the two streams interleave sites differently', () => {
+    const a = [
+      ptr({ testText: 'A', siteNum: 1, result: 1 }), // A (1,1)#0
+      ptr({ testText: 'A', siteNum: 2, result: 2 }), // A (1,2)#0
+      ptr({ testText: 'A', siteNum: 1, result: 3 }), // A (1,1)#1
+      ptr({ testText: 'A', siteNum: 2, result: 4 }), // A (1,2)#1
+    ];
+    const b = [
+      ptr({ testText: 'B', siteNum: 2, result: 20 }), // B (1,2)#0
+      ptr({ testText: 'B', siteNum: 1, result: 10 }), // B (1,1)#0
+      ptr({ testText: 'B', siteNum: 2, result: 40 }), // B (1,2)#1
+      ptr({ testText: 'B', siteNum: 1, result: 30 }), // B (1,1)#1
+    ];
+
+    const pairs = alignByPart(a, b);
+    expect(pairs.map((pair) => [pair.resultA, pair.resultB])).toEqual([
+      [1, 10],
+      [2, 20],
+      [3, 30],
+      [4, 40],
+    ]);
+  });
+
+  it('does not shift alignment across invalid readings and drops those pairs', () => {
+    const a = siteStream('A', [1, NaN, 3]);
+    const b = siteStream('B', [10, 20, 30]);
+
+    const pairs = alignByPart(a, b);
+    expect(pairs).toEqual([
+      { headNum: 1, siteNum: 1, resultA: 1, resultB: 10 },
+      { headNum: 1, siteNum: 1, resultA: 3, resultB: 30 },
+    ]);
+  });
+
+  it('drops occurrences that only exist in one stream', () => {
+    const a = [
+      ptr({ testText: 'A', siteNum: 1, result: 1 }),
+      ptr({ testText: 'A', siteNum: 2, result: 2 }),
+      ptr({ testText: 'A', siteNum: 1, result: 3 }),
+      ptr({ testText: 'A', siteNum: 2, result: 4 }),
+    ];
+    const b = [
+      ptr({ testText: 'B', siteNum: 1, result: 10 }),
+      ptr({ testText: 'B', siteNum: 1, result: 30 }),
+      ptr({ testText: 'B', headNum: 2, siteNum: 9, result: 99 }),
+    ];
+
+    const pairs = alignByPart(a, b);
+    expect(pairs.map((pair) => [pair.siteNum, pair.resultA, pair.resultB])).toEqual([
+      [1, 1, 10],
+      [1, 3, 30],
+    ]);
+  });
+
+  it('returns an empty list for empty or missing inputs', () => {
+    expect(alignByPart([], [])).toEqual([]);
+    expect(alignByPart(siteStream('A', [1, 2, 3]), [])).toEqual([]);
+  });
+});
+
+describe('correlateTests', () => {
+  it('correlates two tests over their shared parts and reports the group keys', () => {
+    const a = siteStream('VTH', [1, 2, 3, 4, 5]);
+    const b = siteStream('IDSS', [2, 4, 6, 8, 10]);
+
+    const correlation = correlateTests(a, b);
+    expect(correlation).not.toBeNull();
+    expect(correlation!.n).toBe(5);
+    expect(correlation!.pearson).toBeCloseTo(1, 10);
+    expect(correlation!.spearman).toBeCloseTo(1, 10);
+    expect(correlation!.testA).toBe('VTH|V');
+    expect(correlation!.testB).toBe('IDSS|V');
+  });
+
+  it('returns null when fewer than 3 part pairs survive alignment', () => {
+    expect(correlateTests(siteStream('A', [1, 2]), siteStream('B', [1, 2]))).toBeNull();
+    expect(correlateTests([], siteStream('B', [1, 2, 3]))).toBeNull();
+  });
+
+  it('keeps the result with null coefficients when a test is constant', () => {
+    const correlation = correlateTests(siteStream('A', [1, 2, 3, 4]), siteStream('B', [5, 5, 5, 5]));
+    expect(correlation).not.toBeNull();
+    expect(correlation!.n).toBe(4);
+    expect(correlation!.pearson).toBeNull();
+    expect(correlation!.spearman).toBeNull();
+  });
+});
+
+describe('topCorrelations', () => {
+  const groups = new Map<string, StdfParametricTestRecord[]>([
+    ['A|V', siteStream('A', [1, 2, 3, 4, 5])],
+    ['B|V', siteStream('B', [2, 4, 6, 8, 10])], // r(A,B) = +1
+    ['C|V', siteStream('C', [-1, -2, -3, -4, -5])], // r(A,C) = r(B,C) = -1
+    ['D|V', siteStream('D', [1, 3, 2, 5, 4])], // r(A,D) = r(B,D) = r(C,D) = ±0.8
+  ]);
+
+  it('ranks pairs by |r| descending while preserving both signs', () => {
+    const top = topCorrelations(groups);
+    expect(top.map((entry) => [entry.testA, entry.testB, Number(entry.pearson!.toFixed(6))])).toEqual([
+      ['A|V', 'B|V', 1],
+      ['A|V', 'C|V', -1],
+      ['B|V', 'C|V', -1],
+      ['A|V', 'D|V', 0.8],
+      ['B|V', 'D|V', 0.8],
+      ['C|V', 'D|V', -0.8],
+    ]);
+  });
+
+  it('honours the limit', () => {
+    const top = topCorrelations(groups, 2);
+    expect(top).toHaveLength(2);
+    expect(top[0].pearson).toBeCloseTo(1, 10);
+    expect(top[1].pearson).toBeCloseTo(-1, 10);
+  });
+
+  it('compares only the CORRELATION_GROUP_CAP largest groups', () => {
+    const many = new Map<string, StdfParametricTestRecord[]>();
+    for (let index = 0; index < 11; index++) {
+      many.set(`G${index}|V`, siteStream(`G${index}`, [index, -index, index * 2, 0, 1]));
+    }
+    many.set('G11|V', siteStream('G11', [1, 2, 3, 4, 5]));
+    // Smallest group (4 records) falls outside the 12-group cap, so the
+    // otherwise-perfect (G11, G12) pair must never be considered.
+    many.set('G12|V', siteStream('G12', [1, 2, 3, 4]));
+
+    const top = topCorrelations(many);
+    expect(top.every((entry) => entry.testA !== 'G12|V' && entry.testB !== 'G12|V')).toBe(true);
+  });
+
+  it('returns an empty list when there is nothing to correlate', () => {
+    expect(topCorrelations(new Map())).toEqual([]);
+    expect(topCorrelations(new Map([['A|V', siteStream('A', [1, 2, 3])]]))).toEqual([]);
   });
 });

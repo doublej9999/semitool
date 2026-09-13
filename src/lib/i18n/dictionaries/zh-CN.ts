@@ -276,5 +276,36 @@ export const zhCN: Translations = {
   "fabWsNoLotLinked": "尚未关联谱系批次 — 请打开批次谱系 (Alt+G)",
   "fabWsBranchesLabel": "{count} 个分批",
   "fabWsLinkedMetrology": "关联量测数据",
-  "fabWsNoMetrology": "尚未导入量测数据"
+  "fabWsNoMetrology": "尚未导入量测数据",
+
+  // Lot Genealogy
+  "genealogyModalTitle": "晶圆批次谱系与多工序随工单 (Lot Genealogy)",
+  "genealogyNewLot": "新建批次",
+  "genealogySplitBranches": "工艺分支:",
+  "genealogySplitWafers": "分批晶圆 (Split)",
+  "genealogyLogActiveTool": "记录当前计算器工序",
+  "genealogyAssignedWafers": "包含晶圆槽位:",
+  "genealogySteps": "已执行工序:",
+  "genealogyMetrologyPass": "量测合格率:",
+  "genealogyCreateSplitTitle": "创建分批分支 (DoE Split)",
+  "genealogySplitNameLabel": "分批名称 (Split Name):",
+  "genealogySplitSlotsLabel": "晶圆槽位 (Wafers, 如 13-25 或 13,14,15):",
+  "genealogyCancel": "取消",
+  "genealogyConfirmSplit": "确认分批",
+  "genealogyEmptyTitle": "该分支尚无工序执行记录",
+  "genealogyEmptyDesc": "点击右上角“记录当前计算器工序”，将当前界面的工艺参数与量测结果永久写入随工单。",
+  "genealogyRecordInitial": "记录第一道工序",
+  "genealogyRecipeParams": "工艺配方参数 (Recipe):",
+  "genealogyMetrologyVerification": "在机量测数据 (In-line Metrology):",
+  "genealogyPromptLotId": "输入新批次号 (Lot ID):",
+  "genealogyPromptPartNo": "输入产品料号 (Part Number):",
+  "genealogyCurrentProcessStep": "当前工艺节点",
+  "genealogyBusNotes": "通过 SemiTools 数据总线采集",
+  "genealogyProvideSplitName": "请输入分支名称",
+  "genealogyInvalidSlots": "所选晶圆编号无效，必须是当前分支的部分晶圆",
+  "genealogyWafersUnit": "片晶圆",
+
+  "themeLight": "浅色主题",
+  "themeDark": "深色主题",
+  "themeSystem": "跟随系统"
 };
