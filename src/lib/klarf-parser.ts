@@ -10,7 +10,17 @@
  * - Spatial DBSCAN-style defect clustering (scratch line, ring mark, hotspot detection)
  * - Defect density calculation (defects/cm² across active wafer area)
  * - Synthetic KLARF file generator for testing and fab simulation
+ *
+ * Deterministic generator: `generateSyntheticKlarf` draws all randomness
+ * (background defect coordinates/sizes/classes) from a seeded PRNG —
+ * `createRng` reused from `./monte-carlo` — and stamps a fixed
+ * FileTimestamp instead of `new Date()`. The optional `seed` option defaults
+ * to `DEFAULT_SYNTHETIC_KLARF_SEED` (20260913), so the same options always
+ * produce byte-identical output across calls AND across processes, even for
+ * callers that never pass a seed.
  */
+
+import { createRng } from './monte-carlo';
 
 export interface KlarfHeader {
   fileVersion: string;
@@ -306,21 +316,44 @@ export function clusterDefects(
 }
 
 /**
- * Generates synthetic KLARF 1.2 text file for testing and simulation
+ * Default PRNG seed for `generateSyntheticKlarf`. A fixed constant so every
+ * caller (demo panels, tests, e2e) gets reproducible output without passing
+ * an explicit `seed`.
+ */
+export const DEFAULT_SYNTHETIC_KLARF_SEED = 20260913;
+
+/**
+ * Generates synthetic KLARF 1.2 text file for testing and simulation.
+ *
+ * Fully deterministic: background defect draws come from a seeded PRNG
+ * (`createRng` from monte-carlo.ts) and the FileTimestamp is a fixed
+ * constant (parsed back into `summary.header.fileTimestamp`), so the same
+ * options + seed yield byte-identical output across calls and processes.
  */
 export function generateSyntheticKlarf(options?: {
   lotId?: string;
   waferId?: string;
   defectCount?: number;
   includeScratch?: boolean;
+  /**
+   * Seed for the deterministic PRNG driving background defect coordinates,
+   * sizes and classes. Defaults to `DEFAULT_SYNTHETIC_KLARF_SEED` (20260913)
+   * so the generated file is reproducible even when callers pass no seed.
+   */
+  seed?: number;
 }): string {
   const lotId = options?.lotId || 'LOT-FAB-7721';
   const waferId = options?.waferId || 'W08';
   const count = options?.defectCount ?? 60;
   const includeScratch = options?.includeScratch ?? true;
+  const rng = createRng(options?.seed ?? DEFAULT_SYNTHETIC_KLARF_SEED);
 
-  const now = new Date();
-  const timestamp = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+  // Fixed epoch (2026-01-01T00:00:00Z, UTC getters) instead of `new Date()` —
+  // FileTimestamp is parsed into summary.header.fileTimestamp, so a constant
+  // keeps output byte-identical across processes and timezones.
+  const epoch = new Date(1767225600000);
+  const pad2 = (n: number): string => String(n).padStart(2, '0');
+  const timestamp = `${epoch.getUTCMonth() + 1}-${epoch.getUTCDate()}-${epoch.getUTCFullYear()} ${pad2(epoch.getUTCHours())}:${pad2(epoch.getUTCMinutes())}:${pad2(epoch.getUTCSeconds())}`;
 
   const lines: string[] = [
     'FileVersion 1 2;',
@@ -341,21 +374,21 @@ export function generateSyntheticKlarf(options?: {
 
   let defectId = 1;
 
-  // 1. Random background defects
+  // 1. Random background defects (seeded — deterministic per `seed`)
   const bgCount = includeScratch ? Math.max(10, count - 15) : count;
   for (let i = 0; i < bgCount; i++) {
-    let xIndex = Math.floor((Math.random() - 0.5) * 16);
-    let yIndex = Math.floor((Math.random() - 0.5) * 16);
+    let xIndex = Math.floor((rng() - 0.5) * 16);
+    let yIndex = Math.floor((rng() - 0.5) * 16);
     if (includeScratch && xIndex === 0 && yIndex === 0) {
       xIndex = 4;
       yIndex = 4;
     }
-    const xRel = Math.floor(Math.random() * 10000);
-    const yRel = Math.floor(Math.random() * 10000);
-    const xSize = Number((0.2 + Math.random() * 2.5).toFixed(2));
-    const ySize = Number((0.2 + Math.random() * 2.5).toFixed(2));
+    const xRel = Math.floor(rng() * 10000);
+    const yRel = Math.floor(rng() * 10000);
+    const xSize = Number((0.2 + rng() * 2.5).toFixed(2));
+    const ySize = Number((0.2 + rng() * 2.5).toFixed(2));
     const defectArea = Number((xSize * ySize).toFixed(3));
-    const classNum = Math.random() < 0.8 ? 1 : Math.floor(Math.random() * 4) + 2;
+    const classNum = rng() < 0.8 ? 1 : Math.floor(rng() * 4) + 2;
 
     lines.push(
       `${defectId} ${xRel} ${yRel} ${xIndex} ${yIndex} ${xSize} ${ySize} ${defectArea} ${classNum} 0`,

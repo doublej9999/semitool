@@ -3,10 +3,10 @@ import { expect, test as base, type Page } from '@playwright/test';
 /**
  * Deterministic-locale test entry point. Every spec must import { test, expect }
  * from this module instead of '@playwright/test': the app resolves the locale
- * via GeoIP on first visit (a CN IP switches the whole UI to Chinese), which
- * would make English accessible-name locators flake mid-assertion. Pinning the
- * stored locale (and theme) before any page script runs keeps labels English
- * and skips the GeoIP round-trip entirely.
+ * from the browser's language preferences on first visit (a zh-CN browser
+ * switches the whole UI to Chinese), which would make English accessible-name
+ * locators flake mid-assertion. Pinning the stored locale (and theme) before
+ * any page script runs keeps labels English and makes detection deterministic.
  */
 export const test = base.extend({
   context: async ({ context }, use) => {

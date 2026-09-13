@@ -13,6 +13,7 @@ import {
 } from '@/lib/cleanroom';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   isoClass: 5 as IsoClassNumber,
@@ -40,6 +41,7 @@ export default function CleanroomCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
+  const g = useGlossary();
 
   // When changing ISO class, also update ACH default to that class's standard midpoint
   const handleIsoChange = (newIso: IsoClassNumber) => {
@@ -187,7 +189,7 @@ export default function CleanroomCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="room-length">
-              Length
+              {g('lengthLabel')}
               <span className="unit">{state.dimensionUnit}</span>
             </label>
             <input
@@ -201,7 +203,7 @@ export default function CleanroomCalculator() {
           </div>
           <div className="field">
             <label htmlFor="room-width">
-              Width
+              {g('widthLabel')}
               <span className="unit">{state.dimensionUnit}</span>
             </label>
             <input
@@ -218,7 +220,7 @@ export default function CleanroomCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="room-height">
-              Ceiling Height
+              {g('ceilingHeight')}
               <span className="unit">{state.dimensionUnit}</span>
             </label>
             <input

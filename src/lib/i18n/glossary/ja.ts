@@ -107,6 +107,28 @@ export const GLOSSARY_JA: Record<keyof typeof GLOSSARY, string> = {
   layerCount: '層数',
   layerThickness: '層厚',
 
+
+  // Round-3 additions (near-miss labels from the first localization wave)
+  timeLabel: "時間",
+  temperatureLabel: "温度",
+  lengthLabel: "長さ",
+  widthLabel: "幅",
+  heightLabel: "高さ",
+  gasLabel: "ガス",
+  filmMaterial: "薄膜材料",
+  referenceTemperature: "基準温度",
+  processTemperature: "プロセス温度",
+  partialPressure: "分圧",
+  purgeTime: "パージ時間",
+  ceilingHeight: "天井高",
+  sheetResistance: "シート抵抗",
+  resistivityLabel: "抵抗率",
+  criticalDimension: "クリティカルディメンション",
+  dielectricConstant: "誘電率",
+  gateOxideThickness: "ゲート酸化膜厚",
+  workFunction: "仕事関数",
+  filterRateLabel: "濾過速度",
+
   valueLabel2: '値',
   unitLabel: '単位',
   resultLabel: '結果',

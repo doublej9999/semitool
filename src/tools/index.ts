@@ -60,6 +60,7 @@ import { tool as waferWarpStressCalculator } from './wafer-warp-stress-calculato
 import { tool as wetBenchCalculator } from './wet-bench-calculator';
 import { tool as cuPlatingCalculator } from './cu-plating-calculator';
 import { tool as stdfKlarfExplorer } from './stdf-klarf-explorer';
+import { tool as layoutParasiticsCalculator } from './layout-parasitics-calculator';
 import type { Tool, ToolCategory } from './tools.types';
 
 /**
@@ -133,6 +134,7 @@ export const tools: Tool[] = [
   wetBenchCalculator,
   cuPlatingCalculator,
   stdfKlarfExplorer,
+  layoutParasiticsCalculator,
 ];
 
 export const categories: string[] = [...new Set(tools.map((tool) => tool.category))];

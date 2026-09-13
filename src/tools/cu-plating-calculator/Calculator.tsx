@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Download, Share2, AlertTriangle, Check, Layers, Zap, Info } from 'lucide-react';
+import { Download, Share2, AlertTriangle, Check, Layers, Zap } from 'lucide-react';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { calculateCuPlating } from '@/lib/cu-plating';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 interface CuPlatingState {
   [key: string]: string | number | boolean;
@@ -38,6 +39,7 @@ export default function CuPlatingCalculator() {
   const [activeTab, setActiveTab] = useState<'radial' | 'trench'>('radial');
 
   useUrlParamsState(state, setState);
+  const g = useGlossary();
 
   const results = useMemo(() => {
     return calculateCuPlating({
@@ -264,7 +266,7 @@ export default function CuPlatingCalculator() {
           {/* Key Metric Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.8rem' }}>
             <div className="metric-card" style={{ padding: '1rem', backgroundColor: 'var(--paper, #f8fafc)', borderRadius: '8px', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>Deposition Rate</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>{g('depositionRate')}</div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--teal-dark, #0f766e)' }}>{results.nominalRateNmMin}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>nm/min</div>
             </div>
@@ -356,14 +358,14 @@ export default function CuPlatingCalculator() {
                     const minT = Math.min(...results.radialProfile.map((p) => p.filmThicknessNm), 0);
                     const range = Math.max(1, maxT - minT);
 
-                    const points = results.radialProfile.map((p, idx) => {
+                    const points = results.radialProfile.map((p) => {
                       const x = 270 + p.normalizedRadius * 200;
                       const y = 160 - ((p.filmThicknessNm - minT) / range) * 120;
                       return `${x},${y}`;
                     });
 
                     // Mirror across center
-                    const mirrorPoints = [...results.radialProfile].reverse().map((p, idx) => {
+                    const mirrorPoints = [...results.radialProfile].reverse().map((p) => {
                       const x = 270 - p.normalizedRadius * 200;
                       const y = 160 - ((p.filmThicknessNm - minT) / range) * 120;
                       return `${x},${y}`;

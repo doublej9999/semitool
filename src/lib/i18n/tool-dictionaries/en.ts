@@ -791,5 +791,21 @@ export const en: Record<string, ToolTranslation> = {
       "yield",
       "defect inspection"
     ]
+  },
+  "/tools/layout-parasitics-calculator": {
+    "name": "IC Layout Parasitics Estimator",
+    "description": "Estimate interconnect resistance, plate and fringe capacitance, IR drop and RC delay from drawn layout geometry with temperature-corrected effective resistivity for Cu, Al, tungsten and poly.",
+    "keywords": [
+      "layout parasitics",
+      "interconnect resistance",
+      "wire capacitance",
+      "rc delay",
+      "ir drop",
+      "sheet resistance",
+      "fringe capacitance",
+      "effective resistivity",
+      "metal line",
+      "pre-tapeout"
+    ]
   }
 };

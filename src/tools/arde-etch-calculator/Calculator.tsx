@@ -197,7 +197,7 @@ export default function ArdeEtchCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="feature-cd">
-              Critical Dimension (CD)
+              {g('criticalDimension')} (CD)
             </label>
             <input
               id="feature-cd"

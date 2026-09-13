@@ -825,5 +825,22 @@ export const zhCN: Record<string, ToolTranslation> = {
       "晶圆测试",
       "SPC"
     ]
+  },
+  "/tools/layout-parasitics-calculator": {
+    "name": "IC 版图寄生参数估算器",
+    "description": "基于版图绘制几何尺寸估算互连电阻、平板与边缘电容、IR 压降与 RC 延迟，支持 Cu/Al/钨/多晶硅的电阻率温度修正，是流片前的经典核查工具。",
+    "keywords": [
+      "版图",
+      "寄生参数",
+      "配线电阻",
+      "RC延迟",
+      "压降",
+      "互连电容",
+      "边缘电容",
+      "方块电阻",
+      "金属布线",
+      "多晶硅栅",
+      "流片前检查"
+    ]
   }
 };

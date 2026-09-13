@@ -11,24 +11,20 @@ test.describe('STDF / KLARF explorer', () => {
 
     await page.getByRole('button', { name: 'Load synthetic demo (STDF)' }).click();
 
-    // Yield headline: 120 parts tested. The demo generator targets ~92% yield
-    // but draws per-part pass/fail with Math.random() (stdf-parser.ts), so the
-    // exact percentage varies per load (e.g. 89.2%, 91.7%) — assert the
-    // rendered value is a plausible draw from that Bernoulli sample, and that
-    // good + failed parts reconcile to the total.
+    // Yield headline: the demo generator is fully deterministic — per-part
+    // pass/fail comes from a seeded PRNG (`createRng` in stdf-parser.ts,
+    // default seed 20260913), so the exact part counts are stable constants
+    // for the demo options (dieCount: 120, yieldPercent: 92, see
+    // stdf-klarf-explorer/demo.ts buildDemoStdf).
     const totalTested = page.locator('.metric', { hasText: 'Total tested' }).locator('strong');
     await expect(totalTested).toHaveText('120');
     const goodParts = page.locator('.metric', { hasText: 'Good parts' }).locator('strong');
     const failedParts = page.locator('.metric', { hasText: 'Failed parts' }).locator('strong');
     const yieldMetric = page.locator('.metric', { hasText: 'Yield' }).locator('strong');
-    await expect(yieldMetric).toHaveText(/^\d{2}\.\d%$/);
-    const good = Number(await goodParts.innerText());
-    const failed = Number(await failedParts.innerText());
-    const yieldPercent = Number((await yieldMetric.innerText()).replace('%', ''));
-    expect(good + failed).toBe(120);
-    // 3-sigma lower bound of a 120-part Bernoulli sample at p=0.92.
-    expect(yieldPercent).toBeGreaterThanOrEqual(84);
-    expect(yieldPercent).toBeLessThan(100);
+    await expect(goodParts).toHaveText('108');
+    await expect(failedParts).toHaveText('12');
+    // UI renders stdf.yieldPercent.toFixed(1): 108/120 = exactly 90.0%.
+    await expect(yieldMetric).toHaveText('90.0%');
 
     // Per-test cards: the demo carries four parametric tests, all with limits,
     // so at least one numeric Cpk badge must render.

@@ -12,6 +12,7 @@ import {
 } from '@/lib/plasma-sheath';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { downloadCsv, downloadSvg } from '@/lib/export';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   gasPresetId: 'argon',
@@ -25,6 +26,7 @@ const INITIAL = {
 const num = (v: string) => (v.trim() === '' ? Number.NaN : Number(v));
 
 export default function PlasmaSheathCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
@@ -331,7 +333,7 @@ export default function PlasmaSheathCalculator() {
 
         <div className="field">
           <label htmlFor="te-ev">
-            Electron Temperature (Tₑ)<span className="unit">eV</span>
+            {g('electronTemperature')} (Tₑ)<span className="unit">eV</span>
           </label>
           <input
             id="te-ev"
@@ -364,7 +366,7 @@ export default function PlasmaSheathCalculator() {
 
         <div className="field">
           <label htmlFor="pressure-mtorr">
-            Chamber Pressure<span className="unit">mTorr</span>
+            {g('chamberPressure')}<span className="unit">mTorr</span>
           </label>
           <input
             id="pressure-mtorr"
@@ -444,7 +446,7 @@ export default function PlasmaSheathCalculator() {
 
             <div className="metric-grid" style={{ marginTop: '20px' }}>
               <div className="metric">
-                <span>Debye Length (λ_De)</span>
+                <span>{g('debyeLengthLabel')} (λ_De)</span>
                 <strong>{fmt(result.debyeLengthUm)} µm</strong>
               </div>
               <div className="metric">

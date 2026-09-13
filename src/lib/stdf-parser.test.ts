@@ -75,3 +75,48 @@ describe('stdf-parser end-to-end STDF V4 parsing', () => {
     expect(parsed.parts.length).toBe(45);
   });
 });
+
+describe('synthetic STDF generator determinism', () => {
+  const opts = {
+    lotId: 'LOT-DET',
+    waferId: 'W-DET',
+    dieCount: 90,
+    yieldPercent: 88,
+  };
+
+  const bytesEqual = (a: Uint8Array, b: Uint8Array): boolean => {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  };
+
+  it('produces byte-identical output and deep-equal summaries for the same options and seed', () => {
+    const a = generateSyntheticStdfV4({ ...opts, seed: 20260913 });
+    const b = generateSyntheticStdfV4({ ...opts, seed: 20260913 });
+
+    expect(bytesEqual(a, b)).toBe(true);
+    const summaryA = parseStdfV4(a);
+    const summaryB = parseStdfV4(b);
+    expect(summaryA).toEqual(summaryB);
+    expect(summaryA.goodParts).toBe(summaryB.goodParts);
+    expect(summaryA.parts).toEqual(summaryB.parts);
+  });
+
+  it('is deterministic by default — no seed passed (fixed default seed 20260913)', () => {
+    const a = generateSyntheticStdfV4({ ...opts });
+    const b = generateSyntheticStdfV4({ ...opts });
+
+    expect(bytesEqual(a, b)).toBe(true);
+    expect(parseStdfV4(a)).toEqual(parseStdfV4(b));
+  });
+
+  it('different seeds produce different data', () => {
+    const a = generateSyntheticStdfV4({ ...opts, seed: 1 });
+    const b = generateSyntheticStdfV4({ ...opts, seed: 2 });
+
+    expect(bytesEqual(a, b)).toBe(false);
+    expect(parseStdfV4(a).goodParts).not.toBe(parseStdfV4(b).goodParts);
+  });
+});

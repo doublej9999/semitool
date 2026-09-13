@@ -107,6 +107,28 @@ export const GLOSSARY_KO: Record<keyof typeof GLOSSARY, string> = {
   layerCount: '층 수',
   layerThickness: '층 두께',
 
+
+  // Round-3 additions (near-miss labels from the first localization wave)
+  timeLabel: "시간",
+  temperatureLabel: "온도",
+  lengthLabel: "길이",
+  widthLabel: "폭",
+  heightLabel: "높이",
+  gasLabel: "가스",
+  filmMaterial: "박막 재료",
+  referenceTemperature: "기준 온도",
+  processTemperature: "공정 온도",
+  partialPressure: "분압",
+  purgeTime: "퍼지 시간",
+  ceilingHeight: "천장 높이",
+  sheetResistance: "시트 저항",
+  resistivityLabel: "비저항",
+  criticalDimension: "임계 치수",
+  dielectricConstant: "유전율",
+  gateOxideThickness: "게이트 산화막 두께",
+  workFunction: "일함수",
+  filterRateLabel: "여과 속도",
+
   valueLabel2: '값',
   unitLabel: '단위',
   resultLabel: '결과',

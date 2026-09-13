@@ -9,6 +9,7 @@ import {
 } from '@/lib/semiconductor-physics';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const PRESETS = [
   { name: 'Symmetric (10¹⁶ cm⁻³)', na: '1e16', nd: '1e16', t: '300', vr: '0' },
@@ -29,6 +30,7 @@ function parseSci(str: string): number {
 }
 
 export default function SemiconductorDepletionCalculator() {
+  const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy: copyResult } = useCopyToClipboard();
@@ -77,7 +79,7 @@ export default function SemiconductorDepletionCalculator() {
         <h2>Junction Parameters</h2>
 
         <div className="field">
-          <label htmlFor="temp-k">Temperature (K)</label>
+          <label htmlFor="temp-k">{g('temperatureLabel')} (K)</label>
           <input
             id="temp-k"
             type="text"

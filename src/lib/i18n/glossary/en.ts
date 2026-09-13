@@ -118,6 +118,27 @@ export const GLOSSARY: Record<string, string> = {
   layerCount: 'Number of layers',
   layerThickness: 'Layer thickness',
 
+  // Round-3 additions (near-miss labels from the first localization wave)
+  timeLabel: 'Time',
+  temperatureLabel: 'Temperature',
+  lengthLabel: 'Length',
+  widthLabel: 'Width',
+  heightLabel: 'Height',
+  gasLabel: 'Gas',
+  filmMaterial: 'Film material',
+  referenceTemperature: 'Reference temperature',
+  processTemperature: 'Process temperature',
+  partialPressure: 'Partial pressure',
+  purgeTime: 'Purge time',
+  ceilingHeight: 'Ceiling height',
+  sheetResistance: 'Sheet resistance',
+  resistivityLabel: 'Resistivity',
+  criticalDimension: 'Critical dimension',
+  dielectricConstant: 'Dielectric constant',
+  gateOxideThickness: 'Gate oxide thickness',
+  workFunction: 'Work function',
+  filterRateLabel: 'Filtration rate',
+
   // Generic UI nouns
   valueLabel2: 'Value',
   unitLabel: 'Unit',

@@ -7,6 +7,7 @@ import {
 } from '@/lib/four-point-probe';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { downloadCsv, downloadSvg } from '@/lib/export';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 interface FormState {
   [key: string]: string | number | boolean;
@@ -28,6 +29,7 @@ const INITIAL_STATE: FormState = {
 };
 
 export default function FourPointProbeCalculator() {
+  const g = useGlossary();
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -227,7 +229,7 @@ export default function FourPointProbeCalculator() {
           </div>
 
           <div className="metric-card highlight">
-            <span className="metric-label">Sheet resistance (Rs)</span>
+            <span className="metric-label">{g('sheetResistance')} (Rs)</span>
             <span className="metric-value">{result.sheetResistanceOhmSq.toFixed(3)} Ω/□</span>
           </div>
 

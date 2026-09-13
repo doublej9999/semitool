@@ -1,10 +1,11 @@
 'use client';
 
 import { useId, useMemo, useRef, useState } from 'react';
-import { Copy, RotateCcw, Download, Info, CheckCircle, AlertCircle, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { Copy, RotateCcw, Download, Info, AlertCircle, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { downloadCsv, downloadSvg } from '@/lib/export';
+import { useGlossary } from '@/lib/i18n/glossary';
 import {
   calculateCvdKinetics,
   CVD_RECIPES,
@@ -44,6 +45,7 @@ export default function CvdKineticsCalculator() {
 
   // Synchronize state with URL search query params
   useUrlParamsState(state, setState);
+  const g = useGlossary();
 
   const recipeSelectId = useId();
   const tempId = useId();
@@ -250,7 +252,7 @@ export default function CvdKineticsCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor={tempId}>
-              Process Temperature (T) <span className="unit">°C</span>
+              {g('processTemperature')} (T) <span className="unit">°C</span>
             </label>
             <input
               id={tempId}

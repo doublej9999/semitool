@@ -9,6 +9,7 @@ import {
   type CmpPressureUnit,
 } from '@/lib/cmp-preston';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   materialId: 'oxide',
@@ -28,6 +29,7 @@ export default function CmpPrestonCalculator() {
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
+  const g = useGlossary();
 
   const selectedPreset = useMemo(
     () => CMP_PRESETS.find((p) => p.id === state.materialId) || CMP_PRESETS[0],
@@ -145,7 +147,7 @@ export default function CmpPrestonCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="cmp-platen-speed">
-              Platen Speed (Ω_p)<span className="unit">rpm</span>
+              {g('platenSpeed')} (Ω_p)<span className="unit">rpm</span>
             </label>
             <input
               id="cmp-platen-speed"
@@ -189,7 +191,7 @@ export default function CmpPrestonCalculator() {
 
           <div className="field">
             <label htmlFor="cmp-diameter">
-              Wafer Diameter<span className="unit">mm</span>
+              {g('waferDiameter')}<span className="unit">mm</span>
             </label>
             <input
               id="cmp-diameter"
@@ -246,7 +248,7 @@ export default function CmpPrestonCalculator() {
         ) : (
           <>
             <div>
-              <span className="unit">Removal Rate</span>
+              <span className="unit">{g('removalRate')}</span>
               <div className="result-value">
                 {fmt(result.rrNmPerMin)} <span style={{ fontSize: '18px', fontWeight: 400 }}>nm/min</span>
               </div>
@@ -254,7 +256,7 @@ export default function CmpPrestonCalculator() {
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Removal Rate (Å)</span>
+                <span>{g('removalRate')} (Å)</span>
                 <strong>{fmt(result.rrAngstromPerMin)} Å/min</strong>
               </div>
               <div className="metric">

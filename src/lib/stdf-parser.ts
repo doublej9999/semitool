@@ -17,6 +17,14 @@
  *   - PTR (15, 10): Parametric Test Record (Test number, limits, result, Cpk)
  * - Synthesizer utility to generate valid synthetic STDF V4 binary streams for verification
  *
+ * Deterministic synthesizer: `generateSyntheticStdfV4` draws all randomness
+ * (per-part pass/fail, hard-bin assignment) from a seeded PRNG — `createRng`
+ * reused from `./monte-carlo` — and stamps records with a fixed epoch instead
+ * of `Date.now()`. The optional `seed` option defaults to
+ * `DEFAULT_SYNTHETIC_STDF_SEED` (20260913), so the same options always produce
+ * byte-identical output across calls AND across processes, even for callers
+ * that never pass a seed.
+ *
  * PTR retention cap: to bound memory on huge datalogs, `parseStdfV4` keeps at
  * most `DEFAULT_PTR_LIMIT` (5,000) PTR records in `summary.parametricTests`
  * (bin/yield data from PRR is never capped). The limit is configurable via
@@ -28,8 +36,25 @@
  * worker or store in IndexedDB.
  */
 
+import { createRng } from './monte-carlo';
+
 /** Default maximum number of PTR records retained by `parseStdfV4`. */
 export const DEFAULT_PTR_LIMIT = 5000;
+
+/**
+ * Default PRNG seed for `generateSyntheticStdfV4`. A fixed constant so every
+ * caller (demo panels, tests, e2e) gets reproducible output without passing
+ * an explicit `seed`.
+ */
+export const DEFAULT_SYNTHETIC_STDF_SEED = 20260913;
+
+/**
+ * Fixed epoch (2026-01-01T00:00:00Z) stamped into the MIR/WRR/MRR records of
+ * synthetic STDF streams. A constant instead of `Date.now()` keeps generated
+ * bytes identical across processes (the timestamps are parsed back into
+ * `summary.mir` / `summary.wrr` / `summary.mrr`).
+ */
+const SYNTHETIC_STDF_EPOCH_SECONDS = 1767225600;
 
 export interface ParseStdfV4Options {
   /**
@@ -493,6 +518,11 @@ export function parseStdfV4(data: ArrayBuffer | Uint8Array, options: ParseStdfV4
 /**
  * Generator for synthetic standard STDF V4 binary data.
  * Ideal for end-to-end testing, training, and verifying ATE data pipelines.
+ *
+ * Fully deterministic: pass/fail and hard-bin draws come from a seeded PRNG
+ * (`createRng` from monte-carlo.ts) and all timestamps use a fixed epoch, so
+ * the same options + seed yield byte-identical output across calls and
+ * processes.
  */
 export function generateSyntheticStdfV4(options: {
   lotId?: string;
@@ -500,12 +530,19 @@ export function generateSyntheticStdfV4(options: {
   dieCount?: number;
   yieldPercent?: number;
   waferDiameterMm?: number;
+  /**
+   * Seed for the deterministic PRNG driving per-part pass/fail and hard-bin
+   * assignment. Defaults to `DEFAULT_SYNTHETIC_STDF_SEED` (20260913) so the
+   * generated stream is reproducible even when callers pass no seed.
+   */
+  seed?: number;
 }): Uint8Array {
   const lotId = options.lotId ?? 'LOT-2025-A1';
   const waferId = options.waferId ?? 'WF-07';
   const dieCount = options.dieCount ?? 120;
   const targetYield = (options.yieldPercent ?? 92.5) / 100;
   const waferDiameter = options.waferDiameterMm ?? 300;
+  const rng = createRng(options.seed ?? DEFAULT_SYNTHETIC_STDF_SEED);
 
   const chunks: Uint8Array[] = [];
 
@@ -540,7 +577,9 @@ export function generateSyntheticStdfV4(options: {
   writeRecord(0, 10, [2, 4]); // CPU_TYPE=2 (x86 little endian), STDF_VER=4
 
   // 2. MIR record (1, 10)
-  const now = Math.floor(Date.now() / 1000);
+  // Fixed epoch instead of Date.now() — keeps output byte-identical across
+  // processes (SETUP_T/START_T are parsed back into summary.mir).
+  const now = SYNTHETIC_STDF_EPOCH_SECONDS;
   const mirPayload: number[] = [
     ...writeU4(now - 3600), // SETUP_T
     ...writeU4(now - 3500), // START_T
@@ -596,8 +635,8 @@ export function generateSyntheticStdfV4(options: {
   let goodParts = 0;
 
   for (const { x, y } of selectedCoords) {
-    const isGood = Math.random() < targetYield;
-    const hardBin = isGood ? 1 : Math.floor(Math.random() * 4) + 2;
+    const isGood = rng() < targetYield;
+    const hardBin = isGood ? 1 : Math.floor(rng() * 4) + 2;
     const softBin = isGood ? 100 : hardBin * 10;
     if (isGood) goodParts++;
 

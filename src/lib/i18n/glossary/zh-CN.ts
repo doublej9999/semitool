@@ -107,6 +107,28 @@ export const GLOSSARY_ZH_CN: Record<keyof typeof GLOSSARY, string> = {
   layerCount: '层数',
   layerThickness: '层厚',
 
+
+  // Round-3 additions (near-miss labels from the first localization wave)
+  timeLabel: "时间",
+  temperatureLabel: "温度",
+  lengthLabel: "长度",
+  widthLabel: "宽度",
+  heightLabel: "高度",
+  gasLabel: "气体",
+  filmMaterial: "薄膜材料",
+  referenceTemperature: "参考温度",
+  processTemperature: "工艺温度",
+  partialPressure: "分压",
+  purgeTime: "吹扫时间",
+  ceilingHeight: "天花板高度",
+  sheetResistance: "方块电阻",
+  resistivityLabel: "电阻率",
+  criticalDimension: "关键尺寸",
+  dielectricConstant: "介电常数",
+  gateOxideThickness: "栅氧化层厚度",
+  workFunction: "功函数",
+  filterRateLabel: "过滤速率",
+
   valueLabel2: '数值',
   unitLabel: '单位',
   resultLabel: '结果',

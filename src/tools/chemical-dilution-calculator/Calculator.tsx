@@ -11,6 +11,7 @@ import {
 } from '@/lib/chemical-dilution';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { downloadCsv, downloadSvg } from '@/lib/export';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const PALETTE = ['#0284c7', '#0d9488', '#ea580c', '#d97706', '#6366f1', '#ec4899'];
 
@@ -30,6 +31,7 @@ export default function ChemicalDilutionCalculator() {
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const g = useGlossary();
 
   const selectedPreset: WetBenchRecipePreset = useMemo(() => {
     return RECIPE_PRESETS.find((p) => p.id === state.recipeId) || RECIPE_PRESETS[0];
@@ -513,7 +515,7 @@ export default function ChemicalDilutionCalculator() {
 
             <div className="metric-grid" style={{ marginTop: '20px' }}>
               <div className="metric">
-                <span>Process Temperature</span>
+                <span>{g('processTemperature')}</span>
                 <strong>{recipeResult.temperatureC} °C</strong>
               </div>
               <div className="metric">

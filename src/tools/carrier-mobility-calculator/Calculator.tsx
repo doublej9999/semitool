@@ -10,6 +10,7 @@ import {
 } from '@/lib/carrier-mobility';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { useCopyToClipboard } from '@/lib/use-result-clipboard';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const PRESETS = [
   { name: 'Standard p-type Wafer (10 Ω·cm)', type: 'p-type' as DopantType, mode: 'rev', val: '10' },
@@ -38,6 +39,7 @@ export default function CarrierMobilityCalculator() {
   const setDopingInput = (value: string) => setState((previous) => ({ ...previous, dopingInput: value }));
   const setResistivityInput = (value: string) => setState((previous) => ({ ...previous, resistivityInput: value }));
   const { copied, copy: copyResult } = useCopyToClipboard();
+  const g = useGlossary();
 
   const result = useMemo(() => {
     if (mode === 'forward') {
@@ -193,7 +195,7 @@ export default function CarrierMobilityCalculator() {
         ) : (
           <>
             <span className="unit">
-              {mode === 'forward' ? 'Silicon Resistivity (ρ)' : 'Doping Concentration (N)'}
+              {mode === 'forward' ? 'Silicon Resistivity (ρ)' : `${g('dopingConcentration')} (N)`}
             </span>
             <div className="result-value" aria-live="polite">
               {mode === 'forward' ? (
@@ -213,11 +215,11 @@ export default function CarrierMobilityCalculator() {
                 <strong>{result.dopingCm3.toExponential(3)} cm⁻³</strong>
               </div>
               <div className="metric">
-                <span>Carrier Mobility (µ)</span>
+                <span>{g('carrierMobility')} (µ)</span>
                 <strong>{fmt(result.mobilityCm2PerVs)} cm²/V·s</strong>
               </div>
               <div className="metric">
-                <span>Resistivity (ρ)</span>
+                <span>{g('resistivityLabel')} (ρ)</span>
                 <strong>{fmt(result.resistivityOhmCm)} Ω·cm</strong>
               </div>
               <div className="metric">

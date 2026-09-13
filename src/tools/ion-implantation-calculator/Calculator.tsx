@@ -12,6 +12,7 @@ import {
 } from '@/lib/ion-implantation';
 import { useUrlParamsState } from '@/lib/use-url-state';
 import { downloadCsv, downloadSvg } from '@/lib/export';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 interface FormState {
   [key: string]: string | number | boolean;
@@ -35,6 +36,7 @@ const INITIAL_STATE: FormState = {
 };
 
 export default function IonImplantationCalculator() {
+  const g = useGlossary();
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -272,7 +274,7 @@ export default function IonImplantationCalculator() {
 
           <div className="field">
             <label htmlFor={doseId}>
-              Dose (Φ)<span className="unit">cm⁻²</span>
+              {g('implantDose')} (Φ)<span className="unit">cm⁻²</span>
             </label>
             <input
               id={doseId}
@@ -406,7 +408,7 @@ export default function IonImplantationCalculator() {
               </div>
 
               <div className="metric">
-                <span>Junction Depth (xj)</span>
+                <span>{g('junctionDepth')} (xj)</span>
                 {result.junctionDepthNm !== null ? (
                   <>
                     <strong>{fmt(result.junctionDepthNm)} nm</strong>
@@ -714,7 +716,7 @@ export default function IonImplantationCalculator() {
                   </div>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#dfa243', display: 'inline-block' }} />
-                    <span>Junction Depth (xj)</span>
+                    <span>{g('junctionDepth')} (xj)</span>
                   </div>
                 </div>
               </div>

@@ -15,12 +15,14 @@ import {
   type ReferenceTemperature,
 } from '@/lib/gas-flow';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const UNITS = GAS_FLOW_UNITS.map((unit) => ({ id: unit, label: GAS_FLOW_LABELS[unit] }));
 
 const fmt = (value: number) => Number(value.toPrecision(6)).toString();
 
 export default function GasFlowConverter() {
+  const g = useGlossary();
   const [state, setState] = useState({ gasId: GASES[0].id, temperature: 0 as ReferenceTemperature });
   useUrlParamsState(state, setState);
   const { gasId, temperature } = state;
@@ -39,7 +41,7 @@ export default function GasFlowConverter() {
       controls={
         <>
           <div className="field">
-            <label htmlFor="gas-kind">Gas</label>
+            <label htmlFor="gas-kind">{g('gasLabel')}</label>
             <select id="gas-kind" value={gasId} onChange={(event) => setState((current) => ({ ...current, gasId: event.target.value }))}>
               {GASES.map((entry) => (
                 <option key={entry.id} value={entry.id}>
@@ -50,7 +52,7 @@ export default function GasFlowConverter() {
           </div>
 
           <div className="field">
-            <label htmlFor="gas-reference">Reference temperature</label>
+            <label htmlFor="gas-reference">{g('referenceTemperature')}</label>
             <select
               id="gas-reference"
               value={temperature}

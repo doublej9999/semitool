@@ -69,7 +69,7 @@ export default function DiffusionLengthCalculator() {
         </div>
         <div className="form-row">
           <div className="field">
-            <label htmlFor="diff-time">Time</label>
+            <label htmlFor="diff-time">{g('timeLabel')}</label>
             <input
               id="diff-time"
               type="number"

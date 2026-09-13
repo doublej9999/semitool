@@ -161,7 +161,7 @@ export default function FilmStressCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="stress-youngs">
-              Young modulus<span className="unit">GPa</span>
+              {g('youngsModulus')}<span className="unit">GPa</span>
             </label>
             <input
               id="stress-youngs"
@@ -176,7 +176,7 @@ export default function FilmStressCalculator() {
           </div>
           <div className="field">
             <label htmlFor="stress-poisson">
-              Poisson ratio<span className="unit">nu</span>
+              {g('poissonRatio')}<span className="unit">nu</span>
             </label>
             <input
               id="stress-poisson"

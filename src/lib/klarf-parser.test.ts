@@ -54,3 +54,34 @@ describe('KLARF defect file parser and clustering', () => {
     expect(clusters[0].count).toBe(8);
   });
 });
+
+describe('KLARF sample generator determinism', () => {
+  it('produces identical output and deep-equal summaries for the same options and seed', () => {
+    const opts = { lotId: 'LOT-DET', waferId: 'W-DET', defectCount: 40, includeScratch: true };
+
+    const a = generateSyntheticKlarf({ ...opts, seed: 20260913 });
+    const b = generateSyntheticKlarf({ ...opts, seed: 20260913 });
+
+    expect(a).toBe(b);
+    const summaryA = parseKlarf(a);
+    const summaryB = parseKlarf(b);
+    expect(summaryA).toEqual(summaryB);
+    expect(summaryA.defects).toEqual(summaryB.defects);
+  });
+
+  it('is deterministic by default — no seed passed (fixed default seed 20260913)', () => {
+    const a = generateSyntheticKlarf({ defectCount: 40 });
+    const b = generateSyntheticKlarf({ defectCount: 40 });
+
+    expect(a).toBe(b);
+    expect(parseKlarf(a)).toEqual(parseKlarf(b));
+  });
+
+  it('different seeds produce different defect data', () => {
+    const a = generateSyntheticKlarf({ defectCount: 40, seed: 1 });
+    const b = generateSyntheticKlarf({ defectCount: 40, seed: 2 });
+
+    expect(a).not.toBe(b);
+    expect(parseKlarf(a).defects).not.toEqual(parseKlarf(b).defects);
+  });
+});

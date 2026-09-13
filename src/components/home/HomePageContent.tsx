@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, Keyboard, Layers, MonitorSmartphone } from 'lucide-react';
 import FavoritesSection from '@/components/tools/FavoritesSection';
+import ToolFinder from '@/components/home/ToolFinder';
 import ToolCard from '@/components/tools/ToolCard';
 import { tools, toolsByCategory } from '@/tools';
 import { LENGTH_UNITS } from '@/lib/units';
@@ -53,6 +54,8 @@ export default function HomePageContent() {
           </div>
         </div>
       </header>
+
+      <ToolFinder />
 
       <section className="section" aria-labelledby="favorites-heading">
         <div className="section-head">

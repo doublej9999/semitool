@@ -12,6 +12,7 @@ import {
 } from '@/lib/film-color';
 import MathFormula from '@/components/tools/MathFormulaClient';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 /**
  * Multilayer TMM solver mode is code-split out of the route bundle and only
@@ -50,6 +51,7 @@ export default function FilmColorCalculator() {
   const [singleState, setSingleState] = useState(INITIAL_SINGLE_STATE);
   useUrlParamsState(singleState, setSingleState);
   const [singleCopied, setSingleCopied] = useState(false);
+  const g = useGlossary();
 
   // -------------------------------------------------------------------------
   // Single-Layer Logic
@@ -165,7 +167,7 @@ export default function FilmColorCalculator() {
 
             {/* Material Selection */}
             <div className="field">
-              <label htmlFor="film-material">Film Material</label>
+              <label htmlFor="film-material">{g('filmMaterial')}</label>
               <select
                 id="film-material"
                 value={singleState.materialId}
@@ -184,7 +186,7 @@ export default function FilmColorCalculator() {
             {singleState.materialId === 'custom' && (
               <div className="field">
                 <label htmlFor="film-custom-n">
-                  Refractive Index (n)
+                  {g('refractiveIndex')} (n)
                   <span className="unit">dielectric</span>
                 </label>
                 <input

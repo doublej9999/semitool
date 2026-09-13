@@ -10,6 +10,7 @@ import {
 import { downloadCsv } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 const INITIAL = {
   presetId: 'al2o3-tma-h2o',
@@ -32,6 +33,7 @@ export default function AldCycleCalculator() {
   const [copied, setCopied] = useState(false);
 
   useUrlParamsState(state, setState);
+  const g = useGlossary();
 
   const update = <K extends keyof typeof INITIAL>(key: K, value: (typeof INITIAL)[K]) => {
     setState((prev) => {
@@ -200,7 +202,7 @@ export default function AldCycleCalculator() {
               className={state.solveMode === 'thickness' ? 'active' : ''}
               onClick={() => update('solveMode', 'thickness')}
             >
-              Target Thickness
+              {g('targetThickness')}
             </button>
             <button
               type="button"
@@ -214,7 +216,7 @@ export default function AldCycleCalculator() {
 
         {state.solveMode === 'thickness' ? (
           <div className="field">
-            <label htmlFor="target-thickness">Target Film Thickness (nm)</label>
+            <label htmlFor="target-thickness">{g('targetThickness')} (nm)</label>
             <input
               id="target-thickness"
               type="number"
@@ -279,7 +281,7 @@ export default function AldCycleCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="pressure-1">Partial Pressure (Torr)</label>
+            <label htmlFor="pressure-1">{g('partialPressure')} (Torr)</label>
             <input
               id="pressure-1"
               type="number"
@@ -318,7 +320,7 @@ export default function AldCycleCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="pressure-2">Partial Pressure (Torr)</label>
+            <label htmlFor="pressure-2">{g('partialPressure')} (Torr)</label>
             <input
               id="pressure-2"
               type="number"

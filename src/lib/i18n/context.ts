@@ -53,7 +53,7 @@ function loadLocaleDictionary(locale: SupportedLocale) {
 }
 
 /**
- * Maps an ISO 3166-1 alpha-2 country code (from IP geolocation) or navigator.language
+ * Maps an ISO 3166-1 alpha-2 country code or navigator.language
  * to our supported languages.
  *
  * Country mapping:
@@ -73,7 +73,8 @@ export function matchLocaleFromCountry(countryCode: string): SupportedLocale {
 }
 
 /**
- * Fallback detection from browser languages (navigator.languages) if IP lookup is unavailable.
+ * Detects the locale from the browser's language preferences
+ * (navigator.languages). Used for first-visit locale detection.
  */
 export function matchLocaleFromBrowser(languages: readonly string[]): SupportedLocale {
   for (const lang of languages) {
@@ -94,39 +95,6 @@ export function matchLocaleFromBrowser(languages: readonly string[]): SupportedL
       return 'en';
     }
   }
-  return 'en';
-}
-
-/**
- * Detects visitor location by calling lightweight, non-blocking Geo IP API endpoint,
- * with fast fallback to browser languages.
- */
-async function detectGeoLocale(): Promise<SupportedLocale> {
-  try {
-    // Non-blocking geo-detection from free fast GeoIP
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-    const response = await fetch('https://ipapi.co/json/', {
-      signal: controller.signal,
-      cache: 'no-cache',
-    });
-    clearTimeout(timeoutId);
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data && typeof data.country_code === 'string') {
-        return matchLocaleFromCountry(data.country_code);
-      }
-    }
-  } catch {
-    // Network or CORS error: fallback to browser language
-  }
-
-  if (typeof navigator !== 'undefined' && navigator.languages) {
-    return matchLocaleFromBrowser(navigator.languages);
-  }
-
   return 'en';
 }
 
@@ -159,7 +127,8 @@ export function useLocale(): SupportedLocale {
 /**
  * Initializes locale on client mount:
  * 1. Checks localStorage for existing user memory.
- * 2. If first visit, detects location via IP, falling back to navigator.languages.
+ * 2. On first visit, detects the locale from the browser's language
+ *    preferences (navigator.languages) — nothing leaves the browser.
  * 3. Saves choice to localStorage.
  */
 export function useHydrateLocale() {
@@ -177,9 +146,10 @@ export function useHydrateLocale() {
       // Ignore storage error
     }
 
-    // First visit: detect via IP
-    detectGeoLocale().then((detected) => {
-      setLocale(detected, true);
-    });
+    // First visit: detect from the browser's language preferences.
+    const detected = matchLocaleFromBrowser(
+      typeof navigator !== 'undefined' && navigator.languages ? navigator.languages : [],
+    );
+    setLocale(detected, true);
   }, []);
 }

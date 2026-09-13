@@ -758,5 +758,22 @@ export const zhTW: Record<string, ToolTranslation> = {
       "晶圓測試",
       "SPC"
     ]
+  },
+  "/tools/layout-parasitics-calculator": {
+    "name": "IC 版圖寄生參數估算器",
+    "description": "基於版圖繪製幾何尺寸估算互連電阻、平板與邊緣電容、IR 壓降與 RC 延遲，支援 Cu/Al/鎢/多晶矽的電阻率溫度修正，是下線前的經典核查工具。",
+    "keywords": [
+      "版圖",
+      "寄生參數",
+      "配線電阻",
+      "RC延遲",
+      "壓降",
+      "互連電容",
+      "邊緣電容",
+      "方塊電阻",
+      "金屬布線",
+      "多晶矽閘極",
+      "下線前檢查"
+    ]
   }
 };

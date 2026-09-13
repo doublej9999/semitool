@@ -11,6 +11,7 @@ import {
 import { downloadCsv } from '@/lib/export';
 import { formatNumber as fmt } from '@/lib/format';
 import { useUrlParamsState } from '@/lib/use-url-state';
+import { useGlossary } from '@/lib/i18n/glossary';
 
 interface CmpState {
   [key: string]: string | number | boolean;
@@ -48,6 +49,7 @@ export default function CmpEndpointCalculator() {
   const [copied, setCopied] = useState(false);
 
   useUrlParamsState(state, setState);
+  const g = useGlossary();
 
   const results = useMemo(() => {
     if (
@@ -186,7 +188,7 @@ export default function CmpEndpointCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="film-thick">
-              Film Thickness<span className="unit">nm</span>
+              {g('filmThickness')}<span className="unit">nm</span>
             </label>
             <input
               id="film-thick"
@@ -200,7 +202,7 @@ export default function CmpEndpointCalculator() {
 
           <div className="field">
             <label htmlFor="removal-rate">
-              Removal Rate<span className="unit">nm/min</span>
+              {g('removalRate')}<span className="unit">nm/min</span>
             </label>
             <input
               id="removal-rate"
@@ -281,7 +283,7 @@ export default function CmpEndpointCalculator() {
 
           <div className="field">
             <label htmlFor="refractive-idx">
-              Refractive Index (n)
+              {g('refractiveIndex')} (n)
             </label>
             <input
               id="refractive-idx"

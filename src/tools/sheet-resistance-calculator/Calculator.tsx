@@ -251,7 +251,7 @@ export default function SheetResistanceCalculator() {
             <div className="form-row">
               <div className="field">
                 <label htmlFor="convert-sheet">
-                  Sheet resistance<span className="unit">Ω/sq</span>
+                  {g('sheetResistance')}<span className="unit">Ω/sq</span>
                 </label>
                 <input
                   id="convert-sheet"
@@ -264,7 +264,7 @@ export default function SheetResistanceCalculator() {
               </div>
               <div className="field">
                 <label htmlFor="convert-rho">
-                  Resistivity<span className="unit">Ω·cm</span>
+                  {g('resistivityLabel')}<span className="unit">Ω·cm</span>
                 </label>
                 <input
                   id="convert-rho"
@@ -304,7 +304,7 @@ export default function SheetResistanceCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="sheet-result">
-        <h2 id="sheet-result">{mode === 'probe' ? 'Sheet resistance' : 'Converted value'}</h2>
+        <h2 id="sheet-result">{mode === 'probe' ? g('sheetResistance') : 'Converted value'}</h2>
 
         {mode === 'probe' ? (
           !probeResult.ok ? (
@@ -315,7 +315,7 @@ export default function SheetResistanceCalculator() {
             </div>
           ) : (
             <>
-              <span className="unit">Sheet resistance</span>
+              <span className="unit">{g('sheetResistance')}</span>
               <div className="result-value" aria-live="polite">
                 {fmt(probeResult.sheetResistance)}
                 <span className="result-suffix"> Ω/sq</span>
@@ -323,7 +323,7 @@ export default function SheetResistanceCalculator() {
 
               <div className="metric-grid">
                 <div className="metric">
-                  <span>Resistivity</span>
+                  <span>{g('resistivityLabel')}</span>
                   <strong>{fmt(probeResult.resistivity)} Ω·cm</strong>
                 </div>
                 <div className="metric">
@@ -368,7 +368,7 @@ export default function SheetResistanceCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Resistivity</span>
+            <span className="unit">{g('resistivityLabel')}</span>
             <div className="result-value" aria-live="polite">
               {fmt(convertResult.resistivity)}
               <span className="result-suffix"> Ω·cm</span>
@@ -376,7 +376,7 @@ export default function SheetResistanceCalculator() {
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Sheet resistance</span>
+                <span>{g('sheetResistance')}</span>
                 <strong>{fmt(convertResult.sheetResistance)} Ω/sq</strong>
               </div>
               <div className="metric">
