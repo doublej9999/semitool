@@ -1,4 +1,7 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/cleanroom-converter';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -26,18 +29,19 @@ const INITIAL = {
 };
 
 const ISO_OPTIONS: { iso: IsoClassNumber; label: string }[] = [
-  { iso: 1, label: 'ISO Class 1 (Extreme EUV Litho Core)' },
-  { iso: 2, label: 'ISO Class 2 (Sub-nm R&D / Advanced Pods)' },
-  { iso: 3, label: 'ISO Class 3 (US FED-STD-209E Class 1)' },
-  { iso: 4, label: 'ISO Class 4 (US FED-STD-209E Class 10)' },
-  { iso: 5, label: 'ISO Class 5 (US FED-STD-209E Class 100)' },
-  { iso: 6, label: 'ISO Class 6 (US FED-STD-209E Class 1,000)' },
-  { iso: 7, label: 'ISO Class 7 (US FED-STD-209E Class 10,000)' },
-  { iso: 8, label: 'ISO Class 8 (US FED-STD-209E Class 100,000)' },
-  { iso: 9, label: 'ISO Class 9 (Room Air Baseline)' },
+  { iso: 1, label: msg('ISO Class 1 (Extreme EUV Litho Core)') },
+  { iso: 2, label: msg('ISO Class 2 (Sub-nm R&D / Advanced Pods)') },
+  { iso: 3, label: msg('ISO Class 3 (US FED-STD-209E Class 1)') },
+  { iso: 4, label: msg('ISO Class 4 (US FED-STD-209E Class 10)') },
+  { iso: 5, label: msg('ISO Class 5 (US FED-STD-209E Class 100)') },
+  { iso: 6, label: msg('ISO Class 6 (US FED-STD-209E Class 1,000)') },
+  { iso: 7, label: msg('ISO Class 7 (US FED-STD-209E Class 10,000)') },
+  { iso: 8, label: msg('ISO Class 8 (US FED-STD-209E Class 100,000)') },
+  { iso: 9, label: msg('ISO Class 9 (Room Air Baseline)') },
 ];
 
 export default function CleanroomCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -141,12 +145,11 @@ export default function CleanroomCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="cleanroom-inputs">
-        <h2 id="cleanroom-inputs">Classification & Room Geometry</h2>
+        <h2 id="cleanroom-inputs">{t("Classification & Room Geometry")}</h2>
 
         <div className="field">
           <label htmlFor="iso-class-select">
-            Cleanroom Standard Classification
-            <span className="unit">ISO 14644-1 / FED-209E</span>
+            {t("Cleanroom Standard Classification")}<span className="unit">{t("ISO 14644-1 / FED-209E")}</span>
           </label>
           <select
             id="iso-class-select"
@@ -155,7 +158,7 @@ export default function CleanroomCalculator() {
           >
             {ISO_OPTIONS.map((opt) => (
               <option key={opt.iso} value={opt.iso}>
-                {opt.label}
+                {t(opt.label)}
               </option>
             ))}
           </select>
@@ -163,8 +166,7 @@ export default function CleanroomCalculator() {
 
         <div className="field">
           <label>
-            Measurement Units
-            <span className="unit">m / ft</span>
+            {t("Measurement Units")}<span className="unit">{t("m / ft")}</span>
           </label>
           <div className="action-row" style={{ marginTop: 0, marginBottom: 12 }}>
             <button
@@ -173,16 +175,14 @@ export default function CleanroomCalculator() {
               style={{ padding: '5px 12px', fontSize: 13 }}
               onClick={() => handleUnitToggle('m')}
             >
-              Metric (metres)
-            </button>
+              {t("Metric (metres)")}</button>
             <button
               type="button"
               className={`button ${state.dimensionUnit === 'ft' ? 'primary' : 'secondary'}`}
               style={{ padding: '5px 12px', fontSize: 13 }}
               onClick={() => handleUnitToggle('ft')}
             >
-              Imperial (feet)
-            </button>
+              {t("Imperial (feet)")}</button>
           </div>
         </div>
 
@@ -234,8 +234,7 @@ export default function CleanroomCalculator() {
           </div>
           <div className="field">
             <label htmlFor="room-ach">
-              Air Changes / Hour (ACH)
-              <span className="unit">1/h</span>
+              {t("Air Changes / Hour (ACH)")}<span className="unit">{t("1/h")}</span>
             </label>
             <input
               id="room-ach"
@@ -250,26 +249,25 @@ export default function CleanroomCalculator() {
 
         <div className="field">
           <label htmlFor="ffu-size-select">
-            Fan Filter Unit (FFU) Module Size
-            <span className="unit">HEPA / ULPA</span>
+            {t("Fan Filter Unit (FFU) Module Size")}<span className="unit">{t("HEPA / ULPA")}</span>
           </label>
           <select
             id="ffu-size-select"
             value={state.ffuSize}
             onChange={(e) => setState((prev) => ({ ...prev, ffuSize: e.target.value as FfuSize }))}
           >
-            <option value="2x4">{FFU_CONFIGS['2x4'].label} (~700 CFM / 1190 m³/h)</option>
-            <option value="4x4">{FFU_CONFIGS['4x4'].label} (~1400 CFM / 2380 m³/h)</option>
+            <option value="2x4">{FFU_CONFIGS['2x4'].label} {t("(~700 CFM / 1190 m³/h)")}</option>
+            <option value="4x4">{FFU_CONFIGS['4x4'].label} {t("(~1400 CFM / 2380 m³/h)")}</option>
           </select>
         </div>
 
         {result && (
           <p className="note">
-            Standard recommended ACH range for ISO {result.isoClass}:{' '}
+            {t("Standard recommended ACH range for ISO")}{result.isoClass}:{' '}
             <strong>
               {result.classInfo.achMin} – {result.classInfo.achMax} ACH
             </strong>
-            . Recommended ceiling filter coverage:{' '}
+            {t(". Recommended ceiling filter coverage:")}{' '}
             <strong>
               {result.recommendedCoveragePercent.min}% – {result.recommendedCoveragePercent.max}%
             </strong>
@@ -283,8 +281,7 @@ export default function CleanroomCalculator() {
             type="button"
             onClick={() => setState(INITIAL)}
           >
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
           {result && (
             <button className="button secondary" type="button" onClick={copyResult}>
               <Copy size={14} aria-hidden="true" /> {copied ? 'Copied' : 'Copy Summary'}
@@ -294,57 +291,56 @@ export default function CleanroomCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="cleanroom-results">
-        <h2 id="cleanroom-results">HVAC & Airflow Requirements</h2>
+        <h2 id="cleanroom-results">{t("HVAC & Airflow Requirements")}</h2>
 
         {!result ? (
           <div className="error" role="alert">
-            Please enter valid positive dimensions and air change rates.
-          </div>
+            {t("Please enter valid positive dimensions and air change rates.")}</div>
         ) : (
           <>
-            <span className="unit">Total Airflow Demand</span>
+            <span className="unit">{t("Total Airflow Demand")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.totalAirflowCfm)}
-              <span className="result-suffix"> CFM ({fmt(result.totalAirflowM3h)} m³/h)</span>
+              <span className="result-suffix"> {t("CFM (")}{fmt(result.totalAirflowM3h)} {t("m³/h)")}</span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>ISO 14644-1 Class</span>
+                <span>{t("ISO 14644-1 Class")}</span>
                 <strong>ISO {result.isoClass}</strong>
               </div>
               <div className="metric">
-                <span>FED-STD-209E Equiv</span>
+                <span>{t("FED-STD-209E Equiv")}</span>
                 <strong>{result.fedEquivalent}</strong>
               </div>
               <div className="metric">
-                <span>Flow Regime</span>
+                <span>{t("Flow Regime")}</span>
                 <strong style={{ fontSize: 13 }}>{result.classInfo.flowRegime}</strong>
               </div>
               <div className="metric">
-                <span>Filter Rating</span>
+                <span>{t("Filter Rating")}</span>
                 <strong style={{ fontSize: 13 }}>{result.classInfo.filterType}</strong>
               </div>
               <div className="metric">
-                <span>Room Volume</span>
+                <span>{t("Room Volume")}</span>
                 <strong>
-                  {fmt(result.roomVolumeM3)} m³ <span style={{ fontWeight: 400, fontSize: 12 }}>({fmt(result.roomVolumeFt3)} ft³)</span>
+                  {fmt(result.roomVolumeM3)} {t("m³")}<span style={{ fontWeight: 400, fontSize: 12 }}>({fmt(result.roomVolumeFt3)} {t("ft³)")}</span>
                 </strong>
               </div>
               <div className="metric">
-                <span>Floor / Ceiling Area</span>
+                <span>{t("Floor / Ceiling Area")}</span>
                 <strong>
-                  {fmt(result.floorAreaM2)} m² <span style={{ fontWeight: 400, fontSize: 12 }}>({fmt(result.floorAreaFt2)} ft²)</span>
+                  {fmt(result.floorAreaM2)} {t("m²")}<span style={{ fontWeight: 400, fontSize: 12 }}>({fmt(result.floorAreaFt2)} {t("ft²)")}</span>
                 </strong>
               </div>
               <div className="metric">
-                <span>Estimated FFUs</span>
+                <span>{t("Estimated FFUs")}</span>
                 <strong style={{ color: 'var(--teal-dark)' }}>
-                  {result.recommendedFfuCount} units ({result.ffuSpec.id})
+                  {result.recommendedFfuCount} {t("units (")}{result.ffuSpec.id})
                 </strong>
               </div>
               <div className="metric">
-                <span>Ceiling Coverage</span>
+                <span>{t("Ceiling Coverage")}</span>
                 <strong>{result.actualCeilingCoveragePercent.toFixed(1)}%</strong>
               </div>
             </div>
@@ -352,14 +348,14 @@ export default function CleanroomCalculator() {
             {/* Cleanroom Air Circulation Interactive Architectural SVG */}
             <div style={{ marginTop: 18, marginBottom: 16 }}>
               <h3 style={{ fontSize: 14, marginBottom: 6, color: 'var(--ink)' }}>
-                Cleanroom Circulation Diagram ({isLaminar ? 'Laminar Downflow' : 'Turbulent Dilution'})
+                {t("Cleanroom Circulation Diagram (")}{isLaminar ? 'Laminar Downflow' : 'Turbulent Dilution'})
               </h3>
               <div className="map-wrap" style={{ background: '#f8fafc', padding: 12 }}>
                 <svg
                   viewBox="0 0 540 280"
                   style={{ width: '100%', height: 'auto', display: 'block', maxHeight: 260 }}
                   role="img"
-                  aria-label="Cleanroom HVAC airflow circulation schematic diagram"
+                  aria-label={t("Cleanroom HVAC airflow circulation schematic diagram")}
                 >
                   <defs>
                     <linearGradient id="plenumGrad" x1="0" y1="0" x2="0" y2="1">
@@ -387,11 +383,9 @@ export default function CleanroomCalculator() {
                   {/* Ceiling Air Supply Plenum */}
                   <rect x="20" y="20" width="500" height="40" fill="url(#plenumGrad)" />
                   <text x="270" y="38" textAnchor="middle" fill="#0f172a" fontSize="11" fontWeight="600">
-                    AIR SUPPLY PLENUM (Positive Pressure +P)
-                  </text>
+                    {t("AIR SUPPLY PLENUM (Positive Pressure +P)")}</text>
                   <text x="270" y="52" textAnchor="middle" fill="#334155" fontSize="9.5">
-                    Recirculated Clean Air from AHU
-                  </text>
+                    {t("Recirculated Clean Air from AHU")}</text>
 
                   {/* Ceiling Filter / FFU Array */}
                   {isLaminar ? (
@@ -403,8 +397,7 @@ export default function CleanroomCalculator() {
                           <g key={i}>
                             <rect x={x} y="60" width="55" height="14" fill="#0d9488" rx="2" stroke="#0f766e" strokeWidth="1" />
                             <text x={x + 27.5} y="71" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="600">
-                              FFU / ULPA
-                            </text>
+                              {t("FFU / ULPA")}</text>
                             {/* Streamline arrows */}
                             <line x1={x + 15} y1="80" x2={x + 15} y2="180" stroke="#0284c7" strokeWidth="1.8" strokeDasharray="4 3" markerEnd="url(#arrowDown)" />
                             <line x1={x + 40} y1="80" x2={x + 40} y2="180" stroke="#0284c7" strokeWidth="1.8" strokeDasharray="4 3" markerEnd="url(#arrowDown)" />
@@ -421,8 +414,7 @@ export default function CleanroomCalculator() {
                           <g key={i}>
                             <rect x={x} y="60" width="60" height="14" fill="#0284c7" rx="2" stroke="#0369a1" strokeWidth="1" />
                             <text x={x + 30} y="71" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="600">
-                              HEPA Diffuser
-                            </text>
+                              {t("HEPA Diffuser")}</text>
                             {/* Turbulent swirling airflow lines */}
                             <path d={`M ${x + 20} 80 Q ${x - 20} 130 ${x + 10} 175`} fill="none" stroke="#38bdf8" strokeWidth="1.8" strokeDasharray="3 3" markerEnd="url(#arrowDown)" />
                             <path d={`M ${x + 40} 80 Q ${x + 80} 130 ${x + 50} 175`} fill="none" stroke="#38bdf8" strokeWidth="1.8" strokeDasharray="3 3" markerEnd="url(#arrowDown)" />
@@ -435,17 +427,14 @@ export default function CleanroomCalculator() {
                   {/* Cleanroom Tool & Processing Zone */}
                   <rect x="180" y="145" width="80" height="50" fill="#e2e8f0" stroke="#64748b" strokeWidth="1.5" rx="3" />
                   <text x="220" y="168" textAnchor="middle" fill="#334155" fontSize="9" fontWeight="600">
-                    WAFER FAB
-                  </text>
+                    {t("WAFER FAB")}</text>
                   <text x="220" y="181" textAnchor="middle" fill="#475569" fontSize="8">
-                    PROCESS TOOL
-                  </text>
+                    {t("PROCESS TOOL")}</text>
 
                   {/* Wafer track mini-cassette */}
                   <rect x="280" y="155" width="45" height="40" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="1" rx="2" />
                   <text x="302.5" y="177" textAnchor="middle" fill="#64748b" fontSize="7.5">
-                    FOUP / Pod
-                  </text>
+                    {t("FOUP / Pod")}</text>
 
                   {/* Floor Level: Perforated Raised Access Floor vs Solid Floor */}
                   {isLaminar ? (
@@ -456,30 +445,26 @@ export default function CleanroomCalculator() {
                       {/* Sub-floor basement return plenum */}
                       <rect x="40" y="208" width="460" height="36" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2 2" />
                       <text x="270" y="228" textAnchor="middle" fill="#475569" fontSize="9.5" fontWeight="500">
-                        RAISED PERFORATED FLOOR RETURN (15-25% Open Area)
-                      </text>
+                        {t("RAISED PERFORATED FLOOR RETURN (15-25% Open Area)")}</text>
 
                       {/* Side return air shafts rising back up */}
                       <path d="M 55 225 L 30 225 L 30 45" fill="none" stroke="#0d9488" strokeWidth="2.2" strokeDasharray="5 3" markerEnd="url(#arrowUp)" />
                       <path d="M 485 225 L 510 225 L 510 45" fill="none" stroke="#0d9488" strokeWidth="2.2" strokeDasharray="5 3" markerEnd="url(#arrowUp)" />
                       <text x="25" y="130" transform="rotate(-90, 25, 130)" textAnchor="middle" fill="#0d9488" fontSize="8.5" fontWeight="600">
-                        RECIRCULATION CHASE ↑
-                      </text>
+                        {t("RECIRCULATION CHASE ↑")}</text>
                       <text x="515" y="130" transform="rotate(90, 515, 130)" textAnchor="middle" fill="#0d9488" fontSize="8.5" fontWeight="600">
-                        ↑ RETURN AIR SHAFT
-                      </text>
+                        {t("↑ RETURN AIR SHAFT")}</text>
                     </>
                   ) : (
                     <>
                       {/* Low wall exhaust grilles for turbulent flow */}
                       <rect x="40" y="200" width="460" height="12" fill="#94a3b8" />
                       <text x="270" y="210" textAnchor="middle" fill="#ffffff" fontSize="9">
-                        Solid Sealed Floor
-                      </text>
+                        {t("Solid Sealed Floor")}</text>
                       <rect x="35" y="170" width="10" height="28" fill="#64748b" rx="1" />
                       <rect x="495" y="170" width="10" height="28" fill="#64748b" rx="1" />
-                      <text x="32" y="162" textAnchor="middle" fill="#64748b" fontSize="7.5">Low Grille</text>
-                      <text x="500" y="162" textAnchor="middle" fill="#64748b" fontSize="7.5">Low Grille</text>
+                      <text x="32" y="162" textAnchor="middle" fill="#64748b" fontSize="7.5">{t("Low Grille")}</text>
+                      <text x="500" y="162" textAnchor="middle" fill="#64748b" fontSize="7.5">{t("Low Grille")}</text>
                       <path d="M 40 185 L 25 185 L 25 45" fill="none" stroke="#0d9488" strokeWidth="2" markerEnd="url(#arrowUp)" />
                       <path d="M 500 185 L 515 185 L 515 45" fill="none" stroke="#0d9488" strokeWidth="2" markerEnd="url(#arrowUp)" />
                     </>
@@ -490,21 +475,21 @@ export default function CleanroomCalculator() {
 
             {/* ISO 14644-1 Particle Concentration Limits Table */}
             <h3 style={{ fontSize: 14, marginBottom: 8, marginTop: 18, color: 'var(--ink)' }}>
-              ISO 14644-1 Maximum Cumulative Particle Limits (ISO Class {result.isoClass})
+              {t("ISO 14644-1 Maximum Cumulative Particle Limits (ISO Class")}{result.isoClass})
             </h3>
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Particle Size</th>
-                  <th scope="col">ISO Limit (particles/m³)</th>
-                  <th scope="col">Equivalent (particles/ft³)</th>
-                  <th scope="col">Standard Status</th>
+                  <th scope="col">{t("Particle Size")}</th>
+                  <th scope="col">{t("ISO Limit (particles/m³)")}</th>
+                  <th scope="col">{t("Equivalent (particles/ft³)")}</th>
+                  <th scope="col">{t("Standard Status")}</th>
                 </tr>
               </thead>
               <tbody>
                 {result.particleLimits.map((p) => (
                   <tr key={p.diameterUm}>
-                    <th scope="row">≥ {p.diameterUm} µm</th>
+                    <th scope="row">≥ {p.diameterUm} {t("µm")}</th>
                     <td className="mono">
                       {p.isStandardApplicable ? p.standardPerM3.toLocaleString() : '—'}
                     </td>
@@ -514,8 +499,7 @@ export default function CleanroomCalculator() {
                     <td>
                       {p.isStandardApplicable ? (
                         <span style={{ color: 'var(--teal-dark)', fontWeight: 500 }}>
-                          Standard Limit
-                        </span>
+                          {t("Standard Limit")}</span>
                       ) : (
                         <span style={{ color: 'var(--muted)', fontSize: 11.5 }}>
                           {result.isoClass <= 2
@@ -530,23 +514,21 @@ export default function CleanroomCalculator() {
             </table>
 
             <div className="formula" style={{ marginTop: 16 }}>
-              <strong>Airflow Sizing Logic:</strong>
+              <strong>{t("Airflow Sizing Logic:")}</strong>
               <div>
-                • Volumetric Flow: {fmt(result.roomVolumeM3)} m³ × {result.ach} ACH ={' '}
-                <strong>{fmt(result.totalAirflowM3h)} m³/h</strong> ({fmt(result.totalAirflowCfm)} CFM).
+                {t("• Volumetric Flow:")}{fmt(result.roomVolumeM3)} {t("m³ ×")}{result.ach} {t("ACH =")}{' '}
+                <strong>{fmt(result.totalAirflowM3h)} {t("m³/h")}</strong> ({fmt(result.totalAirflowCfm)} {t("CFM).")}</div>
+              <div>
+                {t("• Flow-based FFUs: ⌈")}{fmt(result.totalAirflowCfm)} / {result.ffuSpec.nominalAirflowCfm}⌉ ={' '}
+                <strong>{result.ffuCountByAirflow} {t("FFUs")}</strong>.
               </div>
               <div>
-                • Flow-based FFUs: ⌈{fmt(result.totalAirflowCfm)} / {result.ffuSpec.nominalAirflowCfm}⌉ ={' '}
-                <strong>{result.ffuCountByAirflow} FFUs</strong>.
+                {t("• Coverage-based FFUs: (")}{fmt(result.floorAreaM2)} {t("m² ×")}{result.recommendedCoveragePercent.typical}%) /{' '}
+                {result.ffuSpec.areaM2} {t("m² =")}<strong>{result.ffuCountByCoverage} {t("FFUs")}</strong>.
               </div>
               <div>
-                • Coverage-based FFUs: ({fmt(result.floorAreaM2)} m² × {result.recommendedCoveragePercent.typical}%) /{' '}
-                {result.ffuSpec.areaM2} m² = <strong>{result.ffuCountByCoverage} FFUs</strong>.
-              </div>
-              <div>
-                • Selected Design FFU Count: <strong>{result.recommendedFfuCount} units</strong> yielding{' '}
-                <strong>{result.actualCeilingCoveragePercent.toFixed(1)}%</strong> ceiling filter coverage.
-              </div>
+                {t("• Selected Design FFU Count:")}<strong>{result.recommendedFfuCount} units</strong> yielding{' '}
+                <strong>{result.actualCeilingCoveragePercent.toFixed(1)}%</strong> {t("ceiling filter coverage.")}</div>
             </div>
           </>
         )}

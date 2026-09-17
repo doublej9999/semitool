@@ -238,7 +238,7 @@ export default function VirtualGenealogyPanel({
                 {t.genealogyModalTitle}
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--ink-soft, #64748b)' }}>
-                {lot.lotId} • {lot.devicePartNumber} • {lot.waferDiameterMm} mm • {lot.totalWafers} Wafers • {lot.carrierFoupId}
+                {lot.lotId} • {lot.devicePartNumber} • {lot.waferDiameterMm} mm • {lot.totalWafers} {t.genealogyWafersUnit} • {lot.carrierFoupId}
               </div>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function VirtualGenealogyPanel({
             <button
               onClick={handleDownloadJson}
               className="button secondary sm"
-              title="SEMI E90 MES JSON"
+              title={t.travelerExportMesJson}
               style={{ fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             >
               <Download size={13} />
@@ -263,7 +263,7 @@ export default function VirtualGenealogyPanel({
             <button
               onClick={handleDownloadCsv}
               className="button secondary sm"
-              title="MES CSV Run-Card"
+              title={t.travelerExportCsv}
               style={{ fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             >
               <Download size={13} />
@@ -272,7 +272,7 @@ export default function VirtualGenealogyPanel({
             <button
               onClick={handlePrint}
               className="button secondary sm"
-              title="Print Traveler Run-Card"
+              title={t.travelerExportPdf}
               style={{ fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
             >
               <Printer size={13} />
@@ -462,7 +462,7 @@ export default function VirtualGenealogyPanel({
                     type="text"
                     value={splitNameInput}
                     onChange={(e) => setSplitNameInput(e.target.value)}
-                    placeholder="e.g. Split-1 (High Bias Etch)"
+                    placeholder="Split-1"
                     style={{ width: '100%', padding: '0.4rem', fontSize: '0.8rem' }}
                   />
                 </div>

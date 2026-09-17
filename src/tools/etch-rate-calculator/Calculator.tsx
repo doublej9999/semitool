@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/etch-rate-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -21,6 +23,7 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 const optional = (value: string) => (value.trim() === '' ? null : Number(value));
 
 export default function EtchRateCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
 
@@ -64,12 +67,12 @@ export default function EtchRateCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="etch-inputs">
-        <h2 id="etch-inputs">Measurement</h2>
+        <h2 id="etch-inputs">{t("Measurement")}</h2>
 
         <div className="form-row">
           <div className="field">
             <label htmlFor="etch-before">
-              Thickness before<span className="unit">nm</span>
+              {t("Thickness before")}<span className="unit">nm</span>
             </label>
             <input
               id="etch-before"
@@ -82,7 +85,7 @@ export default function EtchRateCalculator() {
           </div>
           <div className="field">
             <label htmlFor="etch-after">
-              Thickness after<span className="unit">nm</span>
+              {t("Thickness after")}<span className="unit">nm</span>
             </label>
             <input
               id="etch-after"
@@ -112,28 +115,28 @@ export default function EtchRateCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="etch-mask">
-              Mask loss<span className="unit">nm, optional</span>
+              {t("Mask loss")}<span className="unit">{t("nm, optional")}</span>
             </label>
             <input
               id="etch-mask"
               type="number"
               min="0"
               step="any"
-              placeholder="not measured"
+              placeholder={t("not measured")}
               value={state.maskLossNm}
               onChange={(event) => setState((previous) => ({ ...previous, maskLossNm: event.target.value }))}
             />
           </div>
           <div className="field">
             <label htmlFor="etch-nominal">
-              Nominal time<span className="unit">s, optional</span>
+              {t("Nominal time")}<span className="unit">{t("s, optional")}</span>
             </label>
             <input
               id="etch-nominal"
               type="number"
               min="0"
               step="any"
-              placeholder="not set"
+              placeholder={t("not set")}
               value={state.nominalTimeSeconds}
               onChange={(event) => setState((previous) => ({ ...previous, nominalTimeSeconds: event.target.value }))}
             />
@@ -141,14 +144,11 @@ export default function EtchRateCalculator() {
         </div>
 
         <p className="note">
-          Both thickness measurements should come from the same point on the same wafer. Leave the optional fields blank
-          and the selectivity and overetch rows are simply not shown.
-        </p>
+          {t("Both thickness measurements should come from the same point on the same wafer. Leave the optional fields blank and the selectivity and overetch rows are simply not shown.")}</p>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setState(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
@@ -166,20 +166,20 @@ export default function EtchRateCalculator() {
             <span className="unit">{g('etchRate')}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.rateNmPerMinute)}
-              <span className="result-suffix"> nm/min</span>
+              <span className="result-suffix"> {t("nm/min")}</span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Thickness removed</span>
+                <span>{t("Thickness removed")}</span>
                 <strong>{fmt(result.removedNm)} nm</strong>
               </div>
               <div className="metric">
                 <span>{g('etchRate')}</span>
-                <strong>{fmt(result.rateNmPerSecond)} nm/s</strong>
+                <strong>{fmt(result.rateNmPerSecond)} {t("nm/s")}</strong>
               </div>
               <div className="metric">
-                <span>Remaining</span>
+                <span>{t("Remaining")}</span>
                 <strong>{fmt(result.remainingPercent)} %</strong>
               </div>
               {result.selectivity !== null ? (
@@ -190,27 +190,24 @@ export default function EtchRateCalculator() {
               ) : null}
               {result.maskRateNmPerMinute !== null ? (
                 <div className="metric">
-                  <span>Mask etch rate</span>
-                  <strong>{fmt(result.maskRateNmPerMinute)} nm/min</strong>
+                  <span>{t("Mask etch rate")}</span>
+                  <strong>{fmt(result.maskRateNmPerMinute)} {t("nm/min")}</strong>
                 </div>
               ) : null}
               {result.overetchPercent !== null ? (
                 <div className="metric">
-                  <span>Overetch</span>
+                  <span>{t("Overetch")}</span>
                   <strong>{fmt(result.overetchPercent)} %</strong>
                 </div>
               ) : null}
             </div>
 
             <p className="note">
-              The rate is the thickness removed divided by the time, so it is an average over the whole etch. Selectivity
-              is the film removed divided by the masking layer removed over the same time; it shifts with pressure, power,
-              temperature and load, so compare it only against numbers taken under the same recipe.
-            </p>
+              {t("The rate is the thickness removed divided by the time, so it is an average over the whole etch. Selectivity is the film removed divided by the masking layer removed over the same time; it shifts with pressure, power, temperature and load, so compare it only against numbers taken under the same recipe.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/thermal-resistance-calculator';
 
 import { useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Copy, RotateCcw } from 'lucide-react';
@@ -29,6 +31,7 @@ const INITIAL = {
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function ChipThermalCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
@@ -112,11 +115,11 @@ export default function ChipThermalCalculator() {
     <div className="calc-grid">
       {/* Input Panel */}
       <section className="panel">
-        <h2>Operating Conditions & Package Stack</h2>
+        <h2>{t("Operating Conditions & Package Stack")}</h2>
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="pwr-ambient">Ambient Temp Ta (°C)</label>
+            <label htmlFor="pwr-ambient">{t("Ambient Temp Ta (°C)")}</label>
             <input
               id="pwr-ambient"
               type="number"
@@ -126,7 +129,7 @@ export default function ChipThermalCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="pwr-power">Power Dissipation P (W)</label>
+            <label htmlFor="pwr-power">{t("Power Dissipation P (W)")}</label>
             <input
               id="pwr-power"
               type="number"
@@ -141,7 +144,7 @@ export default function ChipThermalCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="die-w">Die Width (mm)</label>
+            <label htmlFor="die-w">{t("Die Width (mm)")}</label>
             <input
               id="die-w"
               type="number"
@@ -153,7 +156,7 @@ export default function ChipThermalCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="die-h">Die Height (mm)</label>
+            <label htmlFor="die-h">{t("Die Height (mm)")}</label>
             <input
               id="die-h"
               type="number"
@@ -168,7 +171,7 @@ export default function ChipThermalCalculator() {
 
         {/* Package Preset */}
         <div className="field">
-          <label htmlFor="pkg-preset">Package Type / Preset</label>
+          <label htmlFor="pkg-preset">{t("Package Type / Preset")}</label>
           <select
             id="pkg-preset"
             value={state.packagePresetId}
@@ -176,15 +179,14 @@ export default function ChipThermalCalculator() {
           >
             {PACKAGE_PRESETS.map((pkg) => (
               <option key={pkg.id} value={pkg.id}>
-                {pkg.name} (θJC ≈ {pkg.thetaJc} °C/W)
-              </option>
+                {pkg.name} {t("(θJC ≈")}{pkg.thetaJc} {t("°C/W)")}</option>
             ))}
-            <option value="custom">Custom θJC</option>
+            <option value="custom">{t("Custom θJC")}</option>
           </select>
         </div>
 
         <div className="field">
-          <label htmlFor="pkg-thetajc">Junction-to-Case Resistance θJC (°C/W)</label>
+          <label htmlFor="pkg-thetajc">{t("Junction-to-Case Resistance θJC (°C/W)")}</label>
           <input
             id="pkg-thetajc"
             type="number"
@@ -198,7 +200,7 @@ export default function ChipThermalCalculator() {
 
         {/* TIM Preset */}
         <div className="field">
-          <label htmlFor="tim-preset">Thermal Interface Material (TIM)</label>
+          <label htmlFor="tim-preset">{t("Thermal Interface Material (TIM)")}</label>
           <select
             id="tim-preset"
             value={state.timPresetId}
@@ -206,16 +208,15 @@ export default function ChipThermalCalculator() {
           >
             {TIM_PRESETS.map((tim) => (
               <option key={tim.id} value={tim.id}>
-                {tim.name} ({tim.kTim} W/mK, {tim.bltUm} µm)
-              </option>
+                {tim.name} ({tim.kTim} {t("W/mK,")}{tim.bltUm} {t("µm)")}</option>
             ))}
-            <option value="custom">Custom TIM Layer</option>
+            <option value="custom">{t("Custom TIM Layer")}</option>
           </select>
         </div>
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="tim-blt">Bond Line BLT (µm)</label>
+            <label htmlFor="tim-blt">{t("Bond Line BLT (µm)")}</label>
             <input
               id="tim-blt"
               type="number"
@@ -227,7 +228,7 @@ export default function ChipThermalCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="tim-k">Conductivity k (W/m·K)</label>
+            <label htmlFor="tim-k">{t("Conductivity k (W/m·K)")}</label>
             <input
               id="tim-k"
               type="number"
@@ -242,7 +243,7 @@ export default function ChipThermalCalculator() {
 
         {/* Heatsink Preset */}
         <div className="field">
-          <label htmlFor="hs-preset">Heatsink / Cooling Solution</label>
+          <label htmlFor="hs-preset">{t("Heatsink / Cooling Solution")}</label>
           <select
             id="hs-preset"
             value={state.heatsinkPresetId}
@@ -250,16 +251,15 @@ export default function ChipThermalCalculator() {
           >
             {HEATSINK_PRESETS.map((hs) => (
               <option key={hs.id} value={hs.id}>
-                {hs.name} (θSA ≈ {hs.thetaSa} °C/W)
-              </option>
+                {hs.name} {t("(θSA ≈")}{hs.thetaSa} {t("°C/W)")}</option>
             ))}
-            <option value="custom">Custom Heatsink θSA</option>
+            <option value="custom">{t("Custom Heatsink θSA")}</option>
           </select>
         </div>
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="hs-thetasa">Sink-to-Ambient θSA (°C/W)</label>
+            <label htmlFor="hs-thetasa">{t("Sink-to-Ambient θSA (°C/W)")}</label>
             <input
               id="hs-thetasa"
               type="number"
@@ -271,7 +271,7 @@ export default function ChipThermalCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="tj-max">Tj,max Limit (°C)</label>
+            <label htmlFor="tj-max">{t("Tj,max Limit (°C)")}</label>
             <input
               id="tj-max"
               type="number"
@@ -285,18 +285,17 @@ export default function ChipThermalCalculator() {
         <div className="action-row">
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
       {/* Result Panel */}
       <section className="panel">
-        <h2>Thermal Analysis & Junction Temperature</h2>
+        <h2>{t("Thermal Analysis & Junction Temperature")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -306,7 +305,7 @@ export default function ChipThermalCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Silicon Junction Temperature (Tj)</span>
+            <span className="unit">{t("Silicon Junction Temperature (Tj)")}</span>
             <div
               className="result-value"
               aria-live="polite"
@@ -318,7 +317,7 @@ export default function ChipThermalCalculator() {
               }}
             >
               <span>{fmt(result.tjC)}</span>
-              <span className="result-suffix">°C</span>
+              <span className="result-suffix">{t("°C")}</span>
               <span
                 style={{
                   fontSize: '13px',
@@ -335,49 +334,46 @@ export default function ChipThermalCalculator() {
               >
                 {result.isSafe ? (
                   <>
-                    <CheckCircle2 size={15} /> Within Spec (Tj &le; {result.tjMaxC}°C)
-                  </>
+                    <CheckCircle2 size={15} /> {t("Within Spec (Tj &le;")}{result.tjMaxC}{t("°C)")}</>
                 ) : (
                   <>
-                    <AlertTriangle size={15} /> OVERHEAT EXCEEDED (+{fmt(result.tjC - result.tjMaxC)}°C)
-                  </>
+                    <AlertTriangle size={15} /> {t("OVERHEAT EXCEEDED (+")}{fmt(result.tjC - result.tjMaxC)}{t("°C)")}</>
                 )}
               </span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Total Resistance θJA</span>
-                <strong>{fmt(result.thetaJa)} °C/W</strong>
+                <span>{t("Total Resistance θJA")}</span>
+                <strong>{fmt(result.thetaJa)} {t("°C/W")}</strong>
               </div>
               <div className="metric">
-                <span>Thermal Margin (Tj,max - Tj)</span>
+                <span>{t("Thermal Margin (Tj,max - Tj)")}</span>
                 <strong style={{ color: result.isSafe ? 'inherit' : 'var(--red)' }}>
-                  {result.thermalMarginC >= 0 ? `+${fmt(result.thermalMarginC)}` : fmt(result.thermalMarginC)} °C
-                </strong>
+                  {result.thermalMarginC >= 0 ? `+${fmt(result.thermalMarginC)}` : fmt(result.thermalMarginC)} {t("°C")}</strong>
               </div>
               <div className="metric">
-                <span>Case Temperature Tcase</span>
-                <strong>{fmt(result.tCaseC)} °C</strong>
+                <span>{t("Case Temperature Tcase")}</span>
+                <strong>{fmt(result.tCaseC)} {t("°C")}</strong>
               </div>
               <div className="metric">
-                <span>Sink Temperature Tsink</span>
-                <strong>{fmt(result.tSinkC)} °C</strong>
+                <span>{t("Sink Temperature Tsink")}</span>
+                <strong>{fmt(result.tSinkC)} {t("°C")}</strong>
               </div>
               <div className="metric">
-                <span>Package θJC</span>
-                <strong>{fmt(result.thetaJc)} °C/W</strong>
+                <span>{t("Package θJC")}</span>
+                <strong>{fmt(result.thetaJc)} {t("°C/W")}</strong>
               </div>
               <div className="metric">
-                <span>TIM Resistance θTIM</span>
-                <strong>{fmt(result.thetaTim)} °C/W</strong>
+                <span>{t("TIM Resistance θTIM")}</span>
+                <strong>{fmt(result.thetaTim)} {t("°C/W")}</strong>
               </div>
               <div className="metric">
-                <span>Heatsink θSA</span>
-                <strong>{fmt(result.thetaSa)} °C/W</strong>
+                <span>{t("Heatsink θSA")}</span>
+                <strong>{fmt(result.thetaSa)} {t("°C/W")}</strong>
               </div>
               <div className="metric">
-                <span>Max Allowable Power Pmax</span>
+                <span>{t("Max Allowable Power Pmax")}</span>
                 <strong>{fmt(result.pMaxW)} W</strong>
               </div>
             </div>
@@ -396,6 +392,7 @@ interface ThermalStackDiagramProps {
 }
 
 function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
+  const t = useToolCopy(copyResource);
   const width = 480;
   const height = 340;
 
@@ -420,8 +417,7 @@ function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
   return (
     <div style={{ marginTop: '20px' }}>
       <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--ink)' }}>
-        1D Thermal Gradient Stack & Heat Flow
-      </h3>
+        {t("1D Thermal Gradient Stack & Heat Flow")}</h3>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         style={{
@@ -432,7 +428,7 @@ function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
           border: '1px solid var(--line)',
         }}
         role="img"
-        aria-label="Thermal Resistance and Temperature Gradient Stack"
+        aria-label={t("Thermal Resistance and Temperature Gradient Stack")}
       >
         <defs>
           <linearGradient id="heatFlowGrad" x1="0" y1="0" x2="0" y2="1">
@@ -465,7 +461,7 @@ function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
           markerEnd="url(#arrowHeat)"
         />
         <text x={352} y={150} fontSize="11" fill="#b0413a" fontWeight="600">
-          Heat Flow Q = {result.powerW} W
+          {t("Heat Flow Q =")}{result.powerW} W
         </text>
 
         {/* 1. Silicon Active Die */}
@@ -480,16 +476,13 @@ function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
           strokeWidth="1.5"
         />
         <text x={leftX + 14} y={dieY + 24} fontSize="12" fill="#ffffff" fontWeight="600">
-          Silicon Die (Active Hot Spot)
-        </text>
+          {t("Silicon Die (Active Hot Spot)")}</text>
         <text x={leftX + blockW - 12} y={dieY + 24} fontSize="12" fill="#ffb4a2" fontWeight="700" textAnchor="end">
-          Tj = {fmt(result.tjC)} °C
-        </text>
+          {t("Tj =")}{fmt(result.tjC)} {t("°C")}</text>
 
         {/* Sub-label for die */}
         <text x={leftX + 14} y={dieY + dieH + 9} fontSize="10" fill="var(--muted)">
-          Die Size: {result.dieWidthMm} × {result.dieHeightMm} mm ({fmt(result.dieAreaMm2)} mm²)
-        </text>
+          {t("Die Size:")}{result.dieWidthMm} × {result.dieHeightMm} {t("mm (")}{fmt(result.dieAreaMm2)} {t("mm²)")}</text>
 
         {/* 2. Package Lid / Case */}
         <rect
@@ -503,14 +496,11 @@ function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
           strokeWidth="1.5"
         />
         <text x={leftX + 14} y={caseY + 20} fontSize="11" fill="#0f172a" fontWeight="600">
-          Package Lid / Case (θJC = {fmt(result.thetaJc)} °C/W)
-        </text>
+          {t("Package Lid / Case (θJC =")}{fmt(result.thetaJc)} {t("°C/W)")}</text>
         <text x={leftX + 14} y={caseY + 36} fontSize="10" fill="#475569">
-          ΔT_case = {fmt(result.powerW * result.thetaJc)} °C drop
-        </text>
+          {t("ΔT_case =")}{fmt(result.powerW * result.thetaJc)} {t("°C drop")}</text>
         <text x={leftX + blockW - 12} y={caseY + 27} fontSize="12" fill="#b91c1c" fontWeight="700" textAnchor="end">
-          Tcase = {fmt(result.tCaseC)} °C
-        </text>
+          {t("Tcase =")}{fmt(result.tCaseC)} {t("°C")}</text>
 
         {/* 3. TIM Layer */}
         <rect
@@ -524,14 +514,11 @@ function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
           strokeWidth="1.5"
         />
         <text x={leftX + 14} y={timY + 16} fontSize="11" fill="#854d0e" fontWeight="600">
-          TIM Layer (BLT: {result.bltUm} µm, k: {result.kTim} W/mK)
-        </text>
+          {t("TIM Layer (BLT:")}{result.bltUm} {t("µm, k:")}{result.kTim} {t("W/mK)")}</text>
         <text x={leftX + 14} y={timY + 28} fontSize="9.5" fill="#a16207">
-          θTIM = {fmt(result.thetaTim)} °C/W (ΔT = {fmt(result.powerW * result.thetaTim)} °C)
-        </text>
+          {t("θTIM =")}{fmt(result.thetaTim)} {t("°C/W (ΔT =")}{fmt(result.powerW * result.thetaTim)} {t("°C)")}</text>
         <text x={leftX + blockW - 12} y={timY + 22} fontSize="12" fill="#a16207" fontWeight="700" textAnchor="end">
-          Tsink = {fmt(result.tSinkC)} °C
-        </text>
+          {t("Tsink =")}{fmt(result.tSinkC)} {t("°C")}</text>
 
         {/* 4. Heatsink */}
         <rect
@@ -561,11 +548,9 @@ function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
           );
         })}
         <text x={leftX + 14} y={sinkY + 50} fontSize="11" fill="#1e293b" fontWeight="600">
-          Heat Sink & Fins (θSA = {fmt(result.thetaSa)} °C/W)
-        </text>
+          {t("Heat Sink & Fins (θSA =")}{fmt(result.thetaSa)} {t("°C/W)")}</text>
         <text x={leftX + 14} y={sinkY + 63} fontSize="10" fill="#475569">
-          ΔT_sink = {fmt(result.powerW * result.thetaSa)} °C drop to ambient
-        </text>
+          {t("ΔT_sink =")}{fmt(result.powerW * result.thetaSa)} {t("°C drop to ambient")}</text>
 
         {/* 5. Ambient Air boundary */}
         <line
@@ -578,11 +563,9 @@ function ThermalStackDiagram({ result }: ThermalStackDiagramProps) {
           strokeDasharray="4 3"
         />
         <text x={leftX + 14} y={ambY + 12} fontSize="12" fill="var(--teal-dark)" fontWeight="600">
-          Ambient Cooling Air (Ta)
-        </text>
+          {t("Ambient Cooling Air (Ta)")}</text>
         <text x={leftX + blockW - 12} y={ambY + 12} fontSize="12" fill="var(--teal-dark)" fontWeight="700" textAnchor="end">
-          Ta = {result.ambientTempC} °C
-        </text>
+          {t("Ta =")}{result.ambientTempC} {t("°C")}</text>
       </svg>
     </div>
   );

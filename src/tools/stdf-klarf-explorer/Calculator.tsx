@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/stdf-klarf-explorer';
 
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -135,6 +137,7 @@ const CorrelationPanel = dynamic(() => import('./CorrelationPanel'), {
 
 /** Placeholder styled like the correlation panel, shown while its chunk loads. */
 function CorrelationPanelFallback() {
+  const t = useToolCopy(copyResource);
   return (
     <div
       style={{
@@ -144,15 +147,15 @@ function CorrelationPanelFallback() {
         background: 'var(--panel-subtle)',
       }}
     >
-      <h3 style={{ marginTop: 0 }}>PTR correlation</h3>
+      <h3 style={{ marginTop: 0 }}>{t("PTR correlation")}</h3>
       <p role="status" className="note" style={{ marginBottom: 0 }}>
-        Loading correlation panel…
-      </p>
+        {t("Loading correlation panel…")}</p>
     </div>
   );
 }
 
 export default function StdfKlarfExplorer() {
+  const t = useToolCopy(copyResource);
   const [stdf, setStdf] = useState<StdfParseSummary | null>(null);
   const [klarf, setKlarf] = useState<KlarfSummary | null>(null);
   const [fileName, setFileName] = useState('');
@@ -592,13 +595,13 @@ export default function StdfKlarfExplorer() {
   return (
     <div className="layout-two-column">
       <section className="panel" aria-labelledby="explorer-inputs">
-        <h2 id="explorer-inputs">Load test data</h2>
+        <h2 id="explorer-inputs">{t("Load test data")}</h2>
 
         <div
           className={`drop-zone${dragActive ? ' is-active' : ''}`}
           role="button"
           tabIndex={0}
-          aria-label="Drop an STDF or KLARF file, click to browse, or paste KLARF text"
+          aria-label={t("Drop an STDF or KLARF file, click to browse, or paste KLARF text")}
           onDragOver={(event) => {
             event.preventDefault();
             setDragActive(true);
@@ -623,10 +626,9 @@ export default function StdfKlarfExplorer() {
           }}
         >
           <Upload size={22} aria-hidden="true" style={{ margin: '0 auto 8px', display: 'block', color: 'var(--teal)' }} />
-          <p style={{ margin: 0, fontWeight: 600 }}>Drop a file, click to browse, or paste KLARF text</p>
+          <p style={{ margin: 0, fontWeight: 600 }}>{t("Drop a file, click to browse, or paste KLARF text")}</p>
           <p className="note" style={{ margin: '4px 0 0' }}>
-            STDF V4 binary (.std / .stdf) parsed as ArrayBuffer · KLARF 1.x (.klarf / .001) parsed as text
-          </p>
+            {t("STDF V4 binary (.std / .stdf) parsed as ArrayBuffer · KLARF 1.x (.klarf / .001) parsed as text")}</p>
           <input
             id="explorer-file-input"
             type="file"
@@ -655,11 +657,9 @@ export default function StdfKlarfExplorer() {
             disabled={parsing}
             onClick={() => void loadDemoKlarf()}
           >
-            <Sparkles size={14} aria-hidden="true" /> Load demo KLARF
-          </button>
+            <Sparkles size={14} aria-hidden="true" /> {t("Load demo KLARF")}</button>
           <button className="button secondary" type="button" onClick={reset}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
 
         {error ? (
@@ -671,14 +671,13 @@ export default function StdfKlarfExplorer() {
 
         {parsing ? (
           <p role="status" className="note" style={{ marginTop: '12px', fontWeight: 600 }}>
-            Parsing in a background worker…
-          </p>
+            {t("Parsing in a background worker…")}</p>
         ) : null}
 
         {cachedEntry && !stdf && !klarf ? (
           <div className="action-row" style={{ marginTop: '12px' }}>
             <button className="button secondary" type="button" onClick={restoreCached}>
-              <History size={14} aria-hidden="true" /> Restore last file: {cachedEntry.fileName || 'STDF'} (
+              <History size={14} aria-hidden="true" /> {t("Restore last file:")}{cachedEntry.fileName || 'STDF'} (
               {new Date(cachedEntry.timestamp).toLocaleString()})
             </button>
           </div>
@@ -686,63 +685,58 @@ export default function StdfKlarfExplorer() {
 
         <hr className="divider" />
 
-        <h3>Loaded source</h3>
+        <h3>{t("Loaded source")}</h3>
         {stdf ? (
           <p className="note" style={{ margin: 0 }}>
             <strong>{fileName || 'STDF V4 datalog'}</strong>
             <br />
-            Lot {stdf.mir?.lotId || 'N/A'} · Wafer {stdf.wrr?.waferId || 'N/A'} · Device {stdf.mir?.partType || 'N/A'} ·
-            Tester {stdf.mir?.testerType || 'ATE'}
+            {t("Lot")} {stdf.mir?.lotId || 'N/A'} {t("· Wafer")} {stdf.wrr?.waferId || 'N/A'} {t("· Device")} {stdf.mir?.partType || 'N/A'} {t("· Tester")} {stdf.mir?.testerType || 'ATE'}
             <br />
-            {stdf.parametricTests.length} PTR records across {testRows.length} tests · endian:{' '}
+            {stdf.parametricTests.length} {t("PTR records across")} {testRows.length} {t("tests · endian:")}{' '}
             {stdf.isLittleEndian ? 'little' : 'big'}
           </p>
         ) : klarf ? (
           <p className="note" style={{ margin: 0 }}>
             <strong>{fileName || 'KLARF inspection file'}</strong>
             <br />
-            Lot {klarf.header.lotId || 'N/A'} · Wafer {klarf.header.waferId || 'N/A'} · Station{' '}
-            {klarf.header.inspectionStationId || 'N/A'} · Klarf v{klarf.header.fileVersion}
+            {t("Lot")}{klarf.header.lotId || 'N/A'} {t("· Wafer")}{klarf.header.waferId || 'N/A'} {t("· Station")}{' '}
+            {klarf.header.inspectionStationId || 'N/A'} {t("· Klarf v")}{klarf.header.fileVersion}
             <br />
-            {klarf.totalDefects} defects · {klarf.clusterCount} clusters
+            {klarf.totalDefects} {t("defects ·")}{klarf.clusterCount} clusters
           </p>
         ) : (
           <p className="note" style={{ margin: 0 }}>
-            Nothing loaded yet. Everything runs locally in your browser — no file is uploaded. STDF and KLARF are
-            parsed in a background worker (STDF PTR cap raised to 200,000 records) and the last parsed STDF file is
-            cached locally in IndexedDB so it can be restored after a reload.
-          </p>
+            {t("Nothing loaded yet. Everything runs locally in your browser — no file is uploaded. STDF and KLARF are parsed in a background worker (STDF PTR cap raised to 200,000 records) and the last parsed STDF file is cached locally in IndexedDB so it can be restored after a reload.")}</p>
         )}
 
         {stdf && testRows.length > 0 ? (
           <div className="action-row" style={{ marginTop: '12px' }}>
             <button className="button secondary" type="button" onClick={exportSummaryCsv}>
-              <Download size={14} aria-hidden="true" /> Export test summary CSV
-            </button>
+              <Download size={14} aria-hidden="true" /> {t("Export test summary CSV")}</button>
           </div>
         ) : null}
       </section>
 
       <section className="panel" aria-labelledby="explorer-results">
-        <h2 id="explorer-results">Results</h2>
+        <h2 id="explorer-results">{t("Results")}</h2>
 
         {!stdf && !klarf ? (
-          <p className="note">Load an STDF or KLARF file (or the synthetic demo) to explore bins, parametrics and defects.</p>
+          <p className="note">{t("Load an STDF or KLARF file (or the synthetic demo) to explore bins, parametrics and defects.")}</p>
         ) : null}
 
         {stdf ? (
           <>
             <div className="metric-grid">
               <div className="metric">
-                <span>Total tested</span>
+                <span>{t("Total tested")}</span>
                 <strong>{stdf.totalParts}</strong>
               </div>
               <div className="metric">
-                <span>Good parts</span>
+                <span>{t("Good parts")}</span>
                 <strong>{stdf.goodParts}</strong>
               </div>
               <div className="metric">
-                <span>Failed parts</span>
+                <span>{t("Failed parts")}</span>
                 <strong>{stdf.failedParts}</strong>
               </div>
               <div className="metric">
@@ -755,15 +749,15 @@ export default function StdfKlarfExplorer() {
 
             {bins.length > 0 ? (
               <div style={{ marginTop: '16px' }}>
-                <h3 style={{ marginBottom: '8px' }}>Bin distribution (soft bin, hard bin fallback)</h3>
+                <h3 style={{ marginBottom: '8px' }}>{t("Bin distribution (soft bin, hard bin fallback)")}</h3>
                 <div className="table-scroll">
                   <table className="model-table">
                     <thead>
                       <tr>
-                        <th scope="col">Bin</th>
-                        <th scope="col">Count</th>
-                        <th scope="col">Percent</th>
-                        <th scope="col">Bar</th>
+                        <th scope="col">{t("Bin")}</th>
+                        <th scope="col">{t("Count")}</th>
+                        <th scope="col">{t("Percent")}</th>
+                        <th scope="col">{t("Bar")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -797,14 +791,13 @@ export default function StdfKlarfExplorer() {
               <div style={{ marginTop: '20px' }}>
                 <div className="field">
                   <label htmlFor="explorer-search">
-                    Filter tests
-                    <span className="unit">{filteredRows.length} / {testRows.length}</span>
+                    {t("Filter tests")}<span className="unit">{filteredRows.length} / {testRows.length}</span>
                   </label>
                   <input
                     id="explorer-search"
                     type="search"
                     value={search}
-                    placeholder="Test name, units or test number…"
+                    placeholder={t("Test name, units or test number…")}
                     onChange={(event) => setUrlState({ q: event.target.value })}
                   />
                 </div>
@@ -818,13 +811,12 @@ export default function StdfKlarfExplorer() {
                       onLimitChange={updateLimit}
                     />
                   ))}
-                  {filteredRows.length === 0 ? <p className="note">No test matches the filter.</p> : null}
+                  {filteredRows.length === 0 ? <p className="note">{t("No test matches the filter.")}</p> : null}
                 </div>
               </div>
             ) : (
               <p className="note" style={{ marginTop: '16px' }}>
-                This datalog contains no PTR parametric records — only bin / yield data is available.
-              </p>
+                {t("This datalog contains no PTR parametric records — only bin / yield data is available.")}</p>
             )}
 
             {testRows.length >= 2 ? (
@@ -851,6 +843,7 @@ function TestCard({
   saved: LimitInput;
   onLimitChange: (key: string, side: 'lsl' | 'usl', value: string) => void;
 }) {
+  const t = useToolCopy(copyResource);
   const { summary } = row;
   const spcHref = buildSpcUrl(row.trend);
 
@@ -886,23 +879,23 @@ function TestCard({
           <strong>{summary.n}</strong>
         </div>
         <div className="metric">
-          <span>Mean</span>
+          <span>{t("Mean")}</span>
           <strong>{round(summary.mean)}</strong>
         </div>
         <div className="metric">
-          <span>Median</span>
+          <span>{t("Median")}</span>
           <strong>{round(summary.median)}</strong>
         </div>
         <div className="metric">
-          <span>σ (n−1)</span>
+          <span>{t("σ (n−1)")}</span>
           <strong>{round(summary.stdDev)}</strong>
         </div>
         <div className="metric">
-          <span>Min</span>
+          <span>{t("Min")}</span>
           <strong>{round(summary.min)}</strong>
         </div>
         <div className="metric">
-          <span>Max</span>
+          <span>{t("Max")}</span>
           <strong>{round(summary.max)}</strong>
         </div>
         <div className="metric">
@@ -910,7 +903,7 @@ function TestCard({
           <strong>{round(summary.p95)}</strong>
         </div>
         <div className="metric">
-          <span>Out of spec</span>
+          <span>{t("Out of spec")}</span>
           <strong style={{ color: summary.outOfSpec > 0 ? '#b0413a' : undefined }}>{summary.outOfSpec}</strong>
         </div>
       </div>
@@ -942,12 +935,10 @@ function TestCard({
         </div>
         {spcHref ? (
           <a className="button secondary" href={spcHref}>
-            <ExternalLink size={14} aria-hidden="true" /> Open in SPC
-          </a>
+            <ExternalLink size={14} aria-hidden="true" /> {t("Open in SPC")}</a>
         ) : (
-          <button className="button secondary" type="button" disabled title="Need at least 10 results for two subgroups of 5">
-            <ExternalLink size={14} aria-hidden="true" /> Open in SPC
-          </button>
+          <button className="button secondary" type="button" disabled title={t("Need at least 10 results for two subgroups of 5")}>
+            <ExternalLink size={14} aria-hidden="true" /> {t("Open in SPC")}</button>
         )}
       </div>
     </div>
@@ -955,11 +946,11 @@ function TestCard({
 }
 
 function CpkBadge({ cpk }: { cpk: number | undefined }) {
+  const t = useToolCopy(copyResource);
   if (cpk === undefined) {
     return (
       <span className="note" style={{ margin: 0 }}>
-        Cpk —
-      </span>
+        {t("Cpk —")}</span>
     );
   }
 
@@ -969,7 +960,7 @@ function CpkBadge({ cpk }: { cpk: number | undefined }) {
 
   return (
     <span
-      title="Cpk = min((USL − μ) / 3σ, (μ − LSL) / 3σ), sample σ"
+      title={t("Cpk = min((USL − μ) / 3σ, (μ − LSL) / 3σ), sample σ")}
       style={{
         fontSize: '11px',
         fontWeight: 700,
@@ -979,14 +970,15 @@ function CpkBadge({ cpk }: { cpk: number | undefined }) {
         background,
       }}
     >
-      Cpk {cpk.toFixed(2)}
+      {t("Cpk")}{cpk.toFixed(2)}
     </span>
   );
 }
 
 function Sparkline({ values, lsl, usl }: { values: number[]; lsl?: number; usl?: number }) {
+  const t = useToolCopy(copyResource);
   if (values.length === 0) {
-    return <p className="note" style={{ margin: 0 }}>No finite results to plot.</p>;
+    return <p className="note" style={{ margin: 0 }}>{t("No finite results to plot.")}</p>;
   }
 
   // Display-cap long trends by step sampling.
@@ -1043,6 +1035,7 @@ const CLUSTER_COLORS: Record<KlarfSummary['clusters'][number]['category'], strin
 };
 
 function KlarfView({ summary }: { summary: KlarfSummary }) {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const classEntries = Object.entries(summary.classes)
     .map(([classNumber, count]) => ({ classNumber: Number(classNumber), count }))
@@ -1064,7 +1057,7 @@ function KlarfView({ summary }: { summary: KlarfSummary }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
           <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             {summary.hasScratches ? <AlertTriangle size={14} color="#d1625a" /> : null}
-            Lot {summary.header.lotId || 'N/A'} · Wafer {summary.header.waferId || 'N/A'}
+            {t("Lot")}{summary.header.lotId || 'N/A'} {t("· Wafer")}{summary.header.waferId || 'N/A'}
           </strong>
           <span style={{ fontWeight: 700, color: summary.hasScratches ? '#b0413a' : '#915a13' }}>
             {summary.hasScratches ? 'MECHANICAL SCRATCH DETECTED' : 'INSPECTION COMPLETE'}
@@ -1074,38 +1067,37 @@ function KlarfView({ summary }: { summary: KlarfSummary }) {
 
       <div className="metric-grid">
         <div className="metric">
-          <span>Total defects</span>
+          <span>{t("Total defects")}</span>
           <strong>{summary.totalDefects}</strong>
         </div>
         <div className="metric">
-          <span>Defective die</span>
+          <span>{t("Defective die")}</span>
           <strong>{summary.defectiveDieCount}</strong>
         </div>
         <div className="metric">
           <span>{g('densityLabel')}</span>
-          <strong>{summary.defectDensityPerCm2}/cm²</strong>
+          <strong>{summary.defectDensityPerCm2}{t("/cm²")}</strong>
         </div>
         <div className="metric">
-          <span>Clusters</span>
+          <span>{t("Clusters")}</span>
           <strong>{summary.clusterCount}</strong>
         </div>
       </div>
 
       <p className="note" style={{ marginTop: '10px' }}>
-        Device {summary.header.deviceId || 'N/A'} · Step/Station {summary.header.inspectionStationId || 'N/A'} · Slot{' '}
-        {summary.header.slot ?? '—'} · Die pitch {summary.header.diePitchX ?? '—'}×{summary.header.diePitchY ?? '—'} µm
-      </p>
+        {t("Device")}{summary.header.deviceId || 'N/A'} {t("· Step/Station")}{summary.header.inspectionStationId || 'N/A'} {t("· Slot")}{' '}
+        {summary.header.slot ?? '—'} {t("· Die pitch")}{summary.header.diePitchX ?? '—'}×{summary.header.diePitchY ?? '—'} {t("µm")}</p>
 
       {classEntries.length > 0 ? (
         <div style={{ marginTop: '16px' }}>
-          <h3 style={{ marginBottom: '8px' }}>Defect count per class (bin)</h3>
+          <h3 style={{ marginBottom: '8px' }}>{t("Defect count per class (bin)")}</h3>
           <div className="table-scroll">
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Class</th>
-                  <th scope="col">Count</th>
-                  <th scope="col">Percent</th>
+                  <th scope="col">{t("Class")}</th>
+                  <th scope="col">{t("Count")}</th>
+                  <th scope="col">{t("Percent")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1124,15 +1116,15 @@ function KlarfView({ summary }: { summary: KlarfSummary }) {
 
       {topClusters.length > 0 ? (
         <div style={{ marginTop: '16px' }}>
-          <h3 style={{ marginBottom: '8px' }}>Top defect clusters</h3>
+          <h3 style={{ marginBottom: '8px' }}>{t("Top defect clusters")}</h3>
           <div className="table-scroll">
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Cluster</th>
-                  <th scope="col">Category</th>
-                  <th scope="col">Defects</th>
-                  <th scope="col">Bounding box (mm)</th>
+                  <th scope="col">{t("Cluster")}</th>
+                  <th scope="col">{t("Category")}</th>
+                  <th scope="col">{t("Defects")}</th>
+                  <th scope="col">{t("Bounding box (mm)")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1166,8 +1158,7 @@ function KlarfView({ summary }: { summary: KlarfSummary }) {
         </div>
       ) : (
         <p className="note" style={{ marginTop: '16px' }}>
-          No multi-defect clusters detected — defect population is essentially isolated.
-        </p>
+          {t("No multi-defect clusters detected — defect population is essentially isolated.")}</p>
       )}
     </>
   );

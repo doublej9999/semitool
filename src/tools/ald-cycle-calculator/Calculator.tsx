@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/ald-cycle-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw, Download, AlertTriangle } from 'lucide-react';
@@ -29,6 +31,7 @@ const INITIAL = {
 };
 
 export default function AldCycleCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
 
@@ -85,35 +88,35 @@ export default function AldCycleCalculator() {
     if (state.temperatureC < minT) {
       warnings.push({
         level: 'warning',
-        title: 'Sub-Optimal ALD Window (T < Min Temp)',
-        message: `Substrate temperature (${state.temperatureC} °C) is below typical ALD window (${minT}–${maxT} °C). Precursor condensation and slow ligand exchange kinetics will occur.`,
+        title: t('Sub-Optimal ALD Window (T < Min Temp)'),
+        message: t('Substrate temperature ({temp} °C) is below typical ALD window ({minT}–{maxT} °C). Precursor condensation and slow ligand exchange kinetics will occur.', { temp: state.temperatureC, minT, maxT }),
       });
     } else if (state.temperatureC > maxT) {
       warnings.push({
         level: 'danger',
-        title: 'Thermal Decomposition Hazard (T > Max Temp)',
-        message: `Substrate temperature (${state.temperatureC} °C) exceeds the ALD self-limiting window (${minT}–${maxT} °C). Risk of thermal precursor decomposition and uncontrolled parasitic CVD growth.`,
+        title: t('Thermal Decomposition Hazard (T > Max Temp)'),
+        message: t('Substrate temperature ({temp} °C) exceeds the ALD self-limiting window ({minT}–{maxT} °C). Risk of thermal precursor decomposition and uncontrolled parasitic CVD growth.', { temp: state.temperatureC, minT, maxT }),
       });
     }
 
     if (state.purgeTime1 < 1.0 || state.purgeTime2 < 1.0) {
       warnings.push({
         level: 'warning',
-        title: 'Insufficient Purge Time (< 1.0 s)',
-        message: 'Purge duration is under 1 second. Incomplete purging causes precursor vapor cross-talk in the gas phase, generating parasitic CVD particles and non-uniform film edges.',
+        title: t('Insufficient Purge Time (< 1.0 s)'),
+        message: t('Purge duration is under 1 second. Incomplete purging causes precursor vapor cross-talk in the gas phase, generating parasitic CVD particles and non-uniform film edges.'),
       });
     }
 
     if (result.effectiveCoverage < 0.75) {
       warnings.push({
         level: 'warning',
-        title: 'Severely Sub-Saturated Dose (θ < 75%)',
-        message: `Effective surface coverage is only ${(result.effectiveCoverage * 100).toFixed(1)}%. Increase precursor pulse time or partial pressure to achieve conformality across 3D high-aspect-ratio topography.`,
+        title: t('Severely Sub-Saturated Dose (θ < 75%)'),
+        message: t('Effective surface coverage is only {coverage}%. Increase precursor pulse time or partial pressure to achieve conformality across 3D high-aspect-ratio topography.', { coverage: (result.effectiveCoverage * 100).toFixed(1) }),
       });
     }
 
     return warnings;
-  }, [preset, state.temperatureC, state.purgeTime1, state.purgeTime2, result.effectiveCoverage]);
+  }, [preset, state.temperatureC, state.purgeTime1, state.purgeTime2, result.effectiveCoverage, t]);
 
   const copyResult = async () => {
     const summary = [
@@ -225,10 +228,10 @@ export default function AldCycleCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="ald-inputs">
-        <h2 id="ald-inputs">ALD Recipe & Precursor Inputs</h2>
+        <h2 id="ald-inputs">{t("ALD Recipe & Precursor Inputs")}</h2>
 
         <div className="field">
-          <label htmlFor="ald-preset">Precursor System & Film</label>
+          <label htmlFor="ald-preset">{t("Precursor System & Film")}</label>
           <select
             id="ald-preset"
             value={state.presetId}
@@ -242,14 +245,13 @@ export default function AldCycleCalculator() {
           </select>
           {preset && (
             <p className="field-hint" style={{ fontSize: '0.82rem', marginTop: 4, color: 'var(--text-dim)' }}>
-              {preset.reactionEquation} — Typical GPC: {preset.typicalGpcAngstrom} Å/cycle ({preset.temperatureRangeC[0]}–{preset.temperatureRangeC[1]} °C)
-            </p>
+              {preset.reactionEquation} {t("— Typical GPC:")}{preset.typicalGpcAngstrom} {t("Å/cycle (")}{preset.temperatureRangeC[0]}–{preset.temperatureRangeC[1]} {t("°C)")}</p>
           )}
         </div>
 
         <div className="field">
-          <label>Solve Target</label>
-          <div className="segmented-control" role="group" aria-label="Solve mode">
+          <label>{t("Solve Target")}</label>
+          <div className="segmented-control" role="group" aria-label={t("Solve mode")}>
             <button
               type="button"
               className={state.solveMode === 'thickness' ? 'active' : ''}
@@ -262,14 +264,13 @@ export default function AldCycleCalculator() {
               className={state.solveMode === 'cycles' ? 'active' : ''}
               onClick={() => update('solveMode', 'cycles')}
             >
-              Fixed Cycles
-            </button>
+              {t("Fixed Cycles")}</button>
           </div>
         </div>
 
         {state.solveMode === 'thickness' ? (
           <div className="field">
-            <label htmlFor="target-thickness">{g('targetThickness')} (nm)</label>
+            <label htmlFor="target-thickness">{g('targetThickness')} {t("(nm)")}</label>
             <input
               id="target-thickness"
               type="number"
@@ -281,7 +282,7 @@ export default function AldCycleCalculator() {
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="total-cycles">Total Deposition Cycles</label>
+            <label htmlFor="total-cycles">{t("Total Deposition Cycles")}</label>
             <input
               id="total-cycles"
               type="number"
@@ -295,7 +296,7 @@ export default function AldCycleCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="temp-c">Substrate Temp (°C)</label>
+            <label htmlFor="temp-c">{t("Substrate Temp (°C)")}</label>
             <input
               id="temp-c"
               type="number"
@@ -306,7 +307,7 @@ export default function AldCycleCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="sat-dose">Precursor A Sat. Dose (L)</label>
+            <label htmlFor="sat-dose">{t("Precursor A Sat. Dose (L)")}</label>
             <input
               id="sat-dose"
               type="number"
@@ -319,11 +320,10 @@ export default function AldCycleCalculator() {
         </div>
 
         <h3 style={{ fontSize: '0.95rem', marginTop: 16, marginBottom: 8, color: 'var(--teal)' }}>
-          Half-Cycle A: Precursor Dose & Purge
-        </h3>
+          {t("Half-Cycle A: Precursor Dose & Purge")}</h3>
         <div className="form-row">
           <div className="field">
-            <label htmlFor="pulse-1">Pulse Time (s)</label>
+            <label htmlFor="pulse-1">{t("Pulse Time (s)")}</label>
             <input
               id="pulse-1"
               type="number"
@@ -334,7 +334,7 @@ export default function AldCycleCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="pressure-1">{g('partialPressure')} (Torr)</label>
+            <label htmlFor="pressure-1">{g('partialPressure')} {t("(Torr)")}</label>
             <input
               id="pressure-1"
               type="number"
@@ -345,7 +345,7 @@ export default function AldCycleCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="purge-1">N₂ Purge Time (s)</label>
+            <label htmlFor="purge-1">{t("N₂ Purge Time (s)")}</label>
             <input
               id="purge-1"
               type="number"
@@ -358,11 +358,10 @@ export default function AldCycleCalculator() {
         </div>
 
         <h3 style={{ fontSize: '0.95rem', marginTop: 16, marginBottom: 8, color: 'var(--teal)' }}>
-          Half-Cycle B: Co-Reactant Dose & Purge
-        </h3>
+          {t("Half-Cycle B: Co-Reactant Dose & Purge")}</h3>
         <div className="form-row">
           <div className="field">
-            <label htmlFor="pulse-2">Pulse Time (s)</label>
+            <label htmlFor="pulse-2">{t("Pulse Time (s)")}</label>
             <input
               id="pulse-2"
               type="number"
@@ -373,7 +372,7 @@ export default function AldCycleCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="pressure-2">{g('partialPressure')} (Torr)</label>
+            <label htmlFor="pressure-2">{g('partialPressure')} {t("(Torr)")}</label>
             <input
               id="pressure-2"
               type="number"
@@ -384,7 +383,7 @@ export default function AldCycleCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="purge-2">N₂ Purge Time (s)</label>
+            <label htmlFor="purge-2">{t("N₂ Purge Time (s)")}</label>
             <input
               id="purge-2"
               type="number"
@@ -399,29 +398,29 @@ export default function AldCycleCalculator() {
         <div className="action-row" style={{ marginTop: 20 }}>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={14} aria-hidden="true" />
-            <span>Reset Recipe</span>
+            <span>{t("Reset Recipe")}</span>
           </button>
           <button type="button" className="button" onClick={copyResult}>
             <Copy size={14} aria-hidden="true" />
-            <span>{copied ? 'Copied!' : 'Copy Summary'}</span>
+            <span>{copied ? t("Copied!") : t("Copy Summary")}</span>
           </button>
           <button type="button" className="button secondary" onClick={handleExportCsv}>
             <Download size={14} aria-hidden="true" />
-            <span>Export CSV</span>
+            <span>{t("Export CSV")}</span>
           </button>
           <button type="button" className="button secondary" onClick={handleExportXlsx}>
             <Download size={14} aria-hidden="true" />
-            <span>Export XLSX</span>
+            <span>{t("Export XLSX")}</span>
           </button>
           <button type="button" className="button secondary" onClick={handleExportPdf}>
             <Download size={14} aria-hidden="true" />
-            <span>Export PDF</span>
+            <span>{t("Export PDF")}</span>
           </button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="ald-results">
-        <h2 id="ald-results">Deposition Results & Kinetics</h2>
+        <h2 id="ald-results">{t("Deposition Results & Kinetics")}</h2>
         {physicsWarnings.map((w, idx) => (
           <div key={idx} className={`physics-alert ${w.level === 'danger' ? 'danger' : ''}`} role="alert" style={{ marginBottom: 16 }}>
             <AlertTriangle size={16} className="physics-alert-icon" />
@@ -432,63 +431,62 @@ export default function AldCycleCalculator() {
         ))}
 
         <div className="result-hero" style={{ marginBottom: 16 }}>
-          <span className="result-label">Effective Growth Per Cycle (GPC)</span>
+          <span className="result-label">{t("Effective Growth Per Cycle (GPC)")}</span>
           <span className="result-value">
             {fmt(result.effectiveGpcAngstrom, 3)}
-            <span className="result-suffix"> Å/cycle</span>
+            <span className="result-suffix"> {t("Å/cycle")}</span>
           </span>
           <span className="result-subtext" style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginTop: 4 }}>
-            = {fmt(result.effectiveGpcNm, 4)} nm/cycle ({fmt(result.effectiveCoverage * 100, 1)}% surface saturation)
-          </span>
+            = {fmt(result.effectiveGpcNm, 4)} {t("nm/cycle (")}{fmt(result.effectiveCoverage * 100, 1)}{t("% surface saturation)")}</span>
         </div>
 
         <div className="metrics-grid">
           <div className="metric">
-            <span className="metric-label">Total Deposition Time</span>
+            <span className="metric-label">{t("Total Deposition Time")}</span>
             <span className="metric-value">{result.formattedTime}</span>
             <span className="metric-unit">{fmt(result.totalDepositionTimeSec, 0)} seconds</span>
           </div>
 
           <div className="metric">
-            <span className="metric-label">Required Cycles</span>
+            <span className="metric-label">{t("Required Cycles")}</span>
             <span className="metric-value">{result.requiredCycles}</span>
             <span className="metric-unit">cycles</span>
           </div>
 
           <div className="metric">
-            <span className="metric-label">Resulting Thickness</span>
+            <span className="metric-label">{t("Resulting Thickness")}</span>
             <span className="metric-value">{fmt(result.resultingThicknessNm, 2)}</span>
-            <span className="metric-unit">nm ({fmt(result.resultingThicknessAngstrom, 1)} Å)</span>
+            <span className="metric-unit">{t("nm (")}{fmt(result.resultingThicknessAngstrom, 1)} Å)</span>
           </div>
 
           <div className="metric">
-            <span className="metric-label">Single Cycle Period</span>
+            <span className="metric-label">{t("Single Cycle Period")}</span>
             <span className="metric-value">{fmt(result.cycleTimeSec, 1)}</span>
-            <span className="metric-unit">s / cycle</span>
+            <span className="metric-unit">{t("s / cycle")}</span>
           </div>
 
           <div className="metric">
-            <span className="metric-label">Precursor A Exposure</span>
+            <span className="metric-label">{t("Precursor A Exposure")}</span>
             <span className="metric-value">{result.exposure1L.toLocaleString()}</span>
-            <span className="metric-unit">Langmuirs (θ₁ = {(result.coverage1 * 100).toFixed(1)}%)</span>
+            <span className="metric-unit">{t("Langmuirs (θ₁ =")}{(result.coverage1 * 100).toFixed(1)}%)</span>
           </div>
 
           <div className="metric">
-            <span className="metric-label">Precursor B Exposure</span>
+            <span className="metric-label">{t("Precursor B Exposure")}</span>
             <span className="metric-value">{result.exposure2L.toLocaleString()}</span>
-            <span className="metric-unit">Langmuirs (θ₂ = {(result.coverage2 * 100).toFixed(1)}%)</span>
+            <span className="metric-unit">{t("Langmuirs (θ₂ =")}{(result.coverage2 * 100).toFixed(1)}%)</span>
           </div>
 
           <div className="metric">
-            <span className="metric-label">Precursor Consumption</span>
+            <span className="metric-label">{t("Precursor Consumption")}</span>
             <span className="metric-value">{fmt(result.precursorConsumptionGrams, 3)}</span>
-            <span className="metric-unit">grams total vapor</span>
+            <span className="metric-unit">{t("grams total vapor")}</span>
           </div>
 
           <div className="metric">
-            <span className="metric-label">Single-Wafer Rate</span>
+            <span className="metric-label">{t("Single-Wafer Rate")}</span>
             <span className="metric-value">{fmt(result.throughputWph, 2)}</span>
-            <span className="metric-unit">wafers / hour</span>
+            <span className="metric-unit">{t("wafers / hour")}</span>
           </div>
         </div>
 
@@ -502,21 +500,17 @@ export default function AldCycleCalculator() {
           }}
         >
           <div style={{ fontWeight: 600, fontSize: '0.88rem', marginBottom: 4 }}>
-            Langmuir Saturation Regime:
-          </div>
+            {t("Langmuir Saturation Regime:")}</div>
           <div style={{ fontSize: '0.84rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
             {result.effectiveCoverage >= 0.99 ? (
               <span style={{ color: 'var(--teal)' }}>
-                ✓ Fully Saturated Self-Limiting Regime (θ &gt; 99%). Film conforms with 100% step coverage across high aspect-ratio 3D trenches.
-              </span>
+                {t("✓ Fully Saturated Self-Limiting Regime (θ > 99%). Film conforms with 100% step coverage across high aspect-ratio 3D trenches.")}</span>
             ) : result.effectiveCoverage >= 0.90 ? (
               <span>
-                Near Saturation (90%–99%). GPC is slightly sensitive to precursor partial pressure. Recommend increasing pulse time by 20–30% for challenging 3D topography.
-              </span>
+                {t("Near Saturation (90%–99%). GPC is slightly sensitive to precursor partial pressure. Recommend increasing pulse time by 20–30% for challenging 3D topography.")}</span>
             ) : (
               <span style={{ color: 'var(--amber, #f59e0b)' }}>
-                ⚠ Sub-saturated Regime (θ &lt; 90%). Growth is dose-starved, leading to non-uniform film thickness and poor step coverage on deep trench sidewalls.
-              </span>
+                {t("⚠ Sub-saturated Regime (θ < 90%). Growth is dose-starved, leading to non-uniform film thickness and poor step coverage on deep trench sidewalls.")}</span>
             )}
           </div>
         </div>

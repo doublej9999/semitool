@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/lithography-resolution-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -20,6 +22,7 @@ const INITIAL = {
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function LithographyResolutionCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
@@ -56,10 +59,10 @@ export default function LithographyResolutionCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="litho-inputs">
-        <h2 id="litho-inputs">Optics and process</h2>
+        <h2 id="litho-inputs">{t("Optics and process")}</h2>
 
         <div className="field">
-          <label htmlFor="litho-wavelength">Exposure wavelength</label>
+          <label htmlFor="litho-wavelength">{t("Exposure wavelength")}</label>
           <select
             id="litho-wavelength"
             value={state.wavelengthId}
@@ -70,7 +73,7 @@ export default function LithographyResolutionCalculator() {
                 {preset.label}
               </option>
             ))}
-            <option value="custom">Custom wavelength</option>
+            <option value="custom">{t("Custom wavelength")}</option>
           </select>
         </div>
 
@@ -92,7 +95,7 @@ export default function LithographyResolutionCalculator() {
 
         <div className="field">
           <label htmlFor="litho-na">
-            Numerical aperture<span className="unit">NA</span>
+            {t("Numerical aperture")}<span className="unit">NA</span>
           </label>
           <input
             id="litho-na"
@@ -107,7 +110,7 @@ export default function LithographyResolutionCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="litho-k1">
-              k1<span className="unit">resolution factor</span>
+              k1<span className="unit">{t("resolution factor")}</span>
             </label>
             <input
               id="litho-k1"
@@ -120,7 +123,7 @@ export default function LithographyResolutionCalculator() {
           </div>
           <div className="field">
             <label htmlFor="litho-k2">
-              k2<span className="unit">focus factor</span>
+              k2<span className="unit">{t("focus factor")}</span>
             </label>
             <input
               id="litho-k2"
@@ -134,19 +137,17 @@ export default function LithographyResolutionCalculator() {
         </div>
 
         <p className="note">
-          k1 near 0.35 and k2 near 0.5 describe a mature single-exposure process. The diffraction limit for a single
-          exposure is k1 = {K1_DIFFRACTION_LIMIT}.
+          {t("k1 near 0.35 and k2 near 0.5 describe a mature single-exposure process. The diffraction limit for a single exposure is k1 =")}{K1_DIFFRACTION_LIMIT}.
         </p>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setState(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="litho-result">
-        <h2 id="litho-result">Predicted limit</h2>
+        <h2 id="litho-result">{t("Predicted limit")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -156,7 +157,7 @@ export default function LithographyResolutionCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Resolution (half pitch)</span>
+            <span className="unit">{t("Resolution (half pitch)")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.resolutionNm)}
               <span className="result-suffix"> nm</span>
@@ -164,49 +165,39 @@ export default function LithographyResolutionCalculator() {
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Depth of focus</span>
+                <span>{t("Depth of focus")}</span>
                 <strong>{fmt(result.depthOfFocusNm)} nm</strong>
               </div>
               <div className="metric">
-                <span>Depth of focus</span>
+                <span>{t("Depth of focus")}</span>
                 <strong>{fmt(result.depthOfFocusNm / 1000)} um</strong>
               </div>
               <div className="metric">
-                <span>NA squared</span>
+                <span>{t("NA squared")}</span>
                 <strong>{fmt(result.naSquared)}</strong>
               </div>
               <div className="metric">
-                <span>k1 against limit</span>
+                <span>{t("k1 against limit")}</span>
                 <strong>{result.belowDiffractionLimit ? 'below 0.25' : 'at or above 0.25'}</strong>
               </div>
             </div>
 
             {result.belowDiffractionLimit ? (
               <p className="note">
-                k1 below {K1_DIFFRACTION_LIMIT} is under the two-beam diffraction limit for a single exposure. A real
-                process only reaches it with resolution enhancement such as off-axis illumination, phase-shift masks or
-                optical proximity correction, or by splitting the layer across two exposures. Treat the number as a
-                target that needs those techniques, not as something plain illumination delivers.
-              </p>
+                {t("k1 below")}{K1_DIFFRACTION_LIMIT} {t("is under the two-beam diffraction limit for a single exposure. A real process only reaches it with resolution enhancement such as off-axis illumination, phase-shift masks or optical proximity correction, or by splitting the layer across two exposures. Treat the number as a target that needs those techniques, not as something plain illumination delivers.")}</p>
             ) : (
               <p className="note">
-                At k1 {state.k1} the pattern is inside what single-exposure illumination can print. The depth of focus is
-                the paraxial estimate k2 x lambda / NA squared; resist thickness, topography and lens aberrations reduce
-                the usable window below it.
-              </p>
+                {t("At k1")}{state.k1} {t("the pattern is inside what single-exposure illumination can print. The depth of focus is the paraxial estimate k2 x lambda / NA squared; resist thickness, topography and lens aberrations reduce the usable window below it.")}</p>
             )}
 
             {Number(state.numericalAperture) > 1 ? (
               <p className="note">
-                A numerical aperture above 1 is only reached with immersion, where the medium whose refractive index
-                multiplies NA is a liquid rather than air. {MAX_IMMERSION_NA} is the practical ceiling for 193 nm water
-                immersion.
-              </p>
+                {t("A numerical aperture above 1 is only reached with immersion, where the medium whose refractive index multiplies NA is a liquid rather than air.")}{MAX_IMMERSION_NA} {t("is the practical ceiling for 193 nm water immersion.")}</p>
             ) : null}
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

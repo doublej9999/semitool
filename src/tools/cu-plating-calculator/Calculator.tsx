@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/cu-plating-calculator';
 
 import React, { useState, useMemo } from 'react';
 import { Download, Share2, AlertTriangle, Check, Layers, Zap } from 'lucide-react';
@@ -34,6 +36,7 @@ const INITIAL_STATE: CuPlatingState = {
 };
 
 export default function CuPlatingCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState<CuPlatingState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'radial' | 'trench'>('radial');
@@ -91,14 +94,12 @@ export default function CuPlatingCalculator() {
         <div className="card" style={{ padding: '1.5rem', backgroundColor: 'var(--card, #ffffff)', border: '1px solid var(--line, #e2e8f0)', borderRadius: '8px' }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--ink, #0f172a)' }}>
             <Zap size={18} color="var(--teal, #0d7c82)" />
-            Electrolysis & Plating Conditions
-          </h2>
+            {t("Electrolysis & Plating Conditions")}</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
               <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
-                Cathodic Current Density <i>J</i> (mA/cm²)
-              </label>
+                {t("Cathodic Current Density")}<i>J</i> {t("(mA/cm²)")}</label>
               <input
                 type="number"
                 min={1}
@@ -109,14 +110,13 @@ export default function CuPlatingCalculator() {
                 onChange={(e) => setState({ ...state, currentDensityMaCm2: parseFloat(e.target.value) || 0 })}
                 style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--line)' }}
               />
-              <span style={{ fontSize: '0.75rem', color: 'var(--muted, #64748b)' }}>Nominal fab process window: 10 – 30 mA/cm²</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted, #64748b)' }}>{t("Nominal fab process window: 10 – 30 mA/cm²")}</span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
               <div>
                 <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
-                  Plating Time (s)
-                </label>
+                  {t("Plating Time (s)")}</label>
                 <input
                   type="number"
                   min={5}
@@ -129,8 +129,7 @@ export default function CuPlatingCalculator() {
               </div>
               <div>
                 <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
-                  Current Efficiency (%)
-                </label>
+                  {t("Current Efficiency (%)")}</label>
                 <input
                   type="number"
                   min={80}
@@ -147,22 +146,20 @@ export default function CuPlatingCalculator() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
               <div>
                 <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
-                  Wafer Size
-                </label>
+                  {t("Wafer Size")}</label>
                 <select
                   value={state.waferDiameterMm}
                   onChange={(e) => setState({ ...state, waferDiameterMm: parseInt(e.target.value, 10) })}
                   style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--line)' }}
                 >
-                  <option value={300}>300 mm (12-inch)</option>
-                  <option value={200}>200 mm (8-inch)</option>
-                  <option value={150}>150 mm (6-inch)</option>
+                  <option value={300}>{t("300 mm (12-inch)")}</option>
+                  <option value={200}>{t("200 mm (8-inch)")}</option>
+                  <option value={150}>{t("150 mm (6-inch)")}</option>
                 </select>
               </div>
               <div>
                 <label style={{ fontSize: '0.85rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
-                  Seed Sheet R (Ω/□)
-                </label>
+                  {t("Seed Sheet R (Ω/□)")}</label>
                 <input
                   type="number"
                   min={0.1}
@@ -180,14 +177,12 @@ export default function CuPlatingCalculator() {
 
             <h3 style={{ fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--ink)' }}>
               <Layers size={16} color="var(--teal)" />
-              Damascene Trench Geometry & Additives
-            </h3>
+              {t("Damascene Trench Geometry & Additives")}</h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
               <div>
                 <label style={{ fontSize: '0.82rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
-                  Trench Width (nm)
-                </label>
+                  {t("Trench Width (nm)")}</label>
                 <input
                   type="number"
                   min={10}
@@ -200,8 +195,7 @@ export default function CuPlatingCalculator() {
               </div>
               <div>
                 <label style={{ fontSize: '0.82rem', fontWeight: 500, display: 'block', marginBottom: '0.3rem' }}>
-                  Trench Depth (nm)
-                </label>
+                  {t("Trench Depth (nm)")}</label>
                 <input
                   type="number"
                   min={20}
@@ -217,8 +211,7 @@ export default function CuPlatingCalculator() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 500, display: 'block', marginBottom: '0.2rem' }}>
-                  SPS (Accelerator)
-                </label>
+                  {t("SPS (Accelerator)")}</label>
                 <input
                   type="number"
                   min={0.2}
@@ -231,8 +224,7 @@ export default function CuPlatingCalculator() {
               </div>
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 500, display: 'block', marginBottom: '0.2rem' }}>
-                  PEG (Suppressor)
-                </label>
+                  {t("PEG (Suppressor)")}</label>
                 <input
                   type="number"
                   min={0.2}
@@ -245,8 +237,7 @@ export default function CuPlatingCalculator() {
               </div>
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 500, display: 'block', marginBottom: '0.2rem' }}>
-                  JGB (Leveler)
-                </label>
+                  {t("JGB (Leveler)")}</label>
                 <input
                   type="number"
                   min={0.2}
@@ -268,30 +259,29 @@ export default function CuPlatingCalculator() {
             <div className="metric-card" style={{ padding: '1rem', backgroundColor: 'var(--paper, #f8fafc)', borderRadius: '8px', border: '1px solid var(--line)' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>{g('depositionRate')}</div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--teal-dark, #0f766e)' }}>{results.nominalRateNmMin}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>nm/min</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{t("nm/min")}</div>
             </div>
 
             <div className="metric-card" style={{ padding: '1rem', backgroundColor: 'var(--paper, #f8fafc)', borderRadius: '8px', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>Nominal Thickness</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>{t("Nominal Thickness")}</div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--ink)' }}>{results.nominalThicknessNm}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>nm deposited</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{t("nm deposited")}</div>
             </div>
 
             <div className="metric-card" style={{ padding: '1rem', backgroundColor: 'var(--paper, #f8fafc)', borderRadius: '8px', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>Radial Non-uniformity</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>{t("Radial Non-uniformity")}</div>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: results.radialUniformityPercent > 12 ? 'var(--amber, #d97706)' : 'var(--teal)' }}>
                 {results.radialUniformityPercent}%
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Edge vs Center</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{t("Edge vs Center")}</div>
             </div>
 
             {results.damascene && (
               <div className="metric-card" style={{ padding: '1rem', backgroundColor: 'var(--paper, #f8fafc)', borderRadius: '8px', border: '1px solid var(--line)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>Aspect Ratio</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase' }}>{t("Aspect Ratio")}</div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--ink)' }}>{results.damascene.aspectRatio}:1</div>
                 <div style={{ fontSize: '0.75rem', color: results.damascene.pinchOffRisk === 'high' ? 'var(--red, #ef4444)' : 'var(--teal)' }}>
-                  {results.damascene.pinchOffRisk.toUpperCase()} VOID RISK
-                </div>
+                  {results.damascene.pinchOffRisk.toUpperCase()} {t("VOID RISK")}</div>
               </div>
             )}
           </div>
@@ -318,16 +308,14 @@ export default function CuPlatingCalculator() {
                   onClick={() => setActiveTab('radial')}
                   style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem' }}
                 >
-                  Wafer Radial Terminal Profile
-                </button>
+                  {t("Wafer Radial Terminal Profile")}</button>
                 <button
                   type="button"
                   className={`button ${activeTab === 'trench' ? 'primary' : 'secondary'}`}
                   onClick={() => setActiveTab('trench')}
                   style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem' }}
                 >
-                  Damascene Trench Fill
-                </button>
+                  {t("Damascene Trench Fill")}</button>
               </div>
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -337,7 +325,7 @@ export default function CuPlatingCalculator() {
                 </button>
                 <button type="button" className="button secondary" onClick={handleShare} style={{ padding: '0.35rem 0.7rem', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
                   {copied ? <Check size={13} color="green" /> : <Share2 size={13} />}
-                  {copied ? 'Copied' : 'Share'}
+                  {copied ? t("Copied") : t("Share")}
                 </button>
               </div>
             </div>
@@ -382,20 +370,19 @@ export default function CuPlatingCalculator() {
                   })()}
 
                   {/* Labels */}
-                  <text x="270" y="200" textAnchor="middle" fontSize="11" fill="#475569">Wafer Center (0 mm)</text>
-                  <text x="70" y="200" textAnchor="middle" fontSize="10" fill="#64748b">Left Edge (-{state.waferDiameterMm / 2} mm)</text>
-                  <text x="470" y="200" textAnchor="middle" fontSize="10" fill="#64748b">Right Edge (+{state.waferDiameterMm / 2} mm)</text>
+                  <text x="270" y="200" textAnchor="middle" fontSize="11" fill="#475569">{t("Wafer Center (0 mm)")}</text>
+                  <text x="70" y="200" textAnchor="middle" fontSize="10" fill="#64748b">{t("Left Edge (-")}{state.waferDiameterMm / 2} {t("mm)")}</text>
+                  <text x="470" y="200" textAnchor="middle" fontSize="10" fill="#64748b">{t("Right Edge (+")}{state.waferDiameterMm / 2} {t("mm)")}</text>
 
                   <text x="60" y="45" fontSize="11" fill="var(--teal-dark, #0a5f66)" fontWeight="600">
-                    Center: {results.centerThicknessNm} nm
+                    {t("Center:")}{results.centerThicknessNm} nm
                   </text>
                   <text x="360" y="45" fontSize="11" fill="var(--teal-dark, #0a5f66)" fontWeight="600">
-                    Edge: {results.edgeThicknessNm} nm
+                    {t("Edge:")}{results.edgeThicknessNm} nm
                   </text>
                 </svg>
                 <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.4rem', textAlign: 'center' }}>
-                  Seed layer terminal IR-drop produces edge current crowding, causing center-thinner plating.
-                </p>
+                  {t("Seed layer terminal IR-drop produces edge current crowding, causing center-thinner plating.")}</p>
               </div>
             )}
 
@@ -406,8 +393,8 @@ export default function CuPlatingCalculator() {
                   {/* Dielectric Substrate */}
                   <rect x="50" y="80" width="160" height="130" fill="#94a3b8" />
                   <rect x="290" y="80" width="160" height="130" fill="#94a3b8" />
-                  <text x="130" y="150" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="middle">SiO2 / Low-k</text>
-                  <text x="370" y="150" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="middle">SiO2 / Low-k</text>
+                  <text x="130" y="150" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="middle">{t("SiO2 / Low-k")}</text>
+                  <text x="370" y="150" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="middle">{t("SiO2 / Low-k")}</text>
 
                   {/* Trench Cavity */}
                   <rect x="210" y="80" width="80" height="130" fill="#f1f5f9" />
@@ -421,20 +408,20 @@ export default function CuPlatingCalculator() {
                   <rect x="50" y="60" width="400" height="20" fill="#b45309" opacity="0.9" />
 
                   {/* Annotations */}
-                  <text x="250" y="175" fill="#ffffff" fontSize="12" fontWeight="700" textAnchor="middle">Cu Superfill</text>
-                  <text x="250" y="75" fill="#ffffff" fontSize="11" fontWeight="600" textAnchor="middle">Cu Overburden ({results.damascene?.overburdenThicknessNm || 50} nm)</text>
+                  <text x="250" y="175" fill="#ffffff" fontSize="12" fontWeight="700" textAnchor="middle">{t("Cu Superfill")}</text>
+                  <text x="250" y="75" fill="#ffffff" fontSize="11" fontWeight="600" textAnchor="middle">{t("Cu Overburden (")}{results.damascene?.overburdenThicknessNm || 50} {t("nm)")}</text>
 
                   {/* Dimension markers */}
                   <line x1="210" y1="225" x2="290" y2="225" stroke="#0f172a" strokeWidth="1.5" />
-                  <text x="250" y="238" fontSize="10" fill="#0f172a" textAnchor="middle">Width: {state.trenchWidthNm} nm</text>
+                  <text x="250" y="238" fontSize="10" fill="#0f172a" textAnchor="middle">{t("Width:")}{state.trenchWidthNm} nm</text>
 
                   <line x1="300" y1="80" x2="300" y2="210" stroke="#0f172a" strokeWidth="1.5" />
-                  <text x="350" y="115" fontSize="10" fill="#0f172a">Depth: {state.trenchDepthNm} nm</text>
+                  <text x="350" y="115" fontSize="10" fill="#0f172a">{t("Depth:")}{state.trenchDepthNm} nm</text>
                 </svg>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--ink-soft)', marginTop: '0.5rem' }}>
-                  <span>Bottom-up Velocity Ratio: <strong>{results.damascene?.bottomUpVelocityRatio}x</strong></span>
-                  <span>Fill Time: <strong>{results.damascene?.timeToFillTrenchSec} s</strong></span>
-                  <span>Void Probability: <strong>{results.damascene?.voidRiskPercent}%</strong></span>
+                  <span>{t("Bottom-up Velocity Ratio:")}<strong>{results.damascene?.bottomUpVelocityRatio}x</strong></span>
+                  <span>{t("Fill Time:")}<strong>{results.damascene?.timeToFillTrenchSec} s</strong></span>
+                  <span>{t("Void Probability:")}<strong>{results.damascene?.voidRiskPercent}%</strong></span>
                 </div>
               </div>
             )}

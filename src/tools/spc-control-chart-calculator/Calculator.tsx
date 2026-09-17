@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/spc-control-chart-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, Download, RotateCcw, FileSpreadsheet } from 'lucide-react';
@@ -35,6 +37,7 @@ interface XBarChartProps {
 }
 
 function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBarChartProps) {
+  const t = useToolCopy(copyResource);
   const width = 540;
   const height = 210;
   const marginLeft = 56;
@@ -86,8 +89,8 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
       role="img"
       aria-label={`X-bar control chart showing ${count} subgroup means, grand mean ${fmt(grandMean)}, UCL ${fmt(ucl)}, LCL ${fmt(lcl)}`}
     >
-      <title>X-bar Control Chart</title>
-      <desc>Subgroup means over time with upper control limit, center line, and lower control limit.</desc>
+      <title>{t("X-bar Control Chart")}</title>
+      <desc>{t("Subgroup means over time with upper control limit, center line, and lower control limit.")}</desc>
 
       {/* Plot background */}
       <rect
@@ -290,8 +293,7 @@ function XBarChart({ means, grandMean, ucl, lcl, meansOutOfControl, runs }: XBar
         fontSize="10"
         fill="var(--chart-axis)"
       >
-        Subgroup
-      </text>
+        {t("Subgroup")}</text>
     </svg>
   );
 }
@@ -305,6 +307,7 @@ interface RChartProps {
 }
 
 function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: RChartProps) {
+  const t = useToolCopy(copyResource);
   const width = 540;
   const height = 190;
   const marginLeft = 56;
@@ -355,8 +358,8 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
       role="img"
       aria-label={`R range chart showing ${count} subgroup ranges, mean range ${fmt(meanRange)}, UCL ${fmt(rangeUcl)}, LCL ${fmt(rangeLcl)}`}
     >
-      <title>R Range Chart</title>
-      <desc>Subgroup ranges over time with upper range limit, mean range, and lower range limit.</desc>
+      <title>{t("R Range Chart")}</title>
+      <desc>{t("Subgroup ranges over time with upper range limit, mean range, and lower range limit.")}</desc>
 
       {/* Plot background */}
       <rect
@@ -539,13 +542,13 @@ function RChart({ ranges, meanRange, rangeUcl, rangeLcl, rangesOutOfControl }: R
         fontSize="10"
         fill="var(--chart-axis)"
       >
-        Subgroup
-      </text>
+        {t("Subgroup")}</text>
     </svg>
   );
 }
 
 export default function SpcControlChartCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [state, setState] = useState<SpcCalculatorState>(INITIAL);
   useUrlParamsState(state, setState);
@@ -633,9 +636,9 @@ export default function SpcControlChartCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="spc-subgroups">Subgroups, one per line, readings separated by commas</label>
+          <label htmlFor="spc-subgroups">{t("Subgroups, one per line, readings separated by commas")}</label>
           <textarea
             id="spc-subgroups"
             rows={8}
@@ -645,10 +648,7 @@ export default function SpcControlChartCalculator() {
           />
         </div>
         <p className="note">
-          Every subgroup must hold the same number of readings: a constant subgroup size is what makes the range
-          meaningful. Lines starting with # are ignored, so you can paste a block from a datalog and comment the
-          ones you exclude.
-        </p>
+          {t("Every subgroup must hold the same number of readings: a constant subgroup size is what makes the range meaningful. Lines starting with # are ignored, so you can paste a block from a datalog and comment the ones you exclude.")}</p>
         <div className="action-row" style={{ flexWrap: 'wrap', gap: '8px' }}>
           <button
             type="button"
@@ -657,20 +657,17 @@ export default function SpcControlChartCalculator() {
             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
             <FileSpreadsheet size={16} aria-hidden="true" />
-            Fab Metrology Import / CSV
-          </button>
+            {t("Fab Metrology Import / CSV")}</button>
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={exportXlsx} disabled={!result.ok}>
             <Download size={16} aria-hidden="true" />
-            Export XLSX
-          </button>
+            {t("Export XLSX")}</button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
 
         <FabMetrologyImportModal
@@ -690,41 +687,41 @@ export default function SpcControlChartCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Grand mean</span>
+            <span className="unit">{t("Grand mean")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.grandMean)}
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>X-bar UCL</dt>
+                <dt>{t("X-bar UCL")}</dt>
                 <dd>{fmt(result.xbarUcl)}</dd>
               </div>
               <div>
-                <dt>X-bar LCL</dt>
+                <dt>{t("X-bar LCL")}</dt>
                 <dd>{fmt(result.xbarLcl)}</dd>
               </div>
               <div>
-                <dt>R UCL</dt>
+                <dt>{t("R UCL")}</dt>
                 <dd>{fmt(result.rangeUcl)}</dd>
               </div>
               <div>
-                <dt>R LCL</dt>
+                <dt>{t("R LCL")}</dt>
                 <dd>{fmt(result.rangeLcl)}</dd>
               </div>
               <div>
-                <dt>Mean range</dt>
+                <dt>{t("Mean range")}</dt>
                 <dd>{fmt(result.meanRange)}</dd>
               </div>
               <div>
-                <dt>Within-subgroup sigma</dt>
+                <dt>{t("Within-subgroup sigma")}</dt>
                 <dd>{fmt(result.sigmaHat)}</dd>
               </div>
               <div>
-                <dt>Subgroup size</dt>
+                <dt>{t("Subgroup size")}</dt>
                 <dd>{result.subgroupSize}</dd>
               </div>
               <div>
-                <dt>Signals</dt>
+                <dt>{t("Signals")}</dt>
                 <dd>{signalCount}</dd>
               </div>
             </dl>
@@ -751,8 +748,7 @@ export default function SpcControlChartCalculator() {
                   }}
                 >
                   <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
-                    X-bar Chart (Subgroup Means)
-                  </span>
+                    {t("X-bar Chart (Subgroup Means)")}</span>
                   <span
                     className="unit"
                     style={{
@@ -794,7 +790,7 @@ export default function SpcControlChartCalculator() {
                         display: 'inline-block',
                       }}
                     />
-                    <span>Normal mean</span>
+                    <span>{t("Normal mean")}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <span
@@ -807,7 +803,7 @@ export default function SpcControlChartCalculator() {
                         display: 'inline-block',
                       }}
                     />
-                    <span>Outside limits</span>
+                    <span>{t("Outside limits")}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <span
@@ -820,15 +816,15 @@ export default function SpcControlChartCalculator() {
                         display: 'inline-block',
                       }}
                     />
-                    <span>7-point run</span>
+                    <span>{t("7-point run")}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <span style={{ width: '14px', borderTop: '1.5px dashed var(--chart-limit)', display: 'inline-block' }} />
-                    <span>Control limits (UCL/LCL)</span>
+                    <span>{t("Control limits (UCL/LCL)")}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <span style={{ width: '14px', borderTop: '1.5px solid var(--chart-accent)', display: 'inline-block' }} />
-                    <span>Center line (CL)</span>
+                    <span>{t("Center line (CL)")}</span>
                   </div>
                 </div>
               </div>
@@ -853,8 +849,7 @@ export default function SpcControlChartCalculator() {
                   }}
                 >
                   <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
-                    R Chart (Subgroup Ranges)
-                  </span>
+                    {t("R Chart (Subgroup Ranges)")}</span>
                   <span
                     className="unit"
                     style={{
@@ -895,7 +890,7 @@ export default function SpcControlChartCalculator() {
                         display: 'inline-block',
                       }}
                     />
-                    <span>Normal range</span>
+                    <span>{t("Normal range")}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <span
@@ -908,28 +903,28 @@ export default function SpcControlChartCalculator() {
                         display: 'inline-block',
                       }}
                     />
-                    <span>Outside limits</span>
+                    <span>{t("Outside limits")}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <span style={{ width: '14px', borderTop: '1.5px dashed var(--chart-limit)', display: 'inline-block' }} />
-                    <span>Range limits (UCL/LCL)</span>
+                    <span>{t("Range limits (UCL/LCL)")}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <span style={{ width: '14px', borderTop: '1.5px solid var(--chart-accent)', display: 'inline-block' }} />
-                    <span>Mean range (CL)</span>
+                    <span>{t("Mean range (CL)")}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <table className="model-table">
-              <caption>Per-subgroup mean and range against the limits</caption>
+              <caption>{t("Per-subgroup mean and range against the limits")}</caption>
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Mean</th>
-                  <th scope="col">Range</th>
-                  <th scope="col">Status</th>
+                  <th scope="col">{t("Mean")}</th>
+                  <th scope="col">{t("Range")}</th>
+                  <th scope="col">{t("Status")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -958,10 +953,7 @@ export default function SpcControlChartCalculator() {
               </tbody>
             </table>
             <p className="note">
-              Control limits come from the variation inside the subgroups, not from the specification. An
-              in-control chart says the process is stable, not that it is capable: put the same data through the
-              process capability calculator for the specification question.
-            </p>
+              {t("Control limits come from the variation inside the subgroups, not from the specification. An in-control chart says the process is stable, not that it is capable: put the same data through the process capability calculator for the specification question.")}</p>
           </>
         )}
       </section>

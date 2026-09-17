@@ -1,4 +1,7 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/esd-estimator-calculator';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useId, useState } from 'react';
 import { Download } from 'lucide-react';
@@ -41,9 +44,9 @@ const INITIAL_STATE: EstimatorState = {
 };
 
 const PIN_OPTIONS: readonly { value: EsdPinType; label: string }[] = [
-  { value: 'input', label: 'Input pin' },
-  { value: 'output', label: 'Output pin' },
-  { value: 'power', label: 'Power pin' },
+  { value: 'input', label: msg('Input pin') },
+  { value: 'output', label: msg('Output pin') },
+  { value: 'power', label: msg('Power pin') },
 ];
 
 const PASS_COLOR = 'var(--teal)';
@@ -59,6 +62,7 @@ function safePin(pin: string): EsdPinType {
  * it carries no computed numbers.
  */
 function EsdSchematic({ device }: { device: EsdDeviceSpec }) {
+  const t = useToolCopy(copyResource);
   const label = {
     diode: 'Schematic: bond pad with a diode pair to the VDD and VSS rails',
     ggnmos: 'Schematic: bond pad into a grounded-gate NMOS discharging to VSS',
@@ -77,7 +81,7 @@ function EsdSchematic({ device }: { device: EsdDeviceSpec }) {
       <line x1="30" y1="28" x2="290" y2="28" stroke="currentColor" strokeWidth="2" />
       <text x="30" y="20" fontSize="11" fill="currentColor">VDD</text>
       <line x1="30" y1="202" x2="290" y2="202" stroke="currentColor" strokeWidth="2" />
-      <text x="30" y="218" fontSize="11" fill="currentColor">VSS / GND</text>
+      <text x="30" y="218" fontSize="11" fill="currentColor">{t("VSS / GND")}</text>
 
       {device.type === 'diode' && (
         <g stroke="currentColor" fill="none" strokeWidth="1.5">
@@ -108,7 +112,7 @@ function EsdSchematic({ device }: { device: EsdDeviceSpec }) {
           <line x1="160" y1="105" x2="160" y2="130" />
           <rect x="152" y="130" width="16" height="44" fill="currentColor" stroke="none" opacity="0.85" />
           <line x1="160" y1="174" x2="160" y2="202" />
-          <text x="176" y="155" fontSize="11" fill="currentColor" stroke="none">GGNMOS</text>
+          <text x="176" y="155" fontSize="11" fill="currentColor" stroke="none">{t("GGNMOS")}</text>
           {/* Gate tied to GND */}
           <line x1="152" y1="150" x2="120" y2="150" />
           <line x1="120" y1="150" x2="120" y2="168" />
@@ -124,7 +128,7 @@ function EsdSchematic({ device }: { device: EsdDeviceSpec }) {
           <line x1="200" y1="28" x2="200" y2="70" />
           <rect x="192" y="70" width="16" height="60" fill="currentColor" stroke="none" opacity="0.85" />
           <line x1="200" y1="130" x2="200" y2="202" />
-          <text x="214" y="104" fontSize="11" fill="currentColor" stroke="none">Clamp FET</text>
+          <text x="214" y="104" fontSize="11" fill="currentColor" stroke="none">{t("Clamp FET")}</text>
           {/* RC trigger: R from VDD, C to VSS, node drives the gate */}
           <line x1="100" y1="28" x2="100" y2="60" />
           <rect x="94" y="60" width="12" height="40" fill="currentColor" stroke="none" opacity="0.6" />
@@ -144,6 +148,7 @@ function EsdSchematic({ device }: { device: EsdDeviceSpec }) {
 }
 
 export default function EsdEstimatorCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState<EstimatorState>(INITIAL_STATE);
   const { copied, copy } = useCopyToClipboard();
 
@@ -230,10 +235,10 @@ export default function EsdEstimatorCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="esd-inputs">
-        <h2 id="esd-inputs">Model, device and size</h2>
+        <h2 id="esd-inputs">{t("Model, device and size")}</h2>
 
         <div className="field">
-          <label htmlFor={modelId}>ESD stress model</label>
+          <label htmlFor={modelId}>{t("ESD stress model")}</label>
           <select id={modelId} value={model.id} onChange={(e) => update('model', e.target.value)}>
             {ESD_MODELS.map((candidate) => (
               <option key={candidate.id} value={candidate.id}>
@@ -242,11 +247,11 @@ export default function EsdEstimatorCalculator() {
             ))}
           </select>
           <small>{model.note}</small>
-          <small>Pulse: {model.riseNote}</small>
+          <small>{t("Pulse:")}{model.riseNote}</small>
         </div>
 
         <div className="field">
-          <label htmlFor={deviceId}>Protection device</label>
+          <label htmlFor={deviceId}>{t("Protection device")}</label>
           <select id={deviceId} value={device.type} onChange={(e) => update('device', e.target.value)}>
             {DEVICE_RULES.map((candidate) => (
               <option key={candidate.type} value={candidate.type}>
@@ -254,11 +259,11 @@ export default function EsdEstimatorCalculator() {
               </option>
             ))}
           </select>
-          <small>{device.sizeLabel} · typical drawn range {device.typicalSizeUm[0]}–{device.typicalSizeUm[1]} µm</small>
+          <small>{device.sizeLabel} {t("· typical drawn range")}{device.typicalSizeUm[0]}–{device.typicalSizeUm[1]} {t("µm")}</small>
         </div>
 
         <div className="field">
-          <label htmlFor={sizeId}>Device size (µm)</label>
+          <label htmlFor={sizeId}>{t("Device size (µm)")}</label>
           <input
             id={sizeId}
             type="number"
@@ -268,24 +273,24 @@ export default function EsdEstimatorCalculator() {
             onChange={(e) => update('sizeUm', Number.parseFloat(e.target.value) || 0)}
           />
           <small>
-            {device.label}: {device.constantKvPerUm} kV/µm HBM — {device.rangeNote}
+            {device.label}: {device.constantKvPerUm} {t("kV/µm HBM —")}{device.rangeNote}
           </small>
         </div>
 
         <div className="field">
-          <label htmlFor={pinId}>Pin type</label>
+          <label htmlFor={pinId}>{t("Pin type")}</label>
           <select id={pinId} value={pin} onChange={(e) => update('pin', e.target.value)}>
             {PIN_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {t(option.label)}
               </option>
             ))}
           </select>
-          <small>Pin type drives the warnings, not the scaling: power pins rely on the supply clamp.</small>
+          <small>{t("Pin type drives the warnings, not the scaling: power pins rely on the supply clamp.")}</small>
         </div>
 
         <div className="field">
-          <label htmlFor={targetId}>Target class (for suggested sizing)</label>
+          <label htmlFor={targetId}>{t("Target class (for suggested sizing)")}</label>
           <select id={targetId} value={target.limitV} onChange={(e) => update('targetV', Number(e.target.value))}>
             {model.classLimits.map((level) => (
               <option key={level.limitV} value={level.limitV}>
@@ -298,14 +303,14 @@ export default function EsdEstimatorCalculator() {
 
         <div className="physics-alert" style={{ marginTop: '12px' }}>
           <div className="physics-alert-content">
-            <strong>Rule-of-thumb estimate only.</strong> {ESD_DISCLAIMER}
+            <strong>{t("Rule-of-thumb estimate only.")}</strong> {ESD_DISCLAIMER}
           </div>
         </div>
 
-        <h3 style={{ margin: '20px 0 8px' }}>Protection path</h3>
+        <h3 style={{ margin: '20px 0 8px' }}>{t("Protection path")}</h3>
         <EsdSchematic device={device} />
         <small>
-          Simplified schematic: {device.type === 'diode'
+          {t("Simplified schematic:")}{device.type === 'diode'
             ? 'D1 conducts positive surges pad → VDD, D2 conducts negative surges VSS → pad.'
             : device.type === 'ggnmos'
               ? 'The snapback NMOS triggers with its gate grounded and discharges the pad into VSS.'
@@ -318,17 +323,16 @@ export default function EsdEstimatorCalculator() {
           </button>
           <button type="button" className="btn btn-secondary" onClick={exportCsv}>
             <Download size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
-            Export CSV
-          </button>
+            {t("Export CSV")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="esd-results">
-        <h2 id="esd-results">Estimated robustness — {model.label}</h2>
+        <h2 id="esd-results">{t("Estimated robustness —")}{model.label}</h2>
 
         <div className="metric-grid">
           <div className="metric-card">
-            <span className="metric-label">Estimated level ({model.id.toUpperCase()})</span>
+            <span className="metric-label">{t("Estimated level (")}{model.id.toUpperCase()})</span>
             <span className="metric-value" style={{ color: tone }}>
               {estimate.estimatedKv !== null ? `${fmt(estimate.estimatedKv)} kV` : '—'}
             </span>
@@ -337,14 +341,13 @@ export default function EsdEstimatorCalculator() {
             </span>
           </div>
           <div className="metric-card">
-            <span className="metric-label">HBM-equivalent (before model conversion)</span>
+            <span className="metric-label">{t("HBM-equivalent (before model conversion)")}</span>
             <span className="metric-value">{estimate.hbmEquivalentKv !== null ? `${fmt(estimate.hbmEquivalentKv)} kV` : '—'}</span>
             <span className="metric-label">
-              {device.constantKvPerUm} kV/µm × {fmt(state.sizeUm)} µm
-            </span>
+              {device.constantKvPerUm} {t("kV/µm ×")}{fmt(state.sizeUm)} {t("µm")}</span>
           </div>
           <div className="metric-card">
-            <span className="metric-label">Class targets met</span>
+            <span className="metric-label">{t("Class targets met")}</span>
             <span className="metric-value" style={{ color: tone }}>
               {estimate.classPass.filter((row) => row.pass).length}/{estimate.classPass.length || model.classLimits.length}
             </span>
@@ -353,7 +356,7 @@ export default function EsdEstimatorCalculator() {
             </span>
           </div>
           <div className="metric-card">
-            <span className="metric-label">Suggested size for {target.label} ({target.limitV} V)</span>
+            <span className="metric-label">{t("Suggested size for")}{target.label} ({target.limitV} {t("V)")}</span>
             <span className="metric-value">{suggestion ? `${fmt(suggestion.requiredSizeUm)} µm` : '—'}</span>
             <span className="metric-label">
               {suggestion
@@ -371,11 +374,11 @@ export default function EsdEstimatorCalculator() {
           <table className="model-table">
             <thead>
               <tr>
-                <th scope="col">Class target</th>
-                <th scope="col">Limit (V)</th>
-                <th scope="col">Estimated (V)</th>
-                <th scope="col">Margin (V)</th>
-                <th scope="col">Result</th>
+                <th scope="col">{t("Class target")}</th>
+                <th scope="col">{t("Limit (V)")}</th>
+                <th scope="col">{t("Estimated (V)")}</th>
+                <th scope="col">{t("Margin (V)")}</th>
+                <th scope="col">{t("Result")}</th>
               </tr>
             </thead>
             <tbody>
@@ -398,7 +401,7 @@ export default function EsdEstimatorCalculator() {
               ))}
               {estimate.classPass.length === 0 && (
                 <tr>
-                  <td colSpan={5}>No estimate — fix the model, device or size above.</td>
+                  <td colSpan={5}>{t("No estimate — fix the model, device or size above.")}</td>
                 </tr>
               )}
             </tbody>
@@ -421,16 +424,16 @@ export default function EsdEstimatorCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="esd-catalog" style={{ gridColumn: '1 / -1' }}>
-        <h2 id="esd-catalog">Model catalog and scaling rules</h2>
+        <h2 id="esd-catalog">{t("Model catalog and scaling rules")}</h2>
         <div className="table-scroll">
           <table className="model-table">
             <thead>
               <tr>
-                <th scope="col">Model</th>
-                <th scope="col">Circuit</th>
-                <th scope="col">Typical pulse</th>
-                <th scope="col">Class targets (V)</th>
-                <th scope="col">Severity vs HBM</th>
+                <th scope="col">{t("Model")}</th>
+                <th scope="col">{t("Circuit")}</th>
+                <th scope="col">{t("Typical pulse")}</th>
+                <th scope="col">{t("Class targets (V)")}</th>
+                <th scope="col">{t("Severity vs HBM")}</th>
               </tr>
             </thead>
             <tbody>
@@ -455,10 +458,10 @@ export default function EsdEstimatorCalculator() {
           <table className="model-table">
             <thead>
               <tr>
-                <th scope="col">Device</th>
-                <th scope="col">Sized dimension</th>
-                <th scope="col">HBM constant (kV/µm)</th>
-                <th scope="col">Literature range</th>
+                <th scope="col">{t("Device")}</th>
+                <th scope="col">{t("Sized dimension")}</th>
+                <th scope="col">{t("HBM constant (kV/µm)")}</th>
+                <th scope="col">{t("Literature range")}</th>
               </tr>
             </thead>
             <tbody>
@@ -474,9 +477,7 @@ export default function EsdEstimatorCalculator() {
           </table>
         </div>
         <small>
-          All constants are HBM-calibrated rules of thumb for generic logic I/O — not foundry ESD library values. MM
-          and CDM rows are severity correlations from HBM, not independent scaling laws.
-        </small>
+          {t("All constants are HBM-calibrated rules of thumb for generic logic I/O — not foundry ESD library values. MM and CDM rows are severity correlations from HBM, not independent scaling laws.")}</small>
       </section>
     </div>
   );

@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/four-point-probe-calculator';
 
 import { useId, useMemo, useRef, useState } from 'react';
 import {
@@ -29,6 +31,7 @@ const INITIAL_STATE: FormState = {
 };
 
 export default function FourPointProbeCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
@@ -176,10 +179,10 @@ export default function FourPointProbeCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="fpp-inputs">
-        <h2 id="fpp-inputs">Probe and wafer parameters</h2>
+        <h2 id="fpp-inputs">{t("Probe and wafer parameters")}</h2>
 
         <div className="field">
-          <label htmlFor={voltageId}>Measured voltage V (mV)</label>
+          <label htmlFor={voltageId}>{t("Measured voltage V (mV)")}</label>
           <input
             id={voltageId}
             type="number"
@@ -190,7 +193,7 @@ export default function FourPointProbeCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor={currentId}>Applied current I (mA)</label>
+          <label htmlFor={currentId}>{t("Applied current I (mA)")}</label>
           <input
             id={currentId}
             type="number"
@@ -201,53 +204,53 @@ export default function FourPointProbeCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor={spacingId}>Probe pin spacing s (mm)</label>
+          <label htmlFor={spacingId}>{t("Probe pin spacing s (mm)")}</label>
           <select
             id={spacingId}
             value={form.probeSpacingMm}
             onChange={(e) => update('probeSpacingMm', e.target.value)}
           >
-            <option value="1.0">1.000 mm (Standard Metric Collinear)</option>
-            <option value="1.5875">1.5875 mm (62.5 mil / Standard Imperial)</option>
-            <option value="0.635">0.635 mm (25.0 mil Micro-probe)</option>
+            <option value="1.0">{t("1.000 mm (Standard Metric Collinear)")}</option>
+            <option value="1.5875">{t("1.5875 mm (62.5 mil / Standard Imperial)")}</option>
+            <option value="0.635">{t("0.635 mm (25.0 mil Micro-probe)")}</option>
           </select>
         </div>
 
         <div className="field">
-          <label htmlFor={thicknessId}>Wafer thickness t (μm, optional)</label>
+          <label htmlFor={thicknessId}>{t("Wafer thickness t (μm, optional)")}</label>
           <input
             id={thicknessId}
             type="number"
             step="any"
-            placeholder="e.g. 725 for 200mm, 775 for 300mm"
+            placeholder={t("e.g. 725 for 200mm, 775 for 300mm")}
             value={form.waferThicknessUm}
             onChange={(e) => update('waferThicknessUm', e.target.value)}
           />
         </div>
 
         <div className="field">
-          <label htmlFor={diameterId}>Wafer diameter D (mm)</label>
+          <label htmlFor={diameterId}>{t("Wafer diameter D (mm)")}</label>
           <select
             id={diameterId}
             value={form.waferDiameterMm}
             onChange={(e) => update('waferDiameterMm', e.target.value)}
           >
-            <option value="100">100 mm (4-inch)</option>
-            <option value="150">150 mm (6-inch)</option>
-            <option value="200">200 mm (8-inch)</option>
-            <option value="300">300 mm (12-inch)</option>
+            <option value="100">{t("100 mm (4-inch)")}</option>
+            <option value="150">{t("150 mm (6-inch)")}</option>
+            <option value="200">{t("200 mm (8-inch)")}</option>
+            <option value="300">{t("300 mm (12-inch)")}</option>
           </select>
         </div>
 
         <div className="field">
-          <label htmlFor={dopantId}>Silicon dopant species</label>
+          <label htmlFor={dopantId}>{t("Silicon dopant species")}</label>
           <select
             id={dopantId}
             value={form.dopantType}
             onChange={(e) => update('dopantType', e.target.value as 'p-type' | 'n-type')}
           >
-            <option value="p-type">p-type (Boron B-doped)</option>
-            <option value="n-type">n-type (Phosphorus / Arsenic P/As-doped)</option>
+            <option value="p-type">{t("p-type (Boron B-doped)")}</option>
+            <option value="n-type">{t("n-type (Phosphorus / Arsenic P/As-doped)")}</option>
           </select>
         </div>
 
@@ -256,48 +259,41 @@ export default function FourPointProbeCalculator() {
             {copied ? 'Copied!' : 'Copy results'}
           </button>
           <button type="button" className="btn btn-secondary" onClick={exportCsvFile}>
-            Export CSV
-          </button>
+            {t("Export CSV")}</button>
           <button type="button" className="btn btn-secondary" onClick={exportXlsxFile}>
-            Export XLSX
-          </button>
+            {t("Export XLSX")}</button>
           <button type="button" className="btn btn-secondary" onClick={exportPdfFile}>
-            Export PDF
-          </button>
+            {t("Export PDF")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="fpp-results">
-        <h2 id="fpp-results">ASTM F84 / SEMI MF84 results</h2>
+        <h2 id="fpp-results">{t("ASTM F84 / SEMI MF84 results")}</h2>
 
         {/* Physics Boundary Advisories */}
         {iMa > 10 && (
           <div className="physics-alert danger">
-            <strong>Joule heating warning:</strong> Current &gt; 10 mA may cause local thermal dissipation
-            under tungsten carbide probe tips, skewing intrinsic carrier density and resistivity reading.
-          </div>
+            <strong>{t("Joule heating warning:")}</strong> {t("Current > 10 mA may cause local thermal dissipation under tungsten carbide probe tips, skewing intrinsic carrier density and resistivity reading.")}</div>
         )}
 
         {vMv > 0 && vMv < 0.2 && (
           <div className="physics-alert">
-            <strong>Thermal EMF noise advisory:</strong> Voltage &lt; 0.2 mV approaches probe Seebeck / thermal
-            electromotive offset. Consider reversing current polarity to cancel out offset voltages.
-          </div>
+            <strong>{t("Thermal EMF noise advisory:")}</strong> {t("Voltage < 0.2 mV approaches probe Seebeck / thermal electromotive offset. Consider reversing current polarity to cancel out offset voltages.")}</div>
         )}
 
         <div className="metric-grid">
           <div className="metric-card">
-            <span className="metric-label">Measured resistance (R = V/I)</span>
+            <span className="metric-label">{t("Measured resistance (R = V/I)")}</span>
             <span className="metric-value">{result.resistanceOhm.toFixed(4)} Ω</span>
           </div>
 
           <div className="metric-card highlight">
-            <span className="metric-label">{g('sheetResistance')} (Rs)</span>
+            <span className="metric-label">{g('sheetResistance')} {t("(Rs)")}</span>
             <span className="metric-value">{result.sheetResistanceOhmSq.toFixed(3)} Ω/□</span>
           </div>
 
           <div className="metric-card">
-            <span className="metric-label">Bulk resistivity (ρ)</span>
+            <span className="metric-label">{t("Bulk resistivity (ρ)")}</span>
             <span className="metric-value">
               {result.resistivityOhmCm !== null
                 ? `${result.resistivityOhmCm.toExponential(4)} Ω·cm`
@@ -306,7 +302,7 @@ export default function FourPointProbeCalculator() {
           </div>
 
           <div className="metric-card">
-            <span className="metric-label">Inverted dopant density (N)</span>
+            <span className="metric-label">{t("Inverted dopant density (N)")}</span>
             <span className="metric-value">
               {result.estimatedDopingCm3 !== null
                 ? `${result.estimatedDopingCm3.toExponential(3)} cm⁻³`
@@ -315,12 +311,12 @@ export default function FourPointProbeCalculator() {
           </div>
 
           <div className="metric-card">
-            <span className="metric-label">Thickness factor F(t/s)</span>
+            <span className="metric-label">{t("Thickness factor F(t/s)")}</span>
             <span className="metric-value">{result.thicknessCorrectionFactor.toFixed(4)}</span>
           </div>
 
           <div className="metric-card">
-            <span className="metric-label">Est. carrier mobility (μ)</span>
+            <span className="metric-label">{t("Est. carrier mobility (μ)")}</span>
             <span className="metric-value">
               {mobility !== null ? `${mobility.toFixed(1)} cm²/(V·s)` : 'N/A'}
             </span>
@@ -331,8 +327,7 @@ export default function FourPointProbeCalculator() {
         <div style={{ marginTop: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>
-              Collinear 4-Point Probe Physical Cross-Section
-            </h3>
+              {t("Collinear 4-Point Probe Physical Cross-Section")}</h3>
             <button
               type="button"
               className="btn btn-secondary"
@@ -343,8 +338,7 @@ export default function FourPointProbeCalculator() {
                 }
               }}
             >
-              Save SVG
-            </button>
+              {t("Save SVG")}</button>
           </div>
 
           <div
@@ -365,7 +359,7 @@ export default function FourPointProbeCalculator() {
               {/* Wafer Substrate */}
               <rect x="40" y="110" width="460" height="80" rx="4" fill="#3b4d61" />
               <text x="270" y="155" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="middle" opacity="0.9">
-                Semiconductor Wafer ({form.dopantType}, t = {tUm > 0 ? `${tUm} μm` : 'Bulk'})
+                {t("Semiconductor Wafer (")}{form.dopantType}{t(", t =")}{tUm > 0 ? `${tUm} μm` : 'Bulk'})
               </text>
 
               {/* Current Streamlines */}
@@ -377,8 +371,7 @@ export default function FourPointProbeCalculator() {
                 strokeDasharray="4 3"
               />
               <text x="270" y="195" fill="#dfa243" fontSize="10.5" fontWeight="600" textAnchor="middle">
-                Current Flux I ({iMa} mA)
-              </text>
+                {t("Current Flux I (")}{iMa} {t("mA)")}</text>
 
               {/* Equipotential Lines between Pin 2 & 3 */}
               <path
@@ -388,33 +381,32 @@ export default function FourPointProbeCalculator() {
                 strokeWidth="1.5"
               />
               <text x="270" y="132" fill="#4a90e2" fontSize="10" fontWeight="600" textAnchor="middle">
-                ΔV ({vMv} mV)
-              </text>
+                {t("ΔV (")}{vMv} {t("mV)")}</text>
 
               {/* Four Probe Tips */}
               {/* Probe 1 (I+) */}
               <polygon points="115,40 125,40 121,110 119,110" fill="#99a8b8" stroke="#1d2630" strokeWidth="1" />
               <circle cx="120" cy="35" r="7" fill="#dfa243" />
-              <text x="120" y="38.5" fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">I+</text>
+              <text x="120" y="38.5" fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">{t("I+")}</text>
 
               {/* Probe 2 (V+) */}
               <polygon points="215,40 225,40 221,110 219,110" fill="#99a8b8" stroke="#1d2630" strokeWidth="1" />
               <circle cx="220" cy="35" r="7" fill="#4a90e2" />
-              <text x="220" y="38.5" fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">V+</text>
+              <text x="220" y="38.5" fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">{t("V+")}</text>
 
               {/* Probe 3 (V-) */}
               <polygon points="315,40 325,40 321,110 319,110" fill="#99a8b8" stroke="#1d2630" strokeWidth="1" />
               <circle cx="320" cy="35" r="7" fill="#4a90e2" />
-              <text x="320" y="38.5" fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">V-</text>
+              <text x="320" y="38.5" fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">{t("V-")}</text>
 
               {/* Probe 4 (I-) */}
               <polygon points="415,40 425,40 421,110 419,110" fill="#99a8b8" stroke="#1d2630" strokeWidth="1" />
               <circle cx="420" cy="35" r="7" fill="#dfa243" />
-              <text x="420" y="38.5" fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">I-</text>
+              <text x="420" y="38.5" fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">{t("I-")}</text>
 
               {/* Probe Spacing Dimension Lines */}
               <line x1="120" y1="95" x2="220" y2="95" stroke="#ffffff" strokeWidth="1" />
-              <text x="170" y="90" fill="#ffffff" fontSize="10" textAnchor="middle">s = {sMm} mm</text>
+              <text x="170" y="90" fill="#ffffff" fontSize="10" textAnchor="middle">{t("s =")}{sMm} mm</text>
 
               <line x1="220" y1="95" x2="320" y2="95" stroke="#ffffff" strokeWidth="1" />
               <text x="270" y="90" fill="#ffffff" fontSize="10" textAnchor="middle">s</text>

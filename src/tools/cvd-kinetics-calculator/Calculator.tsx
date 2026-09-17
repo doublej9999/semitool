@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/cvd-kinetics-calculator';
 
 import { useId, useMemo, useRef, useState } from 'react';
 import { Copy, RotateCcw, Download, Info, AlertCircle, AlertTriangle, Image as ImageIcon } from 'lucide-react';
@@ -39,6 +41,7 @@ const INITIAL_STATE: CvdState = {
 };
 
 export default function CvdKineticsCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState<CvdState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -184,43 +187,43 @@ export default function CvdKineticsCalculator() {
     if (state.tempCelsius >= 1414) {
       warnings.push({
         level: 'danger',
-        title: 'Exceeds Silicon Substrate Melting Point (1414 °C)',
-        message: 'Pure silicon melts at 1414 °C. At this temperature, the wafer and silicon parts will liquefy and destroy the reactor.',
+        title: t('Exceeds Silicon Substrate Melting Point (1414 °C)'),
+        message: t('Pure silicon melts at 1414 °C. At this temperature, the wafer and silicon parts will liquefy and destroy the reactor.'),
       });
     } else if (state.tempCelsius < 350) {
       warnings.push({
         level: 'warning',
-        title: 'Low Thermal Activation (< 350 °C)',
-        message: 'Purely thermal CVD chemical reactions have virtually zero yield below 350 °C without RF plasma excitation (PECVD).',
+        title: t('Low Thermal Activation (< 350 °C)'),
+        message: t('Purely thermal CVD chemical reactions have virtually zero yield below 350 °C without RF plasma excitation (PECVD).'),
       });
     }
 
     if (state.pressureTorr > 760) {
       warnings.push({
         level: 'warning',
-        title: 'Super-Atmospheric Pressure (> 760 Torr)',
-        message: 'High operating pressures promote premature gas-phase homogeneous nucleation, producing fine powder/particles on wafers instead of specular thin films.',
+        title: t('Super-Atmospheric Pressure (> 760 Torr)'),
+        message: t('High operating pressures promote premature gas-phase homogeneous nucleation, producing fine powder/particles on wafers instead of specular thin films.'),
       });
     }
 
     if (state.gasVelocityCmPerS > 200) {
       warnings.push({
         level: 'warning',
-        title: 'High Gas Velocity & Turbulent Boundary Layer (U > 200 cm/s)',
-        message: 'High velocities increase the flow Reynolds number, causing turbulent eddies that destroy boundary layer stability and film uniformity.',
+        title: t('High Gas Velocity & Turbulent Boundary Layer (U > 200 cm/s)'),
+        message: t('High velocities increase the flow Reynolds number, causing turbulent eddies that destroy boundary layer stability and film uniformity.'),
       });
     }
 
     if (state.waferPositionXCm > state.susceptorLengthCm) {
       warnings.push({
         level: 'danger',
-        title: 'Wafer Position Out of Bounds',
-        message: `Wafer position (${state.waferPositionXCm} cm) extends beyond the heated susceptor length (${state.susceptorLengthCm} cm).`,
+        title: t('Wafer Position Out of Bounds'),
+        message: t('Wafer position ({pos} cm) extends beyond the heated susceptor length ({length} cm).', { pos: state.waferPositionXCm, length: state.susceptorLengthCm }),
       });
     }
 
     return warnings;
-  }, [state]);
+  }, [state, t]);
 
   // Depletion profile SVG chart parameters
   const svgW = 600;
@@ -256,10 +259,10 @@ export default function CvdKineticsCalculator() {
     <div className="calculator-container" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Parameter Inputs Panel */}
       <section className="panel" aria-labelledby="cvd-params">
-        <h2 id="cvd-params">CVD & Epitaxy Process Parameters</h2>
+        <h2 id="cvd-params">{t("CVD & Epitaxy Process Parameters")}</h2>
 
         <div className="field">
-          <label htmlFor={recipeSelectId}>Precursor & Process Chemistry Preset</label>
+          <label htmlFor={recipeSelectId}>{t("Precursor & Process Chemistry Preset")}</label>
           <select
             id={recipeSelectId}
             value={state.recipeId}
@@ -279,7 +282,7 @@ export default function CvdKineticsCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor={tempId}>
-              {g('processTemperature')} (T) <span className="unit">°C</span>
+              {g('processTemperature')} {t("(T)")}<span className="unit">{t("°C")}</span>
             </label>
             <input
               id={tempId}
@@ -294,7 +297,7 @@ export default function CvdKineticsCalculator() {
 
           <div className="field">
             <label htmlFor={pressureId}>
-              Chamber Total Pressure (P) <span className="unit">Torr</span>
+              {t("Chamber Total Pressure (P)")}<span className="unit">{t("Torr")}</span>
             </label>
             <input
               id={pressureId}
@@ -310,7 +313,7 @@ export default function CvdKineticsCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor={moleFracId}>
-              Reactant Mole Fraction (y_i) <span className="unit">%</span>
+              {t("Reactant Mole Fraction (y_i)")}<span className="unit">%</span>
             </label>
             <input
               id={moleFracId}
@@ -325,7 +328,7 @@ export default function CvdKineticsCalculator() {
 
           <div className="field">
             <label htmlFor={velocityId}>
-              Carrier Gas Velocity (U) <span className="unit">cm/s</span>
+              {t("Carrier Gas Velocity (U)")}<span className="unit">{t("cm/s")}</span>
             </label>
             <input
               id={velocityId}
@@ -341,7 +344,7 @@ export default function CvdKineticsCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor={waferPosId}>
-              Wafer Position Along Susceptor (x) <span className="unit">cm</span>
+              {t("Wafer Position Along Susceptor (x)")}<span className="unit">cm</span>
             </label>
             <input
               id={waferPosId}
@@ -355,7 +358,7 @@ export default function CvdKineticsCalculator() {
 
           <div className="field">
             <label htmlFor={channelHeightId}>
-              Reactor Channel Height (b) <span className="unit">cm</span>
+              {t("Reactor Channel Height (b)")}<span className="unit">cm</span>
             </label>
             <input
               id={channelHeightId}
@@ -369,7 +372,7 @@ export default function CvdKineticsCalculator() {
 
           <div className="field">
             <label htmlFor={susceptorLenId}>
-              Susceptor Total Length (L) <span className="unit">cm</span>
+              {t("Susceptor Total Length (L)")}<span className="unit">cm</span>
             </label>
             <input
               id={susceptorLenId}
@@ -385,18 +388,18 @@ export default function CvdKineticsCalculator() {
         <div className="action-row" style={{ marginTop: 20 }}>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL_STATE)}>
             <RotateCcw size={14} aria-hidden="true" />
-            <span>Reset Defaults</span>
+            <span>{t("Reset Defaults")}</span>
           </button>
           <button type="button" className="button" onClick={copySummary} disabled={!result.ok}>
             <Copy size={14} aria-hidden="true" />
-            <span>{copied ? 'Copied Link & Summary!' : 'Copy Summary'}</span>
+            <span>{copied ? t("Copied Link & Summary!") : t("Copy Summary")}</span>
           </button>
         </div>
       </section>
 
       {/* Results Panel */}
       <section className="panel" aria-labelledby="cvd-results">
-        <h2 id="cvd-results">Growth Kinetics & Regime Analysis</h2>
+        <h2 id="cvd-results">{t("Growth Kinetics & Regime Analysis")}</h2>
 
         {!result.ok ? (
           <div className="notice warning" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -430,13 +433,13 @@ export default function CvdKineticsCalculator() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
                 <div>
-                  <span className="result-label">Predicted Deposition / Growth Rate</span>
+                  <span className="result-label">{t("Predicted Deposition / Growth Rate")}</span>
                   <span className="result-value">
                     {fmt(result.growthRateNmPerMin, 2)}
-                    <span className="result-suffix"> nm/min</span>
+                    <span className="result-suffix"> {t("nm/min")}</span>
                   </span>
                   <span className="result-subtext" style={{ display: 'block', marginTop: 4 }}>
-                    ≈ {fmt(result.growthRateUmPerHour, 3)} μm/hour | Material: {currentRecipe.filmMaterial}
+                    ≈ {fmt(result.growthRateUmPerHour, 3)} {t("μm/hour | Material:")}{currentRecipe.filmMaterial}
                   </span>
                 </div>
 
@@ -469,7 +472,7 @@ export default function CvdKineticsCalculator() {
                       : '⚖️ Mixed Transition Regime'}
                   </div>
                   <div style={{ fontSize: '0.78rem', fontWeight: 'normal', marginTop: 2 }}>
-                    ks / hg ratio = {(result.surfaceReactionRateKs / result.massTransferCoefficientHg).toFixed(2)}
+                    {t("ks / hg ratio =")}{(result.surfaceReactionRateKs / result.massTransferCoefficientHg).toFixed(2)}
                   </div>
                 </div>
               </div>
@@ -478,41 +481,41 @@ export default function CvdKineticsCalculator() {
             {/* Metrics Grid */}
             <div className="metrics-grid">
               <div className="metric">
-                <span className="metric-label">Boundary Layer Thickness (δ)</span>
+                <span className="metric-label">{t("Boundary Layer Thickness (δ)")}</span>
                 <span className="metric-value">{fmt(result.boundaryLayerThicknessDeltaMm, 2)}</span>
-                <span className="metric-unit">mm at x = {state.waferPositionXCm} cm</span>
+                <span className="metric-unit">{t("mm at x =")}{state.waferPositionXCm} cm</span>
               </div>
 
               <div className="metric">
-                <span className="metric-label">Mass-Transfer Coeff (h_g)</span>
+                <span className="metric-label">{t("Mass-Transfer Coeff (h_g)")}</span>
                 <span className="metric-value">{result.massTransferCoefficientHg.toExponential(3)}</span>
-                <span className="metric-unit">cm / s (gas-phase transport)</span>
+                <span className="metric-unit">{t("cm / s (gas-phase transport)")}</span>
               </div>
 
               <div className="metric">
-                <span className="metric-label">Surface Reaction Rate (k_s)</span>
+                <span className="metric-label">{t("Surface Reaction Rate (k_s)")}</span>
                 <span className="metric-value">{result.surfaceReactionRateKs.toExponential(3)}</span>
-                <span className="metric-unit">cm / s (Arrhenius surface kinetics)</span>
+                <span className="metric-unit">{t("cm / s (Arrhenius surface kinetics)")}</span>
               </div>
 
               <div className="metric">
-                <span className="metric-label">Transition Temperature (T_trans)</span>
+                <span className="metric-label">{t("Transition Temperature (T_trans)")}</span>
                 <span className="metric-value">
                   {result.transitionTemperatureCelsius !== null ? `${fmt(result.transitionTemperatureCelsius, 1)}` : '—'}
                 </span>
-                <span className="metric-unit">°C (where k_s = h_g)</span>
+                <span className="metric-unit">{t("°C (where k_s = h_g)")}</span>
               </div>
 
               <div className="metric">
-                <span className="metric-label">Gas Diffusivity (D_g)</span>
+                <span className="metric-label">{t("Gas Diffusivity (D_g)")}</span>
                 <span className="metric-value">{fmt(result.diffusivityDg, 2)}</span>
-                <span className="metric-unit">cm² / s at {state.tempCelsius} °C</span>
+                <span className="metric-unit">{t("cm² / s at")}{state.tempCelsius} {t("°C")}</span>
               </div>
 
               <div className="metric">
-                <span className="metric-label">Susceptor Uniformity</span>
+                <span className="metric-label">{t("Susceptor Uniformity")}</span>
                 <span className="metric-value">{fmt(result.reactorUniformityPercent, 1)}</span>
-                <span className="metric-unit">% along channel length</span>
+                <span className="metric-unit">{t("% along channel length")}</span>
               </div>
             </div>
 
@@ -521,28 +524,27 @@ export default function CvdKineticsCalculator() {
               <div style={{ marginTop: 24 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                    Reactant Depletion & Growth Rate along Susceptor (0 to {chartData.maxX} cm)
-                  </span>
+                    {t("Reactant Depletion & Growth Rate along Susceptor (0 to")}{chartData.maxX} {t("cm)")}</span>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportDepletionCsv}>
                       <Download size={13} aria-hidden="true" />
-                      <span>Export Depletion CSV</span>
+                      <span>{t("Export Depletion CSV")}</span>
                     </button>
                     <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportDepletionXlsx}>
                       <Download size={13} aria-hidden="true" />
-                      <span>Export Depletion XLSX</span>
+                      <span>{t("Export Depletion XLSX")}</span>
                     </button>
                     <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportArrheniusCsv}>
                       <Download size={13} aria-hidden="true" />
-                      <span>Arrhenius CSV</span>
+                      <span>{t("Arrhenius CSV")}</span>
                     </button>
                     <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportArrheniusXlsx}>
                       <Download size={13} aria-hidden="true" />
-                      <span>Arrhenius XLSX</span>
+                      <span>{t("Arrhenius XLSX")}</span>
                     </button>
                     <button type="button" className="button secondary" style={{ fontSize: '0.78rem', padding: '4px 10px' }} onClick={handleExportDepletionSvg}>
                       <ImageIcon size={13} aria-hidden="true" />
-                      <span>Save SVG</span>
+                      <span>{t("Save SVG")}</span>
                     </button>
                   </div>
                 </div>
@@ -594,13 +596,11 @@ export default function CvdKineticsCalculator() {
                       strokeDasharray="4 3"
                     />
                     <text x={chartData.waferX + 5} y={pad.top + 16} fontSize="9" fill="var(--chart-limit)" fontWeight="600">
-                      Wafer (x = {state.waferPositionXCm} cm)
-                    </text>
+                      {t("Wafer (x =")}{state.waferPositionXCm} {t("cm)")}</text>
 
                     {/* Axis labels */}
                     <text x={pad.left + pW / 2} y={pad.top + pH + 34} fontSize="10" fill="var(--chart-axis)" textAnchor="middle">
-                      Susceptor Distance x (cm)
-                    </text>
+                      {t("Susceptor Distance x (cm)")}</text>
                     <text
                       x={14}
                       y={pad.top + pH / 2}
@@ -609,8 +609,7 @@ export default function CvdKineticsCalculator() {
                       textAnchor="middle"
                       transform={`rotate(-90, 14, ${pad.top + pH / 2})`}
                     >
-                      Growth Rate (nm/min)
-                    </text>
+                      {t("Growth Rate (nm/min)")}</text>
                   </svg>
                 </div>
               </div>
@@ -628,21 +627,18 @@ export default function CvdKineticsCalculator() {
             >
               <div style={{ fontWeight: 600, fontSize: '0.88rem', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Info size={15} />
-                <span>CVD Transport & Surface Reaction Regimes:</span>
+                <span>{t("CVD Transport & Surface Reaction Regimes:")}</span>
               </div>
               <div style={{ fontSize: '0.84rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
                 {result.regime === 'surface-reaction-limited' ? (
                   <>
-                    <strong>Surface Reaction Controlled Regime (T &lt; T_trans)</strong>: Deposition rate is dictated by Arrhenius surface chemical kinetics (k_s &lt;&lt; h_g). Growth rate exhibits strong exponential temperature sensitivity. Excellent step coverage and batch uniformity across wafers can be achieved by tight furnace temperature control.
-                  </>
+                    <strong>{t("Surface Reaction Controlled Regime (T < T_trans)")}</strong>{t(": Deposition rate is dictated by Arrhenius surface chemical kinetics (k_s << h_g). Growth rate exhibits strong exponential temperature sensitivity. Excellent step coverage and batch uniformity across wafers can be achieved by tight furnace temperature control.")}</>
                 ) : result.regime === 'mass-transport-limited' ? (
                   <>
-                    <strong>Mass-Transport Controlled Regime (T &gt; T_trans)</strong>: Precursor molecules diffuse slowly through the stagnant gas boundary layer δ(x) relative to instantaneous surface consumption (h_g &lt;&lt; k_s). Growth rate is nearly independent of temperature, but highly sensitive to gas velocity U, flow patterns, and susceptor tilt to counteract reactant depletion.
-                  </>
+                    <strong>{t("Mass-Transport Controlled Regime (T > T_trans)")}</strong>{t(": Precursor molecules diffuse slowly through the stagnant gas boundary layer δ(x) relative to instantaneous surface consumption (h_g << k_s). Growth rate is nearly independent of temperature, but highly sensitive to gas velocity U, flow patterns, and susceptor tilt to counteract reactant depletion.")}</>
                 ) : (
                   <>
-                    <strong>Mixed Transition Regime</strong>: Both boundary-layer mass transfer h_g and surface reaction velocity k_s contribute comparably to the net growth rate: v = (C_g / N_1) · [h_g · k_s / (h_g + k_s)].
-                  </>
+                    <strong>{t("Mixed Transition Regime")}</strong>{t(": Both boundary-layer mass transfer h_g and surface reaction velocity k_s contribute comparably to the net growth rate: v = (C_g / N_1) · [h_g · k_s / (h_g + k_s)].")}</>
                 )}
               </div>
             </div>

@@ -1,4 +1,7 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copy from '@/lib/i18n/tool-copy/resources/film-color-calculator';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw, Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
@@ -26,7 +29,7 @@ interface TmmStackLayer {
 const TMM_PRESET_STACKS: { name: string; description: string; incident: string; substrate: string; layers: TmmStackLayer[] }[] = [
   {
     name: 'Thermal Oxide (100nm SiO₂ / Si)',
-    description: 'Classic semiconductor thermal gate/field dielectric on c-Si substrate',
+    description: msg('Classic semiconductor thermal gate/field dielectric on c-Si substrate'),
     incident: 'air',
     substrate: 'si',
     layers: [
@@ -35,7 +38,7 @@ const TMM_PRESET_STACKS: { name: string; description: string; incident: string; 
   },
   {
     name: 'Single-Layer ARC (75nm Si₃N₄ / Si)',
-    description: 'Quarter-wave anti-reflective coating optimized for visible spectrum solar / metrology',
+    description: msg('Quarter-wave anti-reflective coating optimized for visible spectrum solar / metrology'),
     incident: 'air',
     substrate: 'si',
     layers: [
@@ -44,7 +47,7 @@ const TMM_PRESET_STACKS: { name: string; description: string; incident: string; 
   },
   {
     name: 'Dual-Layer Broadband ARC (MgF₂ / TiO₂ / Si)',
-    description: 'High-efficiency dual index ARC for optical sensor windows and solar cells',
+    description: msg('High-efficiency dual index ARC for optical sensor windows and solar cells'),
     incident: 'air',
     substrate: 'si',
     layers: [
@@ -54,7 +57,7 @@ const TMM_PRESET_STACKS: { name: string; description: string; incident: string; 
   },
   {
     name: 'High-K Metal Gate (TiN / HfO₂ / SiO₂ / Si)',
-    description: 'Advanced HKMG front-end transistor gate stack (28nm / FinFET)',
+    description: msg('Advanced HKMG front-end transistor gate stack (28nm / FinFET)'),
     incident: 'air',
     substrate: 'si',
     layers: [
@@ -65,7 +68,7 @@ const TMM_PRESET_STACKS: { name: string; description: string; incident: string; 
   },
   {
     name: 'DUV Lithography (Photoresist / BARC / Poly / SiO₂)',
-    description: 'Photolithography stack with Bottom Anti-Reflective Coating on Poly-Si gate',
+    description: msg('Photolithography stack with Bottom Anti-Reflective Coating on Poly-Si gate'),
     incident: 'air',
     substrate: 'si',
     layers: [
@@ -77,7 +80,7 @@ const TMM_PRESET_STACKS: { name: string; description: string; incident: string; 
   },
   {
     name: 'Damascene Capping (Si₃N₄ / Cu / SiO₂)',
-    description: 'Copper interconnect metallization with SiN dielectric diffusion barrier',
+    description: msg('Copper interconnect metallization with SiN dielectric diffusion barrier'),
     incident: 'air',
     substrate: 'sio2',
     layers: [
@@ -92,6 +95,7 @@ const TMM_PRESET_STACKS: { name: string; description: string; incident: string; 
  * Lazily loaded by Calculator.tsx via next/dynamic; owns all TMM-only state.
  */
 export default function TmmMode() {
+  const t = useToolCopy(copy);
   const [tmmIncident, setTmmIncident] = useState<string>('air');
   const [tmmSubstrate, setTmmSubstrate] = useState<string>('si');
   const [tmmAngleDeg, setTmmAngleDeg] = useState<number>(0);
@@ -221,11 +225,11 @@ export default function TmmMode() {
     <div className="calc-grid">
       {/* INPUTS PANEL */}
       <section className="panel" aria-labelledby="tmm-inputs-heading">
-        <h2 id="tmm-inputs-heading">Multilayer Optical Stack Configuration</h2>
+        <h2 id="tmm-inputs-heading">{t("Multilayer Optical Stack Configuration")}</h2>
 
         {/* Presets Selector */}
         <div className="field">
-          <label htmlFor="tmm-preset">Industry Multilayer Presets</label>
+          <label htmlFor="tmm-preset">{t("Industry Multilayer Presets")}</label>
           <select
             id="tmm-preset"
             onChange={(e) => {
@@ -234,7 +238,7 @@ export default function TmmMode() {
             }}
             defaultValue=""
           >
-            <option value="" disabled>Choose an industrial film stack preset...</option>
+            <option value="" disabled>{t("Choose an industrial film stack preset...")}</option>
             {TMM_PRESET_STACKS.map((p, idx) => (
               <option key={p.name} value={idx}>
                 {p.name}
@@ -246,30 +250,30 @@ export default function TmmMode() {
         {/* Optical Environment Row (Incident & Substrate) */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div className="field">
-            <label htmlFor="tmm-incident">Incident Medium</label>
+            <label htmlFor="tmm-incident">{t("Incident Medium")}</label>
             <select
               id="tmm-incident"
               value={tmmIncident}
               onChange={(e) => setTmmIncident(e.target.value)}
             >
-              <option value="air">Air (n = 1.0)</option>
-              <option value="water">Water / Immersion (n ≈ 1.33)</option>
+              <option value="air">{t("Air (n = 1.0)")}</option>
+              <option value="water">{t("Water / Immersion (n ≈ 1.33)")}</option>
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="tmm-substrate">Substrate Material</label>
+            <label htmlFor="tmm-substrate">{t("Substrate Material")}</label>
             <select
               id="tmm-substrate"
               value={tmmSubstrate}
               onChange={(e) => setTmmSubstrate(e.target.value)}
             >
-              <option value="si">Silicon (c-Si, n ≈ 3.88)</option>
-              <option value="sio2">Fused Silica / Quartz (SiO₂)</option>
-              <option value="al2o3">Sapphire (Al₂O₃)</option>
-              <option value="gaas">Gallium Arsenide (GaAs)</option>
-              <option value="gan">Gallium Nitride (GaN)</option>
-              <option value="sic">Silicon Carbide (4H-SiC)</option>
+              <option value="si">{t("Silicon (c-Si, n ≈ 3.88)")}</option>
+              <option value="sio2">{t("Fused Silica / Quartz (SiO₂)")}</option>
+              <option value="al2o3">{t("Sapphire (Al₂O₃)")}</option>
+              <option value="gaas">{t("Gallium Arsenide (GaAs)")}</option>
+              <option value="gan">{t("Gallium Nitride (GaN)")}</option>
+              <option value="sic">{t("Silicon Carbide (4H-SiC)")}</option>
             </select>
           </div>
         </div>
@@ -278,8 +282,7 @@ export default function TmmMode() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div className="field">
             <label htmlFor="tmm-angle">
-              Incident Angle θ₀
-              <span className="unit">deg</span>
+              {t("Incident Angle θ₀")}<span className="unit">deg</span>
             </label>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <input
@@ -314,9 +317,9 @@ export default function TmmMode() {
               value={tmmPolarization}
               onChange={(e) => setTmmPolarization(e.target.value as PolarizationMode)}
             >
-              <option value="unpolarized">Unpolarized (Average)</option>
-              <option value="TE">TE (s-polarization, E ⊥ plane)</option>
-              <option value="TM">TM (p-polarization, E ∥ plane)</option>
+              <option value="unpolarized">{t("Unpolarized (Average)")}</option>
+              <option value="TE">{t("TE (s-polarization, E ⊥ plane)")}</option>
+              <option value="TM">{t("TM (p-polarization, E ∥ plane)")}</option>
             </select>
           </div>
         </div>
@@ -325,23 +328,20 @@ export default function TmmMode() {
         <div style={{ marginTop: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
-              Thin Film Layers (Surface Top → Substrate Bottom)
-            </span>
+              {t("Thin Film Layers (Surface Top → Substrate Bottom)")}</span>
             <button
               type="button"
               className="button secondary"
               style={{ padding: '3px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
               onClick={addTmmLayer}
             >
-              <Plus size={13} /> Add Layer
-            </button>
+              <Plus size={13} /> {t("Add Layer")}</button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {tmmLayers.length === 0 ? (
               <div style={{ padding: '16px', textAlign: 'center', background: 'var(--paper)', borderRadius: '6px', fontSize: '12px', color: 'var(--muted)' }}>
-                No thin film layers. Simulating bare substrate reflection.
-              </div>
+                {t("No thin film layers. Simulating bare substrate reflection.")}</div>
             ) : (
               tmmLayers.map((layer, idx) => (
                 <div
@@ -366,18 +366,18 @@ export default function TmmMode() {
                     onChange={(e) => updateTmmLayer(idx, { materialId: e.target.value, name: OPTICAL_MATERIALS[e.target.value]?.name || 'Custom' })}
                     style={{ flex: 1, minWidth: '120px', fontSize: '12px' }}
                   >
-                    <option value="sio2">SiO₂ (Oxide)</option>
-                    <option value="si3n4">Si₃N₄ (Nitride)</option>
-                    <option value="poly_si">Poly-Si</option>
-                    <option value="tin">TiN (Metal Gate)</option>
-                    <option value="hfo2">HfO₂ (High-k)</option>
-                    <option value="al2o3">Al₂O₃ (Alumina)</option>
-                    <option value="photoresist">Photoresist (PR)</option>
-                    <option value="mgf2">MgF₂ (Low Index)</option>
-                    <option value="tio2">TiO₂ (High Index)</option>
-                    <option value="al">Aluminium (Al)</option>
-                    <option value="cu">Copper (Cu)</option>
-                    <option value="custom">Custom (n, k)</option>
+                    <option value="sio2">{t("SiO₂ (Oxide)")}</option>
+                    <option value="si3n4">{t("Si₃N₄ (Nitride)")}</option>
+                    <option value="poly_si">{t("Poly-Si")}</option>
+                    <option value="tin">{t("TiN (Metal Gate)")}</option>
+                    <option value="hfo2">{t("HfO₂ (High-k)")}</option>
+                    <option value="al2o3">{t("Al₂O₃ (Alumina)")}</option>
+                    <option value="photoresist">{t("Photoresist (PR)")}</option>
+                    <option value="mgf2">{t("MgF₂ (Low Index)")}</option>
+                    <option value="tio2">{t("TiO₂ (High Index)")}</option>
+                    <option value="al">{t("Aluminium (Al)")}</option>
+                    <option value="cu">{t("Copper (Cu)")}</option>
+                    <option value="custom">{t("Custom (n, k)")}</option>
                   </select>
 
                   {/* Thickness input */}
@@ -400,7 +400,7 @@ export default function TmmMode() {
                         type="number"
                         step="0.05"
                         placeholder="n"
-                        title="Refractive index n"
+                        title={t("Refractive index n")}
                         value={layer.customN ?? 1.5}
                         onChange={(e) => updateTmmLayer(idx, { customN: Number(e.target.value) || 1.5 })}
                         style={{ width: '50px', padding: '4px 4px', fontSize: '11px' }}
@@ -409,7 +409,7 @@ export default function TmmMode() {
                         type="number"
                         step="0.01"
                         placeholder="k"
-                        title="Extinction coefficient k"
+                        title={t("Extinction coefficient k")}
                         value={layer.customK ?? 0}
                         onChange={(e) => updateTmmLayer(idx, { customK: Number(e.target.value) || 0 })}
                         style={{ width: '45px', padding: '4px 4px', fontSize: '11px' }}
@@ -425,7 +425,7 @@ export default function TmmMode() {
                       style={{ padding: '3px', borderRadius: '4px' }}
                       onClick={() => moveTmmLayer(idx, 'up')}
                       disabled={idx === 0}
-                      title="Move layer up towards surface"
+                      title={t("Move layer up towards surface")}
                     >
                       <ArrowUp size={13} />
                     </button>
@@ -435,7 +435,7 @@ export default function TmmMode() {
                       style={{ padding: '3px', borderRadius: '4px' }}
                       onClick={() => moveTmmLayer(idx, 'down')}
                       disabled={idx === tmmLayers.length - 1}
-                      title="Move layer down towards substrate"
+                      title={t("Move layer down towards substrate")}
                     >
                       <ArrowDown size={13} />
                     </button>
@@ -444,7 +444,7 @@ export default function TmmMode() {
                       className="button secondary"
                       style={{ padding: '3px', borderRadius: '4px', color: 'var(--red)' }}
                       onClick={() => removeTmmLayer(idx)}
-                      title="Delete layer"
+                      title={t("Delete layer")}
                     >
                       <Trash2 size={13} />
                     </button>
@@ -467,20 +467,18 @@ export default function TmmMode() {
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--teal-dark)' }}>
-              Quarter-Wave Single Layer ARC Designer (n = √(n₀·nₛ), d = λ₀/4n)
-            </span>
+              {t("Quarter-Wave Single Layer ARC Designer (n = √(n₀·nₛ), d = λ₀/4n)")}</span>
             <button
               type="button"
               className="button secondary"
               style={{ padding: '3px 8px', fontSize: '11px' }}
               onClick={applyArcToStack}
             >
-              + Add Ideal ARC Layer
-            </button>
+              {t("+ Add Ideal ARC Layer")}</button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>Target λ₀:</span>
+              <span>{t("Target λ₀:")}</span>
               <input
                 type="number"
                 value={arcTargetWl}
@@ -490,10 +488,10 @@ export default function TmmMode() {
               <span>nm</span>
             </div>
             <div>
-              Optimal Index: <strong>n = {arcOptimization.optimalIndex.toFixed(3)}</strong>
+              {t("Optimal Index:")}<strong>{t("n =")}{arcOptimization.optimalIndex.toFixed(3)}</strong>
             </div>
             <div>
-              Quarter-Wave Thickness: <strong>d = {arcOptimization.quarterWaveThicknessNm.toFixed(1)} nm</strong>
+              {t("Quarter-Wave Thickness:")}<strong>{t("d =")}{arcOptimization.quarterWaveThicknessNm.toFixed(1)} nm</strong>
             </div>
           </div>
         </div>
@@ -502,7 +500,7 @@ export default function TmmMode() {
         <div style={{ marginTop: '16px' }}>
           <MathFormula
             block
-            label="Abelès Transfer Matrix Formalism for Multilayer Interference"
+            label={t("Abelès Transfer Matrix Formalism for Multilayer Interference")}
             math="M = \begin{pmatrix} M_{11} & M_{12} \\ M_{21} & M_{22} \end{pmatrix} = \prod_{m=1}^N \begin{pmatrix} \cos\delta_m & -\frac{i}{p_m} \sin\delta_m \\ -i p_m \sin\delta_m & \cos\delta_m \end{pmatrix}, \quad r = \frac{p_0 (M_{11} + M_{12} p_s) - (M_{21} + M_{22} p_s)}{p_0 (M_{11} + M_{12} p_s) + (M_{21} + M_{22} p_s)}"
           />
         </div>
@@ -518,8 +516,7 @@ export default function TmmMode() {
               setTmmPolarization('unpolarized');
             }}
           >
-            <RotateCcw size={15} /> Reset Stack
-          </button>
+            <RotateCcw size={15} /> {t("Reset Stack")}</button>
           <button
             type="button"
             className="button primary"
@@ -532,7 +529,7 @@ export default function TmmMode() {
 
       {/* RESULTS PANEL */}
       <section className="panel" aria-labelledby="tmm-results-heading">
-        <h2 id="tmm-results-heading">TMM Optical Response & Colorimetry</h2>
+        <h2 id="tmm-results-heading">{t("TMM Optical Response & Colorimetry")}</h2>
 
         {/* Color Swatch Hero */}
         <div
@@ -574,13 +571,12 @@ export default function TmmMode() {
 
           <div style={{ padding: '14px 16px' }}>
             <div style={{ fontSize: '12px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              CIE 1931 D65 Visual Color Rendering
-            </div>
+              {t("CIE 1931 D65 Visual Color Rendering")}</div>
             <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)', marginTop: '2px' }}>
-              Perceived Reflected Color: {tmmResult.colorHex}
+              {t("Perceived Reflected Color:")}{tmmResult.colorHex}
             </div>
             <div style={{ fontSize: '12.5px', color: 'var(--ink-soft)', marginTop: '4px' }}>
-              Tristimulus (X, Y, Z):{' '}
+              {t("Tristimulus (X, Y, Z):")}{' '}
               <code style={{ fontFamily: 'var(--font-mono)' }}>
                 ({tmmResult.tristimulus.X.toFixed(2)}, {tmmResult.tristimulus.Y.toFixed(2)}, {tmmResult.tristimulus.Z.toFixed(2)})
               </code>
@@ -591,19 +587,19 @@ export default function TmmMode() {
         {/* Key Optical Metrics Grid */}
         <div className="metric-grid">
           <div className="metric">
-            <span>Avg Reflectance R̄</span>
+            <span>{t("Avg Reflectance R̄")}</span>
             <strong style={{ color: '#38bdf8' }}>{(tmmResult.avgReflectance * 100).toFixed(1)}%</strong>
           </div>
           <div className="metric">
-            <span>Avg Transmittance T̄</span>
+            <span>{t("Avg Transmittance T̄")}</span>
             <strong style={{ color: '#4ade80' }}>{(tmmResult.avgTransmittance * 100).toFixed(1)}%</strong>
           </div>
           <div className="metric">
-            <span>Avg Absorptance Ā</span>
+            <span>{t("Avg Absorptance Ā")}</span>
             <strong style={{ color: '#f87171' }}>{(tmmResult.avgAbsorptance * 100).toFixed(1)}%</strong>
           </div>
           <div className="metric">
-            <span>Energy Balance (R+T+A)</span>
+            <span>{t("Energy Balance (R+T+A)")}</span>
             <strong>
               {((tmmResult.avgReflectance + tmmResult.avgTransmittance + tmmResult.avgAbsorptance) * 100).toFixed(1)}%
             </strong>
@@ -614,8 +610,7 @@ export default function TmmMode() {
         <div style={{ marginTop: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <h3 style={{ fontSize: '14px', color: 'var(--ink)', margin: 0 }}>
-              Multilayer Optical Spectra (380–780 nm)
-            </h3>
+              {t("Multilayer Optical Spectra (380–780 nm)")}</h3>
             <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#38bdf8' }}>
                 <input
@@ -623,24 +618,21 @@ export default function TmmMode() {
                   checked={showR}
                   onChange={(e) => setShowR(e.target.checked)}
                 />
-                Reflectance R
-              </label>
+                {t("Reflectance R")}</label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#4ade80' }}>
                 <input
                   type="checkbox"
                   checked={showT}
                   onChange={(e) => setShowT(e.target.checked)}
                 />
-                Transmittance T
-              </label>
+                {t("Transmittance T")}</label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#f87171' }}>
                 <input
                   type="checkbox"
                   checked={showA}
                   onChange={(e) => setShowA(e.target.checked)}
                 />
-                Absorptance A
-              </label>
+                {t("Absorptance A")}</label>
             </div>
           </div>
 
@@ -670,6 +662,7 @@ function TmmSpectrumChart({
   showT: boolean;
   showA: boolean;
 }) {
+  const t = useToolCopy(copy);
   const width = 500;
   const height = 220;
   const padding = { top: 20, right: 25, bottom: 35, left: 45 };
@@ -708,7 +701,7 @@ function TmmSpectrumChart({
       <svg
         viewBox={`0 0 ${width} ${height}`}
         style={{ width: '100%', height: 'auto', display: 'block' }}
-        aria-label="TMM Optical Response Plot"
+        aria-label={t("TMM Optical Response Plot")}
       >
         {/* Background */}
         <rect
@@ -815,8 +808,7 @@ function TmmSpectrumChart({
           fontSize="11"
           textAnchor="middle"
         >
-          Wavelength λ (nm)
-        </text>
+          {t("Wavelength λ (nm)")}</text>
         <text
           x={14}
           y={padding.top + plotH / 2}
@@ -825,8 +817,7 @@ function TmmSpectrumChart({
           textAnchor="middle"
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
         >
-          Intensity Ratio (R, T, A)
-        </text>
+          {t("Intensity Ratio (R, T, A)")}</text>
       </svg>
     </div>
   );

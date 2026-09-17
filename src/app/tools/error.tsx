@@ -5,6 +5,8 @@
 // layout) survives. The app-wide fallback lives in src/app/error.tsx.
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 
 export default function ToolsError({
   error,
@@ -13,6 +15,8 @@ export default function ToolsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = getTranslation(useLocale());
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -39,22 +43,19 @@ export default function ToolsError({
           boxShadow: 'var(--shadow-md)',
         }}
       >
-        <h1 style={{ margin: 0, fontSize: 22 }}>This calculator hit an error</h1>
-        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)' }}>
-          Something unexpected interrupted this calculator. Your other tools
-          are unaffected — try again, or pick another tool from the sidebar.
-        </p>
+        <h1 style={{ margin: 0, fontSize: 22 }}>{t.toolsErrorHeading}</h1>
+        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)' }}>{t.toolsErrorLead}</p>
         {error.digest ? (
           <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)' }}>
-            Error ID: <code>{error.digest}</code>
+            {t.errorId}: <code>{error.digest}</code>
           </p>
         ) : null}
         <div className="action-row" style={{ justifyContent: 'center', marginTop: 8 }}>
           <button type="button" className="button primary" onClick={() => reset()}>
-            Try again
+            {t.errorTryAgain}
           </button>
           <Link href="/" className="button secondary">
-            Go home
+            {t.errorGoHome}
           </Link>
         </div>
       </div>

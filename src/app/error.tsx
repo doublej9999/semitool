@@ -6,6 +6,8 @@
 // handled by global-error.tsx instead.
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 
 export default function Error({
   error,
@@ -14,6 +16,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = getTranslation(useLocale());
+
   useEffect(() => {
     // Surface the boundary error in the browser console (React docs pattern).
     // No remote reporting: the app is privacy-first and fully client-side.
@@ -42,22 +46,19 @@ export default function Error({
           boxShadow: 'var(--shadow-md)',
         }}
       >
-        <h1 style={{ margin: 0, fontSize: 22 }}>Something went wrong</h1>
-        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)' }}>
-          An unexpected error interrupted this page. Nothing was lost — every
-          calculation runs in your browser. Try again, or head back home.
-        </p>
+        <h1 style={{ margin: 0, fontSize: 22 }}>{t.errorHeading}</h1>
+        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)' }}>{t.errorLead}</p>
         {error.digest ? (
           <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)' }}>
-            Error ID: <code>{error.digest}</code>
+            {t.errorId}: <code>{error.digest}</code>
           </p>
         ) : null}
         <div className="action-row" style={{ justifyContent: 'center', marginTop: 8 }}>
           <button type="button" className="button primary" onClick={() => reset()}>
-            Try again
+            {t.errorTryAgain}
           </button>
           <Link href="/" className="button secondary">
-            Go home
+            {t.errorGoHome}
           </Link>
         </div>
       </div>

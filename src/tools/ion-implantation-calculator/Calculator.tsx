@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/ion-implantation-calculator';
 
 import { useId, useMemo, useRef, useState } from 'react';
 import { Copy, RotateCcw, AlertTriangle, Download } from 'lucide-react';
@@ -36,6 +38,7 @@ const INITIAL_STATE: FormState = {
 };
 
 export default function IonImplantationCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
@@ -244,10 +247,10 @@ export default function IonImplantationCalculator() {
     <div className="calc-grid">
       {/* Inputs Column */}
       <section className="panel" aria-labelledby="implant-inputs-heading">
-        <h2 id="implant-inputs-heading">Implant Parameters</h2>
+        <h2 id="implant-inputs-heading">{t("Implant Parameters")}</h2>
 
         <div className="field">
-          <label htmlFor={speciesId}>Ion Species</label>
+          <label htmlFor={speciesId}>{t("Ion Species")}</label>
           <select
             id={speciesId}
             value={form.species}
@@ -260,11 +263,11 @@ export default function IonImplantationCalculator() {
               }));
             }}
           >
-            <option value="B">Boron (¹¹B in Si) — p-type</option>
-            <option value="P">Phosphorus (³¹P in Si) — n-type</option>
-            <option value="As">Arsenic (⁷⁵As in Si) — n-type</option>
-            <option value="BF2">BF₂ (⁴⁹BF₂ in Si) — p-type</option>
-            <option value="Custom">Custom Parameters</option>
+            <option value="B">{t("Boron (¹¹B in Si) — p-type")}</option>
+            <option value="P">{t("Phosphorus (³¹P in Si) — n-type")}</option>
+            <option value="As">{t("Arsenic (⁷⁵As in Si) — n-type")}</option>
+            <option value="BF2">{t("BF₂ (⁴⁹BF₂ in Si) — p-type")}</option>
+            <option value="Custom">{t("Custom Parameters")}</option>
           </select>
           <span className="note" style={{ marginTop: '4px' }}>
             {SPECIES_CATALOG[form.species].description}
@@ -274,7 +277,7 @@ export default function IonImplantationCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor={energyId}>
-              Energy<span className="unit">keV</span>
+              {t("Energy")}<span className="unit">keV</span>
             </label>
             <input
               id={energyId}
@@ -284,34 +287,34 @@ export default function IonImplantationCalculator() {
               step="any"
               value={form.energyKeV}
               onChange={(e) => update('energyKeV', e.target.value)}
-              placeholder="e.g. 50"
+              placeholder={t("e.g. 50")}
             />
           </div>
 
           <div className="field">
             <label htmlFor={doseId}>
-              {g('implantDose')} (Φ)<span className="unit">cm⁻²</span>
+              {g('implantDose')} (Φ)<span className="unit">{t("cm⁻²")}</span>
             </label>
             <input
               id={doseId}
               type="text"
               value={form.doseCm2}
               onChange={(e) => update('doseCm2', e.target.value)}
-              placeholder="e.g. 1e14 or 10^14"
+              placeholder={t("e.g. 1e14 or 10^14")}
             />
           </div>
         </div>
 
         <div className="field">
           <label htmlFor={backgroundId}>
-            Background Wafer Doping (Nb)<span className="unit">cm⁻³</span>
+            {t("Background Wafer Doping (Nb)")}<span className="unit">{t("cm⁻³")}</span>
           </label>
           <input
             id={backgroundId}
             type="text"
             value={form.backgroundDopingCm3}
             onChange={(e) => update('backgroundDopingCm3', e.target.value)}
-            placeholder="e.g. 1e15 or 5e14"
+            placeholder={t("e.g. 1e15 or 5e14")}
           />
         </div>
 
@@ -323,8 +326,7 @@ export default function IonImplantationCalculator() {
                 checked={form.showCustomOverrides}
                 onChange={(e) => update('showCustomOverrides', e.target.checked)}
               />
-              Override standard Rp and ΔRp models manually
-            </label>
+              {t("Override standard Rp and ΔRp models manually")}</label>
           </div>
         )}
 
@@ -332,7 +334,7 @@ export default function IonImplantationCalculator() {
           <div className="form-row" style={{ background: 'var(--paper)', padding: '10px', borderRadius: '8px', border: '1px solid var(--line)' }}>
             <div className="field">
               <label htmlFor={customRpId}>
-                Projected Range (Rp)<span className="unit">nm</span>
+                {t("Projected Range (Rp)")}<span className="unit">nm</span>
               </label>
               <input
                 id={customRpId}
@@ -341,13 +343,13 @@ export default function IonImplantationCalculator() {
                 step="any"
                 value={form.customRpNm}
                 onChange={(e) => update('customRpNm', e.target.value)}
-                placeholder="e.g. 175"
+                placeholder={t("e.g. 175")}
               />
             </div>
 
             <div className="field">
               <label htmlFor={customDeltaRpId}>
-                Straggle (ΔRp)<span className="unit">nm</span>
+                {t("Straggle (ΔRp)")}<span className="unit">nm</span>
               </label>
               <input
                 id={customDeltaRpId}
@@ -356,7 +358,7 @@ export default function IonImplantationCalculator() {
                 step="any"
                 value={form.customDeltaRpNm}
                 onChange={(e) => update('customDeltaRpNm', e.target.value)}
-                placeholder="e.g. 56"
+                placeholder={t("e.g. 56")}
               />
             </div>
           </div>
@@ -370,7 +372,7 @@ export default function IonImplantationCalculator() {
             disabled={!result.ok}
           >
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button
             type="button"
@@ -378,8 +380,7 @@ export default function IonImplantationCalculator() {
             onClick={() => setForm(INITIAL_STATE)}
           >
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
           <button
             type="button"
             className="button secondary"
@@ -387,8 +388,7 @@ export default function IonImplantationCalculator() {
             disabled={!result.ok}
           >
             <Download size={16} aria-hidden="true" />
-            Export CSV
-          </button>
+            {t("Export CSV")}</button>
           <button
             type="button"
             className="button secondary"
@@ -396,14 +396,13 @@ export default function IonImplantationCalculator() {
             disabled={!result.ok}
           >
             <Download size={16} aria-hidden="true" />
-            Export XLSX
-          </button>
+            {t("Export XLSX")}</button>
         </div>
       </section>
 
       {/* Results & Profile Graph Column */}
       <section className="panel" aria-labelledby="implant-results-heading">
-        <h2 id="implant-results-heading">Doping Profile & Junction Analysis</h2>
+        <h2 id="implant-results-heading">{t("Doping Profile & Junction Analysis")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -413,57 +412,57 @@ export default function IonImplantationCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Peak Concentration (Np)</span>
+            <span className="unit">{t("Peak Concentration (Np)")}</span>
             <div className="result-value" aria-live="polite">
               {result.peakConcentrationCm3.toExponential(3)}
-              <span className="result-suffix" style={{ fontSize: '18px', color: 'var(--muted)' }}> cm⁻³</span>
+              <span className="result-suffix" style={{ fontSize: '18px', color: 'var(--muted)' }}> {t("cm⁻³")}</span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Projected Range (Rp)</span>
+                <span>{t("Projected Range (Rp)")}</span>
                 <strong>{fmt(result.rpNm)} nm</strong>
-                <span style={{ fontSize: '11px' }}>{fmt(result.rpUm)} µm</span>
+                <span style={{ fontSize: '11px' }}>{fmt(result.rpUm)} {t("µm")}</span>
               </div>
 
               <div className="metric">
-                <span>Projected Straggle (ΔRp)</span>
+                <span>{t("Projected Straggle (ΔRp)")}</span>
                 <strong>{fmt(result.deltaRpNm)} nm</strong>
-                <span style={{ fontSize: '11px' }}>{fmt(result.deltaRpUm)} µm</span>
+                <span style={{ fontSize: '11px' }}>{fmt(result.deltaRpUm)} {t("µm")}</span>
               </div>
 
               <div className="metric">
-                <span>{g('junctionDepth')} (xj)</span>
+                <span>{g('junctionDepth')} {t("(xj)")}</span>
                 {result.junctionDepthNm !== null ? (
                   <>
                     <strong>{fmt(result.junctionDepthNm)} nm</strong>
-                    <span style={{ fontSize: '11px' }}>{fmt(result.junctionDepthUm ?? 0)} µm</span>
+                    <span style={{ fontSize: '11px' }}>{fmt(result.junctionDepthUm ?? 0)} {t("µm")}</span>
                   </>
                 ) : (
-                  <strong style={{ color: 'var(--amber)' }}>No Junction</strong>
+                  <strong style={{ color: 'var(--amber)' }}>{t("No Junction")}</strong>
                 )}
               </div>
 
               <div className="metric">
-                <span>Surface Conc. N(0)</span>
+                <span>{t("Surface Conc. N(0)")}</span>
                 <strong>{result.surfaceConcentrationCm3.toExponential(2)}</strong>
-                <span style={{ fontSize: '11px' }}>cm⁻³</span>
+                <span style={{ fontSize: '11px' }}>{t("cm⁻³")}</span>
               </div>
 
               <div className="metric">
-                <span>Silicon Retention</span>
+                <span>{t("Silicon Retention")}</span>
                 <strong>{result.retentionPercent.toFixed(2)}%</strong>
-                <span style={{ fontSize: '11px' }}>integrated fluence</span>
+                <span style={{ fontSize: '11px' }}>{t("integrated fluence")}</span>
               </div>
 
               <div className="metric">
-                <span>Solubility Limit</span>
+                <span>{t("Solubility Limit")}</span>
                 <strong>~{result.solidSolubilityLimitCm3.toExponential(1)}</strong>
-                <span style={{ fontSize: '11px' }}>cm⁻³ in Si</span>
+                <span style={{ fontSize: '11px' }}>{t("cm⁻³ in Si")}</span>
               </div>
 
               <div className="metric">
-                <span>Substrate State</span>
+                <span>{t("Substrate State")}</span>
                 <strong style={{ color: result.isAmorphized ? '#b0413a' : '#0d7c82' }}>
                   {result.isAmorphized ? 'Amorphized' : 'Damaged C-Si'}
                 </strong>
@@ -503,20 +502,17 @@ export default function IonImplantationCalculator() {
               <div style={{ marginTop: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <h3 style={{ margin: 0, fontSize: '13.5px', color: 'var(--ink-soft)' }}>
-                    Implant Concentration Depth Profile N(x)
-                  </h3>
+                    {t("Implant Concentration Depth Profile N(x)")}</h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                      Logarithmic Y-axis
-                    </span>
+                      {t("Logarithmic Y-axis")}</span>
                     <button
                       type="button"
                       className="button secondary"
                       style={{ padding: '2px 8px', fontSize: '12px' }}
                       onClick={() => svgRef.current && downloadSvg(svgRef.current, `implant-${result.species}-${result.energyKeV}keV.svg`)}
                     >
-                      <Download size={13} aria-hidden="true" /> Save SVG
-                    </button>
+                      <Download size={13} aria-hidden="true" /> {t("Save SVG")}</button>
                   </div>
                 </div>
 
@@ -534,7 +530,7 @@ export default function IonImplantationCalculator() {
                     viewBox={`0 0 ${svgWidth} ${svgHeight}`}
                     style={{ width: '100%', height: 'auto', display: 'block' }}
                     role="img"
-                    aria-label="Concentration profile curve vs depth"
+                    aria-label={t("Concentration profile curve vs depth")}
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     {/* Plot area background */}
@@ -604,8 +600,7 @@ export default function IonImplantationCalculator() {
                       fill="var(--ink-soft)"
                       textAnchor="middle"
                     >
-                      Depth x (nm)
-                    </text>
+                      {t("Depth x (nm)")}</text>
 
                     <text
                       x={16}
@@ -616,8 +611,7 @@ export default function IonImplantationCalculator() {
                       textAnchor="middle"
                       transform={`rotate(-90, 16, ${margin.top + plotHeight / 2})`}
                     >
-                      Concentration (cm⁻³)
-                    </text>
+                      {t("Concentration (cm⁻³)")}</text>
 
                     {/* Background Wafer Doping Baseline Nb */}
                     {chartData.nbY >= margin.top && chartData.nbY <= margin.top + plotHeight && (
@@ -639,7 +633,7 @@ export default function IonImplantationCalculator() {
                           fill="#b0413a"
                           textAnchor="end"
                         >
-                          Nb Substrate ({result.backgroundDopingCm3.toExponential(1)})
+                          {t("Nb Substrate (")}{result.backgroundDopingCm3.toExponential(1)})
                         </text>
                       </g>
                     )}
@@ -682,7 +676,7 @@ export default function IonImplantationCalculator() {
                       fill="var(--teal-dark)"
                       textAnchor="middle"
                     >
-                      Rp = {Math.round(result.rpNm)} nm
+                      {t("Rp =")}{Math.round(result.rpNm)} nm
                     </text>
 
                     {/* Junction Depth Marker xj */}
@@ -712,7 +706,7 @@ export default function IonImplantationCalculator() {
                           fill="#915a13"
                           textAnchor="middle"
                         >
-                          xj = {Math.round(result.junctionDepthNm!)} nm
+                          {t("xj =")}{Math.round(result.junctionDepthNm!)} nm
                         </text>
                       </g>
                     )}
@@ -733,15 +727,15 @@ export default function IonImplantationCalculator() {
                 >
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '14px', height: '3px', background: 'var(--teal)', display: 'inline-block' }} />
-                    <span>Dopant Profile N(x)</span>
+                    <span>{t("Dopant Profile N(x)")}</span>
                   </div>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '14px', height: '2px', background: '#b0413a', borderBottom: '1px dashed #b0413a', display: 'inline-block' }} />
-                    <span>Wafer Substrate Nb</span>
+                    <span>{t("Wafer Substrate Nb")}</span>
                   </div>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#dfa243', display: 'inline-block' }} />
-                    <span>{g('junctionDepth')} (xj)</span>
+                    <span>{g('junctionDepth')} {t("(xj)")}</span>
                   </div>
                 </div>
               </div>

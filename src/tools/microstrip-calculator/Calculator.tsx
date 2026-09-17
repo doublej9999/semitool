@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/microstrip-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -27,6 +29,7 @@ const INITIAL = {
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function MicrostripCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
@@ -99,9 +102,9 @@ export default function MicrostripCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="ms-mode">Direction</label>
+          <label htmlFor="ms-mode">{t("Direction")}</label>
           <select
             id="ms-mode"
             value={state.mode}
@@ -116,7 +119,7 @@ export default function MicrostripCalculator() {
         </div>
         {state.mode === 'analyze' ? (
           <div className="field">
-            <label htmlFor="ms-width">Trace width (µm)</label>
+            <label htmlFor="ms-width">{t("Trace width (µm)")}</label>
             <input
               id="ms-width"
               type="number"
@@ -127,7 +130,7 @@ export default function MicrostripCalculator() {
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="ms-target">Target impedance (Ω)</label>
+            <label htmlFor="ms-target">{t("Target impedance (Ω)")}</label>
             <input
               id="ms-target"
               type="number"
@@ -138,7 +141,7 @@ export default function MicrostripCalculator() {
           </div>
         )}
         <div className="field">
-          <label htmlFor="ms-height">Substrate height (µm)</label>
+          <label htmlFor="ms-height">{t("Substrate height (µm)")}</label>
           <input
             id="ms-height"
             type="number"
@@ -148,7 +151,7 @@ export default function MicrostripCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="ms-er">Relative permittivity εr</label>
+          <label htmlFor="ms-er">{t("Relative permittivity εr")}</label>
           <input
             id="ms-er"
             type="number"
@@ -158,7 +161,7 @@ export default function MicrostripCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="ms-freq">{g('frequencyLabel')} (GHz)</label>
+          <label htmlFor="ms-freq">{g('frequencyLabel')} {t("(GHz)")}</label>
           <input
             id="ms-freq"
             type="number"
@@ -168,19 +171,15 @@ export default function MicrostripCalculator() {
           />
         </div>
         <p className="note">
-          Quasi-static Hammerstad-Jensen model: no dispersion, no radiation and no copper thickness. In the
-          impedance to width direction the fit is refined by solving the forward model, so the width shown
-          reproduces the target impedance rather than carrying the fit&apos;s own error.
-        </p>
+          {t("Quasi-static Hammerstad-Jensen model: no dispersion, no radiation and no copper thickness. In the impedance to width direction the fit is refined by solving the forward model, so the width shown reproduces the target impedance rather than carrying the fit's own error.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -201,39 +200,36 @@ export default function MicrostripCalculator() {
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Characteristic impedance</dt>
+                <dt>{t("Characteristic impedance")}</dt>
                 <dd>{fmt(result.z0Ohm)} Ω</dd>
               </div>
               <div>
-                <dt>Trace width</dt>
-                <dd>{fmt(result.widthUm)} µm</dd>
+                <dt>{t("Trace width")}</dt>
+                <dd>{fmt(result.widthUm)} {t("µm")}</dd>
               </div>
               <div>
-                <dt>Width / height</dt>
+                <dt>{t("Width / height")}</dt>
                 <dd>{fmt(result.ratio)}</dd>
               </div>
               <div>
-                <dt>Effective permittivity</dt>
+                <dt>{t("Effective permittivity")}</dt>
                 <dd>{fmt(result.effectiveEr)}</dd>
               </div>
               <div>
-                <dt>Guided wavelength</dt>
+                <dt>{t("Guided wavelength")}</dt>
                 <dd>{fmt(result.guidedWavelengthM * 1e3)} mm</dd>
               </div>
               <div>
-                <dt>Phase velocity</dt>
+                <dt>{t("Phase velocity")}</dt>
                 <dd>{fmt(result.phaseVelocityMps / SPEED_OF_LIGHT_MPS)} c</dd>
               </div>
               <div>
-                <dt>Delay</dt>
-                <dd>{fmt(result.delayPsPerMm)} ps/mm</dd>
+                <dt>{t("Delay")}</dt>
+                <dd>{fmt(result.delayPsPerMm)} {t("ps/mm")}</dd>
               </div>
             </dl>
             <p className="note">
-              The guided wavelength and delay follow from the effective permittivity, not from εr, because the
-              field is only partly in the substrate. That is why a microstrip is always shorter than the same
-              line in a uniform dielectric.
-            </p>
+              {t("The guided wavelength and delay follow from the effective permittivity, not from εr, because the field is only partly in the substrate. That is why a microstrip is always shorter than the same line in a uniform dielectric.")}</p>
           </>
         )}
       </section>

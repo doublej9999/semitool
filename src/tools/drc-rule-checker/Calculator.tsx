@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/drc-rule-checker';
 
 import { useId, useState } from 'react';
 import { Download, Plus, X } from 'lucide-react';
@@ -114,6 +116,7 @@ function LayerSelect({
 }
 
 export default function DrcRuleCheckerCalculator() {
+  const t = useToolCopy(copyResource);
   const [quick, setQuick] = useState<QuickCheckState>(INITIAL_QUICK);
   const [extraRows, setExtraRows] = useState<CheckRow[]>([]);
   const [nextRowId, setNextRowId] = useState(1);
@@ -209,10 +212,10 @@ export default function DrcRuleCheckerCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="drc-inputs">
-        <h2 id="drc-inputs">Process family and quick check</h2>
+        <h2 id="drc-inputs">{t("Process family and quick check")}</h2>
 
         <div className="field">
-          <label htmlFor={nodeId}>Process node family</label>
+          <label htmlFor={nodeId}>{t("Process node family")}</label>
           <select id={nodeId} value={node.id} onChange={(e) => updateQuick('node', e.target.value)}>
             {nodes.map((candidate) => (
               <option key={candidate.id} value={candidate.id}>
@@ -225,17 +228,17 @@ export default function DrcRuleCheckerCalculator() {
 
         <div className="physics-alert" style={{ marginTop: '12px' }}>
           <div className="physics-alert-content">
-            <strong>Rule-of-thumb reference only.</strong> {DRC_DISCLAIMER}
+            <strong>{t("Rule-of-thumb reference only.")}</strong> {DRC_DISCLAIMER}
           </div>
         </div>
 
         <div className="field">
-          <label htmlFor={layerId}>Quick check — layer</label>
+          <label htmlFor={layerId}>{t("Quick check — layer")}</label>
           <LayerSelect id={layerId} layers={layers} value={quick.layer} onChange={(v) => updateQuick('layer', v)} />
         </div>
 
         <div className="field">
-          <label htmlFor={kindId}>Quick check — rule kind</label>
+          <label htmlFor={kindId}>{t("Quick check — rule kind")}</label>
           <select id={kindId} value={effectiveKind} onChange={(e) => updateQuick('kind', e.target.value)}>
             {KIND_ORDER.filter((kind) => kindOptions.includes(kind)).map((kind) => (
               <option key={kind} value={kind}>
@@ -244,12 +247,12 @@ export default function DrcRuleCheckerCalculator() {
             ))}
           </select>
           {effectiveKind === 'enclosure' && (
-            <small>Overlap of the surrounding metal/poly beyond the cut edge.</small>
+            <small>{t("Overlap of the surrounding metal/poly beyond the cut edge.")}</small>
           )}
         </div>
 
         <div className="field">
-          <label htmlFor={drawnId}>Quick check — drawn value (µm)</label>
+          <label htmlFor={drawnId}>{t("Quick check — drawn value (µm)")}</label>
           <input
             id={drawnId}
             type="number"
@@ -259,16 +262,16 @@ export default function DrcRuleCheckerCalculator() {
             onChange={(e) => updateQuick('drawnUm', Number.parseFloat(e.target.value) || 0)}
           />
           <small>
-            Drawn == rule passes with zero margin; anything below fails. Currently checked against{' '}
+            {t("Drawn == rule passes with zero margin; anything below fails. Currently checked against")}{' '}
             {selectedLayer ? KIND_LABELS[effectiveKind].toLowerCase() : '—'} of {selectedLayer?.label ?? '—'}.
           </small>
         </div>
 
-        <h3 style={{ margin: '20px 0 8px' }}>More checks (session only)</h3>
+        <h3 style={{ margin: '20px 0 8px' }}>{t("More checks (session only)")}</h3>
         {extraRows.map((row) => (
           <div key={row.id} style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', marginBottom: '8px' }}>
             <div className="field" style={{ flex: 2, marginBottom: 0 }}>
-              <label htmlFor={`drc-layer-${row.id}`}>Layer</label>
+              <label htmlFor={`drc-layer-${row.id}`}>{t("Layer")}</label>
               <select
                 id={`drc-layer-${row.id}`}
                 value={row.layer}
@@ -293,7 +296,7 @@ export default function DrcRuleCheckerCalculator() {
               </select>
             </div>
             <div className="field" style={{ flex: 1.4, marginBottom: 0 }}>
-              <label htmlFor={`drc-kind-${row.id}`}>Kind</label>
+              <label htmlFor={`drc-kind-${row.id}`}>{t("Kind")}</label>
               <select
                 id={`drc-kind-${row.id}`}
                 value={row.kind}
@@ -309,7 +312,7 @@ export default function DrcRuleCheckerCalculator() {
               </select>
             </div>
             <div className="field" style={{ flex: 1, marginBottom: 0 }}>
-              <label htmlFor={`drc-drawn-${row.id}`}>Drawn (µm)</label>
+              <label htmlFor={`drc-drawn-${row.id}`}>{t("Drawn (µm)")}</label>
               <input
                 id={`drc-drawn-${row.id}`}
                 type="number"
@@ -332,13 +335,10 @@ export default function DrcRuleCheckerCalculator() {
         <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-secondary" onClick={addRow}>
             <Plus size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
-            Add check row
-          </button>
+            {t("Add check row")}</button>
         </div>
         <small>
-          The quick check above is kept in the URL for sharing; additional rows live only in this browser
-          session (not serialized into the link).
-        </small>
+          {t("The quick check above is kept in the URL for sharing; additional rows live only in this browser session (not serialized into the link).")}</small>
 
         <div style={{ display: 'flex', gap: '8px', marginTop: '16px', flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-secondary" onClick={copySummary}>
@@ -346,35 +346,33 @@ export default function DrcRuleCheckerCalculator() {
           </button>
           <button type="button" className="btn btn-secondary" onClick={exportCsv}>
             <Download size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
-            Export CSV
-          </button>
+            {t("Export CSV")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="drc-results">
-        <h2 id="drc-results">Check results — {node.label}</h2>
+        <h2 id="drc-results">{t("Check results —")}{node.label}</h2>
 
         <div className="metric-grid">
           <div className="metric-card">
-            <span className="metric-label">Pass</span>
+            <span className="metric-label">{t("Pass")}</span>
             <span className="metric-value" style={{ color: 'var(--teal)' }}>
               {report.summary.pass}
             </span>
           </div>
           <div className="metric-card">
-            <span className="metric-label">Fail</span>
+            <span className="metric-label">{t("Fail")}</span>
             <span className="metric-value" style={{ color: 'var(--red, #dc2626)' }}>
               {report.summary.fail}
             </span>
           </div>
           <div className="metric-card">
-            <span className="metric-label">Skipped (no rule / invalid)</span>
+            <span className="metric-label">{t("Skipped (no rule / invalid)")}</span>
             <span className="metric-value" style={{ color: summaryTone }}>
               {report.summary.skipped}
             </span>
             <span className="metric-label">
-              {report.summary.total} checks · margin = drawn − rule, pass at margin ≥ 0
-            </span>
+              {report.summary.total} {t("checks · margin = drawn − rule, pass at margin ≥ 0")}</span>
           </div>
         </div>
 
@@ -382,13 +380,13 @@ export default function DrcRuleCheckerCalculator() {
           <table className="model-table">
             <thead>
               <tr>
-                <th scope="col">Layer</th>
-                <th scope="col">Kind</th>
-                <th scope="col">Rule (µm)</th>
-                <th scope="col">Drawn (µm)</th>
-                <th scope="col">Margin (µm)</th>
-                <th scope="col">Drawn/rule</th>
-                <th scope="col">Status</th>
+                <th scope="col">{t("Layer")}</th>
+                <th scope="col">{t("Kind")}</th>
+                <th scope="col">{t("Rule (µm)")}</th>
+                <th scope="col">{t("Drawn (µm)")}</th>
+                <th scope="col">{t("Margin (µm)")}</th>
+                <th scope="col">{t("Drawn/rule")}</th>
+                <th scope="col">{t("Status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -412,7 +410,7 @@ export default function DrcRuleCheckerCalculator() {
               ))}
               {report.results.length === 0 && (
                 <tr>
-                  <td colSpan={7}>Add at least one check to see results.</td>
+                  <td colSpan={7}>{t("Add at least one check to see results.")}</td>
                 </tr>
               )}
             </tbody>
@@ -430,17 +428,17 @@ export default function DrcRuleCheckerCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="drc-table" style={{ gridColumn: '1 / -1' }}>
-        <h2 id="drc-table">Typical rule table — {node.label}</h2>
+        <h2 id="drc-table">{t("Typical rule table —")}{node.label}</h2>
         <div className="table-scroll">
           <table className="model-table">
             <thead>
               <tr>
-                <th scope="col">Layer</th>
-                <th scope="col">Min width (µm)</th>
-                <th scope="col">Min spacing (µm)</th>
-                <th scope="col">Min pitch (µm)</th>
-                <th scope="col">Min enclosure (µm)</th>
-                <th scope="col">Min area (µm²)</th>
+                <th scope="col">{t("Layer")}</th>
+                <th scope="col">{t("Min width (µm)")}</th>
+                <th scope="col">{t("Min spacing (µm)")}</th>
+                <th scope="col">{t("Min pitch (µm)")}</th>
+                <th scope="col">{t("Min enclosure (µm)")}</th>
+                <th scope="col">{t("Min area (µm²)")}</th>
               </tr>
             </thead>
             <tbody>
@@ -458,9 +456,7 @@ export default function DrcRuleCheckerCalculator() {
           </table>
         </div>
         <small>
-          Pitch = width + spacing (classic rule of thumb). Enclosure applies to contact/via cuts only;
-          min-area values are display-only reminders for tapers — this tool does not check drawn area.
-        </small>
+          {t("Pitch = width + spacing (classic rule of thumb). Enclosure applies to contact/via cuts only; min-area values are display-only reminders for tapers — this tool does not check drawn area.")}</small>
       </section>
     </div>
   );

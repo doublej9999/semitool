@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/semiconductor-depletion-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -30,6 +32,7 @@ function parseSci(str: string): number {
 }
 
 export default function SemiconductorDepletionCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
@@ -76,10 +79,10 @@ export default function SemiconductorDepletionCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Junction Parameters</h2>
+        <h2>{t("Junction Parameters")}</h2>
 
         <div className="field">
-          <label htmlFor="temp-k">{g('temperatureLabel')} (K)</label>
+          <label htmlFor="temp-k">{g('temperatureLabel')} {t("(K)")}</label>
           <input
             id="temp-k"
             type="text"
@@ -89,29 +92,29 @@ export default function SemiconductorDepletionCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="na-cm3">Acceptor Doping Na (p-side, cm⁻³)</label>
+          <label htmlFor="na-cm3">{t("Acceptor Doping Na (p-side, cm⁻³)")}</label>
           <input
             id="na-cm3"
             type="text"
-            placeholder="e.g. 1e16"
+            placeholder={t("e.g. 1e16")}
             value={state.naCm3}
             onChange={(e) => update('naCm3', e.target.value)}
           />
         </div>
 
         <div className="field">
-          <label htmlFor="nd-cm3">Donor Doping Nd (n-side, cm⁻³)</label>
+          <label htmlFor="nd-cm3">{t("Donor Doping Nd (n-side, cm⁻³)")}</label>
           <input
             id="nd-cm3"
             type="text"
-            placeholder="e.g. 1e17"
+            placeholder={t("e.g. 1e17")}
             value={state.ndCm3}
             onChange={(e) => update('ndCm3', e.target.value)}
           />
         </div>
 
         <div className="field">
-          <label htmlFor="vr-v">Reverse Bias Vr (V, Vr ≥ 0)</label>
+          <label htmlFor="vr-v">{t("Reverse Bias Vr (V, Vr ≥ 0)")}</label>
           <input
             id="vr-v"
             type="text"
@@ -121,7 +124,7 @@ export default function SemiconductorDepletionCalculator() {
         </div>
 
         <div className="field">
-          <span className="field-label">Presets</span>
+          <span className="field-label">{t("Presets")}</span>
           <div className="button-group" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {PRESETS.map((p) => (
               <button
@@ -147,17 +150,16 @@ export default function SemiconductorDepletionCalculator() {
         <div className="action-row" style={{ marginTop: '16px' }}>
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel">
-        <h2>Depletion Characteristics</h2>
+        <h2>{t("Depletion Characteristics")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -167,45 +169,44 @@ export default function SemiconductorDepletionCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Total Depletion Width (W)</span>
+            <span className="unit">{t("Total Depletion Width (W)")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.widthNm)} <span className="result-suffix">nm</span>
               <span style={{ fontSize: '16px', color: 'var(--muted)', marginLeft: '8px' }}>
-                ({fmt(result.widthUm)} µm)
-              </span>
+                ({fmt(result.widthUm)} {t("µm)")}</span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Built-in Potential (Vbi)</span>
+                <span>{t("Built-in Potential (Vbi)")}</span>
                 <strong>{fmt(result.vbiV)} V</strong>
               </div>
               <div className="metric">
-                <span>Total Potential (Vbi + Vr)</span>
+                <span>{t("Total Potential (Vbi + Vr)")}</span>
                 <strong>{fmt(result.vtotalV)} V</strong>
               </div>
               <div className="metric">
-                <span>p-side Depletion (xp)</span>
+                <span>{t("p-side Depletion (xp)")}</span>
                 <strong>{fmt(result.xpNm)} nm</strong>
               </div>
               <div className="metric">
-                <span>n-side Depletion (xn)</span>
+                <span>{t("n-side Depletion (xn)")}</span>
                 <strong>{fmt(result.xnNm)} nm</strong>
               </div>
               <div className="metric">
-                <span>Peak Electric Field (Emax)</span>
-                <strong>{fmt(result.maxElectricFieldKVPerCm)} kV/cm</strong>
+                <span>{t("Peak Electric Field (Emax)")}</span>
+                <strong>{fmt(result.maxElectricFieldKVPerCm)} {t("kV/cm")}</strong>
               </div>
               <div className="metric">
-                <span>Junction Capacitance (Cj)</span>
-                <strong>{fmt(result.capacitanceFFPerUm2)} fF/µm²</strong>
+                <span>{t("Junction Capacitance (Cj)")}</span>
+                <strong>{fmt(result.capacitanceFFPerUm2)} {t("fF/µm²")}</strong>
               </div>
               <div className="metric">
-                <span>Capacitance (Area)</span>
-                <strong>{fmt(result.capacitancePFPerMm2)} pF/mm²</strong>
+                <span>{t("Capacitance (Area)")}</span>
+                <strong>{fmt(result.capacitancePFPerMm2)} {t("pF/mm²")}</strong>
               </div>
               <div className="metric">
-                <span>Est. Breakdown (Vbd)</span>
+                <span>{t("Est. Breakdown (Vbd)")}</span>
                 <strong>~{fmt(result.breakdownVoltageV)} V</strong>
               </div>
             </div>
@@ -219,6 +220,7 @@ export default function SemiconductorDepletionCalculator() {
 }
 
 function DepletionProfilePlot({ result }: { result: SemiconductorDepletionSuccess }) {
+  const t = useToolCopy(copyResource);
   const width = 460;
   const height = 180;
   const pad = { top: 20, right: 30, bottom: 30, left: 40 };
@@ -243,13 +245,12 @@ function DepletionProfilePlot({ result }: { result: SemiconductorDepletionSucces
   return (
     <div style={{ marginTop: '20px' }}>
       <h3 style={{ fontSize: '14px', marginBottom: '6px', color: 'var(--ink)' }}>
-        Electric Field & Depletion Profile |E(x)|
-      </h3>
+        {t("Electric Field & Depletion Profile |E(x)|")}</h3>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         style={{ width: '100%', height: 'auto', background: 'var(--paper)', borderRadius: '6px' }}
         role="img"
-        aria-label="PN junction electric field profile diagram"
+        aria-label={t("PN junction electric field profile diagram")}
       >
         {/* Baseline */}
         <line x1={pad.left} y1={baseY} x2={pad.left + plotW} y2={baseY} stroke="var(--line-strong)" />
@@ -275,27 +276,21 @@ function DepletionProfilePlot({ result }: { result: SemiconductorDepletionSucces
 
         {/* Labels */}
         <text x={leftX} y={baseY + 16} fontSize="11" fill="var(--muted)" textAnchor="middle">
-          -xp
-        </text>
+          {t("-xp")}</text>
         <text x={zeroX} y={baseY + 16} fontSize="11" fill="var(--ink)" textAnchor="middle" fontWeight="600">
-          x = 0
-        </text>
+          {t("x = 0")}</text>
         <text x={rightX} y={baseY + 16} fontSize="11" fill="var(--muted)" textAnchor="middle">
-          +xn
-        </text>
+          {t("+xn")}</text>
 
         {/* Peak E-field label */}
         <text x={zeroX} y={peakY - 6} fontSize="11" fill="var(--teal-dark)" textAnchor="middle" fontWeight="600">
-          Emax: {fmt(result.maxElectricFieldKVPerCm)} kV/cm
-        </text>
+          {t("Emax:")}{fmt(result.maxElectricFieldKVPerCm)} {t("kV/cm")}</text>
 
         {/* p-side and n-side regions */}
         <text x={(leftX + zeroX) / 2} y={baseY - 10} fontSize="11" fill="var(--muted)" textAnchor="middle">
-          p-depletion ({fmt(xp)} nm)
-        </text>
+          {t("p-depletion (")}{fmt(xp)} {t("nm)")}</text>
         <text x={(zeroX + rightX) / 2} y={baseY - 10} fontSize="11" fill="var(--muted)" textAnchor="middle">
-          n-depletion ({fmt(xn)} nm)
-        </text>
+          {t("n-depletion (")}{fmt(xn)} {t("nm)")}</text>
       </svg>
     </div>
   );

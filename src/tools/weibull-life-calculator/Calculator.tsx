@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/weibull-life-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -38,6 +40,7 @@ interface WeibullPlotProps {
 }
 
 function WeibullPlot({ sortedTimes, beta, etaHours, b10Hours, b50Hours }: WeibullPlotProps) {
+  const t = useToolCopy(copyResource);
   const n = sortedTimes.length;
 
   // Empirical sample points: x_i = ln(t_i), y_i = ln(-ln(1 - F_i))
@@ -162,10 +165,9 @@ function WeibullPlot({ sortedTimes, beta, etaHours, b10Hours, b50Hours }: Weibul
       role="img"
       aria-label={`Weibull probability plot with ${n} failure samples, shape beta ${fmt(beta)}, scale eta ${fmt(etaHours)} hours`}
     >
-      <title>Weibull Probability Plot</title>
+      <title>{t("Weibull Probability Plot")}</title>
       <desc>
-        Linearized Weibull paper plot: empirical median ranks against failure time with fitted line and milestones.
-      </desc>
+        {t("Linearized Weibull paper plot: empirical median ranks against failure time with fitted line and milestones.")}</desc>
 
       <defs>
         {/* Clip path so fitted line doesn't spill outside plot box */}
@@ -351,8 +353,7 @@ function WeibullPlot({ sortedTimes, beta, etaHours, b10Hours, b50Hours }: Weibul
         fontWeight="500"
         fill="var(--muted)"
       >
-        Unreliability F (%)
-      </text>
+        {t("Unreliability F (%)")}</text>
 
       {/* X-axis title */}
       <text
@@ -362,13 +363,13 @@ function WeibullPlot({ sortedTimes, beta, etaHours, b10Hours, b50Hours }: Weibul
         fontSize="10"
         fill="var(--muted)"
       >
-        Failure time t (log scale)
-      </text>
+        {t("Failure time t (log scale)")}</text>
     </svg>
   );
 }
 
 export default function WeibullLifeCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -419,9 +420,9 @@ export default function WeibullLifeCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="wb-times">Failure times in hours, one per line</label>
+          <label htmlFor="wb-times">{t("Failure times in hours, one per line")}</label>
           <textarea
             id="wb-times"
             rows={8}
@@ -431,7 +432,7 @@ export default function WeibullLifeCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="wb-mission">Mission time for R(t) (h)</label>
+          <label htmlFor="wb-mission">{t("Mission time for R(t) (h)")}</label>
           <input
             id="wb-mission"
             type="number"
@@ -441,18 +442,15 @@ export default function WeibullLifeCalculator() {
           />
         </div>
         <p className="note">
-          Times are sorted before fitting, so any order works. Lines starting with # are ignored. Every unit is
-          treated as a failure: run-out or suspended units would need a censored estimator, which this fit is not.
-        </p>
+          {t("Times are sorted before fitting, so any order works. Lines starting with # are ignored. Every unit is treated as a failure: run-out or suspended units would need a censored estimator, which this fit is not.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -466,17 +464,17 @@ export default function WeibullLifeCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Shape parameter β</span>
+            <span className="unit">{t("Shape parameter β")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.beta)}
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Scale parameter η</dt>
+                <dt>{t("Scale parameter η")}</dt>
                 <dd>{fmt(result.etaHours)} h</dd>
               </div>
               <div>
-                <dt>Fit correlation</dt>
+                <dt>{t("Fit correlation")}</dt>
                 <dd>{fmt(result.rSquared)}</dd>
               </div>
               <div>
@@ -484,26 +482,26 @@ export default function WeibullLifeCalculator() {
                 <dd>{fmt(result.mtbfHours)} h</dd>
               </div>
               <div>
-                <dt>B1 life</dt>
+                <dt>{t("B1 life")}</dt>
                 <dd>{fmt(result.b1Hours)} h</dd>
               </div>
               <div>
-                <dt>B10 life</dt>
+                <dt>{t("B10 life")}</dt>
                 <dd>{fmt(result.b10Hours)} h</dd>
               </div>
               <div>
-                <dt>B50 life</dt>
+                <dt>{t("B50 life")}</dt>
                 <dd>{fmt(result.b50Hours)} h</dd>
               </div>
               {result.reliability !== null ? (
                 <div>
-                  <dt>Reliability at {fmt(result.missionHours)} h</dt>
+                  <dt>{t("Reliability at")}{fmt(result.missionHours)} h</dt>
                   <dd>{fmt(result.reliability)}</dd>
                 </div>
               ) : null}
               {result.reliability !== null ? (
                 <div>
-                  <dt>Unreliability at {fmt(result.missionHours)} h</dt>
+                  <dt>{t("Unreliability at")}{fmt(result.missionHours)} h</dt>
                   <dd>{fmt(weibullUnreliability(result.missionHours, result.beta, result.etaHours))}</dd>
                 </div>
               ) : null}
@@ -530,8 +528,7 @@ export default function WeibullLifeCalculator() {
                 }}
               >
                 <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
-                  Weibull Probability Plot
-                </span>
+                  {t("Weibull Probability Plot")}</span>
                 <span
                   className="unit"
                   style={{
@@ -540,7 +537,7 @@ export default function WeibullLifeCalculator() {
                     background: weakFit ? '#fef9ee' : 'var(--teal-soft)',
                   }}
                 >
-                  R² = {fmt(result.rSquared)}
+                  {t("R² =")}{fmt(result.rSquared)}
                 </span>
               </div>
 
@@ -572,11 +569,11 @@ export default function WeibullLifeCalculator() {
                       display: 'inline-block',
                     }}
                   />
-                  <span>Median rank sample point</span>
+                  <span>{t("Median rank sample point")}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span style={{ width: '14px', borderTop: '2px solid var(--teal)', display: 'inline-block' }} />
-                  <span>Fitted Weibull line</span>
+                  <span>{t("Fitted Weibull line")}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span
@@ -588,7 +585,7 @@ export default function WeibullLifeCalculator() {
                       display: 'inline-block',
                     }}
                   />
-                  <span>η scale ({fmt(result.etaHours)} h)</span>
+                  <span>{t("η scale (")}{fmt(result.etaHours)} {t("h)")}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span
@@ -600,7 +597,7 @@ export default function WeibullLifeCalculator() {
                       display: 'inline-block',
                     }}
                   />
-                  <span>B10 life ({fmt(result.b10Hours)} h)</span>
+                  <span>{t("B10 life (")}{fmt(result.b10Hours)} {t("h)")}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span
@@ -612,21 +609,17 @@ export default function WeibullLifeCalculator() {
                       display: 'inline-block',
                     }}
                   />
-                  <span>B50 life ({fmt(result.b50Hours)} h)</span>
+                  <span>{t("B50 life (")}{fmt(result.b50Hours)} {t("h)")}</span>
                 </div>
               </div>
             </div>
 
             <p className="note">
-              β below 1 means infant mortality, near 1 is a random failure rate, and above 1 means wear out. This
-              data fits β = {fmt(result.beta)}.
+              {t("β below 1 means infant mortality, near 1 is a random failure rate, and above 1 means wear out. This data fits β =")}{fmt(result.beta)}.
             </p>
             {weakFit ? (
               <p className="note">
-                The correlation is only {fmt(result.rSquared)}, so the points do not fall on a straight line well.
-                A Weibull assumption is weakly supported here and the B life figures should be treated as
-                indicative.
-              </p>
+                {t("The correlation is only")}{fmt(result.rSquared)}{t(", so the points do not fall on a straight line well. A Weibull assumption is weakly supported here and the B life figures should be treated as indicative.")}</p>
             ) : null}
           </>
         )}

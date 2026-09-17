@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/film-color-calculator';
 
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
@@ -18,16 +20,19 @@ import { useGlossary } from '@/lib/i18n/glossary';
  * Multilayer TMM solver mode is code-split out of the route bundle and only
  * fetched when the user switches to the "Multilayer Optical Solver" tab.
  */
-const TmmMode = dynamic(() => import('./TmmMode'), {
-  loading: () => (
+function TmmLoadingFallback() {
+  const t = useToolCopy(copyResource);
+  return (
     <div className="calc-grid">
       <section className="panel">
-        <p className="note" style={{ margin: 0 }}>
-          Loading multilayer optical solver…
-        </p>
+        <p className="note" style={{ margin: 0 }}>{t("Loading multilayer optical solver…")}</p>
       </section>
     </div>
-  ),
+  );
+}
+
+const TmmMode = dynamic(() => import('./TmmMode'), {
+  loading: () => <TmmLoadingFallback />,
 });
 
 type ThicknessUnit = 'nm' | 'angstrom';
@@ -45,6 +50,7 @@ const INITIAL_SINGLE_STATE = {
 const num = (v: string) => (v.trim() === '' ? Number.NaN : Number(v));
 
 export default function FilmColorCalculator() {
+  const t = useToolCopy(copyResource);
   const [calcMode, setCalcMode] = useState<CalcMode>('single');
 
   // Single-layer state
@@ -136,8 +142,7 @@ export default function FilmColorCalculator() {
             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Sparkles size={16} />
-            Single-Layer Visual Inspection (Pliskin)
-          </button>
+            {t("Single-Layer Visual Inspection (Pliskin)")}</button>
           <button
             type="button"
             className={`button ${calcMode === 'tmm' ? 'primary' : 'secondary'}`}
@@ -145,8 +150,7 @@ export default function FilmColorCalculator() {
             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <Layers size={16} />
-            Multilayer Optical Solver (Abelès TMM)
-          </button>
+            {t("Multilayer Optical Solver (Abelès TMM)")}</button>
         </div>
 
         <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
@@ -163,7 +167,7 @@ export default function FilmColorCalculator() {
         <div className="calc-grid">
           {/* INPUTS PANEL */}
           <section className="panel" aria-labelledby="film-inputs-heading">
-            <h2 id="film-inputs-heading">Film and Substrate</h2>
+            <h2 id="film-inputs-heading">{t("Film and Substrate")}</h2>
 
             {/* Material Selection */}
             <div className="field">
@@ -175,7 +179,7 @@ export default function FilmColorCalculator() {
               >
                 {FILM_MATERIALS.map((mat) => (
                   <option key={mat.id} value={mat.id}>
-                    {mat.name} ({mat.formula}) — n ≈ {mat.refractiveIndex.toFixed(2)}
+                    {mat.name} ({mat.formula}{t(") — n ≈")}{mat.refractiveIndex.toFixed(2)}
                   </option>
                 ))}
               </select>
@@ -186,8 +190,7 @@ export default function FilmColorCalculator() {
             {singleState.materialId === 'custom' && (
               <div className="field">
                 <label htmlFor="film-custom-n">
-                  {g('refractiveIndex')} (n)
-                  <span className="unit">dielectric</span>
+                  {g('refractiveIndex')} {t("(n)")}<span className="unit">dielectric</span>
                 </label>
                 <input
                   id="film-custom-n"
@@ -204,8 +207,7 @@ export default function FilmColorCalculator() {
             {/* Thickness with Unit selector */}
             <div className="field">
               <label htmlFor="film-thickness">
-                Film Physical Thickness
-                <span className="unit">{singleState.unit === 'angstrom' ? 'Å' : 'nm'}</span>
+                {t("Film Physical Thickness")}<span className="unit">{singleState.unit === 'angstrom' ? 'Å' : 'nm'}</span>
               </label>
               <div className="inline-field">
                 <input
@@ -218,7 +220,7 @@ export default function FilmColorCalculator() {
                   onChange={(e) => setSingleState((prev) => ({ ...prev, thicknessInput: e.target.value }))}
                 />
                 <select
-                  aria-label="Thickness unit"
+                  aria-label={t("Thickness unit")}
                   value={singleState.unit}
                   onChange={(e) => {
                     const newUnit = e.target.value as ThicknessUnit;
@@ -235,15 +237,15 @@ export default function FilmColorCalculator() {
                   }}
                   style={{ flex: '0 0 auto', width: 'auto' }}
                 >
-                  <option value="nm">nm (nanometres)</option>
-                  <option value="angstrom">Å (ångström)</option>
+                  <option value="nm">{t("nm (nanometres)")}</option>
+                  <option value="angstrom">{t("Å (ångström)")}</option>
                 </select>
               </div>
             </div>
 
             {/* Quick Presets */}
             <div className="field">
-              <label>Quick Thickness Presets (nm)</label>
+              <label>{t("Quick Thickness Presets (nm)")}</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
                 {QUICK_PRESETS.map((presetNm) => {
                   const isCurrent =
@@ -265,7 +267,7 @@ export default function FilmColorCalculator() {
 
             {/* Substrate Display */}
             <div className="field">
-              <label>Substrate</label>
+              <label>{t("Substrate")}</label>
               <input
                 type="text"
                 readOnly
@@ -278,7 +280,7 @@ export default function FilmColorCalculator() {
             <div style={{ marginTop: '16px' }}>
               <MathFormula
                 block
-                label="Normal Thin Film Constructive / Destructive Interference"
+                label={t("Normal Thin Film Constructive / Destructive Interference")}
                 math="2 n d = m \lambda \quad (\text{Constructive}) \qquad 2 n d = \left(m - \frac{1}{2}\right) \lambda \quad (\text{Destructive})"
               />
             </div>
@@ -289,11 +291,10 @@ export default function FilmColorCalculator() {
                 type="button"
                 className="button secondary"
                 onClick={handleSingleReset}
-                title="Reset calculator inputs to default"
+                title={t("Reset calculator inputs to default")}
               >
                 <RotateCcw size={15} />
-                Reset
-              </button>
+                {t("Reset")}</button>
               <button
                 type="button"
                 className="button primary"
@@ -308,7 +309,7 @@ export default function FilmColorCalculator() {
 
           {/* RESULTS & VISUALIZATION PANEL */}
           <section className="panel" aria-labelledby="film-results-heading">
-            <h2 id="film-results-heading">Simulated Color & Interference Spectrum</h2>
+            <h2 id="film-results-heading">{t("Simulated Color & Interference Spectrum")}</h2>
 
             {!singleResult.ok ? (
               <div className="error">{singleResult.error}</div>
@@ -356,15 +357,14 @@ export default function FilmColorCalculator() {
 
                   <div style={{ padding: '14px 16px' }}>
                     <div style={{ fontSize: '12px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Pliskin / Wafer Interference Classification
-                    </div>
+                      {t("Pliskin / Wafer Interference Classification")}</div>
                     <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)', marginTop: '2px' }}>
                       {singleResult.classicColorName}
                     </div>
                     <div style={{ fontSize: '12.5px', color: 'var(--ink-soft)', marginTop: '4px' }}>
-                      sRGB: <code style={{ fontFamily: 'var(--font-mono)' }}>rgb({singleResult.rgb.r}, {singleResult.rgb.g}, {singleResult.rgb.b})</code>
+                      {t("sRGB:")}<code style={{ fontFamily: 'var(--font-mono)' }}>{t("rgb(")}{singleResult.rgb.r}, {singleResult.rgb.g}, {singleResult.rgb.b})</code>
                       {' • '}
-                      Reflectance (Y): <strong>{singleResult.photopicReflectancePercent.toFixed(1)}%</strong>
+                      {t("Reflectance (Y):")}<strong>{singleResult.photopicReflectancePercent.toFixed(1)}%</strong>
                     </div>
                   </div>
                 </div>
@@ -372,15 +372,15 @@ export default function FilmColorCalculator() {
                 {/* Key Optical Metrics Grid */}
                 <div className="metric-grid">
                   <div className="metric">
-                    <span>Optical Thickness (n·d)</span>
+                    <span>{t("Optical Thickness (n·d)")}</span>
                     <strong>{fmt(singleResult.opticalThicknessNm, 3)} nm</strong>
                   </div>
                   <div className="metric">
-                    <span>Interference Order</span>
-                    <strong>Order {singleResult.orderNumber}</strong>
+                    <span>{t("Interference Order")}</span>
+                    <strong>{t("Order")}{singleResult.orderNumber}</strong>
                   </div>
                   <div className="metric">
-                    <span>Constructive Peak (R_max)</span>
+                    <span>{t("Constructive Peak (R_max)")}</span>
                     <strong>
                       {singleResult.constructivePeaks.length > 0
                         ? singleResult.constructivePeaks.map((p) => `${p} nm`).join(', ')
@@ -388,7 +388,7 @@ export default function FilmColorCalculator() {
                     </strong>
                   </div>
                   <div className="metric">
-                    <span>Destructive Trough (R_min)</span>
+                    <span>{t("Destructive Trough (R_min)")}</span>
                     <strong>
                       {singleResult.destructiveTroughs.length > 0
                         ? singleResult.destructiveTroughs.map((t) => `${t} nm`).join(', ')
@@ -400,8 +400,7 @@ export default function FilmColorCalculator() {
                 {/* Reflectance Spectrum Plot */}
                 <div style={{ marginTop: '16px' }}>
                   <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--ink)' }}>
-                    Reflectance Spectrum R(λ) across Visible Spectrum (380–750 nm)
-                  </h3>
+                    {t("Reflectance Spectrum R(λ) across Visible Spectrum (380–750 nm)")}</h3>
                   <ReflectanceChart result={singleResult} />
                 </div>
 
@@ -409,8 +408,7 @@ export default function FilmColorCalculator() {
                 <div style={{ marginTop: '20px' }}>
                   <details style={{ fontSize: '13px', cursor: 'pointer' }}>
                     <summary style={{ fontWeight: 600, color: 'var(--teal-dark)' }}>
-                      View Classic Pliskin Thermal Oxide Reference Chart
-                    </summary>
+                      {t("View Classic Pliskin Thermal Oxide Reference Chart")}</summary>
                     <div
                       style={{
                         marginTop: '10px',
@@ -480,6 +478,7 @@ export default function FilmColorCalculator() {
  * Interactive SVG spectrum chart with rainbow visible spectrum backdrop and white reflectance curve.
  */
 function ReflectanceChart({ result }: { result: FilmColorResult }) {
+  const t = useToolCopy(copyResource);
   const width = 500;
   const height = 200;
   const padding = { top: 20, right: 25, bottom: 35, left: 45 };
@@ -515,7 +514,7 @@ function ReflectanceChart({ result }: { result: FilmColorResult }) {
       <svg
         viewBox={`0 0 ${width} ${height}`}
         style={{ width: '100%', height: 'auto', display: 'block' }}
-        aria-label="Reflectance spectrum plot"
+        aria-label={t("Reflectance spectrum plot")}
       >
         <defs>
           <linearGradient id="rainbowSpectrum" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -666,8 +665,7 @@ function ReflectanceChart({ result }: { result: FilmColorResult }) {
           fontSize="11"
           textAnchor="middle"
         >
-          Wavelength λ (nm)
-        </text>
+          {t("Wavelength λ (nm)")}</text>
         <text
           x={14}
           y={padding.top + plotH / 2}
@@ -676,8 +674,7 @@ function ReflectanceChart({ result }: { result: FilmColorResult }) {
           textAnchor="middle"
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
         >
-          Reflectance R
-        </text>
+          {t("Reflectance R")}</text>
       </svg>
     </div>
   );

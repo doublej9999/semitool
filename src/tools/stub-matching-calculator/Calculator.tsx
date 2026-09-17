@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/stub-matching-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -26,6 +28,7 @@ function fmtDeviation(value: number): string {
 }
 
 export default function StubMatchingCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -97,9 +100,9 @@ export default function StubMatchingCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="st-z0">Line impedance Z₀ (Ω)</label>
+          <label htmlFor="st-z0">{t("Line impedance Z₀ (Ω)")}</label>
           <input
             id="st-z0"
             type="number"
@@ -109,7 +112,7 @@ export default function StubMatchingCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="st-r">Load resistance (Ω)</label>
+          <label htmlFor="st-r">{t("Load resistance (Ω)")}</label>
           <input
             id="st-r"
             type="number"
@@ -119,7 +122,7 @@ export default function StubMatchingCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="st-x">Load reactance (Ω, negative for capacitive)</label>
+          <label htmlFor="st-x">{t("Load reactance (Ω, negative for capacitive)")}</label>
           <input
             id="st-x"
             type="number"
@@ -129,7 +132,7 @@ export default function StubMatchingCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="st-freq">{g('frequencyLabel')} (GHz)</label>
+          <label htmlFor="st-freq">{g('frequencyLabel')} {t("(GHz)")}</label>
           <input
             id="st-freq"
             type="number"
@@ -139,7 +142,7 @@ export default function StubMatchingCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="st-er">Line relative permittivity εr</label>
+          <label htmlFor="st-er">{t("Line relative permittivity εr")}</label>
           <input
             id="st-er"
             type="number"
@@ -149,18 +152,15 @@ export default function StubMatchingCalculator() {
           />
         </div>
         <p className="note">
-          Lossless line. A load of exactly Z₀ is already matched and has no stub solution, so the tool says that
-          rather than returning a zero-length stub. Use εr = 1 for an air line.
-        </p>
+          {t("Lossless line. A load of exactly Z₀ is already matched and has no stub solution, so the tool says that rather than returning a zero-length stub. Use εr = 1 for an air line.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -174,43 +174,43 @@ export default function StubMatchingCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Guided wavelength</span>
+            <span className="unit">{t("Guided wavelength")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.lambdaM * 1e3)}
               <span className="result-suffix"> mm</span>
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Load resistance</dt>
+                <dt>{t("Load resistance")}</dt>
                 <dd>{fmt(num(state.loadR))} Ω</dd>
               </div>
               <div>
-                <dt>Load reactance</dt>
+                <dt>{t("Load reactance")}</dt>
                 <dd>
                   {num(state.loadX) < 0 ? '−' : '+'}j{fmt(Math.abs(num(state.loadX)))} Ω
                 </dd>
               </div>
               <div>
-                <dt>Normalised load</dt>
+                <dt>{t("Normalised load")}</dt>
                 <dd>
                   {fmt(result.normalizedLoadR)} {result.normalizedLoadX < 0 ? '−' : '+'} j
                   {fmt(Math.abs(result.normalizedLoadX))}
                 </dd>
               </div>
               <div>
-                <dt>Solutions</dt>
+                <dt>{t("Solutions")}</dt>
                 <dd>{result.solutions.length}</dd>
               </div>
             </dl>
             <table className="model-table">
-              <caption>Stub placement and length, with the re-simulated admittance</caption>
+              <caption>{t("Stub placement and length, with the re-simulated admittance")}</caption>
               <thead>
                 <tr>
-                  <th scope="col">Solution</th>
-                  <th scope="col">Stub</th>
-                  <th scope="col">Distance d</th>
-                  <th scope="col">Stub length</th>
-                  <th scope="col">Re-check |y − 1|</th>
+                  <th scope="col">{t("Solution")}</th>
+                  <th scope="col">{t("Stub")}</th>
+                  <th scope="col">{t("Distance d")}</th>
+                  <th scope="col">{t("Stub length")}</th>
+                  <th scope="col">{t("Re-check |y − 1|")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -226,10 +226,7 @@ export default function StubMatchingCalculator() {
               </tbody>
             </table>
             <p className="note">
-              The last column is not part of the closed form: the distance and the stub length are fed back through
-              the transmission-line equations and the resulting normalised admittance is compared with 1. A value
-              near machine precision means the placement really does match the load.
-            </p>
+              {t("The last column is not part of the closed form: the distance and the stub length are fed back through the transmission-line equations and the resulting normalised admittance is compared with 1. A value near machine precision means the placement really does match the load.")}</p>
           </>
         )}
       </section>

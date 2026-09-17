@@ -120,7 +120,7 @@ export default function PrivacyDataSection() {
    * content (UI preferences are kept) and reloads so plain-component state
    * (scratchpad, traveler history) and any stale store memory re-read storage.
    */
-  const handleClearClick = useCallback(async () => {
+  const handleClearClick = async () => {
     if (typeof window === 'undefined' || busy) return;
     if (!clearArmed) {
       setClearArmed(true);
@@ -132,7 +132,7 @@ export default function PrivacyDataSection() {
     } finally {
       window.location.reload();
     }
-  }, [busy, clearArmed]);
+  };
 
   const presenceBadge = (present: boolean | null): CSSProperties => ({
     ...BADGE_STYLE,
@@ -143,19 +143,37 @@ export default function PrivacyDataSection() {
         : { opacity: 0.65 }),
   });
 
+  const getKeyLabel = (key: string, fallback: string) => {
+    switch (key) {
+      case 'semitools:locale': return t.userDataKeyLocale;
+      case 'semitools:theme': return t.userDataKeyTheme;
+      case 'semitools:sider:collapsed': return t.userDataKeyCollapsed;
+      case 'semitools:rail-collapsed': return t.userDataKeyRail;
+      case 'semitools:glove-mode': return t.userDataKeyGlove;
+      case 'semitools_favorites': return t.userDataKeyFavorites;
+      case 'semitools_scratchpad_notes': return t.userDataKeyScratchpad;
+      case 'semitools_traveler_history': return t.userDataKeyTravelerHistory;
+      case 'semitools:fab-session': return t.userDataKeyFabSession;
+      case 'semitools_filmstack_workspace': return t.userDataKeyLegacyWorkspace;
+      case 'semitools_lot_genealogy': return t.userDataKeyLegacyGenealogy;
+      default: return fallback;
+    }
+  };
+
+  const getKindLabel = (kind: string) => {
+    if (kind === 'content') return t.userDataKindContent;
+    if (kind === 'preference') return t.userDataKindPreference;
+    return kind;
+  };
   const presenceLabel = (present: boolean | null): string => {
     if (present === null) return '…';
-    return present ? 'Stored' : 'Empty';
+    return present ? t.privacyStored : t.privacyEmpty;
   };
 
   return (
     <>
-      <h2>Your data, your control</h2>
-      <p>
-        Everything listed below is stored only in this browser — nothing is ever uploaded. You can
-        download a JSON copy of all of it, or wipe it from this device. UI preferences such as your
-        language and theme are kept when clearing.
-      </p>
+      <h2>{t.privacyDataHeading}</h2>
+      <p>{t.privacyDataLead}</p>
 
       <ul className="contact-list" style={{ fontSize: 13 }}>
         {MANIFEST.map((info) => {
@@ -163,8 +181,8 @@ export default function PrivacyDataSection() {
           return (
             <li key={info.key}>
               <div style={ROW_STYLE}>
-                <strong style={{ color: 'var(--ink)' }}>{info.label}</strong>
-                <span style={BADGE_STYLE}>{info.kind}</span>
+                <strong style={{ color: 'var(--ink)' }}>{getKeyLabel(info.key, info.label)}</strong>
+                <span style={BADGE_STYLE}>{getKindLabel(info.kind)}</span>
                 <span style={presenceBadge(present)}>{presenceLabel(present)}</span>
               </div>
               <code style={KEY_STYLE}>{info.key}</code>
@@ -173,22 +191,19 @@ export default function PrivacyDataSection() {
         })}
         <li>
           <div style={ROW_STYLE}>
-            <strong style={{ color: 'var(--ink)' }}>Cached STDF file summary (STDF / KLARF Explorer)</strong>
-            <span style={BADGE_STYLE}>content</span>
+            <strong style={{ color: 'var(--ink)' }}>{t.privacyCachedStdf}</strong>
+            <span style={{ ...BADGE_STYLE }}>{t.privacyContent}</span>
             <span style={presenceBadge(idbPresent)}>{presenceLabel(idbPresent)}</span>
           </div>
           <code style={KEY_STYLE}>IndexedDB: semitools-stdf-cache</code>
         </li>
         <li>
           <div style={ROW_STYLE}>
-            <strong style={{ color: 'var(--ink)' }}>Anonymous aggregate traffic measurement</strong>
+            <strong style={{ color: 'var(--ink)' }}>{t.privacyAnalytics}</strong>
             {CF_ANALYTICS_ACTIVE ? (
-              <span style={{ color: 'var(--ink-soft)' }}>
-                Active — Cloudflare Web Analytics, cookie-free, no personal data, aggregate
-                page-view counts only
-              </span>
+              <span style={{ color: 'var(--ink-soft)' }}>{t.privacyAnalyticsActive}</span>
             ) : (
-              <span style={BADGE_STYLE}>not active</span>
+              <span style={BADGE_STYLE}>{t.privacyAnalyticsInactive}</span>
             )}
           </div>
         </li>
@@ -196,7 +211,7 @@ export default function PrivacyDataSection() {
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
         <button type="button" className="button primary" onClick={() => void handleExport()} disabled={busy}>
-          {t.fabWsExport} all data (JSON)
+          {t.privacyExportAll}
         </button>
         <button
           type="button"
@@ -210,7 +225,7 @@ export default function PrivacyDataSection() {
               : undefined
           }
         >
-          {clearArmed ? 'Click again to confirm' : 'Clear browsing data'}
+          {clearArmed ? t.privacyClearConfirm : t.privacyClear}
         </button>
       </div>
     </>

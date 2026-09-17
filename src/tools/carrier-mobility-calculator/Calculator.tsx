@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/carrier-mobility-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -26,6 +28,7 @@ function parseSci(str: string): number {
 }
 
 export default function CarrierMobilityCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState({
     dopantType: 'p-type' as DopantType,
     mode: 'forward' as 'forward' | 'reverse',
@@ -68,68 +71,63 @@ export default function CarrierMobilityCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Doping & Transport Mode</h2>
+        <h2>{t("Doping & Transport Mode")}</h2>
 
         <div className="field">
-          <span className="field-label">Dopant Type</span>
+          <span className="field-label">{t("Dopant Type")}</span>
           <div className="button-group" style={{ display: 'flex', gap: '8px' }}>
             <button
               type="button"
               className={`button ${dopantType === 'p-type' ? 'primary' : 'secondary'}`}
               onClick={() => setDopantType('p-type')}
             >
-              p-type (Boron / Holes)
-            </button>
+              {t("p-type (Boron / Holes)")}</button>
             <button
               type="button"
               className={`button ${dopantType === 'n-type' ? 'primary' : 'secondary'}`}
               onClick={() => setDopantType('n-type')}
             >
-              n-type (Phosphorus / Arsenic / Electrons)
-            </button>
+              {t("n-type (Phosphorus / Arsenic / Electrons)")}</button>
           </div>
         </div>
 
         <div className="field">
-          <span className="field-label">Calculation Direction</span>
+          <span className="field-label">{t("Calculation Direction")}</span>
           <div className="button-group" style={{ display: 'flex', gap: '8px' }}>
             <button
               type="button"
               className={`button ${mode === 'forward' ? 'primary' : 'secondary'}`}
               onClick={() => setMode('forward')}
             >
-              Doping → Resistivity
-            </button>
+              {t("Doping → Resistivity")}</button>
             <button
               type="button"
               className={`button ${mode === 'reverse' ? 'primary' : 'secondary'}`}
               onClick={() => setMode('reverse')}
             >
-              Resistivity → Doping
-            </button>
+              {t("Resistivity → Doping")}</button>
           </div>
         </div>
 
         {mode === 'forward' ? (
           <div className="field">
             <label htmlFor="doping-val">
-              {dopantType === 'n-type' ? 'Donor Concentration Nd' : 'Acceptor Concentration Na'} (cm⁻³)
-            </label>
+              {dopantType === 'n-type' ? 'Donor Concentration Nd' : 'Acceptor Concentration Na'} {t("(cm⁻³)")}</label>
             <input
               id="doping-val"
               type="text"
-              placeholder="e.g. 1e16"
+              placeholder={t("e.g. 1e16")}
               value={dopingInput}
               onChange={(e) => setDopingInput(e.target.value)}
             />
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="rho-val">Silicon Resistivity ρ (Ω·cm)</label>
+            <label htmlFor="rho-val">{t("Silicon Resistivity ρ (Ω·cm)")}</label>
             <input
               id="rho-val"
               type="text"
-              placeholder="e.g. 10.0"
+              placeholder={t("e.g. 10.0")}
               value={resistivityInput}
               onChange={(e) => setResistivityInput(e.target.value)}
             />
@@ -137,7 +135,7 @@ export default function CarrierMobilityCalculator() {
         )}
 
         <div className="field">
-          <span className="field-label">Industry Presets</span>
+          <span className="field-label">{t("Industry Presets")}</span>
           <div className="button-group" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {PRESETS.map((p) => (
               <button
@@ -165,7 +163,7 @@ export default function CarrierMobilityCalculator() {
         <div className="action-row" style={{ marginTop: '16px' }}>
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button
             type="button"
@@ -178,13 +176,12 @@ export default function CarrierMobilityCalculator() {
             }}
           >
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel">
-        <h2>Transport & Resistivity Characteristics</h2>
+        <h2>{t("Transport & Resistivity Characteristics")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -200,39 +197,39 @@ export default function CarrierMobilityCalculator() {
             <div className="result-value" aria-live="polite">
               {mode === 'forward' ? (
                 <>
-                  {fmt(result.resistivityOhmCm)} <span className="result-suffix">Ω·cm</span>
+                  {fmt(result.resistivityOhmCm)} <span className="result-suffix">{t("Ω·cm")}</span>
                 </>
               ) : (
                 <>
-                  {result.dopingCm3.toExponential(3)} <span className="result-suffix">cm⁻³</span>
+                  {result.dopingCm3.toExponential(3)} <span className="result-suffix">{t("cm⁻³")}</span>
                 </>
               )}
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Doping (N)</span>
-                <strong>{result.dopingCm3.toExponential(3)} cm⁻³</strong>
+                <span>{t("Doping (N)")}</span>
+                <strong>{result.dopingCm3.toExponential(3)} {t("cm⁻³")}</strong>
               </div>
               <div className="metric">
                 <span>{g('carrierMobility')} (µ)</span>
-                <strong>{fmt(result.mobilityCm2PerVs)} cm²/V·s</strong>
+                <strong>{fmt(result.mobilityCm2PerVs)} {t("cm²/V·s")}</strong>
               </div>
               <div className="metric">
                 <span>{g('resistivityLabel')} (ρ)</span>
-                <strong>{fmt(result.resistivityOhmCm)} Ω·cm</strong>
+                <strong>{fmt(result.resistivityOhmCm)} {t("Ω·cm")}</strong>
               </div>
               <div className="metric">
-                <span>Conductivity (σ)</span>
-                <strong>{fmt(result.conductivitySPerCm)} S/cm</strong>
+                <span>{t("Conductivity (σ)")}</span>
+                <strong>{fmt(result.conductivitySPerCm)} {t("S/cm")}</strong>
               </div>
               <div className="metric">
-                <span>Diff. Constant (D)</span>
-                <strong>{fmt(result.diffusivityCm2PerS)} cm²/s</strong>
+                <span>{t("Diff. Constant (D)")}</span>
+                <strong>{fmt(result.diffusivityCm2PerS)} {t("cm²/s")}</strong>
               </div>
               <div className="metric">
-                <span>Thermal Voltage (Vt)</span>
-                <strong>~25.85 mV</strong>
+                <span>{t("Thermal Voltage (Vt)")}</span>
+                <strong>{t("~25.85 mV")}</strong>
               </div>
             </div>
 
@@ -257,6 +254,7 @@ function MobilityCurvePlot({
   currentMobility: number;
   dopantType: DopantType;
 }) {
+  const t = useToolCopy(copyResource);
   const width = 460;
   const height = 180;
   const pad = { top: 20, right: 25, bottom: 32, left: 45 };
@@ -303,13 +301,12 @@ function MobilityCurvePlot({
   return (
     <div style={{ marginTop: '20px' }}>
       <h3 style={{ fontSize: '14px', marginBottom: '6px', color: 'var(--ink)' }}>
-        Carrier Mobility vs Doping (Caughey-Thomas 300K)
-      </h3>
+        {t("Carrier Mobility vs Doping (Caughey-Thomas 300K)")}</h3>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         style={{ width: '100%', height: 'auto', background: 'var(--paper)', borderRadius: '6px' }}
         role="img"
-        aria-label="Carrier mobility versus doping concentration curve"
+        aria-label={t("Carrier mobility versus doping concentration curve")}
       >
         {/* Grid lines */}
         {[0, 500, 1000, 1500].map((mu) => (
@@ -365,11 +362,9 @@ function MobilityCurvePlot({
 
         {/* Legend */}
         <text x={pad.left + 10} y={pad.top + 15} fontSize="10" fill="var(--teal)" fontWeight="600">
-          — Electrons (µn)
-        </text>
+          {t("— Electrons (µn)")}</text>
         <text x={pad.left + 110} y={pad.top + 15} fontSize="10" fill="var(--amber)" fontWeight="600">
-          — Holes (µp)
-        </text>
+          {t("— Holes (µp)")}</text>
       </svg>
     </div>
   );

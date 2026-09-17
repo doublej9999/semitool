@@ -601,7 +601,7 @@ export default function FabWorkspacePanel({ isOpen, onClose }: FabWorkspacePanel
                 padding: '0 0.3rem',
                 marginLeft: '0.4rem',
               }}
-              aria-label="Close"
+              aria-label={t.travelerCloseBtn || 'Close'}
             >
               ×
             </button>
@@ -1359,7 +1359,7 @@ export default function FabWorkspacePanel({ isOpen, onClose }: FabWorkspacePanel
                         type="button"
                         onClick={() => movePickedFlowTool(idx, -1)}
                         disabled={idx === 0}
-                        aria-label="Move step up"
+                        aria-label={t.moveUp || 'Move step up'}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem', opacity: idx === 0 ? 0.3 : 1 }}
                       >
                         <ChevronUp size={14} />
@@ -1368,7 +1368,7 @@ export default function FabWorkspacePanel({ isOpen, onClose }: FabWorkspacePanel
                         type="button"
                         onClick={() => movePickedFlowTool(idx, 1)}
                         disabled={idx === pickedTools.length - 1}
-                        aria-label="Move step down"
+                        aria-label={t.moveDown || 'Move step down'}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem', opacity: idx === pickedTools.length - 1 ? 0.3 : 1 }}
                       >
                         <ChevronDown size={14} />
@@ -1376,7 +1376,7 @@ export default function FabWorkspacePanel({ isOpen, onClose }: FabWorkspacePanel
                       <button
                         type="button"
                         onClick={() => setPickedTools((prev) => prev.filter((p) => p !== toolPath))}
-                        aria-label="Remove step"
+                        aria-label={t.remove || 'Remove step'}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red, #dc2626)', padding: '0.1rem' }}
                       >
                         <Trash2 size={14} />

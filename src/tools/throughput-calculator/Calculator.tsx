@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/throughput-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -19,6 +21,7 @@ function rate(value: number): string {
 }
 
 export default function ThroughputCalculator() {
+  const t = useToolCopy(copyResource);
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const { copied, copy } = useCopyToClipboard();
@@ -50,12 +53,12 @@ export default function ThroughputCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="throughput-inputs">
-        <h2 id="throughput-inputs">Step and equipment</h2>
+        <h2 id="throughput-inputs">{t("Step and equipment")}</h2>
 
         <div className="form-row">
           <div className="field">
             <label htmlFor="throughput-time">
-              Process time<span className="unit">min / wafer / chamber</span>
+              {t("Process time")}<span className="unit">{t("min / wafer / chamber")}</span>
             </label>
             <input
               id="throughput-time"
@@ -68,7 +71,7 @@ export default function ThroughputCalculator() {
           </div>
           <div className="field">
             <label htmlFor="throughput-chambers">
-              Parallel chambers<span className="unit">count</span>
+              {t("Parallel chambers")}<span className="unit">count</span>
             </label>
             <input
               id="throughput-chambers"
@@ -84,7 +87,7 @@ export default function ThroughputCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="throughput-availability">
-              Availability<span className="unit">%</span>
+              {t("Availability")}<span className="unit">%</span>
             </label>
             <input
               id="throughput-availability"
@@ -98,7 +101,7 @@ export default function ThroughputCalculator() {
           </div>
           <div className="field">
             <label htmlFor="throughput-performance">
-              Performance<span className="unit">%</span>
+              {t("Performance")}<span className="unit">%</span>
             </label>
             <input
               id="throughput-performance"
@@ -114,7 +117,7 @@ export default function ThroughputCalculator() {
 
         <div className="field">
           <label htmlFor="throughput-quality">
-            Quality (good output)<span className="unit">%</span>
+            {t("Quality (good output)")}<span className="unit">%</span>
           </label>
           <input
             id="throughput-quality"
@@ -128,19 +131,16 @@ export default function ThroughputCalculator() {
         </div>
 
         <p className="note">
-          Availability, performance and quality are each a percentage of the ideal rate, so OEE here is simply their
-          product. Use your own measured values.
-        </p>
+          {t("Availability, performance and quality are each a percentage of the ideal rate, so OEE here is simply their product. Use your own measured values.")}</p>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setValues(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="throughput-result">
-        <h2 id="throughput-result">Output</h2>
+        <h2 id="throughput-result">{t("Output")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -150,27 +150,27 @@ export default function ThroughputCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Good output</span>
+            <span className="unit">{t("Good output")}</span>
             <div className="result-value" aria-live="polite">
               {rate(result.goodWph)}
-              <span className="result-suffix"> wafers/h</span>
+              <span className="result-suffix"> {t("wafers/h")}</span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Theoretical</span>
-                <strong>{rate(result.theoreticalWph)} /h</strong>
+                <span>{t("Theoretical")}</span>
+                <strong>{rate(result.theoreticalWph)} {t("/h")}</strong>
               </div>
               <div className="metric">
-                <span>Effective (A x P)</span>
-                <strong>{rate(result.effectiveWph)} /h</strong>
+                <span>{t("Effective (A x P)")}</span>
+                <strong>{rate(result.effectiveWph)} {t("/h")}</strong>
               </div>
               <div className="metric">
                 <span>OEE</span>
                 <strong>{(result.oee * 100).toFixed(2)}%</strong>
               </div>
               <div className="metric">
-                <span>Good wafers / day</span>
+                <span>{t("Good wafers / day")}</span>
                 <strong>{result.goodWafersPerDay.toFixed(1)}</strong>
               </div>
             </div>
@@ -178,38 +178,36 @@ export default function ThroughputCalculator() {
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Rate</th>
-                  <th scope="col">Wafers / hour</th>
-                  <th scope="col">Factor applied</th>
+                  <th scope="col">{t("Rate")}</th>
+                  <th scope="col">{t("Wafers / hour")}</th>
+                  <th scope="col">{t("Factor applied")}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Theoretical</th>
+                  <th scope="row">{t("Theoretical")}</th>
                   <td className="mono">{rate(result.theoreticalWph)}</td>
-                  <td className="mono">60 / time x chambers</td>
+                  <td className="mono">{t("60 / time x chambers")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Effective</th>
+                  <th scope="row">{t("Effective")}</th>
                   <td className="mono">{rate(result.effectiveWph)}</td>
-                  <td className="mono">x A x P</td>
+                  <td className="mono">{t("x A x P")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Good output</th>
+                  <th scope="row">{t("Good output")}</th>
                   <td className="mono">{rate(result.goodWph)}</td>
-                  <td className="mono">x A x P x Q</td>
+                  <td className="mono">{t("x A x P x Q")}</td>
                 </tr>
               </tbody>
             </table>
 
             <p className="note">
-              This models one step at its stated rates. A real flow is set by its bottleneck step, so line output is the
-              slowest step, not the sum or the average of these numbers.
-            </p>
+              {t("This models one step at its stated rates. A real flow is set by its bottleneck step, so line output is the slowest step, not the sum or the average of these numbers.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

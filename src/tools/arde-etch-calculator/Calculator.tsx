@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/arde-etch-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw, Download, Info } from 'lucide-react';
@@ -48,6 +50,7 @@ const INITIAL_STATE: ArdeState = {
 };
 
 export default function ArdeEtchCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState<ArdeState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
 
@@ -238,11 +241,11 @@ export default function ArdeEtchCalculator() {
     <div className="calc-grid">
       {/* Left Column: Inputs */}
       <section className="panel" aria-labelledby="arde-inputs">
-        <h2 id="arde-inputs">Etch & Feature Parameters</h2>
+        <h2 id="arde-inputs">{t("Etch & Feature Parameters")}</h2>
 
         <div className="field">
           <label htmlFor="nominal-rate">
-            Nominal Etch Rate (R₀)<span className="unit">nm/min</span>
+            {t("Nominal Etch Rate (R₀)")}<span className="unit">{t("nm/min")}</span>
           </label>
           <input
             id="nominal-rate"
@@ -257,8 +260,7 @@ export default function ArdeEtchCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="feature-cd">
-              {g('criticalDimension')} (CD)
-            </label>
+              {g('criticalDimension')} {t("(CD)")}</label>
             <input
               id="feature-cd"
               type="number"
@@ -276,7 +278,7 @@ export default function ArdeEtchCalculator() {
               onChange={(e) => setState((p) => ({ ...p, cdUnit: e.target.value as 'nm' | 'um' }))}
             >
               <option value="nm">nm</option>
-              <option value="um">μm</option>
+              <option value="um">{t("μm")}</option>
             </select>
           </div>
         </div>
@@ -284,8 +286,7 @@ export default function ArdeEtchCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="feature-depth">
-              Etch Depth
-            </label>
+              {t("Etch Depth")}</label>
             <input
               id="feature-depth"
               type="number"
@@ -303,26 +304,26 @@ export default function ArdeEtchCalculator() {
               onChange={(e) => setState((p) => ({ ...p, depthUnit: e.target.value as 'nm' | 'um' }))}
             >
               <option value="nm">nm</option>
-              <option value="um">μm</option>
+              <option value="um">{t("μm")}</option>
             </select>
           </div>
         </div>
 
         <div className="field">
-          <label htmlFor="arde-model">ARDE / RIE Lag Model</label>
+          <label htmlFor="arde-model">{t("ARDE / RIE Lag Model")}</label>
           <select
             id="arde-model"
             value={state.model}
             onChange={(e) => setState((p) => ({ ...p, model: e.target.value as ArdeModel }))}
           >
-            <option value="coburn-winter">Coburn-Winter (Knudsen Flux: R₀ / (1 + k·AR))</option>
-            <option value="exponential">Exponential Decay (R₀ · exp(-α·AR))</option>
+            <option value="coburn-winter">{t("Coburn-Winter (Knudsen Flux: R₀ / (1 + k·AR))")}</option>
+            <option value="exponential">{t("Exponential Decay (R₀ · exp(-α·AR))")}</option>
           </select>
         </div>
 
         <div className="field">
           <label htmlFor="model-coeff">
-            Model Attenuation Coeff ({state.model === 'coburn-winter' ? 'k' : 'α'})
+            {t("Model Attenuation Coeff (")}{state.model === 'coburn-winter' ? 'k' : 'α'})
             <span className="unit">{state.model === 'coburn-winter' ? 'default 0.10' : 'default 0.10'}</span>
           </label>
           <input
@@ -338,7 +339,7 @@ export default function ArdeEtchCalculator() {
 
         <div className="field">
           <label htmlFor="pattern-density">
-            Pattern Open Area Density (ρ)<span className="unit">% ({state.patternDensity}%)</span>
+            {t("Pattern Open Area Density (ρ)")}<span className="unit">% ({state.patternDensity}%)</span>
           </label>
           <input
             id="pattern-density"
@@ -350,16 +351,16 @@ export default function ArdeEtchCalculator() {
             onChange={(e) => setState((p) => ({ ...p, patternDensity: Number(e.target.value) }))}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--ink-soft)' }}>
-            <span>Isolated (&lt; 5%)</span>
-            <span>Semi-dense (20–40%)</span>
-            <span>Dense (&gt; 70%)</span>
+            <span>{t("Isolated (< 5%)")}</span>
+            <span>{t("Semi-dense (20–40%)")}</span>
+            <span>{t("Dense (> 70%)")}</span>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="mask-rate">
-              Mask Etch Rate<span className="unit">nm/min</span>
+              {t("Mask Etch Rate")}<span className="unit">{t("nm/min")}</span>
             </label>
             <input
               id="mask-rate"
@@ -373,7 +374,7 @@ export default function ArdeEtchCalculator() {
 
           <div className="field">
             <label htmlFor="overetch-pct">
-              Overetch Target<span className="unit">%</span>
+              {t("Overetch Target")}<span className="unit">%</span>
             </label>
             <input
               id="overetch-pct"
@@ -390,7 +391,7 @@ export default function ArdeEtchCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="mask-thick">
-              Mask Thickness<span className="unit">nm</span>
+              {t("Mask Thickness")}<span className="unit">nm</span>
             </label>
             <input
               id="mask-thick"
@@ -404,8 +405,7 @@ export default function ArdeEtchCalculator() {
 
           <div className="field">
             <label htmlFor="depletion-coeff">
-              Neutral Depletion (η)
-            </label>
+              {t("Neutral Depletion (η)")}</label>
             <input
               id="depletion-coeff"
               type="number"
@@ -421,45 +421,43 @@ export default function ArdeEtchCalculator() {
         <div className="action-row" style={{ marginTop: '16px' }}>
           <button className="button secondary" type="button" onClick={handleReset}>
             <RotateCcw size={15} />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
       {/* Right Column: Results & Schematic */}
       <section className="panel" aria-labelledby="arde-results">
-        <h2 id="arde-results">ARDE & Profile Results</h2>
+        <h2 id="arde-results">{t("ARDE & Profile Results")}</h2>
 
         {results ? (
           <>
             <div className="highlight-metric">
-              <div className="highlight-label">Effective Etch Rate at Bottom</div>
+              <div className="highlight-label">{t("Effective Etch Rate at Bottom")}</div>
               <div className="highlight-value" style={{ fontSize: '28px', color: 'var(--primary)' }}>
                 {fmt(results.effectiveBottomRate, 2)}{' '}
-                <span style={{ fontSize: '16px', fontWeight: 400 }}>nm/min</span>
+                <span style={{ fontSize: '16px', fontWeight: 400 }}>{t("nm/min")}</span>
               </div>
               <div style={{ fontSize: '12px', color: 'var(--ink-soft)', marginTop: '4px' }}>
-                Open-field rate: {state.nominalRate} nm/min · Isolated bottom rate: {fmt(results.arde.etchRate, 2)} nm/min
-              </div>
+                {t("Open-field rate:")}{state.nominalRate} {t("nm/min · Isolated bottom rate:")}{fmt(results.arde.etchRate, 2)} {t("nm/min")}</div>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Aspect Ratio (AR)</span>
+                <span>{t("Aspect Ratio (AR)")}</span>
                 <strong>{fmt(results.aspectRatio, 2)}:1</strong>
               </div>
               <div className="metric">
-                <span>ARDE Reduction Ratio</span>
+                <span>{t("ARDE Reduction Ratio")}</span>
                 <strong style={{ color: results.arde.percentageReduction > 30 ? '#ef4444' : 'inherit' }}>
                   {results.arde.percentageReduction.toFixed(1)}%
                 </strong>
               </div>
               <div className="metric">
-                <span>Microloading Factor</span>
+                <span>{t("Microloading Factor")}</span>
                 <strong>{fmt(results.microloading.microloadingRatio, 3)}</strong>
               </div>
               <div className="metric">
-                <span>Mask Selectivity</span>
+                <span>{t("Mask Selectivity")}</span>
                 <strong>
                   {results.selectivity.selectivity === Infinity
                     ? 'Infinite'
@@ -467,19 +465,19 @@ export default function ArdeEtchCalculator() {
                 </strong>
               </div>
               <div className="metric">
-                <span>Profile Taper Angle</span>
+                <span>{t("Profile Taper Angle")}</span>
                 <strong>{fmt(results.selectivity.taperAngleDeg, 2)}°</strong>
               </div>
               <div className="metric">
-                <span>Sidewall Profile (θ)</span>
+                <span>{t("Sidewall Profile (θ)")}</span>
                 <strong>{fmt(results.selectivity.profileAngleDeg, 2)}°</strong>
               </div>
               <div className="metric">
-                <span>Total Etch Time (+OE)</span>
+                <span>{t("Total Etch Time (+OE)")}</span>
                 <strong>{fmt(results.effectiveEtchTimeSec, 1)} s</strong>
               </div>
               <div className="metric">
-                <span>Estimated Mask Loss</span>
+                <span>{t("Estimated Mask Loss")}</span>
                 <strong>{fmt(results.selectivity.maskLoss ?? 0, 1)} nm</strong>
               </div>
             </div>
@@ -487,8 +485,7 @@ export default function ArdeEtchCalculator() {
             {/* Visual SVG Trench Diagram */}
             <div style={{ marginTop: '20px' }}>
               <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--ink-soft)' }}>
-                Trench Cross-Section & ARDE Transport Schematic
-              </h3>
+                {t("Trench Cross-Section & ARDE Transport Schematic")}</h3>
               <ArdeTrenchDiagram
                 cdNm={cdNm}
                 depthNm={depthNm}
@@ -511,22 +508,18 @@ export default function ArdeEtchCalculator() {
               </button>
               <button className="button secondary" type="button" onClick={handleExportCsv}>
                 <Download size={15} />
-                Export to CSV
-              </button>
+                {t("Export to CSV")}</button>
               <button className="button secondary" type="button" onClick={handleExportXlsx}>
                 <Download size={15} />
-                Export to XLSX
-              </button>
+                {t("Export to XLSX")}</button>
               <button className="button secondary" type="button" onClick={handleExportPdf}>
                 <Download size={15} />
-                Export to PDF
-              </button>
+                {t("Export to PDF")}</button>
             </div>
           </>
         ) : (
           <div style={{ color: 'var(--ink-soft)', padding: '24px 0' }}>
-            Please enter positive values for nominal etch rate, CD, and depth.
-          </div>
+            {t("Please enter positive values for nominal etch rate, CD, and depth.")}</div>
         )}
       </section>
 
@@ -534,27 +527,26 @@ export default function ArdeEtchCalculator() {
       <section className="panel" style={{ gridColumn: '1 / -1' }} aria-labelledby="formula-reference">
         <h2 id="formula-reference" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Info size={18} />
-          Governing Equations & Physics Reference
-        </h2>
+          {t("Governing Equations & Physics Reference")}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginTop: '12px' }}>
           <MathFormula
             block
-            label="Coburn-Winter Knudsen ARDE Model"
+            label={t("Coburn-Winter Knudsen ARDE Model")}
             math="R(\text{AR}) = \frac{R_0}{1 + k \cdot \text{AR}} \quad \text{where} \quad \text{AR} = \frac{D}{\text{CD}}"
           />
           <MathFormula
             block
-            label="Exponential Attenuation ARDE Model"
+            label={t("Exponential Attenuation ARDE Model")}
             math="R(\text{AR}) = R_0 \exp(-\alpha \cdot \text{AR})"
           />
           <MathFormula
             block
-            label="Mogab Pattern Microloading Ratio"
+            label={t("Mogab Pattern Microloading Ratio")}
             math="\frac{R_{\text{dense}}}{R_{\text{iso}}} = \frac{1}{1 + \eta \cdot \rho}"
           />
           <MathFormula
             block
-            label="Mask Selectivity & Profile Taper Angle"
+            label={t("Mask Selectivity & Profile Taper Angle")}
             math="S = \frac{R_{\text{target}}}{R_{\text{mask}}}, \quad \tan\theta = S \cdot \tan\theta_{\text{mask}}, \quad \theta_{\text{taper}} = 90^\circ - \theta"
           />
         </div>
@@ -580,6 +572,7 @@ function ArdeTrenchDiagram({
   profileAngleDeg,
   lagRatio,
 }: ArdeTrenchDiagramProps) {
+  const t = useToolCopy(copyResource);
   // SVG Canvas dimensions: 440 wide, 240 tall
   const svgWidth = 440;
   const svgHeight = 240;
@@ -647,7 +640,7 @@ function ArdeTrenchDiagram({
       <svg
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         style={{ width: '100%', maxWidth: '440px', height: 'auto', display: 'block' }}
-        aria-label="Etch trench aspect ratio and sidewall profile cross-section"
+        aria-label={t("Etch trench aspect ratio and sidewall profile cross-section")}
       >
         <defs>
           <linearGradient id="substrateGrad" x1="0" y1="0" x2="0" y2="1">
@@ -700,11 +693,9 @@ function ArdeTrenchDiagram({
 
         {/* Labels for Mask and Substrate */}
         <text x="30" y={maskTopY + 17} fill="#a855f7" fontSize="10" fontWeight="600">
-          Hardmask
-        </text>
+          {t("Hardmask")}</text>
         <text x="30" y={svgHeight - 24} fill="var(--ink-soft)" fontSize="11" fontWeight="500">
-          Substrate (Silicon / Dielectric)
-        </text>
+          {t("Substrate (Silicon / Dielectric)")}</text>
 
         {/* Reactive ion / neutral transport Knudsen flux arrows */}
         <g opacity="0.85">
@@ -758,7 +749,7 @@ function ArdeTrenchDiagram({
           fontWeight="600"
           textAnchor="middle"
         >
-          CD = {cdNm} nm
+          {t("CD =")}{cdNm} nm
         </text>
 
         {/* Depth dimension line (Right side) */}
@@ -776,7 +767,7 @@ function ArdeTrenchDiagram({
           fontSize="10"
           fontWeight="500"
         >
-          D = {depthNm} nm
+          {t("D =")}{depthNm} nm
         </text>
 
         {/* Sidewall Angle Indicator */}
@@ -811,7 +802,7 @@ function ArdeTrenchDiagram({
           fontWeight="700"
           textAnchor="middle"
         >
-          AR = {aspectRatio.toFixed(1)}:1
+          {t("AR =")}{aspectRatio.toFixed(1)}:1
         </text>
 
         {/* Bottom flux / ARDE depletion callout */}
@@ -822,11 +813,10 @@ function ArdeTrenchDiagram({
           fontSize="9.5"
           textAnchor="middle"
         >
-          Bottom R(AR) = {(lagRatio * 100).toFixed(0)}% of R₀
-        </text>
+          {t("Bottom R(AR) =")}{(lagRatio * 100).toFixed(0)}{t("% of R₀")}</text>
       </svg>
       <div style={{ fontSize: '11px', color: 'var(--ink-soft)', marginTop: '4px' }}>
-        Aspect Ratio AR = {aspectRatio.toFixed(2)} · Sidewall θ = {profileAngleDeg.toFixed(1)}° (Taper: {taperAngleDeg.toFixed(1)}°)
+        {t("Aspect Ratio AR =")}{aspectRatio.toFixed(2)} {t("· Sidewall θ =")}{profileAngleDeg.toFixed(1)}{t("° (Taper:")}{taperAngleDeg.toFixed(1)}°)
       </div>
     </div>
   );

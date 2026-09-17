@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/yield-confidence-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -54,6 +56,7 @@ function intervalRow(label: string, interval: Interval) {
 }
 
 export default function YieldConfidenceCalculator() {
+  const t = useToolCopy(copyResource);
   const [sample, setSample] = useState(INITIAL_SAMPLE);
   useUrlParamsState(sample, setSample);
   const [plan, setPlan] = useState(INITIAL_PLAN);
@@ -107,12 +110,12 @@ export default function YieldConfidenceCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="confidence-inputs">
-        <h2 id="confidence-inputs">Sample and confidence</h2>
+        <h2 id="confidence-inputs">{t("Sample and confidence")}</h2>
 
         <div className="form-row">
           <div className="field">
             <label htmlFor="confidence-total">
-              Units tested<span className="unit">count</span>
+              {t("Units tested")}<span className="unit">count</span>
             </label>
             <input
               id="confidence-total"
@@ -125,7 +128,7 @@ export default function YieldConfidenceCalculator() {
           </div>
           <div className="field">
             <label htmlFor="confidence-passes">
-              Units that passed<span className="unit">count</span>
+              {t("Units that passed")}<span className="unit">count</span>
             </label>
             <input
               id="confidence-passes"
@@ -144,9 +147,7 @@ export default function YieldConfidenceCalculator() {
         </div>
 
         <p className="note">
-          The interval describes a measured pass rate sampling from a large population under the binomial model, so the
-          uncertainty comes from sampling only. Process drift and systematic defects are not part of it.
-        </p>
+          {t("The interval describes a measured pass rate sampling from a large population under the binomial model, so the uncertainty comes from sampling only. Process drift and systematic defects are not part of it.")}</p>
 
         <div className="action-row">
           <button
@@ -157,13 +158,12 @@ export default function YieldConfidenceCalculator() {
               setConfidence(0.95);
             }}
           >
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="confidence-result">
-        <h2 id="confidence-result">Interval for a measured yield</h2>
+        <h2 id="confidence-result">{t("Interval for a measured yield")}</h2>
 
         {!intervalResult.ok ? (
           <div className="error" role="alert">
@@ -173,7 +173,7 @@ export default function YieldConfidenceCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Point estimate</span>
+            <span className="unit">{t("Point estimate")}</span>
             <div className="result-value" aria-live="polite">
               {pct(intervalResult.point)}
             </div>
@@ -181,10 +181,10 @@ export default function YieldConfidenceCalculator() {
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Method</th>
-                  <th scope="col">Low</th>
-                  <th scope="col">High</th>
-                  <th scope="col">Half-width</th>
+                  <th scope="col">{t("Method")}</th>
+                  <th scope="col">{t("Low")}</th>
+                  <th scope="col">{t("High")}</th>
+                  <th scope="col">{t("Half-width")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -194,14 +194,11 @@ export default function YieldConfidenceCalculator() {
             </table>
 
             <p className="note">
-              Wilson is the usual recommendation; Clopper-Pearson is the exact interval, whose coverage is at least the
-              nominal level. Near the middle of the range Clopper-Pearson is the wider of the two; at a 0% or 100%
-              result the two can differ slightly. Both are two-sided at the confidence level you picked.
-            </p>
+              {t("Wilson is the usual recommendation; Clopper-Pearson is the exact interval, whose coverage is at least the nominal level. Near the middle of the range Clopper-Pearson is the wider of the two; at a 0% or 100% result the two can differ slightly. Both are two-sided at the confidence level you picked.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>
@@ -209,12 +206,12 @@ export default function YieldConfidenceCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="size-inputs">
-        <h2 id="size-inputs">How many units do I need?</h2>
+        <h2 id="size-inputs">{t("How many units do I need?")}</h2>
 
         <div className="form-row">
           <div className="field">
             <label htmlFor="size-yield">
-              Expected yield<span className="unit">%</span>
+              {t("Expected yield")}<span className="unit">%</span>
             </label>
             <input
               id="size-yield"
@@ -228,7 +225,7 @@ export default function YieldConfidenceCalculator() {
           </div>
           <div className="field">
             <label htmlFor="size-width">
-              Target half-width<span className="unit">points</span>
+              {t("Target half-width")}<span className="unit">points</span>
             </label>
             <input
               id="size-width"
@@ -242,13 +239,11 @@ export default function YieldConfidenceCalculator() {
         </div>
 
         <p className="note">
-          Planned from the normal approximation, so treat it as a starting point and expect the realised interval to
-          differ slightly.
-        </p>
+          {t("Planned from the normal approximation, so treat it as a starting point and expect the realised interval to differ slightly.")}</p>
       </section>
 
       <section className="panel" aria-labelledby="size-result">
-        <h2 id="size-result">Planned sample size</h2>
+        <h2 id="size-result">{t("Planned sample size")}</h2>
 
         {!planResult.ok ? (
           <div className="error" role="alert">
@@ -258,15 +253,14 @@ export default function YieldConfidenceCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Units to test</span>
+            <span className="unit">{t("Units to test")}</span>
             <div className="result-value" aria-live="polite">
               {planResult.size.toLocaleString('en-US')}
               <span className="result-suffix"> units</span>
             </div>
 
             <p className="note">
-              At {pct(confidence, 1)} confidence, {planResult.size.toLocaleString('en-US')} units give an interval about
-              ±{plan.halfWidth || '0'} points wide around a yield near {plan.expectedYield || '0'}%.
+              {t("At")}{pct(confidence, 1)} {t("confidence,")}{planResult.size.toLocaleString('en-US')} {t("units give an interval about ±")}{plan.halfWidth || '0'} {t("points wide around a yield near")}{plan.expectedYield || '0'}%.
             </p>
           </>
         )}

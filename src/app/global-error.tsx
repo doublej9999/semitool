@@ -4,10 +4,10 @@
 // crashes, so it must render its own <html>/<body> and cannot rely on
 // globals.css — every style below is inline. The light palette mirrors the
 // app's light tokens; the theme bootstrap script does not run here.
-// Recovers with reset(); "Go home" is a plain <a> because a full document
-// navigation is the only reliable escape when the root layout is broken.
 import { useEffect } from 'react';
-
+import Link from 'next/link';
+import { useLocale } from '@/lib/i18n/context';
+import { getTranslation } from '@/lib/i18n/translations';
 export default function GlobalError({
   error,
   reset,
@@ -15,6 +15,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = getTranslation(useLocale());
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -54,13 +56,11 @@ export default function GlobalError({
             boxShadow: '0 10px 30px rgba(21, 33, 39, 0.09)',
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 22 }}>Something went wrong</h1>
-          <p style={{ margin: 0, fontSize: 13.5, color: '#64737b' }}>
-            A critical error interrupted the app. Try again, or go home.
-          </p>
+          <h1 style={{ margin: 0, fontSize: 22 }}>{t.errorHeading}</h1>
+          <p style={{ margin: 0, fontSize: 13.5, color: '#64737b' }}>{t.errorLead}</p>
           {error.digest ? (
             <p style={{ margin: 0, fontSize: 12.5, color: '#64737b' }}>
-              Error ID:{' '}
+              {t.errorId}:{' '}
               <code
                 style={{
                   fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
@@ -91,13 +91,9 @@ export default function GlobalError({
                 color: '#ffffff',
               }}
             >
-              Try again
+              {t.errorTryAgain}
             </button>
-            {/* Intentional plain <a>: the root layout has already crashed, so a
-                full document navigation is the reliable way home — next/link
-                would depend on the very router that just failed. */}
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- deliberate full document navigation, see comment above */}
-            <a
+            <Link
               href="/"
               style={{
                 display: 'inline-flex',
@@ -114,8 +110,8 @@ export default function GlobalError({
                 textDecoration: 'none',
               }}
             >
-              Go home
-            </a>
+              {t.errorGoHome}
+            </Link>
           </div>
         </main>
       </body>

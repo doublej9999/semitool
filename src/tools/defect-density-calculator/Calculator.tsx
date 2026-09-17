@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/defect-density-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -16,6 +18,7 @@ import { useGlossary } from '@/lib/i18n/glossary';
 const INITIAL = { yieldPercent: 85, area: 50, areaUnit: 'mm2' as AreaUnit };
 
 export default function DefectDensityCalculator() {
+  const t = useToolCopy(copyResource);
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const { copied, copy } = useCopyToClipboard();
@@ -52,11 +55,11 @@ export default function DefectDensityCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="density-inputs">
-        <h2 id="density-inputs">Measured yield and area</h2>
+        <h2 id="density-inputs">{t("Measured yield and area")}</h2>
 
         <div className="field">
           <label htmlFor="density-yield">
-            Measured yield<span className="unit">%</span>
+            {t("Measured yield")}<span className="unit">%</span>
           </label>
           <input
             id="density-yield"
@@ -74,7 +77,7 @@ export default function DefectDensityCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="density-area">
-              Critical area (A)<span className="unit">{areaUnitLabel(values.areaUnit)}</span>
+              {t("Critical area (A)")}<span className="unit">{areaUnitLabel(values.areaUnit)}</span>
             </label>
             <input
               id="density-area"
@@ -86,7 +89,7 @@ export default function DefectDensityCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="density-area-unit">Area unit</label>
+            <label htmlFor="density-area-unit">{t("Area unit")}</label>
             <select
               id="density-area-unit"
               value={values.areaUnit}
@@ -94,26 +97,23 @@ export default function DefectDensityCalculator() {
                 setValues((previous) => ({ ...previous, areaUnit: event.target.value as AreaUnit }))
               }
             >
-              <option value="mm2">mm²</option>
-              <option value="cm2">cm²</option>
+              <option value="mm2">{t("mm²")}</option>
+              <option value="cm2">{t("cm²")}</option>
             </select>
           </div>
         </div>
 
         <p className="note">
-          Use the die yield from your own sort data, and the area that is actually sensitive to defects. A yield of 100%
-          returns a defect density of zero in every model, and 0% has no finite answer, so it is rejected.
-        </p>
+          {t("Use the die yield from your own sort data, and the area that is actually sensitive to defects. A yield of 100% returns a defect density of zero in every model, and 0% has no finite answer, so it is rejected.")}</p>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setValues(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="density-result">
-        <h2 id="density-result">Implied defect density</h2>
+        <h2 id="density-result">{t("Implied defect density")}</h2>
 
         {hasErrors ? (
           <div className="error" role="alert">
@@ -123,20 +123,19 @@ export default function DefectDensityCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">D0 — Poisson</span>
+            <span className="unit">{t("D0 — Poisson")}</span>
             <div className="result-value" aria-live="polite">
               {poisson?.defectDensityPerCm2.toFixed(4)}
-              <span className="result-suffix"> /cm²</span>
+              <span className="result-suffix"> {t("/cm²")}</span>
             </div>
 
             <table className="model-table">
               <caption className="sr-only">
-                Defect density implied by the measured yield, by model
-              </caption>
+                {t("Defect density implied by the measured yield, by model")}</caption>
               <thead>
                 <tr>
-                  <th scope="col">Model</th>
-                  <th scope="col">Defects per die</th>
+                  <th scope="col">{t("Model")}</th>
+                  <th scope="col">{t("Defects per die")}</th>
                   <th scope="col">{g('defectDensityLabel')}</th>
                 </tr>
               </thead>
@@ -145,7 +144,7 @@ export default function DefectDensityCalculator() {
                   <tr key={row.model.id}>
                     <th scope="row">{row.model.label}</th>
                     <td className="mono">{row.ad.toFixed(4)}</td>
-                    <td className="mono">{row.defectDensityPerCm2.toFixed(4)} /cm²</td>
+                    <td className="mono">{row.defectDensityPerCm2.toFixed(4)} {t("/cm²")}</td>
                   </tr>
                 ))}
               </tbody>
@@ -153,15 +152,15 @@ export default function DefectDensityCalculator() {
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Measured yield</span>
+                <span>{t("Measured yield")}</span>
                 <strong>{values.yieldPercent}%</strong>
               </div>
               <div className="metric">
-                <span>Critical area</span>
-                <strong>{areaCm2} cm²</strong>
+                <span>{t("Critical area")}</span>
+                <strong>{areaCm2} {t("cm²")}</strong>
               </div>
               <div className="metric">
-                <span>Defect density / mm²</span>
+                <span>{t("Defect density / mm²")}</span>
                 <strong>
                   {poisson ? `${(poisson.defectDensityPerCm2 / 100).toFixed(6)} /mm²` : '—'}
                 </strong>
@@ -169,13 +168,11 @@ export default function DefectDensityCalculator() {
             </div>
 
             <p className="note">
-              A higher assumed defect density is needed for the same yield when the critical area shrinks, so always read
-              D0 together with the area it was derived from.
-            </p>
+              {t("A higher assumed defect density is needed for the same yield when the critical area shrinks, so always read D0 together with the area it was derived from.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

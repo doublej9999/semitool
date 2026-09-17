@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copy from '@/lib/i18n/tool-copy/resources/stdf-klarf-explorer';
 
 import { useMemo, useState } from 'react';
 import type { StdfParametricTestRecord } from '@/lib/stdf-parser';
@@ -15,6 +17,7 @@ const formatStat = (value: number | null | undefined): string =>
   value === null || value === undefined ? '—' : value.toFixed(2);
 
 export default function CorrelationPanel({ groups }: { groups: [string, StdfParametricTestRecord[]][] }) {
+  const t = useToolCopy(copy);
   const keys = useMemo(() => groups.map(([key]) => key), [groups]);
   // Initial selection = the two largest-listed tests; the parent remounts
   // this panel (keyed by load) whenever a new file is parsed or restored,
@@ -49,15 +52,13 @@ export default function CorrelationPanel({ groups }: { groups: [string, StdfPara
         background: 'var(--panel-subtle)',
       }}
     >
-      <h3 style={{ marginTop: 0 }}>PTR correlation</h3>
+      <h3 style={{ marginTop: 0 }}>{t("PTR correlation")}</h3>
       <p className="note" style={{ marginTop: 0 }}>
-        Aligns the two tests&apos; PTR records part-by-part (head, site, execution order) and correlates the shared
-        measurements. Spearman ρ also catches monotonic-but-nonlinear relationships that Pearson r underestimates.
-      </p>
+        {t("Aligns the two tests' PTR records part-by-part (head, site, execution order) and correlates the shared measurements. Spearman ρ also catches monotonic-but-nonlinear relationships that Pearson r underestimates.")}</p>
 
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <div className="field">
-          <label htmlFor="corr-test-a">Test A (X axis)</label>
+          <label htmlFor="corr-test-a">{t("Test A (X axis)")}</label>
           <select id="corr-test-a" value={testA} onChange={(event) => setTestA(event.target.value)}>
             {keys.map((key) => (
               <option key={key} value={key}>
@@ -67,7 +68,7 @@ export default function CorrelationPanel({ groups }: { groups: [string, StdfPara
           </select>
         </div>
         <div className="field">
-          <label htmlFor="corr-test-b">Test B (Y axis)</label>
+          <label htmlFor="corr-test-b">{t("Test B (Y axis)")}</label>
           <select id="corr-test-b" value={testB} onChange={(event) => setTestB(event.target.value)}>
             {keys.map((key) => (
               <option key={key} value={key}>
@@ -80,38 +81,34 @@ export default function CorrelationPanel({ groups }: { groups: [string, StdfPara
 
       {!testA || !testB || testA === testB ? (
         <p className="note" style={{ marginBottom: 0 }}>
-          Select two different tests to compute a correlation.
-        </p>
+          {t("Select two different tests to compute a correlation.")}</p>
       ) : (
         <>
           <div style={{ marginTop: '12px' }}>
             <ScatterPlot pairs={aligned} labelA={labelFor(testA)} labelB={labelFor(testB)} />
           </div>
           <p className="note" style={{ fontWeight: 600, marginBottom: 0 }}>
-            r = {formatStat(correlation?.pearson)} · ρ = {formatStat(correlation?.spearman)} · n = {aligned.length}
+            {t("r =")}{formatStat(correlation?.pearson)} · ρ = {formatStat(correlation?.spearman)} {t("· n =")}{aligned.length}
           </p>
           {aligned.length > 0 && aligned.length < 3 ? (
             <p className="note" style={{ marginBottom: 0 }}>
-              Fewer than 3 aligned part pairs — coefficients need at least 3.
-            </p>
+              {t("Fewer than 3 aligned part pairs — coefficients need at least 3.")}</p>
           ) : null}
         </>
       )}
 
-      <h3 style={{ marginTop: '20px' }}>Strongest pairs</h3>
+      <h3 style={{ marginTop: '20px' }}>{t("Strongest pairs")}</h3>
       {topPairs.length > 0 ? (
         <>
           <p className="note" style={{ marginTop: 0 }}>
-            Top {topPairs.length} pair{topPairs.length === 1 ? '' : 's'} across the{' '}
-            {Math.min(CORRELATION_GROUP_CAP, groups.length)} largest tests, ranked by |r| — click a row to load the
-            pair into the scatter plot.
-          </p>
+            {t("Top")}{topPairs.length} pair{topPairs.length === 1 ? '' : 's'} {t("across the")}{' '}
+            {Math.min(CORRELATION_GROUP_CAP, groups.length)} {t("largest tests, ranked by |r| — click a row to load the pair into the scatter plot.")}</p>
           <div className="table-scroll">
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Test A</th>
-                  <th scope="col">Test B</th>
+                  <th scope="col">{t("Test A")}</th>
+                  <th scope="col">{t("Test B")}</th>
                   <th scope="col">n</th>
                   <th scope="col">r</th>
                   <th scope="col">ρ</th>
@@ -150,8 +147,7 @@ export default function CorrelationPanel({ groups }: { groups: [string, StdfPara
         </>
       ) : (
         <p className="note" style={{ marginTop: 0 }}>
-          No rankable pairs yet — correlation needs at least two tests with 3+ shared parts.
-        </p>
+          {t("No rankable pairs yet — correlation needs at least two tests with 3+ shared parts.")}</p>
       )}
     </div>
   );
@@ -159,8 +155,9 @@ export default function CorrelationPanel({ groups }: { groups: [string, StdfPara
 
 /** Inline SVG scatter plot of aligned PTR pairs with min/mid/max axis ticks. */
 function ScatterPlot({ pairs, labelA, labelB }: { pairs: AlignedPartPair[]; labelA: string; labelB: string }) {
+  const t = useToolCopy(copy);
   if (pairs.length === 0) {
-    return <p className="note" style={{ margin: 0 }}>No aligned parts between the two selected tests.</p>;
+    return <p className="note" style={{ margin: 0 }}>{t("No aligned parts between the two selected tests.")}</p>;
   }
 
   const width = 460;

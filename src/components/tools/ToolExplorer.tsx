@@ -30,8 +30,8 @@ export default function ToolExplorer() {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder={t.searchPlaceholder || "Filter tools: name, keyword or unit"}
-          aria-label={t.filterToolsAria || t.searchPlaceholder || "Filter tools"}
+          placeholder={t.searchPlaceholder}
+          aria-label={t.filterToolsAria}
         />
       </div>
 

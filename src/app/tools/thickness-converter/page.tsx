@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import MathFormula from '@/components/tools/MathFormula';
 import ToolPageShell from '@/components/tools/ToolPageShell';
 import ThicknessConverter from '@/tools/thickness-converter/Calculator';
 import { tool } from '@/tools/thickness-converter';
 import { buildToolMetadata } from '@/lib/seo';
+import copy from '@/lib/i18n/tool-copy/resources/thickness-converter';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 export const metadata: Metadata = buildToolMetadata(tool);
 
@@ -11,65 +12,36 @@ export default function ThicknessConverterPage() {
   return (
     <ToolPageShell
       tool={tool}
-      formula={
-        <>
-          <MathFormula
-            block
-            label="Dimensional Unit Normalization"
-            math="d_{\text{target}} = d_{\text{source}} \times \frac{\text{Factor}_{\text{source}}}{\text{Factor}_{\text{target}}}"
-          />
-          <MathFormula
-            block
-            label="Imperial Standard Inch"
-            math="1\,\text{in} = 25.4\,\text{mm}"
-          />
-          <MathFormula
-            block
-            label="Thousandth of an Inch (Mil)"
-            math="1\,\text{mil} = 10^{-3}\,\text{in} = 25.4\,\mu\text{m}"
-          />
-          <MathFormula
-            block
-            label="Angstrom Metric Unit"
-            math="1\,\text{\AA} = 0.1\,\text{nm} = 10^{-10}\,\text{m}"
-          />
-<ul className="info-list">
-            <li>
-              <strong>Factor</strong> — how many millimetres one of that unit holds, kept in one table shared by every
-              metrology, layout and conversion tool, so a factor is written down exactly once.
-            </li>
-            <li>
-              <strong>Å (ångström)</strong> — the unit thermal oxides are quoted in, and 10 Å is exactly 1 nm.
-            </li>
-            <li>
-              <strong>mil</strong> — a thousandth of an inch, used for wafer thickness and wire diameters, and not the
-              same as a millimetre.
-            </li>
-          </ul>
-        </>
-      }
+      copy={copy}
+      formula={[
+        { kind: 'math', label: msg('Dimensional Unit Normalization'), math: 'd_{\\text{target}} = d_{\\text{source}} \\times \\frac{\\text{Factor}_{\\text{source}}}{\\text{Factor}_{\\text{target}}}' },
+        { kind: 'math', label: msg('Imperial Standard Inch'), math: '1\\,\\text{in} = 25.4\\,\\text{mm}' },
+        { kind: 'math', label: msg('Thousandth of an Inch (Mil)'), math: '1\\,\\text{mil} = 10^{-3}\\,\\text{in} = 25.4\\,\\mu\\text{m}' },
+        { kind: 'math', label: msg('Angstrom Metric Unit'), math: '1\\,\\text{\\AA} = 0.1\\,\\text{nm} = 10^{-10}\\,\\text{m}' },
+        { kind: 'list', items: [msg('**Factor** — how many millimetres one of that unit holds, kept in one table shared by every metrology, layout and conversion tool, so a factor is written down exactly once.'), msg('**Å (ångström)** — the unit thermal oxides are quoted in, and 10 Å is exactly 1 nm.'), msg('**mil** — a thousandth of an inch, used for wafer thickness and wire diameters, and not the same as a millimetre.')] },
+      ]}
       notes={[
-        'The inch, mil and ångström conversions are exact by definition, so those rows carry no rounding at all; the micrometre and nanometre rows are decimal powers of a metre.',
-        'A negative length is rejected rather than converted, because a thickness or a length below zero is a sign that something upstream went wrong.',
-        'The value is carried through millimetres internally, so a conversion between two non-metric units — mil to ångström, say — is exact to floating-point precision rather than doubling the error of two rounded constants.',
-        'Thickness and length convert with the same factors. This tool does not convert a growth or removal rate, which is a length per unit time and needs the time dimension as well.',
+        msg('The inch, mil and ångström conversions are exact by definition, so those rows carry no rounding at all; the micrometre and nanometre rows are decimal powers of a metre.'),
+        msg('A negative length is rejected rather than converted, because a thickness or a length below zero is a sign that something upstream went wrong.'),
+        msg('The value is carried through millimetres internally, so a conversion between two non-metric units — mil to ångström, say — is exact to floating-point precision rather than doubling the error of two rounded constants.'),
+        msg('Thickness and length convert with the same factors. This tool does not convert a growth or removal rate, which is a length per unit time and needs the time dimension as well.'),
       ]}
       faq={[
         {
-          question: 'How many nanometres is 10 ångström?',
-          answer: 'Exactly 1 nm. One ångström is defined as 0.1 nm, so the conversion is a decimal shift, not a rounded approximation. A gate oxide quoted as 10 Å and one quoted as 1 nm are the same thickness, and a 10 kÅ oxide is 1000 nm.',
+          question: msg('How many nanometres is 10 ångström?'),
+          answer: msg('Exactly 1 nm. One ångström is defined as 0.1 nm, so the conversion is a decimal shift, not a rounded approximation. A gate oxide quoted as 10 Å and one quoted as 1 nm are the same thickness, and a 10 kÅ oxide is 1000 nm.'),
         },
         {
-          question: 'Is a micron the same as a micrometre?',
-          answer: 'Yes. Micron is a colloquial name for the micrometre, so 1 micron equals 1 µm, which is 1000 nm or 10 000 Å. The name micron is discouraged in formal writing but is still common on the fab floor.',
+          question: msg('Is a micron the same as a micrometre?'),
+          answer: msg('Yes. Micron is a colloquial name for the micrometre, so 1 micron equals 1 µm, which is 1000 nm or 10 000 Å. The name micron is discouraged in formal writing but is still common on the fab floor.'),
         },
         {
-          question: 'What is a mil, and is it a millimetre?',
-          answer: 'A mil is a thousandth of an inch, so it is 25.4 µm — about 25 times smaller than a millimetre. Wafer thickness and bond wire diameters are often quoted in mils, and confusing a mil with a millimetre is a factor-of-25 error, which is why every field here carries its unit.',
+          question: msg('What is a mil, and is it a millimetre?'),
+          answer: msg('A mil is a thousandth of an inch, so it is 25.4 µm — about 25 times smaller than a millimetre. Wafer thickness and bond wire diameters are often quoted in mils, and confusing a mil with a millimetre is a factor-of-25 error, which is why every field here carries its unit.'),
         },
         {
-          question: 'Which unit should I quote a film thickness in?',
-          answer: 'Follow the convention of the process: thermal oxides in ångström, deposited and grown films in nanometres, wafer thickness in micrometres or mils, and long dimensions in millimetres. The number is only half the measurement, so keep the unit with it, which is also why this page shows every unit at once rather than making you convert twice.',
+          question: msg('Which unit should I quote a film thickness in?'),
+          answer: msg('Follow the convention of the process: thermal oxides in ångström, deposited and grown films in nanometres, wafer thickness in micrometres or mils, and long dimensions in millimetres. The number is only half the measurement, so keep the unit with it, which is also why this page shows every unit at once rather than making you convert twice.'),
         },
       ]}
     >

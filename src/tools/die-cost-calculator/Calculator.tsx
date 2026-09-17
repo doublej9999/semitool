@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/die-cost-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -13,6 +15,7 @@ function money(value: number, digits: number): string {
 }
 
 export default function DieCostCalculator() {
+  const t = useToolCopy(copyResource);
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
@@ -47,12 +50,12 @@ export default function DieCostCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="cost-inputs">
-        <h2 id="cost-inputs">Wafer cost and die counts</h2>
+        <h2 id="cost-inputs">{t("Wafer cost and die counts")}</h2>
 
         <div className="form-row">
           <div className="field">
             <label htmlFor="cost-wafer">
-              Wafer cost<span className="unit">¥</span>
+              {t("Wafer cost")}<span className="unit">¥</span>
             </label>
             <input
               id="cost-wafer"
@@ -65,7 +68,7 @@ export default function DieCostCalculator() {
           </div>
           <div className="field">
             <label htmlFor="cost-extra">
-              Additional cost<span className="unit">¥ / wafer</span>
+              {t("Additional cost")}<span className="unit">{t("¥ / wafer")}</span>
             </label>
             <input
               id="cost-extra"
@@ -83,7 +86,7 @@ export default function DieCostCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="cost-gross">
-              Gross die<span className="unit">count</span>
+              {t("Gross die")}<span className="unit">count</span>
             </label>
             <input
               id="cost-gross"
@@ -96,7 +99,7 @@ export default function DieCostCalculator() {
           </div>
           <div className="field">
             <label htmlFor="cost-good">
-              Good die<span className="unit">count</span>
+              {t("Good die")}<span className="unit">count</span>
             </label>
             <input
               id="cost-good"
@@ -110,19 +113,16 @@ export default function DieCostCalculator() {
         </div>
 
         <p className="note">
-          The default wafer cost is a placeholder, not a market price — replace it with your own figure. Additional cost
-          covers anything charged per wafer, such as test or packaging.
-        </p>
+          {t("The default wafer cost is a placeholder, not a market price — replace it with your own figure. Additional cost covers anything charged per wafer, such as test or packaging.")}</p>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setValues(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="cost-result">
-        <h2 id="cost-result">Cost per die</h2>
+        <h2 id="cost-result">{t("Cost per die")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -132,14 +132,14 @@ export default function DieCostCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Cost per good die</span>
+            <span className="unit">{t("Cost per good die")}</span>
             <div className="result-value" aria-live="polite">
               {money(result.costPerGoodDie, 4)}
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Cost per gross die</span>
+                <span>{t("Cost per gross die")}</span>
                 <strong>{money(result.costPerGrossDie, 4)}</strong>
               </div>
               <div className="metric">
@@ -147,31 +147,29 @@ export default function DieCostCalculator() {
                 <strong>{result.yieldPercent.toFixed(2)}%</strong>
               </div>
               <div className="metric">
-                <span>Cost multiplier</span>
+                <span>{t("Cost multiplier")}</span>
                 <strong>{result.costMultiplier.toFixed(4)}x</strong>
               </div>
               <div className="metric">
-                <span>Scrap cost per wafer</span>
+                <span>{t("Scrap cost per wafer")}</span>
                 <strong>{money(result.scrapCostPerWafer, 2)}</strong>
               </div>
               <div className="metric">
-                <span>Good-die premium</span>
+                <span>{t("Good-die premium")}</span>
                 <strong>{money(result.costPerGoodDiePremium, 4)}</strong>
               </div>
               <div className="metric">
-                <span>Non-good die</span>
+                <span>{t("Non-good die")}</span>
                 <strong>{result.unclassifiedDie}</strong>
               </div>
             </div>
 
             <p className="note">
-              Cost per good die is the wafer cost divided by the good die, so the scrapped die carry their share. It is
-              always the cost per gross die multiplied by 1 / yield.
-            </p>
+              {t("Cost per good die is the wafer cost divided by the good die, so the scrapped die carry their share. It is always the cost per gross die multiplied by 1 / yield.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

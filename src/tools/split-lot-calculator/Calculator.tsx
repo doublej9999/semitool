@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/split-lot-calculator';
 
 import { useId, useMemo, useRef, useState } from 'react';
 import {
@@ -67,6 +69,7 @@ const DEFAULT_SPLITS: SplitRecipe[] = [
 ];
 
 export default function SplitLotCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [params, setParams] = useState<RecipeParameter[]>(DEFAULT_PARAMS);
   const [splits, setSplits] = useState<SplitRecipe[]>(DEFAULT_SPLITS);
@@ -258,20 +261,19 @@ export default function SplitLotCalculator() {
       <div className="calc-form">
         <div className="panel">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h3 style={{ margin: 0, fontSize: 16 }}>Target Response Definition</h3>
+            <h3 style={{ margin: 0, fontSize: 16 }}>{t("Target Response Definition")}</h3>
             <button
               type="button"
               className="button secondary sm"
               onClick={addSplit}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
-              <Plus size={14} /> Add Recipe Split
-            </button>
+              <Plus size={14} /> {t("Add Recipe Split")}</button>
           </div>
 
           <div className="form-row">
             <div className="field">
-              <label htmlFor={respLabelId}>Response Name</label>
+              <label htmlFor={respLabelId}>{t("Response Name")}</label>
               <input
                 id={respLabelId}
                 type="text"
@@ -280,7 +282,7 @@ export default function SplitLotCalculator() {
               />
             </div>
             <div className="field">
-              <label htmlFor={respUnitId}>Response Unit</label>
+              <label htmlFor={respUnitId}>{t("Response Unit")}</label>
               <input
                 id={respUnitId}
                 type="text"
@@ -291,7 +293,7 @@ export default function SplitLotCalculator() {
           </div>
 
           <div className="field">
-            <label htmlFor={baselineRespId}>Baseline (POR) Response ({responseUnit})</label>
+            <label htmlFor={baselineRespId}>{t("Baseline (POR) Response (")}{responseUnit})</label>
             <input
               id={baselineRespId}
               type="number"
@@ -303,14 +305,14 @@ export default function SplitLotCalculator() {
 
         {/* Recipe Parameters & Split Matrix */}
         <div className="panel">
-          <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>DOE Recipe Overlay Matrix</h3>
+          <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>{t("DOE Recipe Overlay Matrix")}</h3>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left' }}>
-                  <th style={{ padding: '6px 8px' }}>Parameter</th>
+                  <th style={{ padding: '6px 8px' }}>{t("Parameter")}</th>
                   <th style={{ padding: '6px 8px' }}>{g('unitLabel')}</th>
-                  <th style={{ padding: '6px 8px', background: 'rgba(13, 124, 130, 0.08)' }}>POR Baseline</th>
+                  <th style={{ padding: '6px 8px', background: 'rgba(13, 124, 130, 0.08)' }}>{t("POR Baseline")}</th>
                   {splits.map((s) => (
                     <th key={s.id} style={{ padding: '6px 8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -320,7 +322,7 @@ export default function SplitLotCalculator() {
                             type="button"
                             onClick={() => removeSplit(s.id)}
                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red)', padding: 0 }}
-                            title="Remove split"
+                            title={t("Remove split")}
                           >
                             <Trash2 size={12} />
                           </button>
@@ -408,11 +410,10 @@ export default function SplitLotCalculator() {
           <div className="physics-alert">
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <AlertTriangle size={16} color="var(--gold)" />
-              <strong>High Process Variance Detected (Max Δ &gt; 15%)</strong>
+              <strong>{t("High Process Variance Detected (Max Δ > 15%)")}</strong>
             </div>
             <p style={{ margin: '4px 0 0', fontSize: 12 }}>
-              Recipe splits vary by up to {analysis.summary.maxDeltaPct.toFixed(1)}% from POR baseline. Verify plasma stability, gas residence time, and potential chamber seasoning drift between splits.
-            </p>
+              {t("Recipe splits vary by up to")}{analysis.summary.maxDeltaPct.toFixed(1)}{t("% from POR baseline. Verify plasma stability, gas residence time, and potential chamber seasoning drift between splits.")}</p>
           </div>
         )}
       </div>
@@ -420,13 +421,13 @@ export default function SplitLotCalculator() {
       <div className="calc-result">
         <div className="panel">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h3 style={{ margin: 0, fontSize: 16 }}>Response Comparison Chart</h3>
+            <h3 style={{ margin: 0, fontSize: 16 }}>{t("Response Comparison Chart")}</h3>
             <div style={{ display: 'flex', gap: 6 }}>
               <button
                 type="button"
                 className="button secondary sm"
                 onClick={() => svgRef.current && downloadSvg(svgRef.current, 'split_lot_response_overlay.svg')}
-                title="Export Chart as SVG"
+                title={t("Export Chart as SVG")}
               >
                 <Download size={13} /> SVG
               </button>
@@ -434,7 +435,7 @@ export default function SplitLotCalculator() {
                 type="button"
                 className="button secondary sm"
                 onClick={exportSplitCsv}
-                title="Export Split-Lot matrix as CSV"
+                title={t("Export Split-Lot matrix as CSV")}
               >
                 <Download size={13} /> CSV
               </button>
@@ -442,7 +443,7 @@ export default function SplitLotCalculator() {
                 type="button"
                 className="button secondary sm"
                 onClick={exportSplitXlsx}
-                title="Export Split-Lot matrix as XLSX"
+                title={t("Export Split-Lot matrix as XLSX")}
               >
                 <Download size={13} /> XLSX
               </button>
@@ -450,7 +451,7 @@ export default function SplitLotCalculator() {
                 type="button"
                 className="button secondary sm"
                 onClick={exportSplitPdf}
-                title="Export Split-Lot matrix as PDF report"
+                title={t("Export Split-Lot matrix as PDF report")}
               >
                 <Download size={13} /> PDF
               </button>
@@ -463,7 +464,7 @@ export default function SplitLotCalculator() {
               ref={svgRef}
               viewBox="0 0 460 220"
               style={{ width: '100%', height: 'auto', background: 'var(--paper)', borderRadius: 6 }}
-              aria-label="Split-Lot Response Comparison"
+              aria-label={t("Split-Lot Response Comparison")}
             >
               {/* Axes and Grid */}
               <line x1="60" y1="20" x2="60" y2="170" stroke="var(--border)" strokeWidth="1" />
@@ -499,7 +500,7 @@ export default function SplitLotCalculator() {
                       fontSize="10"
                       fontWeight="bold"
                     >
-                      Baseline: {baselineResponse} {responseUnit}
+                      {t("Baseline:")}{baselineResponse} {responseUnit}
                     </text>
 
                     {/* Bars */}
@@ -581,7 +582,7 @@ export default function SplitLotCalculator() {
           </div>
 
           <div style={{ marginTop: 14 }}>
-            <h4 style={{ fontSize: 13, margin: '0 0 8px' }}>Split Performance Summary</h4>
+            <h4 style={{ fontSize: 13, margin: '0 0 8px' }}>{t("Split Performance Summary")}</h4>
             <div className="metric-grid">
               {splits.map((s) => {
                 const resp = s.targetResponse ?? 0;

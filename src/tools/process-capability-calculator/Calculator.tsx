@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/process-capability-calculator';
 
 import { useMemo, useRef, useState } from 'react';
 import { Copy, RotateCcw, Play, Download, FileSpreadsheet } from 'lucide-react';
@@ -25,6 +27,7 @@ function num(value: number | null, digits = 3): string {
 }
 
 export default function ProcessCapabilityCalculator() {
+  const t = useToolCopy(copyResource);
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const [copied, setCopied] = useState(false);
@@ -158,10 +161,10 @@ export default function ProcessCapabilityCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="capability-inputs">
-        <h2 id="capability-inputs">Specification and process</h2>
+        <h2 id="capability-inputs">{t("Specification and process")}</h2>
 
         <div className="field">
-          <label htmlFor="capability-unit">Measurement unit</label>
+          <label htmlFor="capability-unit">{t("Measurement unit")}</label>
           <select
             id="capability-unit"
             value={unit}
@@ -178,7 +181,7 @@ export default function ProcessCapabilityCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="capability-lsl">
-              Lower spec limit<span className="unit">{unit}</span>
+              {t("Lower spec limit")}<span className="unit">{unit}</span>
             </label>
             <input
               id="capability-lsl"
@@ -190,7 +193,7 @@ export default function ProcessCapabilityCalculator() {
           </div>
           <div className="field">
             <label htmlFor="capability-usl">
-              Upper spec limit<span className="unit">{unit}</span>
+              {t("Upper spec limit")}<span className="unit">{unit}</span>
             </label>
             <input
               id="capability-usl"
@@ -205,7 +208,7 @@ export default function ProcessCapabilityCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="capability-mean">
-              Process mean<span className="unit">{unit}</span>
+              {t("Process mean")}<span className="unit">{unit}</span>
             </label>
             <input
               id="capability-mean"
@@ -217,7 +220,7 @@ export default function ProcessCapabilityCalculator() {
           </div>
           <div className="field">
             <label htmlFor="capability-sigma">
-              Process sigma<span className="unit">{unit}</span>
+              {t("Process sigma")}<span className="unit">{unit}</span>
             </label>
             <input
               id="capability-sigma"
@@ -231,9 +234,7 @@ export default function ProcessCapabilityCalculator() {
         </div>
 
         <p className="note">
-          Leave one spec limit blank for a one-sided specification. The mean and sigma must be measured on the same
-          characteristic and in the same unit as the limits.
-        </p>
+          {t("Leave one spec limit blank for a one-sided specification. The mean and sigma must be measured on the same characteristic and in the same unit as the limits.")}</p>
         <div className="action-row" style={{ flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
           <button
             type="button"
@@ -242,8 +243,7 @@ export default function ProcessCapabilityCalculator() {
             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
             <FileSpreadsheet size={16} aria-hidden="true" />
-            Import Metrology CSV / Auto-Fit
-          </button>
+            {t("Import Metrology CSV / Auto-Fit")}</button>
         </div>
 
         <FabMetrologyImportModal
@@ -265,8 +265,7 @@ export default function ProcessCapabilityCalculator() {
         <div style={{ marginTop: '16px', padding: '12px', background: 'var(--panel-subtle)', borderRadius: '8px', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
             <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--ink)' }}>
-              Monte Carlo Process Sensitivity
-            </span>
+              {t("Monte Carlo Process Sensitivity")}</span>
             <button
               type="button"
               className={runSimulation ? 'button primary' : 'button secondary'}
@@ -282,7 +281,7 @@ export default function ProcessCapabilityCalculator() {
             <>
               <div className="form-row" style={{ marginBottom: '8px' }}>
                 <div className="field">
-                  <label htmlFor="mc-samples" style={{ fontSize: '12px' }}>Trials (N)</label>
+                  <label htmlFor="mc-samples" style={{ fontSize: '12px' }}>{t("Trials (N)")}</label>
                   <input
                     id="mc-samples"
                     type="number"
@@ -294,7 +293,7 @@ export default function ProcessCapabilityCalculator() {
                   />
                 </div>
                 <div className="field">
-                  <label htmlFor="mc-wear" style={{ fontSize: '12px' }}>Tool Wear Spread (±{unit})</label>
+                  <label htmlFor="mc-wear" style={{ fontSize: '12px' }}>{t("Tool Wear Spread (±")}{unit})</label>
                   <input
                     id="mc-wear"
                     type="number"
@@ -306,7 +305,7 @@ export default function ProcessCapabilityCalculator() {
               </div>
               <div className="form-row">
                 <div className="field">
-                  <label htmlFor="mc-temp" style={{ fontSize: '12px' }}>Temp Drift (±{unit})</label>
+                  <label htmlFor="mc-temp" style={{ fontSize: '12px' }}>{t("Temp Drift (±")}{unit})</label>
                   <input
                     id="mc-temp"
                     type="number"
@@ -316,7 +315,7 @@ export default function ProcessCapabilityCalculator() {
                   />
                 </div>
                 <div className="field">
-                  <label htmlFor="mc-gas" style={{ fontSize: '12px' }}>Precursor Drift (±{unit})</label>
+                  <label htmlFor="mc-gas" style={{ fontSize: '12px' }}>{t("Precursor Drift (±")}{unit})</label>
                   <input
                     id="mc-gas"
                     type="number"
@@ -332,13 +331,12 @@ export default function ProcessCapabilityCalculator() {
 
         <div className="action-row" style={{ marginTop: '16px' }}>
           <button className="button secondary" type="button" onClick={() => { setValues(INITIAL); setRunSimulation(false); }}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="capability-result">
-        <h2 id="capability-result">Capability & Tolerance Analysis</h2>
+        <h2 id="capability-result">{t("Capability & Tolerance Analysis")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -348,34 +346,34 @@ export default function ProcessCapabilityCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Cpk</span>
+            <span className="unit">{t("Cpk")}</span>
             <div className="result-value" aria-live="polite">
               {num(result.cpk)}
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Cp (both limits)</span>
+                <span>{t("Cp (both limits)")}</span>
                 <strong>{num(result.cp)}</strong>
               </div>
               <div className="metric">
-                <span>CPU (upper)</span>
+                <span>{t("CPU (upper)")}</span>
                 <strong>{num(result.cpu)}</strong>
               </div>
               <div className="metric">
-                <span>CPL (lower)</span>
+                <span>{t("CPL (lower)")}</span>
                 <strong>{num(result.cpl)}</strong>
               </div>
               <div className="metric">
-                <span>Sigma level (3 x Cpk)</span>
+                <span>{t("Sigma level (3 x Cpk)")}</span>
                 <strong>{num(result.sigmaLevel)}</strong>
               </div>
               <div className="metric">
-                <span>Out of spec</span>
+                <span>{t("Out of spec")}</span>
                 <strong>{result.outOfSpecPpm.toFixed(1)} ppm</strong>
               </div>
               <div className="metric">
-                <span>Theoretical Yield</span>
+                <span>{t("Theoretical Yield")}</span>
                 <strong>{(100 - result.outOfSpecPpm / 10000).toFixed(3)}%</strong>
               </div>
             </div>
@@ -385,7 +383,7 @@ export default function ProcessCapabilityCalculator() {
               <div style={{ marginTop: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <h3 style={{ fontSize: '13px', fontWeight: '600', margin: 0 }}>
-                    Monte Carlo Simulated Distribution (N={mcResult.sampleSize})
+                    {t("Monte Carlo Simulated Distribution (N=")}{mcResult.sampleSize})
                   </h3>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
@@ -417,21 +415,21 @@ export default function ProcessCapabilityCalculator() {
 
                 <div className="metric-grid" style={{ marginBottom: '12px' }}>
                   <div className="metric">
-                    <span>Simulated Cpk</span>
+                    <span>{t("Simulated Cpk")}</span>
                     <strong style={{ color: mcResult.cpk && mcResult.cpk >= 1.33 ? 'var(--teal)' : '#b0413a' }}>
                       {mcResult.cpk !== null ? mcResult.cpk.toFixed(3) : '—'}
                     </strong>
                   </div>
                   <div className="metric">
-                    <span>Simulated Yield</span>
+                    <span>{t("Simulated Yield")}</span>
                     <strong>{mcResult.yieldPercent !== null ? mcResult.yieldPercent.toFixed(2) + '%' : '—'}</strong>
                   </div>
                   <div className="metric">
-                    <span>Defect PPM</span>
+                    <span>{t("Defect PPM")}</span>
                     <strong>{mcResult.defectPpm !== null ? mcResult.defectPpm.toFixed(0) : '—'}</strong>
                   </div>
                   <div className="metric">
-                    <span>Skew / Kurtosis</span>
+                    <span>{t("Skew / Kurtosis")}</span>
                     <strong style={{ fontSize: '13px' }}>
                       {mcResult.skewness.toFixed(2)} / {mcResult.kurtosis.toFixed(2)}
                     </strong>
@@ -446,7 +444,7 @@ export default function ProcessCapabilityCalculator() {
                     width="100%"
                     height="auto"
                     role="img"
-                    aria-label="Monte Carlo output distribution histogram"
+                    aria-label={t("Monte Carlo output distribution histogram")}
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     {/* Plot area background */}
@@ -551,7 +549,7 @@ export default function ProcessCapabilityCalculator() {
 
                     {/* Labels */}
                     <text x={hMargin.left + hPlotW / 2} y={hHeight - 4} fontSize="10" fill="#152127" textAnchor="middle">
-                      Process Value ({unit})
+                      {t("Process Value (")}{unit})
                     </text>
                   </svg>
                 </div>
@@ -559,13 +557,12 @@ export default function ProcessCapabilityCalculator() {
                 {/* Sensitivity Ranking (Tornado-style variance contribution) */}
                 <div style={{ marginTop: '14px' }}>
                   <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--ink-soft)' }}>
-                    Variance Sensitivity Ranking (Sobol % contribution)
-                  </span>
+                    {t("Variance Sensitivity Ranking (Sobol % contribution)")}</span>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
                     {mcResult.sensitivities.map((s) => (
                       <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px' }}>
                         <span style={{ width: '170px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                          {s.name} (r={s.correlation.toFixed(2)})
+                          {s.name} {t("(r=")}{s.correlation.toFixed(2)})
                         </span>
                         <div style={{ flex: 1, height: '8px', background: '#ecefe0', borderRadius: '4px', overflow: 'hidden' }}>
                           <div
@@ -589,7 +586,7 @@ export default function ProcessCapabilityCalculator() {
 
             <div className="action-row" style={{ marginTop: '16px' }}>
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

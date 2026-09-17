@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/chemical-dilution-calculator';
 
 import { useMemo, useState, useRef } from 'react';
 import { Copy, RotateCcw, AlertTriangle, ShieldCheck, Info, Download, ImageIcon } from 'lucide-react';
@@ -27,6 +29,7 @@ const INITIAL = {
 const num = (v: string) => (v.trim() === '' ? Number.NaN : Number(v));
 
 export default function ChemicalDilutionCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
@@ -53,32 +56,32 @@ export default function ChemicalDilutionCalculator() {
       if (Number.isFinite(c1) && c1 > 100) {
         warnings.push({
           level: 'danger',
-          title: 'Physical Concentration Exceeded (C1 > 100%)',
-          message: `Stock chemical concentration C1 = ${c1}% exceeds 100%, which is physically impossible for chemical solutions.`,
+          title: t('Physical Concentration Exceeded (C1 > 100%)'),
+          message: t('Stock chemical concentration C1 = {c1}% exceeds 100%, which is physically impossible for chemical solutions.', { c1 }),
         });
       }
 
       if (Number.isFinite(c1) && Number.isFinite(c2) && c2 > c1) {
         warnings.push({
           level: 'danger',
-          title: 'Physical Impossibility (C2 > C1 Dilution Violation)',
-          message: `Target concentration C2 (${c2}%) cannot exceed stock chemical concentration C1 (${c1}%). Standard wet bench dilution with DI water can only decrease solute concentration, never concentrate it without evaporation.`,
+          title: t('Physical Impossibility (C2 > C1 Dilution Violation)'),
+          message: t('Target concentration C2 ({c2}%) cannot exceed stock chemical concentration C1 ({c1}%). Standard wet bench dilution with DI water can only decrease solute concentration, never concentrate it without evaporation.', { c1, c2 }),
         });
       }
 
       if (Number.isFinite(c1) && Number.isFinite(c2) && c1 > 0 && c1 === c2) {
         warnings.push({
           level: 'warning',
-          title: 'Zero Dilution Needed (C1 = C2)',
-          message: 'Target concentration equals stock concentration. The required stock chemical volume equals the target volume (V1 = V2) with zero DI water required.',
+          title: t('Zero Dilution Needed (C1 = C2)'),
+          message: t('Target concentration equals stock concentration. The required stock chemical volume equals the target volume (V1 = V2) with zero DI water required.'),
         });
       }
 
       if (Number.isFinite(v2) && v2 > 200) {
         warnings.push({
           level: 'warning',
-          title: 'Extremely Large Tank Volume (> 200 L)',
-          message: 'Standard semiconductor cleanroom tanks are usually 5–50 L. Ensure overflow, exhaust, and containment berms support 200+ L.',
+          title: t('Extremely Large Tank Volume (> 200 L)'),
+          message: t('Standard semiconductor cleanroom tanks are usually 5–50 L. Ensure overflow, exhaust, and containment berms support 200+ L.'),
         });
       }
     } else {
@@ -86,34 +89,34 @@ export default function ChemicalDilutionCalculator() {
       if (Number.isFinite(vol) && vol > 100) {
         warnings.push({
           level: 'warning',
-          title: 'Excessive Bath Volume (> 100 L)',
-          message: 'Wet bench immersion tanks in semiconductor fabs are typically 5 to 30 L (up to 50 L for 300 mm wafer automated wet stations). 100+ L tanks present severe exothermic runaway and drainage risks.',
+          title: t('Excessive Bath Volume (> 100 L)'),
+          message: t('Wet bench immersion tanks in semiconductor fabs are typically 5 to 30 L (up to 50 L for 300 mm wafer automated wet stations). 100+ L tanks present severe exothermic runaway and drainage risks.'),
         });
       }
       if (Number.isFinite(vol) && vol > 0 && vol < 0.5) {
         warnings.push({
           level: 'warning',
-          title: 'Sub-Liter Micro Tank (< 500 mL)',
-          message: 'Bath volume is below 500 mL. Small beaker volumes suffer rapid evaporative concentration drift and thermal instability.',
+          title: t('Sub-Liter Micro Tank (< 500 mL)'),
+          message: t('Bath volume is below 500 mL. Small beaker volumes suffer rapid evaporative concentration drift and thermal instability.'),
         });
       }
       if (selectedPreset.category === 'piranha') {
         warnings.push({
           level: 'danger',
-          title: 'Piranha (SPM) Exothermic Reaction Hazard',
-          message: 'Sulfuric acid and hydrogen peroxide react with high exothermicity (> 100 °C). ALWAYS add H₂O₂ to H₂SO₄ slowly; NEVER add water to acid. Explosion risk if organic solvent (IPA/acetone) contacts piranha.',
+          title: t('Piranha (SPM) Exothermic Reaction Hazard'),
+          message: t('Sulfuric acid and hydrogen peroxide react with high exothermicity (> 100 °C). ALWAYS add H₂O₂ to H₂SO₄ slowly; NEVER add water to acid. Explosion risk if organic solvent (IPA/acetone) contacts piranha.'),
         });
       }
       if (selectedPreset.category === 'hf-clean') {
         warnings.push({
           level: 'danger',
-          title: 'Hydrofluoric Acid (HF) Toxicity',
-          message: 'HF penetrates skin to attack calcium bone structure without immediate burn sensation. Calcium gluconate antidote gel and HF-resistant PPE (neoprene gloves) are mandatory.',
+          title: t('Hydrofluoric Acid (HF) Toxicity'),
+          message: t('HF penetrates skin to attack calcium bone structure without immediate burn sensation. Calcium gluconate antidote gel and HF-resistant PPE (neoprene gloves) are mandatory.'),
         });
       }
     }
     return warnings;
-  }, [state.mode, state.stockConcentration, state.targetConcentration, state.c1v1VolumeLiters, state.bathVolumeLiters, selectedPreset]);
+  }, [state.mode, state.stockConcentration, state.targetConcentration, state.c1v1VolumeLiters, state.bathVolumeLiters, selectedPreset, t]);
 
 
   const recipeResult = useMemo(() => {
@@ -202,7 +205,7 @@ export default function ChemicalDilutionCalculator() {
       return {
         filename: `c1v1_dilution_${c1v1Result.stockConcentration}pct_to_${c1v1Result.targetConcentration}pct`,
         sheetName: 'C1V1 Dilution',
-        title: 'Chemical Dilution (C1·V1 = C2·V2)',
+        title: t('Chemical Dilution (C1·V1 = C2·V2)'),
         headers: ['Parameter', 'Value', 'Unit'],
         rows: [
           ['Stock Concentration (C1)', c1v1Result.stockConcentration, '%'],
@@ -291,56 +294,54 @@ export default function ChemicalDilutionCalculator() {
     <div className="calc-grid">
       <section className="panel" aria-labelledby="clean-inputs">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 id="clean-inputs" style={{ margin: 0 }}>Dilution & Recipe Setup</h2>
-          <div className="button-group" role="tablist" aria-label="Calculation Mode">
+          <h2 id="clean-inputs" style={{ margin: 0 }}>{t("Dilution & Recipe Setup")}</h2>
+          <div className="button-group" role="tablist" aria-label={t("Calculation Mode")}>
             <button
               type="button"
               className={`button ${state.mode === 'recipe' ? 'primary' : 'secondary'}`}
               onClick={() => setState((p) => ({ ...p, mode: 'recipe' }))}
             >
-              Standard Recipe
-            </button>
+              {t("Standard Recipe")}</button>
             <button
               type="button"
               className={`button ${state.mode === 'c1v1' ? 'primary' : 'secondary'}`}
               onClick={() => setState((p) => ({ ...p, mode: 'c1v1' }))}
             >
-              C1·V1 = C2·V2
-            </button>
+              {t("C1·V1 = C2·V2")}</button>
           </div>
         </div>
 
         {state.mode === 'recipe' ? (
           <>
             <div className="field">
-              <label htmlFor="recipe-select">Wet Bench Process Recipe Preset</label>
+              <label htmlFor="recipe-select">{t("Wet Bench Process Recipe Preset")}</label>
               <select
                 id="recipe-select"
                 value={state.recipeId}
                 onChange={(e) => setState((p) => ({ ...p, recipeId: e.target.value }))}
               >
-                <optgroup label="RCA Standard Cleans">
+                <optgroup label={t("RCA Standard Cleans")}>
                   {RECIPE_PRESETS.filter((p) => p.category === 'rca').map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
                     </option>
                   ))}
                 </optgroup>
-                <optgroup label="Piranha Organic / Resist Strips (SPM)">
+                <optgroup label={t("Piranha Organic / Resist Strips (SPM)")}>
                   {RECIPE_PRESETS.filter((p) => p.category === 'piranha').map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
                     </option>
                   ))}
                 </optgroup>
-                <optgroup label="HF Oxide Strips & Passivation">
+                <optgroup label={t("HF Oxide Strips & Passivation")}>
                   {RECIPE_PRESETS.filter((p) => p.category === 'hf-clean').map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
                     </option>
                   ))}
                 </optgroup>
-                <optgroup label="Nitride Strips">
+                <optgroup label={t("Nitride Strips")}>
                   {RECIPE_PRESETS.filter((p) => p.category === 'nitride-strip').map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
@@ -351,13 +352,13 @@ export default function ChemicalDilutionCalculator() {
             </div>
 
             <p className="note" style={{ marginBottom: '16px' }}>
-              <strong>Description:</strong> {selectedPreset.description}<br />
-              <strong>Primary Objective:</strong> {selectedPreset.primaryFunction}
+              <strong>{t("Description:")}</strong> {selectedPreset.description}<br />
+              <strong>{t("Primary Objective:")}</strong> {selectedPreset.primaryFunction}
             </p>
 
             <div className="field">
               <label htmlFor="bath-volume">
-                Total Bath Tank Volume<span className="unit">Liters (L)</span>
+                {t("Total Bath Tank Volume")}<span className="unit">{t("Liters (L)")}</span>
               </label>
               <input
                 id="bath-volume"
@@ -373,14 +374,14 @@ export default function ChemicalDilutionCalculator() {
           <>
             <div className="field">
               <label htmlFor="stock-conc">
-                Stock Chemical Concentration (C1)<span className="unit">wt% or M</span>
+                {t("Stock Chemical Concentration (C1)")}<span className="unit">{t("wt% or M")}</span>
               </label>
               <input
                 id="stock-conc"
                 type="number"
                 min="0.01"
                 step="1"
-                placeholder="e.g. 49 for 49% HF"
+                placeholder={t("e.g. 49 for 49% HF")}
                 value={state.stockConcentration}
                 onChange={(e) => setState((p) => ({ ...p, stockConcentration: e.target.value }))}
               />
@@ -388,14 +389,14 @@ export default function ChemicalDilutionCalculator() {
 
             <div className="field">
               <label htmlFor="target-conc">
-                Target Diluted Concentration (C2)<span className="unit">wt% or M</span>
+                {t("Target Diluted Concentration (C2)")}<span className="unit">{t("wt% or M")}</span>
               </label>
               <input
                 id="target-conc"
                 type="number"
                 min="0.001"
                 step="0.1"
-                placeholder="e.g. 1 for 1% HF"
+                placeholder={t("e.g. 1 for 1% HF")}
                 value={state.targetConcentration}
                 onChange={(e) => setState((p) => ({ ...p, targetConcentration: e.target.value }))}
               />
@@ -403,7 +404,7 @@ export default function ChemicalDilutionCalculator() {
 
             <div className="field">
               <label htmlFor="c1v1-vol">
-                Target Final Bath Volume (V2)<span className="unit">Liters (L)</span>
+                {t("Target Final Bath Volume (V2)")}<span className="unit">{t("Liters (L)")}</span>
               </label>
               <input
                 id="c1v1-vol"
@@ -423,8 +424,7 @@ export default function ChemicalDilutionCalculator() {
             type="button"
             onClick={() => setState(INITIAL)}
           >
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
           <button
             className="button primary"
             type="button"
@@ -437,40 +437,35 @@ export default function ChemicalDilutionCalculator() {
             type="button"
             onClick={handleExportCsv}
           >
-            <Download size={14} aria-hidden="true" /> Export CSV
-          </button>
+            <Download size={14} aria-hidden="true" /> {t("Export CSV")}</button>
           <button
             className="button secondary"
             type="button"
             onClick={handleExportXlsx}
           >
-            <Download size={14} aria-hidden="true" /> Export XLSX
-          </button>
+            <Download size={14} aria-hidden="true" /> {t("Export XLSX")}</button>
           <button
             className="button secondary"
             type="button"
             onClick={handleExportPdf}
           >
-            <Download size={14} aria-hidden="true" /> Export PDF
-          </button>
+            <Download size={14} aria-hidden="true" /> {t("Export PDF")}</button>
           <button
             className="button secondary"
             type="button"
             onClick={handleExportSvg}
             disabled={state.mode === 'recipe' ? !recipeResult : !c1v1Result}
           >
-            <ImageIcon size={14} aria-hidden="true" /> Save SVG
-          </button>
+            <ImageIcon size={14} aria-hidden="true" /> {t("Save SVG")}</button>
         </div>
 
         <div className="note" style={{ marginTop: '20px' }}>
           <Info size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-2px' }} />
-          <strong>Wet Bench Protocol:</strong> Always mix chemicals in a certified chemical wet bench with laminar exhaust flow. Always add acid to water (never water to concentrated acid).
-        </div>
+          <strong>{t("Wet Bench Protocol:")}</strong> {t("Always mix chemicals in a certified chemical wet bench with laminar exhaust flow. Always add acid to water (never water to concentrated acid).")}</div>
       </section>
 
       <section className="panel" aria-labelledby="clean-results">
-        <h2 id="clean-results">Volumetric & Concentration Breakdown</h2>
+        <h2 id="clean-results">{t("Volumetric & Concentration Breakdown")}</h2>
         {physicsWarnings.map((w, idx) => (
           <div key={idx} className={`physics-alert ${w.level === 'danger' ? 'danger' : ''}`} role="alert" style={{ marginBottom: 16 }}>
             <AlertTriangle size={16} className="physics-alert-icon" />
@@ -483,19 +478,18 @@ export default function ChemicalDilutionCalculator() {
         {state.mode === 'recipe' && recipeResult ? (
           <>
             <div>
-              <span className="unit">Total Bath Volume</span>
+              <span className="unit">{t("Total Bath Volume")}</span>
               <div className="result-value">
-                {recipeResult.totalVolumeLiters} <span style={{ fontSize: '18px', fontWeight: 400 }}>Liters</span>
+                {recipeResult.totalVolumeLiters} <span style={{ fontSize: '18px', fontWeight: 400 }}>{t("Liters")}</span>
                 <span style={{ fontSize: '14px', color: 'var(--ink-soft)', marginLeft: '10px' }}>
-                  ({fmt(recipeResult.totalMassGrams)} g total mass)
-                </span>
+                  ({fmt(recipeResult.totalMassGrams)} {t("g total mass)")}</span>
               </div>
             </div>
             {/* SVG Component Volume Stacked Bar Chart */}
             <div style={{ marginTop: '16px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '6px' }}>
-                <span style={{ fontWeight: 600 }}>Volumetric Composition Breakdown</span>
-                <span style={{ color: 'var(--ink-soft)' }}>{recipeResult.components.length} Components</span>
+                <span style={{ fontWeight: 600 }}>{t("Volumetric Composition Breakdown")}</span>
+                <span style={{ color: 'var(--ink-soft)' }}>{recipeResult.components.length} {t("Components")}</span>
               </div>
               <div style={{ background: 'var(--surface-sunken)', borderRadius: '6px', padding: '10px 12px', border: '1px solid var(--border-soft)' }}>
                 <svg
@@ -503,7 +497,7 @@ export default function ChemicalDilutionCalculator() {
                   viewBox="0 0 600 56"
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                   role="img"
-                  aria-label="Wet bench recipe volumetric breakdown"
+                  aria-label={t("Wet bench recipe volumetric breakdown")}
                 >
                   <rect width="600" height="56" fill="var(--surface-sunken)" rx="4" />
                   {(() => {
@@ -541,8 +535,7 @@ export default function ChemicalDilutionCalculator() {
                               fontSize="10"
                               fontFamily="system-ui, sans-serif"
                             >
-                              {c.name.split(' ')[0]} ({fmt(c.volumeMl)} mL)
-                            </text>
+                              {c.name.split(' ')[0]} ({fmt(c.volumeMl)} {t("mL)")}</text>
                           )}
                         </g>
                       );
@@ -555,7 +548,7 @@ export default function ChemicalDilutionCalculator() {
                   <div key={c.chemicalKey} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: PALETTE[i % PALETTE.length] }} />
                     <span style={{ fontWeight: 500 }}>{c.name}:</span>
-                    <span style={{ color: 'var(--ink-soft)' }}>{fmt(c.volumePct, 1)}% ({fmt(c.volumeMl)} mL)</span>
+                    <span style={{ color: 'var(--ink-soft)' }}>{fmt(c.volumePct, 1)}% ({fmt(c.volumeMl)} {t("mL)")}</span>
                   </div>
                 ))}
               </div>
@@ -565,13 +558,13 @@ export default function ChemicalDilutionCalculator() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-soft)', color: 'var(--ink-soft)' }}>
-                    <th style={{ padding: '8px 4px' }}>Component</th>
-                    <th style={{ padding: '8px 4px' }}>Parts</th>
-                    <th style={{ padding: '8px 4px' }}>Volume (mL)</th>
-                    <th style={{ padding: '8px 4px' }}>Volume (L)</th>
-                    <th style={{ padding: '8px 4px' }}>Vol %</th>
-                    <th style={{ padding: '8px 4px' }}>Mass (g)</th>
-                    <th style={{ padding: '8px 4px' }}>Effective wt%</th>
+                    <th style={{ padding: '8px 4px' }}>{t("Component")}</th>
+                    <th style={{ padding: '8px 4px' }}>{t("Parts")}</th>
+                    <th style={{ padding: '8px 4px' }}>{t("Volume (mL)")}</th>
+                    <th style={{ padding: '8px 4px' }}>{t("Volume (L)")}</th>
+                    <th style={{ padding: '8px 4px' }}>{t("Vol %")}</th>
+                    <th style={{ padding: '8px 4px' }}>{t("Mass (g)")}</th>
+                    <th style={{ padding: '8px 4px' }}>{t("Effective wt%")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -597,10 +590,10 @@ export default function ChemicalDilutionCalculator() {
             <div className="metric-grid" style={{ marginTop: '20px' }}>
               <div className="metric">
                 <span>{g('processTemperature')}</span>
-                <strong>{recipeResult.temperatureC} °C</strong>
+                <strong>{recipeResult.temperatureC} {t("°C")}</strong>
               </div>
               <div className="metric">
-                <span>Estimated Oxide Etch Rate</span>
+                <span>{t("Estimated Oxide Etch Rate")}</span>
                 <strong>
                   {recipeResult.estimatedEtchRateAngstromsPerMin
                     ? `${fmt(recipeResult.estimatedEtchRateAngstromsPerMin)} Å/min`
@@ -609,7 +602,7 @@ export default function ChemicalDilutionCalculator() {
               </div>
               {recipeResult.estimatedTimeToClear100nmMinutes && (
                 <div className="metric">
-                  <span>Time to Clear 100 nm Oxide</span>
+                  <span>{t("Time to Clear 100 nm Oxide")}</span>
                   <strong>{fmt(recipeResult.estimatedTimeToClear100nmMinutes, 1)} min</strong>
                 </div>
               )}
@@ -627,7 +620,7 @@ export default function ChemicalDilutionCalculator() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#dc2626', fontWeight: 600, marginBottom: '6px' }}>
                   <AlertTriangle size={18} />
-                  <span>Chemical Safety Advisory</span>
+                  <span>{t("Chemical Safety Advisory")}</span>
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: 'var(--ink)' }}>
                   {recipeResult.safetyNotes.map((note, idx) => (
@@ -642,21 +635,19 @@ export default function ChemicalDilutionCalculator() {
         ) : state.mode === 'c1v1' && c1v1Result ? (
           <>
             <div>
-              <span className="unit">Required Stock Chemical Volume (V1)</span>
+              <span className="unit">{t("Required Stock Chemical Volume (V1)")}</span>
               <div className="result-value">
                 {fmt(c1v1Result.stockVolumeMl)} <span style={{ fontSize: '18px', fontWeight: 400 }}>mL</span>
                 <span style={{ fontSize: '14px', color: 'var(--ink-soft)', marginLeft: '10px' }}>
-                  ({fmt(c1v1Result.stockVolumeLiters, 4)} L)
-                </span>
+                  ({fmt(c1v1Result.stockVolumeLiters, 4)} {t("L)")}</span>
               </div>
             </div>
             {/* SVG Dilution Proportions Bar */}
             <div style={{ marginTop: '16px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '6px' }}>
-                <span style={{ fontWeight: 600 }}>Dilution Volume Proportions</span>
+                <span style={{ fontWeight: 600 }}>{t("Dilution Volume Proportions")}</span>
                 <span style={{ color: 'var(--ink-soft)' }}>
-                  {fmt(c1v1Result.targetVolumeLiters)} L Total
-                </span>
+                  {fmt(c1v1Result.targetVolumeLiters)} {t("L Total")}</span>
               </div>
               <div style={{ background: 'var(--surface-sunken)', borderRadius: '6px', padding: '10px 12px', border: '1px solid var(--border-soft)' }}>
                 <svg
@@ -664,7 +655,7 @@ export default function ChemicalDilutionCalculator() {
                   viewBox="0 0 600 56"
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                   role="img"
-                  aria-label="C1V1 chemical dilution breakdown"
+                  aria-label={t("C1V1 chemical dilution breakdown")}
                 >
                   <rect width="600" height="56" fill="var(--surface-sunken)" rx="4" />
                   {(() => {
@@ -703,8 +694,7 @@ export default function ChemicalDilutionCalculator() {
                             fontSize="10"
                             fontFamily="system-ui, sans-serif"
                           >
-                            Stock ({fmt(c1v1Result.stockVolumeMl)} mL)
-                          </text>
+                            {t("Stock (")}{fmt(c1v1Result.stockVolumeMl)} {t("mL)")}</text>
                         )}
                         {wWater > 35 && (
                           <text
@@ -728,8 +718,7 @@ export default function ChemicalDilutionCalculator() {
                             fontSize="10"
                             fontFamily="system-ui, sans-serif"
                           >
-                            DIW ({fmt(c1v1Result.solventWaterVolumeMl)} mL)
-                          </text>
+                            {t("DIW (")}{fmt(c1v1Result.solventWaterVolumeMl)} {t("mL)")}</text>
                         )}
                       </g>
                     );
@@ -739,16 +728,16 @@ export default function ChemicalDilutionCalculator() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '8px', fontSize: '11px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#ea580c' }} />
-                  <span style={{ fontWeight: 500 }}>Stock Chemical (V1):</span>
+                  <span style={{ fontWeight: 500 }}>{t("Stock Chemical (V1):")}</span>
                   <span style={{ color: 'var(--ink-soft)' }}>
-                    {fmt(c1v1Result.stockVolumeMl)} mL ({fmt((c1v1Result.stockVolumeLiters / c1v1Result.targetVolumeLiters) * 100, 1)}%)
+                    {fmt(c1v1Result.stockVolumeMl)} {t("mL (")}{fmt((c1v1Result.stockVolumeLiters / c1v1Result.targetVolumeLiters) * 100, 1)}%)
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#0284c7' }} />
-                  <span style={{ fontWeight: 500 }}>DI Water Diluent:</span>
+                  <span style={{ fontWeight: 500 }}>{t("DI Water Diluent:")}</span>
                   <span style={{ color: 'var(--ink-soft)' }}>
-                    {fmt(c1v1Result.solventWaterVolumeMl)} mL ({fmt((c1v1Result.solventWaterVolumeLiters / c1v1Result.targetVolumeLiters) * 100, 1)}%)
+                    {fmt(c1v1Result.solventWaterVolumeMl)} {t("mL (")}{fmt((c1v1Result.solventWaterVolumeLiters / c1v1Result.targetVolumeLiters) * 100, 1)}%)
                   </span>
                 </div>
               </div>
@@ -756,23 +745,23 @@ export default function ChemicalDilutionCalculator() {
 
             <div className="metric-grid" style={{ marginTop: '20px' }}>
               <div className="metric">
-                <span>Diluent Water Volume (DIW)</span>
-                <strong>{fmt(c1v1Result.solventWaterVolumeMl)} mL ({fmt(c1v1Result.solventWaterVolumeLiters, 3)} L)</strong>
+                <span>{t("Diluent Water Volume (DIW)")}</span>
+                <strong>{fmt(c1v1Result.solventWaterVolumeMl)} {t("mL (")}{fmt(c1v1Result.solventWaterVolumeLiters, 3)} {t("L)")}</strong>
               </div>
               <div className="metric">
-                <span>Total Diluted Volume (V2)</span>
+                <span>{t("Total Diluted Volume (V2)")}</span>
                 <strong>{c1v1Result.targetVolumeLiters} L</strong>
               </div>
               <div className="metric">
-                <span>Stock Concentration (C1)</span>
+                <span>{t("Stock Concentration (C1)")}</span>
                 <strong>{c1v1Result.stockConcentration} %</strong>
               </div>
               <div className="metric">
-                <span>Target Concentration (C2)</span>
+                <span>{t("Target Concentration (C2)")}</span>
                 <strong>{c1v1Result.targetConcentration} %</strong>
               </div>
               <div className="metric">
-                <span>Dilution Factor (C1/C2)</span>
+                <span>{t("Dilution Factor (C1/C2)")}</span>
                 <strong>{fmt(c1v1Result.dilutionFactor, 1)} ×</strong>
               </div>
             </div>
@@ -788,17 +777,15 @@ export default function ChemicalDilutionCalculator() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2563eb', fontWeight: 600, marginBottom: '4px' }}>
                 <ShieldCheck size={18} />
-                <span>Mixing Instructions</span>
+                <span>{t("Mixing Instructions")}</span>
               </div>
               <p style={{ margin: 0, fontSize: '13px', color: 'var(--ink)' }}>
-                Pour approximately <strong>{fmt(c1v1Result.solventWaterVolumeMl)} mL</strong> of DI water into the bath tank first, then carefully dispense <strong>{fmt(c1v1Result.stockVolumeMl)} mL</strong> of stock chemical into the water while stirring.
-              </p>
+                {t("Pour approximately")}<strong>{fmt(c1v1Result.solventWaterVolumeMl)} mL</strong> {t("of DI water into the bath tank first, then carefully dispense")}<strong>{fmt(c1v1Result.stockVolumeMl)} mL</strong> {t("of stock chemical into the water while stirring.")}</p>
             </div>
           </>
         ) : (
           <div className="error" role="alert">
-            Please enter valid non-zero numerical values for volumes and concentrations.
-          </div>
+            {t("Please enter valid non-zero numerical values for volumes and concentrations.")}</div>
         )}
       </section>
     </div>

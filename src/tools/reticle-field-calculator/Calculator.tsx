@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/reticle-field-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -36,6 +38,7 @@ function fmt(value: number, significant = 4): string {
 }
 
 export default function ReticleFieldCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
@@ -85,11 +88,11 @@ export default function ReticleFieldCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="reticle-inputs">
-        <h2 id="reticle-inputs">Field and die</h2>
+        <h2 id="reticle-inputs">{t("Field and die")}</h2>
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="reticle-field-w">Field width</label>
+            <label htmlFor="reticle-field-w">{t("Field width")}</label>
             <div className="inline-field">
               <input
                 id="reticle-field-w"
@@ -100,7 +103,7 @@ export default function ReticleFieldCalculator() {
                 onChange={(event) => update('fieldWidth', event.target.value)}
               />
               <select
-                aria-label="Field unit, applied to width and height"
+                aria-label={t("Field unit, applied to width and height")}
                 value={values.fieldUnit}
                 onChange={(event) => update('fieldUnit', event.target.value as LengthUnit)}
                 style={{ flex: '0 0 auto', width: 'auto' }}
@@ -116,7 +119,7 @@ export default function ReticleFieldCalculator() {
 
           <div className="field">
             <label htmlFor="reticle-field-h">
-              Field height<span className="unit">{values.fieldUnit}</span>
+              {t("Field height")}<span className="unit">{values.fieldUnit}</span>
             </label>
             <input
               id="reticle-field-h"
@@ -142,7 +145,7 @@ export default function ReticleFieldCalculator() {
                 onChange={(event) => update('dieWidth', event.target.value)}
               />
               <select
-                aria-label="Die unit, applied to width and height"
+                aria-label={t("Die unit, applied to width and height")}
                 value={values.dieUnit}
                 onChange={(event) => update('dieUnit', event.target.value as LengthUnit)}
                 style={{ flex: '0 0 auto', width: 'auto' }}
@@ -172,7 +175,7 @@ export default function ReticleFieldCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="reticle-scribe">Scribe lane</label>
+          <label htmlFor="reticle-scribe">{t("Scribe lane")}</label>
           <div className="inline-field">
             <input
               id="reticle-scribe"
@@ -183,7 +186,7 @@ export default function ReticleFieldCalculator() {
               onChange={(event) => update('scribe', event.target.value)}
             />
             <select
-              aria-label="Scribe lane unit"
+              aria-label={t("Scribe lane unit")}
               value={values.scribeUnit}
               onChange={(event) => update('scribeUnit', event.target.value as LengthUnit)}
               style={{ flex: '0 0 auto', width: 'auto' }}
@@ -210,7 +213,7 @@ export default function ReticleFieldCalculator() {
                 onChange={(event) => update('waferDiameter', event.target.value)}
               />
               <select
-                aria-label="Wafer diameter unit"
+                aria-label={t("Wafer diameter unit")}
                 value={values.waferUnit}
                 onChange={(event) => update('waferUnit', event.target.value as LengthUnit)}
                 style={{ flex: '0 0 auto', width: 'auto' }}
@@ -236,7 +239,7 @@ export default function ReticleFieldCalculator() {
                 onChange={(event) => update('edgeExclusion', event.target.value)}
               />
               <select
-                aria-label="Edge exclusion unit"
+                aria-label={t("Edge exclusion unit")}
                 value={values.edgeExclusionUnit}
                 onChange={(event) => update('edgeExclusionUnit', event.target.value as LengthUnit)}
                 style={{ flex: '0 0 auto', width: 'auto' }}
@@ -252,19 +255,16 @@ export default function ReticleFieldCalculator() {
         </div>
 
         <p className="note">
-          The scribe lane is added to each die to give the step pitch, so it is counted once between neighbours. The wafer
-          section only sets the context for the shot count; clear the diameter to skip it.
-        </p>
+          {t("The scribe lane is added to each die to give the step pitch, so it is counted once between neighbours. The wafer section only sets the context for the shot count; clear the diameter to skip it.")}</p>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setValues(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="reticle-result">
-        <h2 id="reticle-result">Field results</h2>
+        <h2 id="reticle-result">{t("Field results")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -274,7 +274,7 @@ export default function ReticleFieldCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Dice per field</span>
+            <span className="unit">{t("Dice per field")}</span>
             <div className="result-value" aria-live="polite">
               {result.diesPerField}
               <span className="result-suffix"> dice</span>
@@ -282,66 +282,63 @@ export default function ReticleFieldCalculator() {
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Shots per wafer</span>
+                <span>{t("Shots per wafer")}</span>
                 <strong>{result.shotsPerWafer === null ? '---' : result.shotsPerWafer}</strong>
               </div>
               <div className="metric">
-                <span>Dice per wafer (bound)</span>
+                <span>{t("Dice per wafer (bound)")}</span>
                 <strong>{result.diesPerWaferUpperBound === null ? '---' : result.diesPerWaferUpperBound}</strong>
               </div>
               <div className="metric">
-                <span>Field utilisation</span>
+                <span>{t("Field utilisation")}</span>
                 <strong>{result.fieldUtilizationPercent.toFixed(2)}%</strong>
               </div>
               <div className="metric">
-                <span>Field area</span>
-                <strong>{fmt(result.fieldAreaMm2 / 100)} cm&#178;</strong>
+                <span>{t("Field area")}</span>
+                <strong>{fmt(result.fieldAreaMm2 / 100)} {t("cm&#178;")}</strong>
               </div>
             </div>
 
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Quantity</th>
+                  <th scope="col">{t("Quantity")}</th>
                   <th scope="col">{g('valueLabel2')}</th>
-                  <th scope="col">How it is obtained</th>
+                  <th scope="col">{t("How it is obtained")}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Die pitch X</th>
+                  <th scope="row">{t("Die pitch X")}</th>
                   <td className="mono">{fmt(result.pitchXMm)} mm</td>
-                  <td className="mono">die width + scribe</td>
+                  <td className="mono">{t("die width + scribe")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Die pitch Y</th>
+                  <th scope="row">{t("Die pitch Y")}</th>
                   <td className="mono">{fmt(result.pitchYMm)} mm</td>
-                  <td className="mono">die height + scribe</td>
+                  <td className="mono">{t("die height + scribe")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Dice per field</th>
+                  <th scope="row">{t("Dice per field")}</th>
                   <td className="mono">{result.diesPerField}</td>
                   <td className="mono">
-                    floor(field / pitch) on each axis: {result.diesPerFieldX} &#215; {result.diesPerFieldY}
+                    {t("floor(field / pitch) on each axis:")}{result.diesPerFieldX} &#215; {result.diesPerFieldY}
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Field utilisation</th>
+                  <th scope="row">{t("Field utilisation")}</th>
                   <td className="mono">{result.fieldUtilizationPercent.toFixed(2)}%</td>
-                  <td className="mono">dice &#215; die area / field area</td>
+                  <td className="mono">{t("dice &#215; die area / field area")}</td>
                 </tr>
               </tbody>
             </table>
 
             <p className="note">
-              Shots are counted by stepping whole fields across the wafer and keeping the ones whose centre lands inside
-              the usable circle, so dice per wafer is an upper bound: fields at the rim do not print a full complement,
-              and a real scanner job may use a different stepping plan.
-            </p>
+              {t("Shots are counted by stepping whole fields across the wafer and keeping the ones whose centre lands inside the usable circle, so dice per wafer is an upper bound: fields at the rim do not print a full complement, and a real scanner job may use a different stepping plan.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

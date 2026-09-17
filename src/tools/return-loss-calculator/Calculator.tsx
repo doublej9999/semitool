@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/return-loss-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -30,6 +32,7 @@ const INITIAL = { mode: 'returnLoss' as Mode, value: '20' };
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function ReturnLossCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
@@ -87,9 +90,9 @@ export default function ReturnLossCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="rl-mode">What do you have?</label>
+          <label htmlFor="rl-mode">{t("What do you have?")}</label>
           <select id="rl-mode" value={state.mode} onChange={(event) => update('mode', event.target.value as Mode)}>
             {(Object.keys(MODE_LABELS) as Mode[]).map((entry) => (
               <option key={entry} value={entry}>
@@ -109,18 +112,15 @@ export default function ReturnLossCalculator() {
           />
         </div>
         <p className="note">
-          Return loss uses 20 log10 |Γ| because the reflection coefficient is an amplitude, while mismatch loss uses
-          10 log10 of a power ratio. A perfect match is infinite return loss, |Γ| = 0 and VSWR = 1.
-        </p>
+          {t("Return loss uses 20 log10 |Γ| because the reflection coefficient is an amplitude, while mismatch loss uses 10 log10 of a power ratio. A perfect match is infinite return loss, |Γ| = 0 and VSWR = 1.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -134,14 +134,14 @@ export default function ReturnLossCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Return loss</span>
+            <span className="unit">{t("Return loss")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.returnLossDb)}
               <span className="result-suffix"> dB</span>
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Reflection coefficient |Γ|</dt>
+                <dt>{t("Reflection coefficient |Γ|")}</dt>
                 <dd>{fmt(result.gamma)}</dd>
               </div>
               <div>
@@ -149,15 +149,15 @@ export default function ReturnLossCalculator() {
                 <dd>{fmt(result.vswr)}</dd>
               </div>
               <div>
-                <dt>Mismatch loss</dt>
+                <dt>{t("Mismatch loss")}</dt>
                 <dd>{fmt(result.mismatchLossDb)} dB</dd>
               </div>
               <div>
-                <dt>Reflected power</dt>
+                <dt>{t("Reflected power")}</dt>
                 <dd>{fmt(result.reflectedPercent)} %</dd>
               </div>
               <div>
-                <dt>Delivered power</dt>
+                <dt>{t("Delivered power")}</dt>
                 <dd>{fmt(result.deliveredPercent)} %</dd>
               </div>
             </dl>

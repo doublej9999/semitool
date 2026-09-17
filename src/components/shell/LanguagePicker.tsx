@@ -8,11 +8,12 @@ import {
   setLocale,
   type SupportedLocale,
 } from '@/lib/i18n/context';
-
+import { getTranslation } from '@/lib/i18n/translations';
 export default function LanguagePicker() {
   const currentLocale = useLocale();
-  const [open, setOpen] = useState(false);
+  const t = getTranslation(currentLocale);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
 
   const selected = SUPPORTED_LOCALES.find((item) => item.code === currentLocale) ?? SUPPORTED_LOCALES[0];
 
@@ -38,8 +39,8 @@ export default function LanguagePicker() {
       <button
         type="button"
         className="icon-button lang-picker-btn"
-        aria-label="Change language / 切换语言"
-        title="Change language / 语言切换"
+        aria-label={t.languagePickerLabel}
+        title={t.languagePickerTitle}
         onClick={() => setOpen((prev) => !prev)}
         style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '13px' }}
       >

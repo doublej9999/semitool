@@ -280,7 +280,7 @@ export default function EngineeringHandbookPanel({ open, onClose }: EngineeringH
                       </p>
 
                       <div style={{ marginTop: '10px', fontSize: '11.5px', color: 'var(--ink-soft, #33454e)' }}>
-                        <strong>Variables: </strong>
+                        <strong>{t.handbookVariables} </strong>
                         {f.variables.map((v, i) => (
                           <span key={v.symbol}>
                             <code>{v.symbol}</code> ({v.meaning} [{v.unit}])
@@ -300,7 +300,7 @@ export default function EngineeringHandbookPanel({ open, onClose }: EngineeringH
                           border: '1px solid rgba(185, 118, 42, 0.2)',
                         }}
                       >
-                        <strong>Fab Application:</strong> {f.fabRelevance}
+                        <strong>{t.handbookFabApp}</strong> {f.fabRelevance}
                       </div>
 
                       {f.calculatorPath && (
@@ -423,16 +423,16 @@ export default function EngineeringHandbookPanel({ open, onClose }: EngineeringH
               {activeTab === 'cleanroom' && (
                 <div>
                   <p className="note" style={{ marginBottom: '14px' }}>
-                    Airborne particulate cleanliness classes under ISO 14644-1 and equivalent US Federal Standard 209E.
+                    {t.handbookCleanroomIntro}
                   </p>
                   <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead>
                       <tr style={{ borderBottom: '2px solid var(--line, #dbe2e4)', background: 'var(--paper, #f4f6f5)' }}>
-                        <th style={{ padding: '8px 10px' }}>ISO Class</th>
-                        <th style={{ padding: '8px 10px' }}>Fed Std 209E</th>
-                        <th style={{ padding: '8px 10px' }}>Max ≥0.1 µm / m³</th>
-                        <th style={{ padding: '8px 10px' }}>Max ≥0.5 µm / m³</th>
-                        <th style={{ padding: '8px 10px' }}>Application</th>
+                        <th style={{ padding: '8px 10px' }}>{t.handbookIsoClass}</th>
+                        <th style={{ padding: '8px 10px' }}>{t.handbookFedStd}</th>
+                        <th style={{ padding: '8px 10px' }}>{t.handbookMax01}</th>
+                        <th style={{ padding: '8px 10px' }}>{t.handbookMax05}</th>
+                        <th style={{ padding: '8px 10px' }}>{t.handbookApplication}</th>
                       </tr>
                     </thead>
                     <tbody>
