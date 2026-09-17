@@ -41,8 +41,8 @@ export default function ToolSidebar({ onNavigate }: { onNavigate?: () => void })
       return categoryGroups;
     }
 
-    return [{ name: 'Favorites', tools: favorites, collapsible: false }, ...categoryGroups];
-  }, [favorites]);
+    return [{ name: t.favorites, tools: favorites, collapsible: false }, ...categoryGroups];
+  }, [favorites, t.favorites]);
 
   return (
     <div className="sider-inner">

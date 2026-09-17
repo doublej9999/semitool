@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copy from '@/lib/i18n/tool-copy/resources/wafer-map-generator';
 
 import { useRef, useState } from 'react';
 import { Upload, Sparkles, Layers } from 'lucide-react';
@@ -35,6 +37,7 @@ interface WaferImportPanelProps {
  * parsers stay out of the initial route bundle.
  */
 export default function WaferImportPanel({ diameter, pitchX, pitchY, dies, onImport }: WaferImportPanelProps) {
+  const t = useToolCopy(copy);
   const [importTab, setImportTab] = useState<'g85' | 'stdf' | 'klarf'>('stdf');
   const [rawTextInput, setRawTextInput] = useState('');
 
@@ -193,8 +196,7 @@ export default function WaferImportPanel({ diameter, pitchX, pitchY, dies, onImp
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
         <h3 style={{ fontSize: '13px', fontWeight: '600', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Layers size={14} /> Fab Metrology & Test Format Importer
-        </h3>
+          <Layers size={14} /> {t("Fab Metrology & Test Format Importer")}</h3>
         <div style={{ display: 'flex', gap: '4px' }}>
           <button
             type="button"
@@ -202,47 +204,41 @@ export default function WaferImportPanel({ diameter, pitchX, pitchY, dies, onImp
             style={{ fontSize: '11px', padding: '2px 8px' }}
             onClick={() => setImportTab('stdf')}
           >
-            STDF V4
-          </button>
+            {t("STDF V4")}</button>
           <button
             type="button"
             className={`button small ${importTab === 'klarf' ? 'primary' : 'secondary'}`}
             style={{ fontSize: '11px', padding: '2px 8px' }}
             onClick={() => setImportTab('klarf')}
           >
-            KLARF 1.2
-          </button>
+            {t("KLARF 1.2")}</button>
           <button
             type="button"
             className={`button small ${importTab === 'g85' ? 'primary' : 'secondary'}`}
             style={{ fontSize: '11px', padding: '2px 8px' }}
             onClick={() => setImportTab('g85')}
           >
-            SEMI G85
-          </button>
+            {t("SEMI G85")}</button>
         </div>
       </div>
 
       {importTab === 'stdf' && (
         <div>
           <p className="note" style={{ marginBottom: '10px' }}>
-            Import ATE Automated Test Equipment binary STDF V4 (.std / .stdf) logs containing FAR, MIR, WRR, and PRR die-level test records.
-          </p>
+            {t("Import ATE Automated Test Equipment binary STDF V4 (.std / .stdf) logs containing FAR, MIR, WRR, and PRR die-level test records.")}</p>
           <div className="action-row">
             <button
               type="button"
               className="button primary"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload size={13} /> Select .std / .stdf Binary
-            </button>
+              <Upload size={13} /> {t("Select .std / .stdf Binary")}</button>
             <button
               type="button"
               className="button secondary"
               onClick={loadSyntheticStdfPreset}
             >
-              <Sparkles size={13} /> Load Synthetic STDF Stream
-            </button>
+              <Sparkles size={13} /> {t("Load Synthetic STDF Stream")}</button>
           </div>
         </div>
       )}
@@ -250,23 +246,20 @@ export default function WaferImportPanel({ diameter, pitchX, pitchY, dies, onImp
       {importTab === 'klarf' && (
         <div>
           <p className="note" style={{ marginBottom: '10px' }}>
-            Import KLA defect inspection format (.klarf / .001) with spatial coordinates, defect classification, and scratch line clustering.
-          </p>
+            {t("Import KLA defect inspection format (.klarf / .001) with spatial coordinates, defect classification, and scratch line clustering.")}</p>
           <div className="action-row" style={{ marginBottom: '10px' }}>
             <button
               type="button"
               className="button primary"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload size={13} /> Select .klarf / .001 File
-            </button>
+              <Upload size={13} /> {t("Select .klarf / .001 File")}</button>
             <button
               type="button"
               className="button secondary"
               onClick={loadSyntheticKlarfPreset}
             >
-              <Sparkles size={13} /> Load Synthetic Scratch KLARF
-            </button>
+              <Sparkles size={13} /> {t("Load Synthetic Scratch KLARF")}</button>
           </div>
           <textarea
             rows={4}
@@ -278,7 +271,7 @@ export default function WaferImportPanel({ diameter, pitchX, pitchY, dies, onImp
               borderRadius: '4px',
               border: '1px solid var(--border)',
             }}
-            placeholder="Paste raw KLARF 1.2 ASCII text or upload file..."
+            placeholder={t("Paste raw KLARF 1.2 ASCII text or upload file...")}
             value={rawTextInput}
             onChange={(e) => setRawTextInput(e.target.value)}
           />
@@ -293,16 +286,14 @@ export default function WaferImportPanel({ diameter, pitchX, pitchY, dies, onImp
               }
             }}
           >
-            Parse Text
-          </button>
+            {t("Parse Text")}</button>
         </div>
       )}
 
       {importTab === 'g85' && (
         <div>
           <p className="note" style={{ marginBottom: '8px' }}>
-            Paste standard SEMI G85 ASCII wafer map or select a map file (.txt / .g85).
-          </p>
+            {t("Paste standard SEMI G85 ASCII wafer map or select a map file (.txt / .g85).")}</p>
           <textarea
             rows={5}
             style={{
@@ -313,21 +304,19 @@ export default function WaferImportPanel({ diameter, pitchX, pitchY, dies, onImp
               borderRadius: '4px',
               border: '1px solid var(--border)',
             }}
-            placeholder="WAFER_ID:W01&#10;MAP_DATA:&#10;...000100...&#10;...001100..."
+            placeholder={t("WAFER_ID:W01&#10;MAP_DATA:&#10;...000100...&#10;...001100...")}
             value={rawTextInput}
             onChange={(e) => setRawTextInput(e.target.value)}
           />
           <div className="action-row" style={{ marginTop: '8px' }}>
             <button type="button" className="button primary" onClick={handleImportG85}>
-              Parse & Load G85 Map
-            </button>
+              {t("Parse & Load G85 Map")}</button>
             <button
               type="button"
               className="button secondary"
               onClick={() => fileInputRef.current?.click()}
             >
-              Upload G85 File
-            </button>
+              {t("Upload G85 File")}</button>
           </div>
         </div>
       )}

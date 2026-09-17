@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/wafer-area-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -33,6 +35,7 @@ function fmt(value: number, significant = 4): string {
 }
 
 export default function WaferAreaCalculator() {
+  const t = useToolCopy(copyResource);
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const [measuredState, setMeasuredState] = useState({ measured: '' });
@@ -82,7 +85,7 @@ export default function WaferAreaCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="wafer-area-inputs">
-        <h2 id="wafer-area-inputs">Wafer and die</h2>
+        <h2 id="wafer-area-inputs">{t("Wafer and die")}</h2>
 
         <div className="form-row">
           <div className="field">
@@ -97,7 +100,7 @@ export default function WaferAreaCalculator() {
                 onChange={(event) => update('diameter', event.target.value)}
               />
               <select
-                aria-label="Wafer diameter unit"
+                aria-label={t("Wafer diameter unit")}
                 value={values.diameterUnit}
                 onChange={(event) => update('diameterUnit', event.target.value as DiameterUnit)}
                 style={{ flex: '0 0 auto', width: 'auto' }}
@@ -123,7 +126,7 @@ export default function WaferAreaCalculator() {
                 onChange={(event) => update('edgeExclusion', event.target.value)}
               />
               <select
-                aria-label="Edge exclusion unit"
+                aria-label={t("Edge exclusion unit")}
                 value={values.edgeExclusionUnit}
                 onChange={(event) => update('edgeExclusionUnit', event.target.value as LengthUnit)}
                 style={{ flex: '0 0 auto', width: 'auto' }}
@@ -151,7 +154,7 @@ export default function WaferAreaCalculator() {
                 onChange={(event) => update('dieWidth', event.target.value)}
               />
               <select
-                aria-label="Die dimension unit, applied to width and height"
+                aria-label={t("Die dimension unit, applied to width and height")}
                 value={values.dieUnit}
                 onChange={(event) => update('dieUnit', event.target.value as LengthUnit)}
                 style={{ flex: '0 0 auto', width: 'auto' }}
@@ -182,7 +185,7 @@ export default function WaferAreaCalculator() {
 
         <div className="field">
           <label htmlFor="wafer-area-measured">
-            Measured gross die<span className="unit">optional, count</span>
+            {t("Measured gross die")}<span className="unit">{t("optional, count")}</span>
           </label>
           <input
             id="wafer-area-measured"
@@ -191,14 +194,12 @@ export default function WaferAreaCalculator() {
             step="1"
             value={measured}
             onChange={(event) => setMeasured(event.target.value)}
-            placeholder="e.g. 665"
+            placeholder={t("e.g. 665")}
           />
         </div>
 
         <p className="note">
-          The edge exclusion is removed from the radius on every side, so the usable diameter is the wafer diameter
-          minus twice the exclusion. Leave the measured count empty to skip the utilisation figures.
-        </p>
+          {t("The edge exclusion is removed from the radius on every side, so the usable diameter is the wafer diameter minus twice the exclusion. Leave the measured count empty to skip the utilisation figures.")}</p>
 
         <div className="action-row">
           <button
@@ -209,13 +210,12 @@ export default function WaferAreaCalculator() {
               setMeasured('');
             }}
           >
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="wafer-area-result">
-        <h2 id="wafer-area-result">Area results</h2>
+        <h2 id="wafer-area-result">{t("Area results")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -225,7 +225,7 @@ export default function WaferAreaCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Area-only die count (upper bound)</span>
+            <span className="unit">{t("Area-only die count (upper bound)")}</span>
             <div className="result-value" aria-live="polite">
               {result.areaOnlyDieCount}
               <span className="result-suffix"> dice</span>
@@ -234,30 +234,30 @@ export default function WaferAreaCalculator() {
             <div className="metric-grid">
               <div className="metric">
                 <span>{g('waferArea')}</span>
-                <strong>{fmt(result.waferAreaCm2)} cm&#178;</strong>
+                <strong>{fmt(result.waferAreaCm2)} {t("cm&#178;")}</strong>
               </div>
               <div className="metric">
-                <span>Usable area</span>
-                <strong>{fmt(result.usableAreaCm2)} cm&#178;</strong>
+                <span>{t("Usable area")}</span>
+                <strong>{fmt(result.usableAreaCm2)} {t("cm&#178;")}</strong>
               </div>
               <div className="metric">
-                <span>Edge exclusion loss</span>
+                <span>{t("Edge exclusion loss")}</span>
                 <strong>{result.edgeLossPercent.toFixed(2)}%</strong>
               </div>
               <div className="metric">
                 <span>{g('dieArea')}</span>
-                <strong>{fmt(result.dieAreaCm2)} cm&#178;</strong>
+                <strong>{fmt(result.dieAreaCm2)} {t("cm&#178;")}</strong>
               </div>
             </div>
 
             {result.utilizationPercent !== null ? (
               <div className="metric-grid">
                 <div className="metric">
-                  <span>Measured dice / usable area</span>
+                  <span>{t("Measured dice / usable area")}</span>
                   <strong>{result.utilizationPercent.toFixed(2)}%</strong>
                 </div>
                 <div className="metric">
-                  <span>Measured vs area bound</span>
+                  <span>{t("Measured vs area bound")}</span>
                   <strong>{result.packingEfficiencyPercent === null ? '---' : `${result.packingEfficiencyPercent.toFixed(2)}%`}</strong>
                 </div>
               </div>
@@ -266,44 +266,41 @@ export default function WaferAreaCalculator() {
             <table className="model-table">
               <thead>
                 <tr>
-                  <th scope="col">Quantity</th>
+                  <th scope="col">{t("Quantity")}</th>
                   <th scope="col">{g('valueLabel2')}</th>
-                  <th scope="col">How it is obtained</th>
+                  <th scope="col">{t("How it is obtained")}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <th scope="row">{g('waferArea')}</th>
-                  <td className="mono">{fmt(result.waferAreaCm2)} cm&#178;</td>
-                  <td className="mono">&#960; r&#178;</td>
+                  <td className="mono">{fmt(result.waferAreaCm2)} {t("cm&#178;")}</td>
+                  <td className="mono">{t("&#960; r&#178;")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Usable area</th>
-                  <td className="mono">{fmt(result.usableAreaCm2)} cm&#178;</td>
-                  <td className="mono">&#960; (r &#8722; e)&#178;</td>
+                  <th scope="row">{t("Usable area")}</th>
+                  <td className="mono">{fmt(result.usableAreaCm2)} {t("cm&#178;")}</td>
+                  <td className="mono">{t("&#960; (r &#8722; e)&#178;")}</td>
                 </tr>
                 <tr>
                   <th scope="row">{g('dieArea')}</th>
-                  <td className="mono">{fmt(result.dieAreaCm2)} cm&#178;</td>
-                  <td className="mono">width &#215; height</td>
+                  <td className="mono">{fmt(result.dieAreaCm2)} {t("cm&#178;")}</td>
+                  <td className="mono">{t("width &#215; height")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Area-only count</th>
+                  <th scope="row">{t("Area-only count")}</th>
                   <td className="mono">{result.areaOnlyDieCount}</td>
-                  <td className="mono">floor(usable / die)</td>
+                  <td className="mono">{t("floor(usable / die)")}</td>
                 </tr>
               </tbody>
             </table>
 
             <p className="note">
-              The area-only count divides one area by another and ignores that rectangles cannot tile a circle, so it is
-              an upper bound rather than a die-per-wafer count. Use the die-per-wafer calculator for a grid layout, or
-              enter a measured count for the only figure that reflects the real wafer.
-            </p>
+              {t("The area-only count divides one area by another and ignores that rectangles cannot tile a circle, so it is an upper bound rather than a die-per-wafer count. Use the die-per-wafer calculator for a grid layout, or enter a measured count for the only figure that reflects the real wafer.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

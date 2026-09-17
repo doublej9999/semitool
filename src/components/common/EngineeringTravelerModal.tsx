@@ -637,27 +637,27 @@ export default function EngineeringTravelerModal({
                   type="button"
                   className="button secondary sm"
                   onClick={handleSaveTraveler}
-                  title="Save run to local browser archive"
+                  title={t.travelerArchiveTitle}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
                 >
                   {saveSuccess ? <Check size={14} color="#059669" /> : <Save size={14} />}
-                  <span>{saveSuccess ? 'Saved' : 'Archive'}</span>
+                  <span>{saveSuccess ? (t.copied || 'Saved') : 'Archive'}</span>
                 </button>
                 <button
                   type="button"
                   className="button secondary sm"
                   onClick={() => setShowHistory(!showHistory)}
-                  title="View saved traveler history"
+                  title={t.travelerHistoryTitle}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
                 >
                   <History size={14} />
-                  <span>History ({savedHistory.length})</span>
+                  <span>{t.travelerHistoryCount.replace('{count}', String(savedHistory.length))}</span>
                 </button>
                 <button
                   type="button"
                   className="button secondary sm"
                   onClick={handleExportJson}
-                  title="Export MES JSON file"
+                  title={t.travelerExportMesJson}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
                 >
                   <Download size={14} />
@@ -667,7 +667,7 @@ export default function EngineeringTravelerModal({
                   type="button"
                   className="button secondary sm"
                   onClick={handleExportCsv}
-                  title="Export CSV file"
+                  title={t.travelerExportCsv}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
                 >
                   <Download size={14} />
@@ -677,7 +677,7 @@ export default function EngineeringTravelerModal({
                   type="button"
                   className="button secondary sm"
                   onClick={handleExportPdf}
-                  title="Export printable PDF run-card"
+                  title={t.travelerExportPdf}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '12px' }}
                 >
                   <Download size={14} />
@@ -719,7 +719,7 @@ export default function EngineeringTravelerModal({
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink)' }}>
-                    Archived Traveler Runs ({savedHistory.length})
+                    {t.travelerArchivedTitle.replace('{count}', String(savedHistory.length))}
                   </span>
                   <button
                     type="button"
@@ -731,7 +731,7 @@ export default function EngineeringTravelerModal({
                 </div>
                 {savedHistory.length === 0 ? (
                   <div style={{ fontSize: '12px', color: 'var(--muted)', padding: '6px 0' }}>
-                    No archived runs yet. Click &quot;Archive&quot; to store this traveler.
+                    {t.travelerNoArchived}
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
@@ -765,7 +765,7 @@ export default function EngineeringTravelerModal({
                             style={{ fontSize: '10.5px', padding: '2px 6px' }}
                             onClick={() => handleLoadRecord(rec)}
                           >
-                            Restore
+                            {t.travelerRestore}
                           </button>
                           <button
                             type="button"
@@ -870,10 +870,10 @@ export default function EngineeringTravelerModal({
               >
                 <div>
                   <div style={{ fontSize: '1.3rem', fontWeight: 700, letterSpacing: '0.04em' }}>
-                    SEMITOOLS CLEANROOM TRAVELER
+                    {t.travelerHeaderTitle}
                   </div>
                   <div style={{ fontSize: '0.82rem', color: '#475569', marginTop: '0.2rem' }}>
-                    WAFER LOT DISPATCH &amp; PROCESS RUN-SHEET
+                    {t.travelerHeaderSub}
                   </div>
                 </div>
 
@@ -886,9 +886,9 @@ export default function EngineeringTravelerModal({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <SvgQrCode payload={`${lotId}-${recipeName}-${dateStr}`} />
                   <div style={{ textAlign: 'right', fontSize: '0.8rem' }}>
-                    <div><strong>DATE:</strong> {dateStr}</div>
-                    <div><strong>REV:</strong> V2.6-ENG</div>
-                    <div><strong>STATUS:</strong> <span style={{ color: '#0d7c82', fontWeight: 700 }}>AUTHORIZED</span></div>
+                    <div><strong>{t.travelerDate}</strong> {dateStr}</div>
+                    <div><strong>{t.travelerRev}</strong> V2.6-ENG</div>
+                    <div><strong>{t.travelerStatus}</strong> <span style={{ color: '#0d7c82', fontWeight: 700 }}>{t.travelerAuthorized}</span></div>
                   </div>
                 </div>
               </div>
@@ -904,22 +904,22 @@ export default function EngineeringTravelerModal({
               >
                 <tbody>
                   <tr>
-                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc', width: '20%' }}><strong>LOT NUMBER:</strong></td>
+                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc', width: '20%' }}><strong>{t.travelerLotNum}</strong></td>
                     <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', width: '30%' }}>{lotId}</td>
-                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc', width: '20%' }}><strong>WAFER SLOTS:</strong></td>
+                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc', width: '20%' }}><strong>{t.travelerWaferSlots}</strong></td>
                     <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', width: '30%' }}>{waferIds}</td>
                   </tr>
                   <tr>
-                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc' }}><strong>PROCESS / RECIPE:</strong></td>
+                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc' }}><strong>{t.travelerProcessRecipe}</strong></td>
                     <td style={{ border: '1px solid #94a3b8', padding: '6px 10px' }}>{recipeName}</td>
-                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc' }}><strong>CHAMBER / TOOL:</strong></td>
+                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc' }}><strong>{t.travelerChamberTool}</strong></td>
                     <td style={{ border: '1px solid #94a3b8', padding: '6px 10px' }}>{chamberId}</td>
                   </tr>
                   <tr>
-                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc' }}><strong>RESPONSIBLE ENG:</strong></td>
+                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc' }}><strong>{t.travelerRespEng}</strong></td>
                     <td style={{ border: '1px solid #94a3b8', padding: '6px 10px' }}>{operator}</td>
-                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc' }}><strong>OPERATION STEP:</strong></td>
-                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px' }}>STEP-410 [{toolName}]</td>
+                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px', background: '#f8fafc' }}><strong>{t.travelerOpStep}</strong></td>
+                    <td style={{ border: '1px solid #94a3b8', padding: '6px 10px' }}>{t.travelerStepTag.replace('{toolName}', toolName)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -938,11 +938,11 @@ export default function EngineeringTravelerModal({
                 >
                   <thead>
                     <tr style={{ background: '#f1f5f9' }}>
-                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left' }}>Parameter</th>
-                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left' }}>Nominal / Modeled Setpoint</th>
-                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>Tolerance / Spec</th>
-                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>Actual Readout</th>
-                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>Verification</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left' }}>{t.travelerParam}</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left' }}>{t.travelerNominal}</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>{t.travelerTolerance}</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>{t.travelerActual}</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>{t.travelerVerification}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -953,16 +953,16 @@ export default function EngineeringTravelerModal({
                           <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>{String(v)}</td>
                           <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center', color: '#64748b' }}>±3.0%</td>
                           <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</td>
-                          <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>□ PASS &nbsp; □ OOS</td>
+                          <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>{t.travelerPassOos}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>Process Temp / Power</td>
-                        <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>Standard Recipe Setpoint</td>
+                        <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>{t.travelerProcessTempPower}</td>
+                        <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>{t.travelerStdRecipeSetpoint}</td>
                         <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>±1.5%</td>
                         <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</td>
-                        <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>□ PASS &nbsp; □ OOS</td>
+                        <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>{t.travelerPassOos}</td>
                       </tr>
                     )}
                   </tbody>
@@ -983,11 +983,11 @@ export default function EngineeringTravelerModal({
                 >
                   <thead>
                     <tr style={{ background: '#f1f5f9' }}>
-                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left' }}>Metrology Output</th>
-                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left' }}>Theoretical / Modeled Value</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left' }}>{t.travelerMetrologyOutput}</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left' }}>{t.travelerTheoreticalVal}</th>
                       <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>LSL</th>
                       <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>USL</th>
-                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>Measured Average</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>{t.travelerMeasuredAvg}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1003,8 +1003,8 @@ export default function EngineeringTravelerModal({
                       ))
                     ) : (
                       <tr>
-                        <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>Target Thickness / Rate / Yield</td>
-                        <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>Refer to Active Tool Metrology</td>
+                        <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>{t.travelerTargetThickRateYield}</td>
+                        <td style={{ border: '1px solid #94a3b8', padding: '6px' }}>{t.travelerReferActiveMetrology}</td>
                         <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>-5%</td>
                         <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>+5%</td>
                         <td style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'center' }}>[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</td>
@@ -1022,21 +1022,21 @@ export default function EngineeringTravelerModal({
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', fontSize: '0.8rem' }}>
                   <div style={{ borderTop: '1px dashed #64748b', paddingTop: '0.4rem' }}>
                     <div><strong>{t.travelerPreCheck}:</strong></div>
-                    <div>Chamber Base Vacuum: □ OK</div>
-                    <div>Particle Monitor (&lt;0.1µm): □ OK</div>
-                    <div>Operator Sign: ________________</div>
+                    <div>{t.travelerChamberVacuum}</div>
+                    <div>{t.travelerParticleMonitor}</div>
+                    <div>{t.travelerOperatorSign}</div>
                   </div>
                   <div style={{ borderTop: '1px dashed #64748b', paddingTop: '0.4rem' }}>
                     <div><strong>{t.travelerProcessRun}:</strong></div>
-                    <div>Recipe Abort / Alarm: □ NONE</div>
-                    <div>Wafers Unloaded: [ 25 / 25 ]</div>
-                    <div>Shift Handover: ________________</div>
+                    <div>{t.travelerRecipeAlarm}</div>
+                    <div>{t.travelerWafersUnloaded}</div>
+                    <div>{t.travelerShiftHandover}</div>
                   </div>
                   <div style={{ borderTop: '1px dashed #64748b', paddingTop: '0.4rem' }}>
                     <div><strong>{t.travelerPostMetrology}:</strong></div>
-                    <div>Disposition: □ RELEASE &nbsp; □ HOLD</div>
-                    <div>Deviation Report #: ____________</div>
-                    <div>Fab Engineer Sign: _____________</div>
+                    <div>{t.travelerDisposition}</div>
+                    <div>{t.travelerDevReport}</div>
+                    <div>{t.travelerFabEngSign}</div>
                   </div>
                 </div>
               </div>
@@ -1053,8 +1053,8 @@ export default function EngineeringTravelerModal({
                   paddingTop: '0.4rem',
                 }}
               >
-                <span>Generated by SemiTools Local Fab Engineering Hub</span>
-                <span>ISO 9001 / IATF 16949 Metrology Audit Compliant Record</span>
+                <span>{t.travelerGeneratedNotice}</span>
+                <span>{t.travelerAuditNotice}</span>
               </div>
             </div>
           </div>

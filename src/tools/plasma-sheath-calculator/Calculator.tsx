@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/plasma-sheath-calculator';
 
 import { useMemo, useRef, useState } from 'react';
 import { Copy, RotateCcw, Info, Activity, Download, AlertTriangle, Image as ImageIcon } from 'lucide-react';
@@ -26,6 +28,7 @@ const INITIAL = {
 const num = (v: string) => (v.trim() === '' ? Number.NaN : Number(v));
 
 export default function PlasmaSheathCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
@@ -77,29 +80,29 @@ export default function PlasmaSheathCalculator() {
     if (Number.isFinite(V) && Number.isFinite(Te) && V <= Te) {
       warnings.push({
         level: 'danger',
-        title: 'Weak Sheath Potential (V_sheath ≤ Te)',
-        message: 'The Child-Langmuir space-charge approximation requires eV >> kTe. Below this, space-charge separation is incomplete and Debye thermal screening dominates.',
+        title: t('Weak Sheath Potential (V_sheath ≤ Te)'),
+        message: t('The Child-Langmuir space-charge approximation requires eV >> kTe. Below this, space-charge separation is incomplete and Debye thermal screening dominates.'),
       });
     }
 
     if (Number.isFinite(P) && P > 100 && result && (result.collisionalityRatio ?? 0) > 5) {
       warnings.push({
         level: 'warning',
-        title: 'Highly Collisional Sheath (s >> λ_i)',
-        message: 'At pressures > 100 mTorr, charge-exchange collisions degrade ion directional energy, resulting in a broad low-energy distribution and reduced etch anisotropy.',
+        title: t('Highly Collisional Sheath (s >> λ_i)'),
+        message: t('At pressures > 100 mTorr, charge-exchange collisions degrade ion directional energy, resulting in a broad low-energy distribution and reduced etch anisotropy.'),
       });
     }
 
     if (Number.isFinite(Te) && (Te > 15 || Te < 0.8)) {
       warnings.push({
         level: 'warning',
-        title: 'Non-Standard Electron Temperature',
-        message: `Te = ${Te} eV lies outside typical semiconductor processing plasma regimes (1.5 to 6.0 eV for ICP/CCP/RIE).`,
+        title: t('Non-Standard Electron Temperature'),
+        message: t('Te = {te} eV lies outside typical semiconductor processing plasma regimes (1.5 to 6.0 eV for ICP/CCP/RIE).', { te: Te }),
       });
     }
 
     return warnings;
-  }, [state, result]);
+  }, [state, result, t]);
 
   const handleExportProfileSvg = () => {
     if (svgRef.current) {
@@ -351,10 +354,10 @@ export default function PlasmaSheathCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="plasma-inputs">
-        <h2 id="plasma-inputs">Plasma & Discharge Conditions</h2>
+        <h2 id="plasma-inputs">{t("Plasma & Discharge Conditions")}</h2>
 
         <div className="field">
-          <label htmlFor="gas-preset">Working Gas & Dominant Ion Species</label>
+          <label htmlFor="gas-preset">{t("Working Gas & Dominant Ion Species")}</label>
           <select
             id="gas-preset"
             value={state.gasPresetId}
@@ -362,17 +365,17 @@ export default function PlasmaSheathCalculator() {
           >
             {PLASMA_GAS_PRESETS.map((preset) => (
               <option key={preset.id} value={preset.id}>
-                {preset.name} (amu: {preset.ionMassAmu}) — {preset.typicalProcess}
+                {preset.name} {t("(amu:")}{preset.ionMassAmu}) — {preset.typicalProcess}
               </option>
             ))}
-            <option value="custom">Custom Ion Mass...</option>
+            <option value="custom">{t("Custom Ion Mass...")}</option>
           </select>
         </div>
 
         {state.gasPresetId === 'custom' && (
           <div className="field">
             <label htmlFor="custom-mass">
-              Custom Ion Atomic Mass (Mᵢ)<span className="unit">amu (g/mol)</span>
+              {t("Custom Ion Atomic Mass (Mᵢ)")}<span className="unit">{t("amu (g/mol)")}</span>
             </label>
             <input
               id="custom-mass"
@@ -387,8 +390,8 @@ export default function PlasmaSheathCalculator() {
 
         <div className="field">
           <label htmlFor="ne-log">
-            Plasma Electron Density (nₑ = 10^{state.electronDensityExp})
-            <span className="unit">cm⁻³ (10^{state.electronDensityExp})</span>
+            {t("Plasma Electron Density (nₑ = 10^")}{state.electronDensityExp})
+            <span className="unit">{t("cm⁻³ (10^")}{state.electronDensityExp})</span>
           </label>
           <input
             id="ne-log"
@@ -400,15 +403,15 @@ export default function PlasmaSheathCalculator() {
             onChange={(e) => setState((p) => ({ ...p, electronDensityExp: e.target.value }))}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--ink-soft)' }}>
-            <span>10⁹ cm⁻³ (Capacitive CCP)</span>
-            <span>10¹¹ cm⁻³ (Standard RIE)</span>
-            <span>10¹³ cm⁻³ (High Density ICP)</span>
+            <span>{t("10⁹ cm⁻³ (Capacitive CCP)")}</span>
+            <span>{t("10¹¹ cm⁻³ (Standard RIE)")}</span>
+            <span>{t("10¹³ cm⁻³ (High Density ICP)")}</span>
           </div>
         </div>
 
         <div className="field">
           <label htmlFor="te-ev">
-            {g('electronTemperature')} (Tₑ)<span className="unit">eV</span>
+            {g('electronTemperature')} {t("(Tₑ)")}<span className="unit">eV</span>
           </label>
           <input
             id="te-ev"
@@ -420,13 +423,12 @@ export default function PlasmaSheathCalculator() {
             onChange={(e) => setState((p) => ({ ...p, electronTempEv: e.target.value }))}
           />
           <div style={{ fontSize: '12px', color: 'var(--ink-soft)', marginTop: '2px' }}>
-            Note: 1 eV ≈ 11,600 Kelvin. Typical processing plasmas operate at 2.0 – 5.0 eV.
-          </div>
+            {t("Note: 1 eV ≈ 11,600 Kelvin. Typical processing plasmas operate at 2.0 – 5.0 eV.")}</div>
         </div>
 
         <div className="field">
           <label htmlFor="bias-volts">
-            RF Sheath / Wafer Bias Voltage (V₀)<span className="unit">Volts (V)</span>
+            {t("RF Sheath / Wafer Bias Voltage (V₀)")}<span className="unit">{t("Volts (V)")}</span>
           </label>
           <input
             id="bias-volts"
@@ -460,8 +462,7 @@ export default function PlasmaSheathCalculator() {
             type="button"
             onClick={() => setState(INITIAL)}
           >
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
           <button
             className="button primary"
             type="button"
@@ -474,51 +475,46 @@ export default function PlasmaSheathCalculator() {
             type="button"
             onClick={handleExportProfileCsv}
             disabled={!result}
-            title="Download spatial sheath potential & density profile as CSV"
+            title={t("Download spatial sheath potential & density profile as CSV")}
           >
-            <Download size={14} aria-hidden="true" /> Export Profile
-          </button>
+            <Download size={14} aria-hidden="true" /> {t("Export Profile")}</button>
           <button
             className="button secondary"
             type="button"
             onClick={handleExportProfileXlsx}
             disabled={!result}
-            title="Download spatial sheath potential & density profile as XLSX"
+            title={t("Download spatial sheath potential & density profile as XLSX")}
           >
-            <Download size={14} aria-hidden="true" /> Export Profile XLSX
-          </button>
+            <Download size={14} aria-hidden="true" /> {t("Export Profile XLSX")}</button>
           <button
             className="button secondary"
             type="button"
             onClick={handleExportSummaryCsv}
             disabled={!result}
-            title="Download comprehensive plasma parameters as CSV"
+            title={t("Download comprehensive plasma parameters as CSV")}
           >
-            <Download size={14} aria-hidden="true" /> Export Summary
-          </button>
+            <Download size={14} aria-hidden="true" /> {t("Export Summary")}</button>
           <button
             className="button secondary"
             type="button"
             onClick={handleExportSummaryXlsx}
             disabled={!result}
-            title="Download comprehensive plasma parameters as XLSX"
+            title={t("Download comprehensive plasma parameters as XLSX")}
           >
-            <Download size={14} aria-hidden="true" /> Export Summary XLSX
-          </button>
+            <Download size={14} aria-hidden="true" /> {t("Export Summary XLSX")}</button>
           <button
             className="button secondary"
             type="button"
             onClick={handleExportSummaryPdf}
             disabled={!result}
-            title="Download comprehensive plasma parameters as a PDF report"
+            title={t("Download comprehensive plasma parameters as a PDF report")}
           >
-            <Download size={14} aria-hidden="true" /> Summary PDF
-          </button>
+            <Download size={14} aria-hidden="true" /> {t("Summary PDF")}</button>
         </div>
 
         <div className="note" style={{ marginTop: '20px' }}>
           <Info size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-2px' }} />
-          <strong>Bohm Criterion:</strong> In order to form a stable non-neutral electrostatic sheath, ions must accelerate across the quasi-neutral presheath and enter the sheath edge with a directed speed equal to or exceeding the Bohm acoustic velocity <em>u_B = √(k_B·T_e / M_i)</em>.
+          <strong>{t("Bohm Criterion:")}</strong> {t("In order to form a stable non-neutral electrostatic sheath, ions must accelerate across the quasi-neutral presheath and enter the sheath edge with a directed speed equal to or exceeding the Bohm acoustic velocity")}<em>{t("u_B = √(k_B·T_e / M_i)")}</em>.
         </div>
       </section>
 
@@ -532,44 +528,43 @@ export default function PlasmaSheathCalculator() {
           </div>
         ))}
       <section className="panel" aria-labelledby="plasma-results">
-        <h2 id="plasma-results">Sheath & Plasma Properties</h2>
+        <h2 id="plasma-results">{t("Sheath & Plasma Properties")}</h2>
 
         {result ? (
           <>
             <div>
-              <span className="unit">Child-Langmuir Sheath Thickness (s)</span>
+              <span className="unit">{t("Child-Langmuir Sheath Thickness (s)")}</span>
               <div className="result-value">
-                {fmt(result.childLangmuirSheathUm)} <span style={{ fontSize: '18px', fontWeight: 400 }}>µm</span>
+                {fmt(result.childLangmuirSheathUm)} <span style={{ fontSize: '18px', fontWeight: 400 }}>{t("µm")}</span>
                 <span style={{ fontSize: '14px', color: 'var(--ink-soft)', marginLeft: '10px' }}>
-                  ({fmt(result.childLangmuirSheathMm, 3)} mm)
-                </span>
+                  ({fmt(result.childLangmuirSheathMm, 3)} {t("mm)")}</span>
               </div>
             </div>
 
             <div className="metric-grid" style={{ marginTop: '20px' }}>
               <div className="metric">
-                <span>{g('debyeLengthLabel')} (λ_De)</span>
-                <strong>{fmt(result.debyeLengthUm)} µm</strong>
+                <span>{g('debyeLengthLabel')} {t("(λ_De)")}</span>
+                <strong>{fmt(result.debyeLengthUm)} {t("µm")}</strong>
               </div>
               <div className="metric">
-                <span>Bohm Presheath Velocity (u_B)</span>
-                <strong>{fmt(result.bohmVelocityMPerSec)} m/s</strong>
+                <span>{t("Bohm Presheath Velocity (u_B)")}</span>
+                <strong>{fmt(result.bohmVelocityMPerSec)} {t("m/s")}</strong>
               </div>
               <div className="metric">
-                <span>Bohm Ion Current Density (J_B)</span>
-                <strong>{fmt(result.ionCurrentDensityMaPerCm2, 3)} mA/cm²</strong>
+                <span>{t("Bohm Ion Current Density (J_B)")}</span>
+                <strong>{fmt(result.ionCurrentDensityMaPerCm2, 3)} {t("mA/cm²")}</strong>
               </div>
               <div className="metric">
-                <span>Floating Potential (V_f)</span>
+                <span>{t("Floating Potential (V_f)")}</span>
                 <strong>{fmt(result.floatingPotentialVolts, 1)} V</strong>
               </div>
               <div className="metric">
-                <span>Plasma Frequency (f_pe)</span>
-                <strong>{fmt(result.electronPlasmaFreqGhz, 2)} GHz</strong>
+                <span>{t("Plasma Frequency (f_pe)")}</span>
+                <strong>{fmt(result.electronPlasmaFreqGhz, 2)} {t("GHz")}</strong>
               </div>
               <div className="metric">
-                <span>Sheath Capacitance</span>
-                <strong>{fmt(result.sheathCapacitancePfPerCm2, 2)} pF/cm²</strong>
+                <span>{t("Sheath Capacitance")}</span>
+                <strong>{fmt(result.sheathCapacitancePfPerCm2, 2)} {t("pF/cm²")}</strong>
               </div>
             </div>
 
@@ -585,11 +580,10 @@ export default function PlasmaSheathCalculator() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)', fontWeight: 600, marginBottom: '6px' }}>
                   <Activity size={18} />
-                  <span>Ion Transport & Sheath Collisionality</span>
+                  <span>{t("Ion Transport & Sheath Collisionality")}</span>
                 </div>
                 <div style={{ fontSize: '13px', color: 'var(--ink)', marginBottom: '8px' }}>
-                  <strong>Ion Mean Free Path (λ_i):</strong> {fmt(result.ionMeanFreePathMm, 2)} mm &nbsp;|&nbsp;
-                  <strong> Collisionality Ratio (s / λ_i):</strong> {fmt(result.collisionalityRatio ?? 0, 2)}
+                  <strong>{t("Ion Mean Free Path (λ_i):")}</strong> {fmt(result.ionMeanFreePathMm, 2)} {t("mm |")}<strong> {t("Collisionality Ratio (s / λ_i):")}</strong> {fmt(result.collisionalityRatio ?? 0, 2)}
                 </div>
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--ink-soft)' }}>
                   {result.regimeDescription}
@@ -602,36 +596,33 @@ export default function PlasmaSheathCalculator() {
               <div style={{ marginTop: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <h3 style={{ fontSize: '14px', margin: 0, color: 'var(--ink)' }}>
-                    Sheath Spatial Profiling (Presheath to Wafer Cathode)
-                  </h3>
+                    {t("Sheath Spatial Profiling (Presheath to Wafer Cathode)")}</h3>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <div className="button-group" role="tablist" aria-label="Profile View Mode">
+                    <div className="button-group" role="tablist" aria-label={t("Profile View Mode")}>
                       <button
                         type="button"
                         className={`button ${chartMode === 'potential' ? 'primary' : 'secondary'}`}
                         style={{ fontSize: '11px', padding: '3px 8px' }}
                         onClick={() => setChartMode('potential')}
                       >
-                        Potential V(x)
-                      </button>
+                        {t("Potential V(x)")}</button>
                       <button
                         type="button"
                         className={`button ${chartMode === 'density' ? 'primary' : 'secondary'}`}
                         style={{ fontSize: '11px', padding: '3px 8px' }}
                         onClick={() => setChartMode('density')}
                       >
-                        Density n/n₀
-                      </button>
+                        {t("Density n/n₀")}</button>
                     </div>
                     <button
                       type="button"
                       className="button secondary"
                       style={{ fontSize: '11px', padding: '3px 8px' }}
                       onClick={handleExportProfileSvg}
-                      title="Save SVG chart"
+                      title={t("Save SVG chart")}
                     >
                       <ImageIcon size={12} aria-hidden="true" />
-                      <span>Save SVG</span>
+                      <span>{t("Save SVG")}</span>
                     </button>
                   </div>
                 </div>
@@ -687,8 +678,7 @@ export default function PlasmaSheathCalculator() {
                       fontWeight="600"
                       fontFamily="var(--font-mono)"
                     >
-                      Sheath Edge (x=0, u_B={fmt(result.bohmVelocityMPerSec)} m/s)
-                    </text>
+                      {t("Sheath Edge (x=0, u_B=")}{fmt(result.bohmVelocityMPerSec)} {t("m/s)")}</text>
 
                     {/* Wafer / Electrode boundary */}
                     <line
@@ -708,8 +698,7 @@ export default function PlasmaSheathCalculator() {
                       fontWeight="600"
                       fontFamily="var(--font-mono)"
                     >
-                      Wafer Cathode (x=s)
-                    </text>
+                      {t("Wafer Cathode (x=s)")}</text>
 
                     {/* Mode: Potential View */}
                     {chartMode === 'potential' && (
@@ -816,9 +805,9 @@ export default function PlasmaSheathCalculator() {
                         <g transform={`translate(${pad.left + 15}, ${pad.top + 28})`}>
                           <rect width="120" height="36" rx="4" fill="var(--bg-subtle)" stroke="var(--border-soft)" opacity="0.9" />
                           <line x1="8" y1="12" x2="28" y2="12" stroke="#0284c7" strokeWidth="2" />
-                          <text x="34" y="15" fontSize="9" fill="var(--ink)" fontWeight="500">nᵢ / n₀ (Ions)</text>
+                          <text x="34" y="15" fontSize="9" fill="var(--ink)" fontWeight="500">{t("nᵢ / n₀ (Ions)")}</text>
                           <line x1="8" y1="26" x2="28" y2="26" stroke="#ea580c" strokeWidth="2" strokeDasharray="4 2" />
-                          <text x="34" y="29" fontSize="9" fill="var(--ink)" fontWeight="500">nₑ / n₀ (Electrons)</text>
+                          <text x="34" y="29" fontSize="9" fill="var(--ink)" fontWeight="500">{t("nₑ / n₀ (Electrons)")}</text>
                         </g>
                       </>
                     )}
@@ -858,8 +847,7 @@ export default function PlasmaSheathCalculator() {
                       fill="var(--ink-soft)"
                       textAnchor="middle"
                     >
-                      Spatial Coordinate x (µm) — [Presheath &lt; 0 | Sheath &gt; 0]
-                    </text>
+                      {t("Spatial Coordinate x (µm) — [Presheath < 0 | Sheath > 0]")}</text>
 
                     {/* Hover indicator hairline and point marker */}
                     {activePoint && (
@@ -942,30 +930,30 @@ export default function PlasmaSheathCalculator() {
                     }}
                   >
                     <div>
-                      <span style={{ color: 'var(--ink-soft)' }}>x: </span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{t("x:")}</span>
                       <strong>{activePoint ? `${activePoint.xUm.toFixed(1)} µm` : 'Hover chart'}</strong>
                       <span style={{ marginLeft: '6px', color: 'var(--accent)', fontWeight: 600 }}>
                         {activePoint ? `[${activePoint.region}]` : ''}
                       </span>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--ink-soft)' }}>V(x): </span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{t("V(x):")}</span>
                       <strong>{activePoint ? `${activePoint.potentialVolts.toFixed(1)} V` : '—'}</strong>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--ink-soft)' }}>nᵢ/n₀: </span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{t("nᵢ/n₀:")}</span>
                       <strong style={{ color: '#0284c7' }}>
                         {activePoint ? activePoint.ionDensityNormalized.toFixed(3) : '—'}
                       </strong>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--ink-soft)' }}>nₑ/n₀: </span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{t("nₑ/n₀:")}</span>
                       <strong style={{ color: '#ea580c' }}>
                         {activePoint ? (activePoint.electronDensityNormalized < 0.001 ? '< 0.001' : activePoint.electronDensityNormalized.toFixed(3)) : '—'}
                       </strong>
                     </div>
                     <div>
-                      <span style={{ color: 'var(--ink-soft)' }}>vᵢ(x): </span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{t("vᵢ(x):")}</span>
                       <strong>{activePoint ? `${fmt(activePoint.ionVelocityMPerSec)} m/s` : '—'}</strong>
                     </div>
                   </div>
@@ -975,8 +963,7 @@ export default function PlasmaSheathCalculator() {
           </>
         ) : (
           <div className="error" role="alert">
-            Please enter valid numerical parameters for electron density and temperature.
-          </div>
+            {t("Please enter valid numerical parameters for electron density and temperature.")}</div>
         )}
       </section>
     </div>

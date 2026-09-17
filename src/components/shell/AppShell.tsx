@@ -16,6 +16,8 @@ import LanguagePicker from './LanguagePicker';
 import ToolSidebar from './ToolSidebar';
 import { useHydrateLocale, useLocale } from '@/lib/i18n/context';
 import { getTranslation } from '@/lib/i18n/translations';
+import { getTranslatedTool } from '@/lib/i18n/tool-translations';
+import { tools } from '@/tools';
 import { useHydrateFavorites } from '@/lib/favorites';
 import { useHydrateFabSession } from '@/lib/fab-session';
 import { setGloveMode, setRailCollapsed, useGloveMode, useHydratePreferences, useRailCollapsed } from '@/lib/preferences';
@@ -124,6 +126,28 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     document.documentElement.dataset.appHydrated = 'true';
   }, []);
 
+  // Keep document.title synchronized with the active locale
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (pathname === '/') {
+      document.title = `${SITE_NAME} — ${t.brandSubtitle}`;
+    } else if (pathname === '/tools') {
+      document.title = `${t.toolbox} — ${SITE_NAME}`;
+    } else if (pathname === '/about') {
+      document.title = `${t.about} — ${SITE_NAME}`;
+    } else if (pathname === '/contact') {
+      document.title = `${t.contact} — ${SITE_NAME}`;
+    } else if (pathname === '/privacy') {
+      document.title = `${t.privacy} — ${SITE_NAME}`;
+    } else if (pathname.startsWith('/tools/')) {
+      const toolObj = tools.find((c) => c.path === pathname);
+      if (toolObj) {
+        const translated = getTranslatedTool(toolObj, locale);
+        document.title = `${translated.name} — ${SITE_NAME}`;
+      }
+    }
+  }, [pathname, locale, t]);
+
   const shellClass = ['app-shell', railCollapsed ? 'is-rail-collapsed' : '', drawerOpen ? 'is-drawer-open' : '']
     .filter(Boolean)
     .join(' ');
@@ -144,7 +168,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {t.skipToContent}
       </a>
 
-      <aside className="app-sider" id="tool-navigation" aria-label="Tool navigation">
+      <aside className="app-sider" id="tool-navigation" aria-label={t.tools}>
         <ToolSidebar onNavigate={() => setDrawerPath(null)} />
       </aside>
 

@@ -1,5 +1,8 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/time-constant-calculator';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -20,17 +23,17 @@ import { useUrlParamsState } from '@/lib/use-url-state';
 import { useGlossary } from '@/lib/i18n/glossary';
 
 const RESISTANCE_UNITS = [
-  { id: 'ohm', label: 'Ω', factor: 1 },
-  { id: 'kohm', label: 'kΩ', factor: 1e3 },
-  { id: 'Mohm', label: 'MΩ', factor: 1e6 },
+  { id: 'ohm', label: msg('Ω'), factor: 1 },
+  { id: 'kohm', label: msg('kΩ'), factor: 1e3 },
+  { id: 'Mohm', label: msg('MΩ'), factor: 1e6 },
 ];
 
 const CAPACITANCE_UNITS = [
-  { id: 'F', label: 'F', factor: 1 },
-  { id: 'mF', label: 'mF', factor: 1e-3 },
-  { id: 'uF', label: 'µF', factor: 1e-6 },
-  { id: 'nF', label: 'nF', factor: 1e-9 },
-  { id: 'pF', label: 'pF', factor: 1e-12 },
+  { id: 'F', label: msg('F'), factor: 1 },
+  { id: 'mF', label: msg('mF'), factor: 1e-3 },
+  { id: 'uF', label: msg('µF'), factor: 1e-6 },
+  { id: 'nF', label: msg('nF'), factor: 1e-9 },
+  { id: 'pF', label: msg('pF'), factor: 1e-12 },
 ];
 
 const INITIAL = { resistance: '1000', resistanceUnit: 'ohm', capacitance: '1', capacitanceUnit: 'nF' };
@@ -38,6 +41,7 @@ const INITIAL = { resistance: '1000', resistanceUnit: 'ohm', capacitance: '1', c
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function TimeConstantCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -94,7 +98,7 @@ export default function TimeConstantCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="form-row">
           <div className="field">
             <label htmlFor="tau-r">{g('resistance')}</label>
@@ -115,7 +119,7 @@ export default function TimeConstantCalculator() {
             >
               {RESISTANCE_UNITS.map((entry) => (
                 <option key={entry.id} value={entry.id}>
-                  {entry.label}
+                  {t(entry.label)}
                 </option>
               ))}
             </select>
@@ -141,25 +145,22 @@ export default function TimeConstantCalculator() {
             >
               {CAPACITANCE_UNITS.map((entry) => (
                 <option key={entry.id} value={entry.id}>
-                  {entry.label}
+                  {t(entry.label)}
                 </option>
               ))}
             </select>
           </div>
         </div>
         <p className="note">
-          This is the first-order step response v(t) = 1 - exp(-t / tau). A 50 ohm / 1 pF node has tau = 50 ps and a
-          corner near 3.2 GHz.
-        </p>
+          {t("This is the first-order step response v(t) = 1 - exp(-t / tau). A 50 ohm / 1 pF node has tau = 50 ps and a corner near 3.2 GHz.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -173,43 +174,43 @@ export default function TimeConstantCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">RC time constant tau</span>
+            <span className="unit">{t("RC time constant tau")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.tau)}
               <span className="result-suffix"> s</span>
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>tau in ms</dt>
+                <dt>{t("tau in ms")}</dt>
                 <dd>{fmt(result.byUnit.ms)} ms</dd>
               </div>
               <div>
-                <dt>tau in µs</dt>
-                <dd>{fmt(result.byUnit.us)} µs</dd>
+                <dt>{t("tau in µs")}</dt>
+                <dd>{fmt(result.byUnit.us)} {t("µs")}</dd>
               </div>
               <div>
-                <dt>tau in ns</dt>
+                <dt>{t("tau in ns")}</dt>
                 <dd>{fmt(result.byUnit.ns)} ns</dd>
               </div>
               <div>
-                <dt>tau in ps</dt>
+                <dt>{t("tau in ps")}</dt>
                 <dd>{fmt(result.byUnit.ps)} ps</dd>
               </div>
               <div>
-                <dt>10-90% rise tau ln 9</dt>
+                <dt>{t("10-90% rise tau ln 9")}</dt>
                 <dd>{fmt(result.rise)} s</dd>
               </div>
               <div>
-                <dt>1% settling tau ln 100</dt>
+                <dt>{t("1% settling tau ln 100")}</dt>
                 <dd>{fmt(result.settle1)} s</dd>
               </div>
               <div>
-                <dt>0.1% settling tau ln 1000</dt>
+                <dt>{t("0.1% settling tau ln 1000")}</dt>
                 <dd>{fmt(result.settle01)} s</dd>
               </div>
               <div>
-                <dt>-3 dB corner 1 / (2 pi tau)</dt>
-                <dd>{fmt(result.corner)} Hz</dd>
+                <dt>{t("-3 dB corner 1 / (2 pi tau)")}</dt>
+                <dd>{fmt(result.corner)} {t("Hz")}</dd>
               </div>
             </dl>
           </>

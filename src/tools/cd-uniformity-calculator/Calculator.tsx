@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/cd-uniformity-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -18,6 +20,7 @@ const INITIAL = {
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function CdUniformityCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -56,11 +59,11 @@ export default function CdUniformityCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="cdu-inputs">
-        <h2 id="cdu-inputs">Measurements</h2>
+        <h2 id="cdu-inputs">{t("Measurements")}</h2>
 
         <SeriesField
           id="cdu-series"
-          label="Critical dimension at each site"
+          label={t("Critical dimension at each site")}
           value={state.series}
           onChange={(value) => setState((previous) => ({ ...previous, series: value }))}
           hint="Separate the readings with commas, spaces or new lines. One reading per site, in nanometres."
@@ -75,14 +78,14 @@ export default function CdUniformityCalculator() {
 
         <div className="field">
           <label htmlFor="cdu-target">
-            Target CD<span className="unit">nm, optional</span>
+            {t("Target CD")}<span className="unit">{t("nm, optional")}</span>
           </label>
           <input
             id="cdu-target"
             type="number"
             min="0"
             step="any"
-            placeholder="not set"
+            placeholder={t("not set")}
             value={state.targetCd}
             onChange={(event) => setState((previous) => ({ ...previous, targetCd: event.target.value }))}
           />
@@ -95,13 +98,12 @@ export default function CdUniformityCalculator() {
             ))}
           </div>
         ) : (
-          <p className="note">{parsed.values.length} valid readings parsed.</p>
+          <p className="note">{parsed.values.length} {t("valid readings parsed.")}</p>
         )}
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setState(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
@@ -109,10 +111,10 @@ export default function CdUniformityCalculator() {
         <h2 id="cdu-result">{g('uniformity')}</h2>
 
         {summary === null ? (
-          <p className="note">Enter at least one valid measurement to see the statistics.</p>
+          <p className="note">{t("Enter at least one valid measurement to see the statistics.")}</p>
         ) : (
           <>
-            <span className="unit">Mean critical dimension</span>
+            <span className="unit">{t("Mean critical dimension")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(summary.mean)}
               <span className="result-suffix"> nm</span>
@@ -120,25 +122,25 @@ export default function CdUniformityCalculator() {
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Sites</span>
+                <span>{t("Sites")}</span>
                 <strong>{summary.n}</strong>
               </div>
               <div className="metric">
-                <span>Min / max</span>
+                <span>{t("Min / max")}</span>
                 <strong>
                   {fmt(summary.min)} / {fmt(summary.max)} nm
                 </strong>
               </div>
               <div className="metric">
-                <span>Range</span>
+                <span>{t("Range")}</span>
                 <strong>{fmt(summary.range)} nm</strong>
               </div>
               <div className="metric">
-                <span>Sigma (n-1)</span>
+                <span>{t("Sigma (n-1)")}</span>
                 <strong>{summary.sigma === null ? '—' : `${fmt(summary.sigma)} nm`}</strong>
               </div>
               <div className="metric">
-                <span>3 sigma</span>
+                <span>{t("3 sigma")}</span>
                 <strong>{summary.threeSigma === null ? '—' : `${fmt(summary.threeSigma)} nm`}</strong>
               </div>
               <div className="metric">
@@ -146,21 +148,21 @@ export default function CdUniformityCalculator() {
                 <strong>{summary.cvPercent === null ? '—' : `${fmt(summary.cvPercent)} %`}</strong>
               </div>
               <div className="metric">
-                <span>Range / mean</span>
+                <span>{t("Range / mean")}</span>
                 <strong>{summary.rangePercent === null ? '—' : `${fmt(summary.rangePercent)} %`}</strong>
               </div>
               <div className="metric">
-                <span>Half range / mean</span>
+                <span>{t("Half range / mean")}</span>
                 <strong>{summary.halfRangePercent === null ? '—' : `${fmt(summary.halfRangePercent)} %`}</strong>
               </div>
               {hasTarget ? (
                 <>
                   <div className="metric">
-                    <span>Deviation from target</span>
+                    <span>{t("Deviation from target")}</span>
                     <strong>{deviation === null ? '—' : `${fmt(deviation)} nm`}</strong>
                   </div>
                   <div className="metric">
-                    <span>Deviation</span>
+                    <span>{t("Deviation")}</span>
                     <strong>{deviationPercent === null ? '—' : `${fmt(deviationPercent)} %`}</strong>
                   </div>
                 </>
@@ -168,15 +170,11 @@ export default function CdUniformityCalculator() {
             </div>
 
             <p className="note">
-              Three different numbers get called uniformity, and they are not equal: range over mean, half range over
-              mean, and the coefficient of variation sigma over mean. All three are shown so you can match whichever one
-              your specification uses. The standard deviation uses the n-1 divisor, which is the honest choice for a
-              finite set of sites.
-            </p>
+              {t("Three different numbers get called uniformity, and they are not equal: range over mean, half range over mean, and the coefficient of variation sigma over mean. All three are shown so you can match whichever one your specification uses. The standard deviation uses the n-1 divisor, which is the honest choice for a finite set of sites.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

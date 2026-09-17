@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/cmp-preston-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -26,6 +28,7 @@ const INITIAL = {
 const num = (v: string) => (v.trim() === '' ? Number.NaN : Number(v));
 
 export default function CmpPrestonCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
@@ -86,10 +89,10 @@ export default function CmpPrestonCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="cmp-inputs">
-        <h2 id="cmp-inputs">CMP Process Parameters</h2>
+        <h2 id="cmp-inputs">{t("CMP Process Parameters")}</h2>
 
         <div className="field">
-          <label htmlFor="cmp-preset">Film & Slurry Preset</label>
+          <label htmlFor="cmp-preset">{t("Film & Slurry Preset")}</label>
           <select
             id="cmp-preset"
             value={state.materialId}
@@ -106,13 +109,13 @@ export default function CmpPrestonCalculator() {
         {state.materialId === 'custom' && (
           <div className="field">
             <label htmlFor="cmp-custom-kp">
-              Custom Preston Coefficient (Kp)<span className="unit">Pa⁻¹</span>
+              {t("Custom Preston Coefficient (Kp)")}<span className="unit">{t("Pa⁻¹")}</span>
             </label>
             <input
               id="cmp-custom-kp"
               type="number"
               step="any"
-              placeholder="e.g. 7.5e-14"
+              placeholder={t("e.g. 7.5e-14")}
               value={state.customKp}
               onChange={(e) => setState((p) => ({ ...p, customKp: e.target.value }))}
             />
@@ -121,7 +124,7 @@ export default function CmpPrestonCalculator() {
 
         <div className="field">
           <label htmlFor="cmp-downforce">
-            Downforce Pressure (P)<span className="unit">{state.pressureUnit}</span>
+            {t("Downforce Pressure (P)")}<span className="unit">{state.pressureUnit}</span>
           </label>
           <div className="inline-field">
             <input
@@ -133,7 +136,7 @@ export default function CmpPrestonCalculator() {
               onChange={(e) => setState((p) => ({ ...p, downforcePressure: e.target.value }))}
             />
             <select
-              aria-label="Pressure Unit"
+              aria-label={t("Pressure Unit")}
               value={state.pressureUnit}
               onChange={(e) => setState((p) => ({ ...p, pressureUnit: e.target.value as CmpPressureUnit }))}
               style={{ flex: '0 0 auto', width: 'auto' }}
@@ -147,7 +150,7 @@ export default function CmpPrestonCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="cmp-platen-speed">
-              {g('platenSpeed')} (Ω_p)<span className="unit">rpm</span>
+              {g('platenSpeed')} {t("(Ω_p)")}<span className="unit">rpm</span>
             </label>
             <input
               id="cmp-platen-speed"
@@ -161,7 +164,7 @@ export default function CmpPrestonCalculator() {
 
           <div className="field">
             <label htmlFor="cmp-carrier-speed">
-              Carrier Head Speed (Ω_c)<span className="unit">rpm</span>
+              {t("Carrier Head Speed (Ω_c)")}<span className="unit">rpm</span>
             </label>
             <input
               id="cmp-carrier-speed"
@@ -177,7 +180,7 @@ export default function CmpPrestonCalculator() {
         <div className="form-row">
           <div className="field">
             <label htmlFor="cmp-offset">
-              Carrier Center Offset (R_offset)<span className="unit">mm</span>
+              {t("Carrier Center Offset (R_offset)")}<span className="unit">mm</span>
             </label>
             <input
               id="cmp-offset"
@@ -206,7 +209,7 @@ export default function CmpPrestonCalculator() {
 
         <div className="field">
           <label htmlFor="cmp-time">
-            Polish Time<span className="unit">seconds</span>
+            {t("Polish Time")}<span className="unit">seconds</span>
           </label>
           <input
             id="cmp-time"
@@ -225,19 +228,17 @@ export default function CmpPrestonCalculator() {
             onClick={() => setState(INITIAL)}
           >
             <RotateCcw size={15} />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
 
         <div className="formula" style={{ marginTop: '16px' }}>
-          <strong>Preston Equation:</strong> RR = Kp · P · V<br />
-          Linear speed at center: V = 2π · R_offset · (Ω_platen / 60)<br />
-          WIWNU kinematic estimate = (|Ω_p - Ω_c| · R_wafer / V) × 100%
-        </div>
+          <strong>{t("Preston Equation:")}</strong> {t("RR = Kp · P · V")}<br />
+          {t("Linear speed at center: V = 2π · R_offset · (Ω_platen / 60)")}<br />
+          {t("WIWNU kinematic estimate = (|Ω_p - Ω_c| · R_wafer / V) × 100%")}</div>
       </section>
 
       <section className="panel" aria-labelledby="cmp-results">
-        <h2 id="cmp-results">Removal & Kinematics Results</h2>
+        <h2 id="cmp-results">{t("Removal & Kinematics Results")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -250,41 +251,40 @@ export default function CmpPrestonCalculator() {
             <div>
               <span className="unit">{g('removalRate')}</span>
               <div className="result-value">
-                {fmt(result.rrNmPerMin)} <span style={{ fontSize: '18px', fontWeight: 400 }}>nm/min</span>
+                {fmt(result.rrNmPerMin)} <span style={{ fontSize: '18px', fontWeight: 400 }}>{t("nm/min")}</span>
               </div>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
                 <span>{g('removalRate')} (Å)</span>
-                <strong>{fmt(result.rrAngstromPerMin)} Å/min</strong>
+                <strong>{fmt(result.rrAngstromPerMin)} {t("Å/min")}</strong>
               </div>
               <div className="metric">
-                <span>Total Removed</span>
+                <span>{t("Total Removed")}</span>
                 <strong>{fmt(result.totalRemovedNm)} nm</strong>
               </div>
               <div className="metric">
-                <span>Total Removed (Å)</span>
+                <span>{t("Total Removed (Å)")}</span>
                 <strong>{fmt(result.totalRemovedAngstrom)} Å</strong>
               </div>
               <div className="metric">
-                <span>Center Linear Velocity</span>
-                <strong>{fmt(result.vCenter)} m/s</strong>
+                <span>{t("Center Linear Velocity")}</span>
+                <strong>{fmt(result.vCenter)} {t("m/s")}</strong>
               </div>
               <div className="metric">
-                <span>Wafer Edge Velocity Range</span>
-                <strong>{fmt(result.vInner)} – {fmt(result.vOuter)} m/s</strong>
+                <span>{t("Wafer Edge Velocity Range")}</span>
+                <strong>{fmt(result.vInner)} – {fmt(result.vOuter)} {t("m/s")}</strong>
               </div>
               <div className="metric">
-                <span>Kinematic WIWNU</span>
+                <span>{t("Kinematic WIWNU")}</span>
                 <strong>{fmt(result.wiwnuPercent)} %</strong>
               </div>
             </div>
 
             <div style={{ marginTop: '20px' }}>
               <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--ink-soft)' }}>
-                CMP Platen & Carrier Kinematic Schematic
-              </h3>
+                {t("CMP Platen & Carrier Kinematic Schematic")}</h3>
               <CmpDiagram
                 platenRpm={num(state.platenSpeedRpm)}
                 carrierRpm={num(state.carrierSpeedRpm)}
@@ -327,6 +327,7 @@ function CmpDiagram({
   diameterMm,
   vCenter,
 }: CmpDiagramProps) {
+  const t = useToolCopy(copyResource);
   // SVG viewBox is 320 x 320, center platen at (160, 160)
   // Platen radius corresponds to ~400mm real space = 135 SVG units
   const svgCenter = 160;
@@ -359,7 +360,7 @@ function CmpDiagram({
         height="260"
         style={{ maxWidth: '340px', overflow: 'visible' }}
         role="img"
-        aria-label="CMP rotating platen and carrier head layout schematic"
+        aria-label={t("CMP rotating platen and carrier head layout schematic")}
       >
         <defs>
           <marker
@@ -420,8 +421,7 @@ function CmpDiagram({
           fill="#4b5563"
           fontFamily="var(--font-sans)"
         >
-          Platen Center
-        </text>
+          {t("Platen Center")}</text>
 
         {/* Carrier offset radius line */}
         <line
@@ -450,8 +450,7 @@ function CmpDiagram({
           fontWeight="600"
           fill="var(--teal-dark)"
         >
-          Platen: {platenRpm} rpm ↺
-        </text>
+          {t("Platen:")}{platenRpm} {t("rpm ↺")}</text>
 
         {/* Wafer / Carrier Head Circle */}
         <circle
@@ -494,7 +493,7 @@ function CmpDiagram({
           fontWeight="600"
           fill="var(--amber)"
         >
-          Carrier: {carrierRpm} rpm
+          {t("Carrier:")}{carrierRpm} rpm
         </text>
 
         {/* Linear velocity vector at wafer center */}
@@ -514,12 +513,10 @@ function CmpDiagram({
           fontWeight="500"
           fill="var(--teal-dark)"
         >
-          V = {vCenter > 0 ? fmt(vCenter) : '0'} m/s
-        </text>
+          {t("V =")}{vCenter > 0 ? fmt(vCenter) : '0'} {t("m/s")}</text>
       </svg>
       <div style={{ fontSize: '11px', color: 'var(--muted)', textAlign: 'center', marginTop: '4px' }}>
-        Eccentric counter/co-rotating carrier head on slurry-wetted platen pad
-      </div>
+        {t("Eccentric counter/co-rotating carrier head on slurry-wetted platen pad")}</div>
     </div>
   );
 }

@@ -1,4 +1,7 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/thermal-oxide-calculator';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useMemo, useRef, useState } from 'react';
 import { Copy, RotateCcw, Download, AlertTriangle } from 'lucide-react';
@@ -14,13 +17,13 @@ import { downloadCsv, downloadSvg, downloadXlsx } from '@/lib/export';
 import { useGlossary } from '@/lib/i18n/glossary';
 
 const MODES = [
-  { id: 'grow', label: 'Time to thickness' },
-  { id: 'time', label: 'Thickness to time' },
+  { id: 'grow', label: msg('Time to thickness') },
+  { id: 'time', label: msg('Thickness to time') },
 ];
 
 const PRESETS = [
   ...OXIDE_PRESETS.map((preset) => ({ id: preset.id, label: preset.label })),
-  { id: 'custom', label: 'Custom A and B' },
+  { id: 'custom', label: msg('Custom A and B') },
 ];
 
 const INITIAL = {
@@ -42,6 +45,7 @@ const REGIME_LABEL: Record<OxideRegime, string> = {
 };
 
 export default function ThermalOxideCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
   useUrlParamsState(state, setState);
@@ -205,9 +209,9 @@ export default function ThermalOxideCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="ox-preset">Rate constants at the process temperature</label>
+          <label htmlFor="ox-preset">{t("Rate constants at the process temperature")}</label>
           <select
             id="ox-preset"
             value={state.presetId}
@@ -215,14 +219,14 @@ export default function ThermalOxideCalculator() {
           >
             {PRESETS.map((preset) => (
               <option key={preset.id} value={preset.id}>
-                {preset.label}
+                {t(preset.label)}
               </option>
             ))}
           </select>
         </div>
         <div className="form-row">
           <div className="field">
-            <label htmlFor="ox-a">A (µm)</label>
+            <label htmlFor="ox-a">{t("A (µm)")}</label>
             <input
               id="ox-a"
               type="number"
@@ -232,7 +236,7 @@ export default function ThermalOxideCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="ox-b">B (µm²/h)</label>
+            <label htmlFor="ox-b">{t("B (µm²/h)")}</label>
             <input
               id="ox-b"
               type="number"
@@ -243,7 +247,7 @@ export default function ThermalOxideCalculator() {
           </div>
         </div>
         <div className="field">
-          <label htmlFor="ox-initial">Oxide already present (nm)</label>
+          <label htmlFor="ox-initial">{t("Oxide already present (nm)")}</label>
           <input
             id="ox-initial"
             type="number"
@@ -253,18 +257,18 @@ export default function ThermalOxideCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="ox-mode">Direction</label>
+          <label htmlFor="ox-mode">{t("Direction")}</label>
           <select id="ox-mode" value={state.mode} onChange={(event) => update('mode', event.target.value)}>
             {MODES.map((mode) => (
               <option key={mode.id} value={mode.id}>
-                {mode.label}
+                {t(mode.label)}
               </option>
             ))}
           </select>
         </div>
         {state.mode === 'grow' ? (
           <div className="field">
-            <label htmlFor="ox-time">Oxidation time (h)</label>
+            <label htmlFor="ox-time">{t("Oxidation time (h)")}</label>
             <input
               id="ox-time"
               type="number"
@@ -275,7 +279,7 @@ export default function ThermalOxideCalculator() {
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="ox-target">{g('targetThickness')} (nm)</label>
+            <label htmlFor="ox-target">{g('targetThickness')} {t("(nm)")}</label>
             <input
               id="ox-target"
               type="number"
@@ -286,16 +290,14 @@ export default function ThermalOxideCalculator() {
           </div>
         )}
         <p className="note">
-          A and B depend on temperature, ambient and crystal orientation. The presets are the classic
-          values for a (100) wafer at 1000 °C; for other conditions, input the Deal-Grove constants for your recipe.
-        </p>
+          {t("A and B depend on temperature, ambient and crystal orientation. The presets are the classic values for a (100) wafer at 1000 °C; for other conditions, input the Deal-Grove constants for your recipe.")}</p>
 
         {boundaryWarnings.length > 0 && (
           <div className="physics-alert" role="status" style={{ marginTop: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
               <AlertTriangle size={18} color="#b45309" style={{ flexShrink: 0, marginTop: '2px' }} />
               <div>
-                <strong>Process & Boundary Advisory:</strong>
+                <strong>{t("Process & Boundary Advisory:")}</strong>
                 <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
                   {boundaryWarnings.map((w, idx) => (
                     <li key={idx}>{w}</li>
@@ -309,20 +311,17 @@ export default function ThermalOxideCalculator() {
         <div className="action-row" style={{ marginTop: '16px' }}>
           <button type="button" className="button primary" onClick={copy} disabled={!active.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
           <button type="button" className="button secondary" onClick={exportCsvFile} disabled={!active.ok}>
             <Download size={16} aria-hidden="true" />
-            Export CSV
-          </button>
+            {t("Export CSV")}</button>
           <button type="button" className="button secondary" onClick={exportXlsxFile} disabled={!active.ok}>
             <Download size={16} aria-hidden="true" />
-            Export XLSX
-          </button>
+            {t("Export XLSX")}</button>
         </div>
       </section>
 
@@ -351,27 +350,27 @@ export default function ThermalOxideCalculator() {
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Linear rate B / A</dt>
-                <dd>{fmt(active.linearRateUmPerHour)} µm/h</dd>
+                <dt>{t("Linear rate B / A")}</dt>
+                <dd>{fmt(active.linearRateUmPerHour)} {t("µm/h")}</dd>
               </div>
               <div>
-                <dt>Crossover A / 2</dt>
+                <dt>{t("Crossover A / 2")}</dt>
                 <dd>{fmt(active.crossoverUm * 1000)} nm</dd>
               </div>
               <div>
-                <dt>Regime at this thickness</dt>
+                <dt>{t("Regime at this thickness")}</dt>
                 <dd>{REGIME_LABEL[active.regime]}</dd>
               </div>
               <div>
-                <dt>Offset τ from initial oxide</dt>
+                <dt>{t("Offset τ from initial oxide")}</dt>
                 <dd>{fmt(active.tauHours)} h</dd>
               </div>
               <div>
-                <dt>Growth in this step</dt>
+                <dt>{t("Growth in this step")}</dt>
                 <dd>{fmt(active.growthUm * 1000)} nm</dd>
               </div>
               <div>
-                <dt>Silicon consumed (45.6%)</dt>
+                <dt>{t("Silicon consumed (45.6%)")}</dt>
                 <dd>{fmt(active.siliconConsumedUm * 1000)} nm</dd>
               </div>
             </dl>
@@ -380,15 +379,14 @@ export default function ThermalOxideCalculator() {
             {curveData && (
               <div style={{ marginTop: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <h3 style={{ fontSize: '13px', fontWeight: '600', margin: 0 }}>Deal-Grove Growth Kinetics Curve</h3>
+                  <h3 style={{ fontSize: '13px', fontWeight: '600', margin: 0 }}>{t("Deal-Grove Growth Kinetics Curve")}</h3>
                   <button
                     type="button"
                     className="button secondary"
                     style={{ padding: '3px 8px', fontSize: '12px' }}
                     onClick={() => kineticsSvgRef.current && downloadSvg(kineticsSvgRef.current, 'oxide-kinetics-curve.svg')}
                   >
-                    <Download size={13} aria-hidden="true" /> Save SVG
-                  </button>
+                    <Download size={13} aria-hidden="true" /> {t("Save SVG")}</button>
                 </div>
                 <div style={{ background: 'var(--chart-bg)', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden' }}>
                   <svg
@@ -397,7 +395,7 @@ export default function ThermalOxideCalculator() {
                     width="100%"
                     height="auto"
                     role="img"
-                    aria-label="Deal-Grove oxidation thickness versus time curve"
+                    aria-label={t("Deal-Grove oxidation thickness versus time curve")}
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     {/* Background grid lines */}
@@ -445,7 +443,7 @@ export default function ThermalOxideCalculator() {
                               strokeDasharray="4 4"
                             />
                             <text x={margin.left + pWidth - 6} y={yCross - 5} fontSize="10" fill="var(--chart-series-2)" textAnchor="end">
-                              Crossover A/2 = {Math.round(crossoverNm)} nm
+                              {t("Crossover A/2 =")}{Math.round(crossoverNm)} nm
                             </text>
                           </g>
                         );
@@ -474,8 +472,7 @@ export default function ThermalOxideCalculator() {
                           <line x1={opX} y1={margin.top} x2={opX} y2={margin.top + pHeight} stroke="var(--chart-accent)" strokeDasharray="3 3" strokeWidth="1" />
                           <circle cx={opX} cy={opY} r="5" fill="var(--chart-accent)" stroke="var(--chart-bg)" strokeWidth="2" />
                           <text x={Math.min(opX + 8, width - 80)} y={Math.max(opY - 8, margin.top + 12)} fontSize="11" fontWeight="600" fill="var(--chart-accent)">
-                            {fmt(activeThicknessNm)} nm ({fmt(activeTimeHours)} h)
-                          </text>
+                            {fmt(activeThicknessNm)} {t("nm (")}{fmt(activeTimeHours)} {t("h)")}</text>
                         </g>
                       );
                     })()}
@@ -486,8 +483,7 @@ export default function ThermalOxideCalculator() {
 
                     {/* Labels */}
                     <text x={margin.left + pWidth / 2} y={height - 6} fontSize="11" fontWeight="500" fill="var(--chart-axis)" textAnchor="middle">
-                      Oxidation Time (hours)
-                    </text>
+                      {t("Oxidation Time (hours)")}</text>
                     <text
                       transform={`rotate(-90 ${margin.left - 42} ${margin.top + pHeight / 2})`}
                       x={margin.left - 42}
@@ -497,8 +493,7 @@ export default function ThermalOxideCalculator() {
                       fill="var(--chart-axis)"
                       textAnchor="middle"
                     >
-                      Oxide Thickness (nm)
-                    </text>
+                      {t("Oxide Thickness (nm)")}</text>
                   </svg>
                 </div>
               </div>
@@ -507,15 +502,14 @@ export default function ThermalOxideCalculator() {
             {/* 44% Silicon Consumption Cross-Section Diagram */}
             <div style={{ marginTop: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <h3 style={{ fontSize: '13px', fontWeight: '600', margin: 0 }}>44% Silicon Consumption Cross-Section</h3>
+                <h3 style={{ fontSize: '13px', fontWeight: '600', margin: 0 }}>{t("44% Silicon Consumption Cross-Section")}</h3>
                 <button
                   type="button"
                   className="button secondary"
                   style={{ padding: '3px 8px', fontSize: '12px' }}
                   onClick={() => consumptionSvgRef.current && downloadSvg(consumptionSvgRef.current, 'silicon-consumption.svg')}
                 >
-                  <Download size={13} aria-hidden="true" /> Save SVG
-                </button>
+                  <Download size={13} aria-hidden="true" /> {t("Save SVG")}</button>
               </div>
 
               <div style={{ background: 'var(--chart-bg)', borderRadius: '6px', border: '1px solid var(--border)', overflow: 'hidden' }}>
@@ -525,32 +519,28 @@ export default function ThermalOxideCalculator() {
                   width="100%"
                   height="auto"
                   role="img"
-                  aria-label="Cross-section diagram illustrating 45.6% silicon consumption and 54.4% volume expansion"
+                  aria-label={t("Cross-section diagram illustrating 45.6% silicon consumption and 54.4% volume expansion")}
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   {/* Silicon Bulk Base */}
                   <rect x="50" y="115" width="440" height="45" fill="#d0dbd9" stroke="#7a8d8a" strokeWidth="1" />
                   <text x="270" y="142" fontSize="12" fontWeight="500" fill="#2b3b38" textAnchor="middle">
-                    Bulk Silicon Substrate (Si crystal matrix)
-                  </text>
+                    {t("Bulk Silicon Substrate (Si crystal matrix)")}</text>
 
                   {/* Consumed Silicon Layer (45.6% below original surface) */}
                   <rect x="50" y="75" width="440" height="40" fill="#f4b8b5" stroke="var(--chart-fail)" strokeWidth="1" strokeDasharray="4 2" />
                   <text x="270" y="99" fontSize="11" fontWeight="600" fill="#88211b" textAnchor="middle">
-                    Consumed Silicon: {fmt(activeSiliconConsumedNm)} nm (45.6% of oxide)
-                  </text>
+                    {t("Consumed Silicon:")}{fmt(activeSiliconConsumedNm)} {t("nm (45.6% of oxide)")}</text>
 
                   {/* Expanded Oxide Layer (54.4% above original surface) */}
                   <rect x="50" y="30" width="440" height="45" fill="rgba(13, 124, 130, 0.18)" stroke="var(--chart-accent)" strokeWidth="1.5" />
                   <text x="270" y="56" fontSize="11" fontWeight="600" fill="#095559" textAnchor="middle">
-                    Volume Expansion: {fmt(activeThicknessNm - activeSiliconConsumedNm)} nm (54.4% above initial plane)
-                  </text>
+                    {t("Volume Expansion:")}{fmt(activeThicknessNm - activeSiliconConsumedNm)} {t("nm (54.4% above initial plane)")}</text>
 
                   {/* Original Silicon Surface Reference Line */}
                   <line x1="35" y1="75" x2="505" y2="75" stroke="var(--chart-text)" strokeWidth="1.8" strokeDasharray="6 3" />
                   <text x="510" y="78" fontSize="10" fontWeight="600" fill="var(--chart-text)">
-                    Original Si Surface
-                  </text>
+                    {t("Original Si Surface")}</text>
 
                   {/* Dimension Bracket on Left */}
                   <line x1="42" y1="30" x2="42" y2="115" stroke="var(--chart-accent)" strokeWidth="2" />
@@ -565,7 +555,7 @@ export default function ThermalOxideCalculator() {
                     fill="var(--chart-accent)"
                     textAnchor="middle"
                   >
-                    Total SiO₂ = {fmt(activeThicknessNm)} nm
+                    {t("Total SiO₂ =")}{fmt(activeThicknessNm)} nm
                   </text>
                 </svg>
               </div>

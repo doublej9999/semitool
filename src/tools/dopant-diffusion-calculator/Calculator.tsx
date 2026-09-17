@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/dopant-diffusion-calculator';
 
 import { useMemo, useRef, useState } from 'react';
 import { Copy, RotateCcw, Download, AlertTriangle, Image as ImageIcon } from 'lucide-react';
@@ -28,6 +30,7 @@ const INITIAL = {
 };
 
 export default function DopantDiffusionCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -253,35 +256,35 @@ export default function DopantDiffusionCalculator() {
     if (state.tempCelsius >= 1414) {
       warnings.push({
         level: 'danger',
-        title: 'Exceeds Silicon Melting Point (1414 °C)',
-        message: 'Pure silicon melts at 1414 °C. At this temperature, the wafer will melt and destroy the furnace chamber.',
+        title: t('Exceeds Silicon Melting Point (1414 °C)'),
+        message: t('Pure silicon melts at 1414 °C. At this temperature, the wafer will melt and destroy the furnace chamber.'),
       });
     } else if (state.tempCelsius > 1250) {
       warnings.push({
         level: 'warning',
-        title: 'High Thermal Stress & Slip Dislocation Risk (> 1250 °C)',
-        message: 'Prolonged exposure above 1250 °C induces severe crystal plastic deformation, wafer warpage, and slip lines along {111} planes.',
+        title: t('High Thermal Stress & Slip Dislocation Risk (> 1250 °C)'),
+        message: t('Prolonged exposure above 1250 °C induces severe crystal plastic deformation, wafer warpage, and slip lines along {111} planes.'),
       });
     }
 
     if (state.processType === 'predeposition' && !state.useSolidSolubility && cs > solidSolubility * 1.05) {
       warnings.push({
         level: 'warning',
-        title: 'Exceeds Solid Solubility Limit',
-        message: `Surface concentration (${cs.toExponential(2)} cm⁻³) exceeds equilibrium solid solubility (${solidSolubility.toExponential(2)} cm⁻³ at ${state.tempCelsius} °C). Excess dopant forms inactive precipitates and dislocation loops.`,
+        title: t('Exceeds Solid Solubility Limit'),
+        message: t('Surface concentration ({cs} cm⁻³) exceeds equilibrium solid solubility ({sol} cm⁻³ at {temp} °C). Excess dopant forms inactive precipitates and dislocation loops.', { cs: cs.toExponential(2), sol: solidSolubility.toExponential(2), temp: state.tempCelsius }),
       });
     }
 
     if (cs > 0 && cs <= cb) {
       warnings.push({
         level: 'danger',
-        title: 'No Metallurgical Junction Formed (Cs ≤ C_sub)',
-        message: 'Surface dopant concentration is less than or equal to substrate background doping. A p-n junction cannot be formed.',
+        title: t('No Metallurgical Junction Formed (Cs ≤ C_sub)'),
+        message: t('Surface dopant concentration is less than or equal to substrate background doping. A p-n junction cannot be formed.'),
       });
     }
 
     return warnings;
-  }, [state, solidSolubility, driveInResult]);
+  }, [state, solidSolubility, driveInResult, t]);
 
   const copyResult = async () => {
     const isPredep = state.processType === 'predeposition';
@@ -318,45 +321,43 @@ export default function DopantDiffusionCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="dopant-inputs">
-        <h2 id="dopant-inputs">Thermal Diffusion Parameters</h2>
+        <h2 id="dopant-inputs">{t("Thermal Diffusion Parameters")}</h2>
 
         <div className="field">
-          <label>Process Profile Model</label>
-          <div className="segmented-control" role="group" aria-label="Process type">
+          <label>{t("Process Profile Model")}</label>
+          <div className="segmented-control" role="group" aria-label={t("Process type")}>
             <button
               type="button"
               className={state.processType === 'predeposition' ? 'active' : ''}
               onClick={() => update('processType', 'predeposition')}
             >
-              Predeposition (erfc)
-            </button>
+              {t("Predeposition (erfc)")}</button>
             <button
               type="button"
               className={state.processType === 'drive-in' ? 'active' : ''}
               onClick={() => update('processType', 'drive-in')}
             >
-              Drive-in (Gaussian)
-            </button>
+              {t("Drive-in (Gaussian)")}</button>
           </div>
         </div>
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="dopant-select">Dopant Species</label>
+            <label htmlFor="dopant-select">{t("Dopant Species")}</label>
             <select
               id="dopant-select"
               value={state.dopant}
               onChange={(e) => update('dopant', e.target.value as DopantSpecies)}
             >
-              <option value="B">Boron (B) — p-type (Acceptor)</option>
-              <option value="P">Phosphorus (P) — n-type (Donor)</option>
-              <option value="As">Arsenic (As) — n-type (Donor)</option>
-              <option value="Sb">Antimony (Sb) — n-type (Donor)</option>
+              <option value="B">{t("Boron (B) — p-type (Acceptor)")}</option>
+              <option value="P">{t("Phosphorus (P) — n-type (Donor)")}</option>
+              <option value="As">{t("Arsenic (As) — n-type (Donor)")}</option>
+              <option value="Sb">{t("Antimony (Sb) — n-type (Donor)")}</option>
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="temp-c">Temperature (°C)</label>
+            <label htmlFor="temp-c">{t("Temperature (°C)")}</label>
             <input
               id="temp-c"
               type="number"
@@ -371,7 +372,7 @@ export default function DopantDiffusionCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="time-min">Furnace Time (min)</label>
+            <label htmlFor="time-min">{t("Furnace Time (min)")}</label>
             <input
               id="time-min"
               type="number"
@@ -383,20 +384,20 @@ export default function DopantDiffusionCalculator() {
           </div>
 
           <div className="field">
-            <label htmlFor="cb-sub">Substrate Doping C_B (cm⁻³)</label>
+            <label htmlFor="cb-sub">{t("Substrate Doping C_B (cm⁻³)")}</label>
             <input
               id="cb-sub"
               type="text"
               value={state.backgroundDopingCm3}
               onChange={(e) => update('backgroundDopingCm3', e.target.value)}
-              placeholder="e.g. 1e16"
+              placeholder={t("e.g. 1e16")}
             />
           </div>
         </div>
 
         {state.processType === 'predeposition' ? (
           <div className="field">
-            <label>Surface Concentration (Cs)</label>
+            <label>{t("Surface Concentration (Cs)")}</label>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 8 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.88rem' }}>
                 <input
@@ -404,35 +405,33 @@ export default function DopantDiffusionCalculator() {
                   checked={state.useSolidSolubility}
                   onChange={() => update('useSolidSolubility', true)}
                 />
-                Solid Solubility Limit ({solidSolubility.toExponential(2)} cm⁻³)
-              </label>
+                {t("Solid Solubility Limit (")}{solidSolubility.toExponential(2)} {t("cm⁻³)")}</label>
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.88rem' }}>
                 <input
                   type="radio"
                   checked={!state.useSolidSolubility}
                   onChange={() => update('useSolidSolubility', false)}
                 />
-                Custom Cs
-              </label>
+                {t("Custom Cs")}</label>
             </div>
             {!state.useSolidSolubility && (
               <input
                 type="text"
                 value={state.customCsCm3}
                 onChange={(e) => update('customCsCm3', e.target.value)}
-                placeholder="e.g. 5e19"
+                placeholder={t("e.g. 5e19")}
               />
             )}
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="dose-q">Predeposition / Implantation Dose Q (atoms/cm²)</label>
+            <label htmlFor="dose-q">{t("Predeposition / Implantation Dose Q (atoms/cm²)")}</label>
             <input
               id="dose-q"
               type="text"
               value={state.doseQCm2}
               onChange={(e) => update('doseQCm2', e.target.value)}
-              placeholder="e.g. 1e15"
+              placeholder={t("e.g. 1e15")}
             />
           </div>
         )}
@@ -440,7 +439,7 @@ export default function DopantDiffusionCalculator() {
         <div className="action-row" style={{ marginTop: 20 }}>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={14} aria-hidden="true" />
-            <span>Reset Defaults</span>
+            <span>{t("Reset Defaults")}</span>
           </button>
           <button type="button" className="button" onClick={copyResult}>
             <Copy size={14} aria-hidden="true" />
@@ -450,7 +449,7 @@ export default function DopantDiffusionCalculator() {
       </section>
 
       <section className="panel" aria-labelledby="dopant-results">
-        <h2 id="dopant-results">Junction Depth & Doping Profile</h2>
+        <h2 id="dopant-results">{t("Junction Depth & Doping Profile")}</h2>
 
         {physicsWarnings.map((w, idx) => (
           <div key={idx} className={`physics-alert ${w.level === 'danger' ? 'danger' : ''}`} role="alert">
@@ -466,7 +465,7 @@ export default function DopantDiffusionCalculator() {
           const active = isPredep ? predepResult : driveInResult;
 
           if (!active) {
-            return <div className="notice warning">Invalid diffusion conditions. Check substrate and surface concentrations.</div>;
+            return <div className="notice warning">{t("Invalid diffusion conditions. Check substrate and surface concentrations.")}</div>;
           }
 
           const xjUm = active.junctionDepthUm;
@@ -475,10 +474,10 @@ export default function DopantDiffusionCalculator() {
           return (
             <>
               <div className="result-hero" style={{ marginBottom: 16 }}>
-                <span className="result-label">Metallurgical Junction Depth (x_j)</span>
+                <span className="result-label">{t("Metallurgical Junction Depth (x_j)")}</span>
                 <span className="result-value">
                   {xjUm !== undefined ? fmt(xjUm, 4) : 'N/A'}
-                  <span className="result-suffix"> μm</span>
+                  <span className="result-suffix"> {t("μm")}</span>
                 </span>
                 <span className="result-subtext" style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginTop: 4 }}>
                   {xjNm !== undefined ? `= ${fmt(xjNm, 1)} nm at background doping C(x_j) = C_B` : 'C_s does not exceed background doping C_B'}
@@ -487,21 +486,21 @@ export default function DopantDiffusionCalculator() {
 
               <div className="metrics-grid">
                 <div className="metric">
-                  <span className="metric-label">Diffusion Coefficient D</span>
+                  <span className="metric-label">{t("Diffusion Coefficient D")}</span>
                   <span className="metric-value">{D_Si.toExponential(3)}</span>
-                  <span className="metric-unit">cm² / s in Si</span>
+                  <span className="metric-unit">{t("cm² / s in Si")}</span>
                 </div>
 
                 <div className="metric">
-                  <span className="metric-label">Diffusion Length 2√(Dt)</span>
+                  <span className="metric-label">{t("Diffusion Length 2√(Dt)")}</span>
                   <span className="metric-value">{fmt(active.characteristicLengthUm * 2, 4)}</span>
-                  <span className="metric-unit">μm ({fmt(active.characteristicLengthUm * 2000, 1)} nm)</span>
+                  <span className="metric-unit">{t("μm (")}{fmt(active.characteristicLengthUm * 2000, 1)} {t("nm)")}</span>
                 </div>
 
                 <div className="metric">
-                  <span className="metric-label">Surface Concentration C_s</span>
+                  <span className="metric-label">{t("Surface Concentration C_s")}</span>
                   <span className="metric-value">{active.surfaceConcentrationCm3.toExponential(3)}</span>
-                  <span className="metric-unit">cm⁻³</span>
+                  <span className="metric-unit">{t("cm⁻³")}</span>
                 </div>
 
                 <div className="metric">
@@ -509,31 +508,31 @@ export default function DopantDiffusionCalculator() {
                   <span className="metric-value">
                     {isPredep ? predepResult?.doseQ.toExponential(3) : driveInResult?.doseQ.toExponential(3)}
                   </span>
-                  <span className="metric-unit">atoms / cm²</span>
+                  <span className="metric-unit">{t("atoms / cm²")}</span>
                 </div>
 
                 <div className="metric">
-                  <span className="metric-label">Solid Solubility Limit</span>
+                  <span className="metric-label">{t("Solid Solubility Limit")}</span>
                   <span className="metric-value">{solidSolubility.toExponential(3)}</span>
-                  <span className="metric-unit">cm⁻³ at {state.tempCelsius} °C</span>
+                  <span className="metric-unit">{t("cm⁻³ at")}{state.tempCelsius} {t("°C")}</span>
                 </div>
 
                 <div className="metric">
-                  <span className="metric-label">Thermal Budget D·t</span>
+                  <span className="metric-label">{t("Thermal Budget D·t")}</span>
                   <span className="metric-value">{(D_Si * timeSeconds).toExponential(3)}</span>
-                  <span className="metric-unit">cm²</span>
+                  <span className="metric-unit">{t("cm²")}</span>
                 </div>
 
                 <div className="metric">
-                  <span className="metric-label">Min. SiO₂ Mask (3x)</span>
+                  <span className="metric-label">{t("Min. SiO₂ Mask (3x)")}</span>
                   <span className="metric-value">{oxideMask ? fmt(oxideMask.minThickness3xNm, 1) : '—'}</span>
-                  <span className="metric-unit">nm (3√(D_ox·t))</span>
+                  <span className="metric-unit">{t("nm (3√(D_ox·t))")}</span>
                 </div>
 
                 <div className="metric">
-                  <span className="metric-label">Safe SiO₂ Mask (4x)</span>
+                  <span className="metric-label">{t("Safe SiO₂ Mask (4x)")}</span>
                   <span className="metric-value">{oxideMask ? fmt(oxideMask.minThickness4xNm, 1) : '—'}</span>
-                  <span className="metric-unit">nm (4√(D_ox·t))</span>
+                  <span className="metric-unit">{t("nm (4√(D_ox·t))")}</span>
                 </div>
               </div>
               {/* Concentration Profile SVG Chart */}
@@ -541,8 +540,7 @@ export default function DopantDiffusionCalculator() {
                 <div style={{ marginTop: 24 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
                     <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                      Dopant Concentration vs. Depth Profile C(x) (0 to {chartData.maxX >= 1 ? chartData.maxX.toFixed(2) : chartData.maxX.toFixed(3)} μm)
-                    </span>
+                      {t("Dopant Concentration vs. Depth Profile C(x) (0 to")}{chartData.maxX >= 1 ? chartData.maxX.toFixed(2) : chartData.maxX.toFixed(3)} {t("μm)")}</span>
                     <button
                       type="button"
                       className="button secondary"
@@ -550,7 +548,7 @@ export default function DopantDiffusionCalculator() {
                       onClick={handleExportProfileCsv}
                     >
                       <Download size={13} aria-hidden="true" />
-                      <span>Export CSV</span>
+                      <span>{t("Export CSV")}</span>
                     </button>
                     <button
                       type="button"
@@ -559,7 +557,7 @@ export default function DopantDiffusionCalculator() {
                       onClick={handleExportProfileXlsx}
                     >
                       <Download size={13} aria-hidden="true" />
-                      <span>Export XLSX</span>
+                      <span>{t("Export XLSX")}</span>
                     </button>
                     <button
                       type="button"
@@ -568,7 +566,7 @@ export default function DopantDiffusionCalculator() {
                       onClick={handleExportProfileSvg}
                     >
                       <ImageIcon size={13} aria-hidden="true" />
-                      <span>Save SVG</span>
+                      <span>{t("Save SVG")}</span>
                     </button>
                   </div>
 
@@ -652,8 +650,7 @@ export default function DopantDiffusionCalculator() {
                         textAnchor="end"
                         fontWeight="500"
                       >
-                        Substrate C_B = {chartData.cb.toExponential(1)} cm⁻³
-                      </text>
+                        {t("Substrate C_B =")}{chartData.cb.toExponential(1)} {t("cm⁻³")}</text>
 
                       {/* Junction Depth xj Line and Marker */}
                       {chartData.xjX !== null && chartData.xj !== undefined && (
@@ -682,8 +679,7 @@ export default function DopantDiffusionCalculator() {
                             fill="var(--chart-limit)"
                             fontWeight="600"
                           >
-                            x_j = {chartData.xj.toFixed(3)} μm ({(chartData.xj * 1000).toFixed(0)} nm)
-                          </text>
+                            {t("x_j =")}{chartData.xj.toFixed(3)} {t("μm (")}{(chartData.xj * 1000).toFixed(0)} {t("nm)")}</text>
                         </g>
                       )}
 
@@ -706,7 +702,7 @@ export default function DopantDiffusionCalculator() {
                         fill="var(--chart-accent)"
                         fontWeight="600"
                       >
-                        C_s = {chartData.cs.toExponential(2)}
+                        {t("C_s =")}{chartData.cs.toExponential(2)}
                       </text>
 
                       {/* Axis Labels */}
@@ -717,8 +713,7 @@ export default function DopantDiffusionCalculator() {
                         fill="var(--chart-axis)"
                         textAnchor="middle"
                       >
-                        Depth into Silicon Substrate (μm)
-                      </text>
+                        {t("Depth into Silicon Substrate (μm)")}</text>
                       <text
                         transform="rotate(-90)"
                         x={-(chartData.pad.top + chartData.pH / 2)}
@@ -727,8 +722,7 @@ export default function DopantDiffusionCalculator() {
                         fill="var(--chart-axis)"
                         textAnchor="middle"
                       >
-                        Concentration (cm⁻³, log₁₀)
-                      </text>
+                        {t("Concentration (cm⁻³, log₁₀)")}</text>
                     </svg>
                   </div>
                 </div>
@@ -744,17 +738,14 @@ export default function DopantDiffusionCalculator() {
                 }}
               >
                 <div style={{ fontWeight: 600, fontSize: '0.88rem', marginBottom: 4 }}>
-                  Profile Description:
-                </div>
+                  {t("Profile Description:")}</div>
                 <div style={{ fontSize: '0.84rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
                   {isPredep ? (
                     <>
-                      <strong>Constant Source (Complementary Error Function erfc)</strong>: Constant dopant flux from gaseous source (e.g. BBr₃, POCl₃, or spin-on dopant) maintains surface saturation at {active.surfaceConcentrationCm3.toExponential(2)} cm⁻³.
-                    </>
+                      <strong>{t("Constant Source (Complementary Error Function erfc)")}</strong>{t(": Constant dopant flux from gaseous source (e.g. BBr₃, POCl₃, or spin-on dopant) maintains surface saturation at")}{active.surfaceConcentrationCm3.toExponential(2)} {t("cm⁻³.")}</>
                   ) : (
                     <>
-                      <strong>Limited Source (Gaussian Distribution)</strong>: Finite fixed dopant dose Q is redistributed into the silicon bulk during high-temperature drive-in annealing, dropping surface concentration Cs over time.
-                    </>
+                      <strong>{t("Limited Source (Gaussian Distribution)")}</strong>{t(": Finite fixed dopant dose Q is redistributed into the silicon bulk during high-temperature drive-in annealing, dropping surface concentration Cs over time.")}</>
                   )}
                 </div>
               </div>

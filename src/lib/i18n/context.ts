@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useSyncExternalStore } from 'react';
-import { ensureDictionary, isDictionaryLoaded } from './translations';
+import { ensureDictionary } from './translations';
 import { ensureGlossary } from './glossary';
 import { ensureToolTranslations } from './tool-translations';
+import { ensureSharedCopy } from './tool-copy/shared';
 
 export type SupportedLocale = 'en' | 'zh-CN' | 'zh-TW' | 'ko' | 'ja';
 
@@ -35,17 +36,10 @@ const listeners = new Set<() => void>();
 function notify() {
   listeners.forEach((listener) => listener());
 }
-
 function loadLocaleDictionary(locale: SupportedLocale) {
-  if (isDictionaryLoaded(locale)) {
-    if (readyLocale !== locale) {
-      readyLocale = locale;
-      notify();
-    }
-    return;
-  }
-  void Promise.all([ensureDictionary(locale), ensureToolTranslations(locale), ensureGlossary(locale)]).then(() => {
-    if (currentLocale === locale) {
+  const shared = locale === 'en' ? Promise.resolve() : ensureSharedCopy(locale);
+  void Promise.all([ensureDictionary(locale), ensureToolTranslations(locale), ensureGlossary(locale), shared]).then(() => {
+    if (currentLocale === locale && readyLocale !== locale) {
       readyLocale = locale;
       notify();
     }

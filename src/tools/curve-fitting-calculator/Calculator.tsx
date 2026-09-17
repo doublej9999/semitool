@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/curve-fitting-calculator';
 
 import { useId, useMemo, useRef, useState } from 'react';
 import {
@@ -44,6 +46,7 @@ const PRESET_LINEAR = `# X (Independent Variable), Y (Dependent Variable)
 `;
 
 export default function CurveFittingCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState({ mode: 'arrhenius' as FitMode, inputText: PRESET_ARRHENIUS });
   useUrlParamsState(state, setState);
   const { mode, inputText } = state;
@@ -174,24 +177,21 @@ export default function CurveFittingCalculator() {
               style={{ flex: 1 }}
               onClick={() => handleModeChange('arrhenius')}
             >
-              Arrhenius (Ea)
-            </button>
+              {t("Arrhenius (Ea)")}</button>
             <button
               type="button"
               className={`button ${mode === 'deal-grove' ? 'primary' : 'secondary'}`}
               style={{ flex: 1 }}
               onClick={() => handleModeChange('deal-grove')}
             >
-              Deal-Grove (B, B/A)
-            </button>
+              {t("Deal-Grove (B, B/A)")}</button>
             <button
               type="button"
               className={`button ${mode === 'linear' ? 'primary' : 'secondary'}`}
               style={{ flex: 1 }}
               onClick={() => handleModeChange('linear')}
             >
-              Linear Regression
-            </button>
+              {t("Linear Regression")}</button>
           </div>
         </div>
 
@@ -204,8 +204,7 @@ export default function CurveFittingCalculator() {
               {mode === 'linear' && 'Independent X and Dependent Y Data'}
             </label>
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-              {rawPoints.length} valid points parsed
-            </span>
+              {rawPoints.length} {t("valid points parsed")}</span>
           </div>
 
           <textarea
@@ -214,12 +213,12 @@ export default function CurveFittingCalculator() {
             onChange={(e) => setInputText(e.target.value)}
             rows={8}
             style={{ width: '100%', fontFamily: 'var(--font-mono)', fontSize: 13, padding: 8 }}
-            placeholder="# Enter X, Y data points separated by comma, space, or tab"
+            placeholder={t("# Enter X, Y data points separated by comma, space, or tab")}
           />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 12, color: 'var(--muted)' }}>
             <Info size={14} />
-            <span>Format: CSV or space-separated columns. Lines starting with # are comments.</span>
+            <span>{t("Format: CSV or space-separated columns. Lines starting with # are comments.")}</span>
           </div>
         </div>
       </div>
@@ -227,13 +226,13 @@ export default function CurveFittingCalculator() {
       <div className="calc-result">
         <div className="panel">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h3 style={{ margin: 0, fontSize: 16 }}>Fitted Kinetic Parameters</h3>
+            <h3 style={{ margin: 0, fontSize: 16 }}>{t("Fitted Kinetic Parameters")}</h3>
             <div style={{ display: 'flex', gap: 6 }}>
               <button
                 type="button"
                 className="button secondary sm"
                 onClick={() => svgRef.current && downloadSvg(svgRef.current, 'curve_fitting_plot.svg')}
-                title="Export plot as SVG"
+                title={t("Export plot as SVG")}
               >
                 <Download size={13} /> SVG
               </button>
@@ -241,7 +240,7 @@ export default function CurveFittingCalculator() {
                 type="button"
                 className="button secondary sm"
                 onClick={exportFitCsv}
-                title="Export regression data as CSV"
+                title={t("Export regression data as CSV")}
               >
                 <Download size={13} /> CSV
               </button>
@@ -249,7 +248,7 @@ export default function CurveFittingCalculator() {
                 type="button"
                 className="button secondary sm"
                 onClick={exportFitXlsx}
-                title="Export regression data as XLSX"
+                title={t("Export regression data as XLSX")}
               >
                 <Download size={13} /> XLSX
               </button>
@@ -261,14 +260,14 @@ export default function CurveFittingCalculator() {
             <>
               <div className="metric-grid">
                 <div className="metric">
-                  <span className="metric-label">Activation Energy Ea</span>
+                  <span className="metric-label">{t("Activation Energy Ea")}</span>
                   <div className="result-value" style={{ color: 'var(--teal)', fontSize: 24 }}>
                     {arrheniusResult.activationEnergyEv.toFixed(3)}{' '}
                     <span style={{ fontSize: 14, fontWeight: 'normal' }}>eV</span>
                   </div>
                 </div>
                 <div className="metric">
-                  <span className="metric-label">Goodness of Fit R²</span>
+                  <span className="metric-label">{t("Goodness of Fit R²")}</span>
                   <div className="result-value" style={{ fontSize: 24 }}>
                     {arrheniusResult.rSquared.toFixed(4)}
                   </div>
@@ -276,7 +275,7 @@ export default function CurveFittingCalculator() {
               </div>
 
               <div style={{ fontSize: 13, color: 'var(--ink)', marginBottom: 12 }}>
-                <strong>Arrhenius Pre-exponential A:</strong> {arrheniusResult.preExponentialA.toExponential(3)}
+                <strong>{t("Arrhenius Pre-exponential A:")}</strong> {arrheniusResult.preExponentialA.toExponential(3)}
               </div>
             </>
           )}
@@ -285,24 +284,24 @@ export default function CurveFittingCalculator() {
             <>
               <div className="metric-grid">
                 <div className="metric">
-                  <span className="metric-label">Parabolic Rate Constant B</span>
+                  <span className="metric-label">{t("Parabolic Rate Constant B")}</span>
                   <div className="result-value" style={{ color: 'var(--teal)', fontSize: 22 }}>
                     {dealGroveResult.parabolicRateConstantB.toFixed(4)}{' '}
-                    <span style={{ fontSize: 12, fontWeight: 'normal' }}>μm²/hr</span>
+                    <span style={{ fontSize: 12, fontWeight: 'normal' }}>{t("μm²/hr")}</span>
                   </div>
                 </div>
                 <div className="metric">
-                  <span className="metric-label">Linear Rate Constant B/A</span>
+                  <span className="metric-label">{t("Linear Rate Constant B/A")}</span>
                   <div className="result-value" style={{ fontSize: 22 }}>
                     {dealGroveResult.linearRateConstantBoverA.toFixed(4)}{' '}
-                    <span style={{ fontSize: 12, fontWeight: 'normal' }}>μm/hr</span>
+                    <span style={{ fontSize: 12, fontWeight: 'normal' }}>{t("μm/hr")}</span>
                   </div>
                 </div>
               </div>
 
               <div style={{ fontSize: 13, marginBottom: 12 }}>
-                <strong>Characteristic Thickness A:</strong> {dealGroveResult.parameterA.toFixed(4)} μm |{' '}
-                <strong>R²:</strong> {dealGroveResult.rSquared.toFixed(4)}
+                <strong>{t("Characteristic Thickness A:")}</strong> {dealGroveResult.parameterA.toFixed(4)} {t("μm |")}{' '}
+                <strong>{t("R²:")}</strong> {dealGroveResult.rSquared.toFixed(4)}
               </div>
             </>
           )}
@@ -311,13 +310,13 @@ export default function CurveFittingCalculator() {
             <>
               <div className="metric-grid">
                 <div className="metric">
-                  <span className="metric-label">Slope (m)</span>
+                  <span className="metric-label">{t("Slope (m)")}</span>
                   <div className="result-value" style={{ color: 'var(--teal)', fontSize: 24 }}>
                     {linearResult.slope.toFixed(4)}
                   </div>
                 </div>
                 <div className="metric">
-                  <span className="metric-label">Intercept (c)</span>
+                  <span className="metric-label">{t("Intercept (c)")}</span>
                   <div className="result-value" style={{ fontSize: 24 }}>
                     {linearResult.intercept.toFixed(4)}
                   </div>
@@ -325,8 +324,8 @@ export default function CurveFittingCalculator() {
               </div>
 
               <div style={{ fontSize: 13, marginBottom: 12 }}>
-                <strong>Goodness of Fit R²:</strong> {linearResult.rSquared.toFixed(4)} |{' '}
-                <strong>Standard Error:</strong> {linearResult.standardError.toFixed(4)}
+                <strong>{t("Goodness of Fit R²:")}</strong> {linearResult.rSquared.toFixed(4)} |{' '}
+                <strong>{t("Standard Error:")}</strong> {linearResult.standardError.toFixed(4)}
               </div>
             </>
           )}
@@ -337,7 +336,7 @@ export default function CurveFittingCalculator() {
               ref={svgRef}
               viewBox="0 0 460 220"
               style={{ width: '100%', height: 'auto', background: 'var(--chart-bg)', borderRadius: 6 }}
-              aria-label="Curve Fitting Scatter and Fit Line"
+              aria-label={t("Curve Fitting Scatter and Fit Line")}
             >
               {/* Axes */}
               <line x1="50" y1="20" x2="50" y2="180" stroke="var(--chart-grid)" strokeWidth="1" />
@@ -381,11 +380,9 @@ export default function CurveFittingCalculator() {
                       />
                     ))}
                     <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--chart-axis)">
-                      1000 / T (K⁻¹)
-                    </text>
+                      {t("1000 / T (K⁻¹)")}</text>
                     <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--chart-axis)" transform="rotate(-90 20 100)">
-                      ln(Rate)
-                    </text>
+                      {t("ln(Rate)")}</text>
                   </>
                 );
               })()}
@@ -422,11 +419,9 @@ export default function CurveFittingCalculator() {
                       />
                     ))}
                     <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--chart-axis)">
-                      Oxide Thickness x_ox (μm)
-                    </text>
+                      {t("Oxide Thickness x_ox (μm)")}</text>
                     <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--chart-axis)" transform="rotate(-90 20 100)">
-                      Time (hr)
-                    </text>
+                      {t("Time (hr)")}</text>
                   </>
                 );
               })()}
@@ -467,11 +462,9 @@ export default function CurveFittingCalculator() {
                       />
                     ))}
                     <text x="240" y="205" textAnchor="middle" fontSize="11" fill="var(--chart-axis)">
-                      Independent X
-                    </text>
+                      {t("Independent X")}</text>
                     <text x="20" y="100" textAnchor="middle" fontSize="11" fill="var(--chart-axis)" transform="rotate(-90 20 100)">
-                      Dependent Y
-                    </text>
+                      {t("Dependent Y")}</text>
                   </>
                 );
               })()}

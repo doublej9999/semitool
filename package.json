@@ -8,6 +8,7 @@
     "build": "node scripts/sw-version.mjs && next build",
     "analyze": "node scripts/analyze.mjs",
     "check:budget": "node scripts/check-bundle-budget.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

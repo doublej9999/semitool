@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/impedance-matching-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -40,6 +42,7 @@ function elementValue(solution: MatchSolution, kind: 'series' | 'shunt'): string
 }
 
 export default function ImpedanceMatchingCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
@@ -88,9 +91,9 @@ export default function ImpedanceMatchingCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="im-freq">Design frequency (MHz)</label>
+          <label htmlFor="im-freq">{t("Design frequency (MHz)")}</label>
           <input
             id="im-freq"
             type="number"
@@ -100,7 +103,7 @@ export default function ImpedanceMatchingCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="im-source">Source resistance (Ω)</label>
+          <label htmlFor="im-source">{t("Source resistance (Ω)")}</label>
           <input
             id="im-source"
             type="number"
@@ -110,7 +113,7 @@ export default function ImpedanceMatchingCalculator() {
           />
         </div>
         <div className="field">
-          <label htmlFor="im-load">Load resistance (Ω)</label>
+          <label htmlFor="im-load">{t("Load resistance (Ω)")}</label>
           <input
             id="im-load"
             type="number"
@@ -120,19 +123,15 @@ export default function ImpedanceMatchingCalculator() {
           />
         </div>
         <p className="note">
-          Both terminations are treated as real resistances. The shunt element always sits across the larger
-          resistance, so which resistors you enter decides the topology. A complex load needs the stub or a
-          transformer instead.
-        </p>
+          {t("Both terminations are treated as real resistances. The shunt element always sits across the larger resistance, so which resistors you enter decides the topology. A complex load needs the stub or a transformer instead.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -146,35 +145,35 @@ export default function ImpedanceMatchingCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Loaded Q</span>
+            <span className="unit">{t("Loaded Q")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.q)}
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Bandwidth estimate</dt>
-                <dd>{fmt(result.bandwidthHz / 1e6)} MHz</dd>
+                <dt>{t("Bandwidth estimate")}</dt>
+                <dd>{fmt(result.bandwidthHz / 1e6)} {t("MHz")}</dd>
               </div>
               <div>
-                <dt>Shunt element sits across</dt>
+                <dt>{t("Shunt element sits across")}</dt>
                 <dd>{result.shuntSide}</dd>
               </div>
               <div>
-                <dt>Series element reactance</dt>
+                <dt>{t("Series element reactance")}</dt>
                 <dd>{fmt(result.solutions[0].seriesReactanceOhm)} Ω</dd>
               </div>
               <div>
-                <dt>Shunt element reactance</dt>
+                <dt>{t("Shunt element reactance")}</dt>
                 <dd>{fmt(result.solutions[0].shuntReactanceOhm)} Ω</dd>
               </div>
             </dl>
             <table className="model-table">
-              <caption>Both solutions at {fmt(result.frequencyMhz)} MHz</caption>
+              <caption>{t("Both solutions at")}{fmt(result.frequencyMhz)} {t("MHz")}</caption>
               <thead>
                 <tr>
-                  <th scope="col">Topology</th>
-                  <th scope="col">Series</th>
-                  <th scope="col">Shunt</th>
+                  <th scope="col">{t("Topology")}</th>
+                  <th scope="col">{t("Series")}</th>
+                  <th scope="col">{t("Shunt")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,9 +187,7 @@ export default function ImpedanceMatchingCalculator() {
               </tbody>
             </table>
             <p className="note">
-              The two rows are the same match built two ways: pick the low-pass pair when you want to attenuate
-              harmonics, the high-pass pair when you want to block below-band content.
-            </p>
+              {t("The two rows are the same match built two ways: pick the low-pass pair when you want to attenuate harmonics, the high-pass pair when you want to block below-band content.")}</p>
           </>
         )}
       </section>

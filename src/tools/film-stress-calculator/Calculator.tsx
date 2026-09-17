@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/film-stress-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -32,6 +34,7 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 const metres = (value: string, unit: LengthUnit) => toMm(num(value), unit) / 1000;
 
 export default function FilmStressCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -73,7 +76,7 @@ export default function FilmStressCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="stress-inputs">
-        <h2 id="stress-inputs">Stack and measurement</h2>
+        <h2 id="stress-inputs">{t("Stack and measurement")}</h2>
 
         <div className="form-row">
           <div className="field">
@@ -90,7 +93,7 @@ export default function FilmStressCalculator() {
                 onChange={(event) => setState((previous) => ({ ...previous, filmThickness: event.target.value }))}
               />
               <select
-                aria-label="Film thickness unit"
+                aria-label={t("Film thickness unit")}
                 value={state.filmUnit}
                 onChange={(event) => setState((previous) => ({ ...previous, filmUnit: event.target.value as LengthUnit }))}
                 style={{ flex: '0 0 auto', width: 'auto' }}
@@ -117,7 +120,7 @@ export default function FilmStressCalculator() {
                 onChange={(event) => setState((previous) => ({ ...previous, substrateThickness: event.target.value }))}
               />
               <select
-                aria-label="Substrate thickness unit"
+                aria-label={t("Substrate thickness unit")}
                 value={state.substrateUnit}
                 onChange={(event) =>
                   setState((previous) => ({ ...previous, substrateUnit: event.target.value as LengthUnit }))
@@ -135,7 +138,7 @@ export default function FilmStressCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="stress-preset">Substrate</label>
+          <label htmlFor="stress-preset">{t("Substrate")}</label>
           <select
             id="stress-preset"
             value={state.presetId}
@@ -154,14 +157,14 @@ export default function FilmStressCalculator() {
                 {preset.label}
               </option>
             ))}
-            <option value="custom">Custom</option>
+            <option value="custom">{t("Custom")}</option>
           </select>
         </div>
 
         <div className="form-row">
           <div className="field">
             <label htmlFor="stress-youngs">
-              {g('youngsModulus')}<span className="unit">GPa</span>
+              {g('youngsModulus')}<span className="unit">{t("GPa")}</span>
             </label>
             <input
               id="stress-youngs"
@@ -191,7 +194,7 @@ export default function FilmStressCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="stress-curvature-mode">Curvature input</label>
+          <label htmlFor="stress-curvature-mode">{t("Curvature input")}</label>
           <select
             id="stress-curvature-mode"
             value={state.curvatureMode}
@@ -199,15 +202,15 @@ export default function FilmStressCalculator() {
               setState((previous) => ({ ...previous, curvatureMode: event.target.value as CurvatureMode }))
             }
           >
-            <option value="radius">Radius of curvature</option>
-            <option value="bow">Bow across a scan</option>
+            <option value="radius">{t("Radius of curvature")}</option>
+            <option value="bow">{t("Bow across a scan")}</option>
           </select>
         </div>
 
         {state.curvatureMode === 'radius' ? (
           <div className="field">
             <label htmlFor="stress-radius">
-              Radius of curvature<span className="unit">m</span>
+              {t("Radius of curvature")}<span className="unit">m</span>
             </label>
             <input
               id="stress-radius"
@@ -222,7 +225,7 @@ export default function FilmStressCalculator() {
           <div className="form-row">
             <div className="field">
               <label htmlFor="stress-scan">
-                Scan length<span className="unit">mm</span>
+                {t("Scan length")}<span className="unit">mm</span>
               </label>
               <input
                 id="stress-scan"
@@ -250,26 +253,23 @@ export default function FilmStressCalculator() {
         )}
 
         <div className="field">
-          <label htmlFor="stress-direction">Curvature direction</label>
+          <label htmlFor="stress-direction">{t("Curvature direction")}</label>
           <select
             id="stress-direction"
             value={state.direction}
             onChange={(event) => setState((previous) => ({ ...previous, direction: event.target.value as Direction }))}
           >
-            <option value="tensile">Concave toward the film side (tensile)</option>
-            <option value="compressive">Convex toward the film side (compressive)</option>
+            <option value="tensile">{t("Concave toward the film side (tensile)")}</option>
+            <option value="compressive">{t("Convex toward the film side (compressive)")}</option>
           </select>
         </div>
 
         <p className="note">
-          The Stoney relation assumes the film is much thinner than the substrate. The direction is a selection rather
-          than something read from a signed curvature, because curvature sign conventions differ between tools.
-        </p>
+          {t("The Stoney relation assumes the film is much thinner than the substrate. The direction is a selection rather than something read from a signed curvature, because curvature sign conventions differ between tools.")}</p>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setState(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
@@ -287,58 +287,50 @@ export default function FilmStressCalculator() {
             <span className="unit">{g('filmStress')}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.stressPa / 1e6)}
-              <span className="result-suffix"> MPa</span>
+              <span className="result-suffix"> {t("MPa")}</span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Type</span>
+                <span>{t("Type")}</span>
                 <strong>{result.tensile ? 'Tensile' : 'Compressive'}</strong>
               </div>
               <div className="metric">
-                <span>Magnitude</span>
-                <strong>{fmt(result.magnitudePa / 1e9)} GPa</strong>
+                <span>{t("Magnitude")}</span>
+                <strong>{fmt(result.magnitudePa / 1e9)} {t("GPa")}</strong>
               </div>
               <div className="metric">
-                <span>Biaxial modulus</span>
-                <strong>{fmt(result.biaxialModulusPa / 1e9)} GPa</strong>
+                <span>{t("Biaxial modulus")}</span>
+                <strong>{fmt(result.biaxialModulusPa / 1e9)} {t("GPa")}</strong>
               </div>
               <div className="metric">
-                <span>Curvature radius</span>
+                <span>{t("Curvature radius")}</span>
                 <strong>{fmt(radiusM)} m</strong>
               </div>
               <div className="metric">
-                <span>Film / substrate</span>
+                <span>{t("Film / substrate")}</span>
                 <strong>{fmt(result.thicknessRatio, 3)}</strong>
               </div>
               <div className="metric">
-                <span>Stoney check</span>
+                <span>{t("Stoney check")}</span>
                 <strong>{result.ratioWithinStoney ? 'inside limit' : 'outside limit'}</strong>
               </div>
             </div>
 
             {result.ratioWithinStoney ? (
               <p className="note">
-                The film is {fmt(result.thicknessRatio * 100, 3)} percent of the substrate thickness, inside the one
-                percent rule of thumb, so the thin-film Stoney assumption holds.
-              </p>
+                {t("The film is")}{fmt(result.thicknessRatio * 100, 3)} {t("percent of the substrate thickness, inside the one percent rule of thumb, so the thin-film Stoney assumption holds.")}</p>
             ) : (
               <p className="note">
-                The film is {fmt(result.thicknessRatio * 100, 3)} percent of the substrate thickness, above the one
-                percent rule of thumb. Stoney underestimates stress for a thick film, so treat this as a lower bound and
-                use a two-layer model that accounts for the film stiffness.
-              </p>
+                {t("The film is")}{fmt(result.thicknessRatio * 100, 3)} {t("percent of the substrate thickness, above the one percent rule of thumb. Stoney underestimates stress for a thick film, so treat this as a lower bound and use a two-layer model that accounts for the film stiffness.")}</p>
             )}
 
             <p className="note">
-              Stoney gives the magnitude sigma equals M_s t_s squared over six t_f R. The type comes from which way the
-              wafer curved, which is why it is a selection. Confirm the sign convention of your own curvature tool before
-              reading anything into tensile against compressive.
-            </p>
+              {t("Stoney gives the magnitude sigma equals M_s t_s squared over six t_f R. The type comes from which way the wafer curved, which is why it is a selection. Confirm the sign convention of your own curvature tool before reading anything into tensile against compressive.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

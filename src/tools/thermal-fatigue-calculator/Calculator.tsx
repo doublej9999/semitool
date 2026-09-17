@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/thermal-fatigue-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -53,6 +55,7 @@ function FatiguePlot({
   deltaAlphaPpm,
   bumpHeightUm,
 }: FatiguePlotProps) {
+  const t = useToolCopy(copyResource);
   // Plot range for Delta T: log scale from 20 °C to 300 °C
   const minDeltaT = 20;
   const maxDeltaT = 300;
@@ -154,9 +157,9 @@ function FatiguePlot({
       viewBox={`0 0 ${width} ${height}`}
       style={{ width: '100%', height: 'auto', display: 'block' }}
       role="img"
-      aria-label="Coffin-Manson Thermal Fatigue S-N curve"
+      aria-label={t("Coffin-Manson Thermal Fatigue S-N curve")}
     >
-      <title>Coffin-Manson Thermal Fatigue Curve</title>
+      <title>{t("Coffin-Manson Thermal Fatigue Curve")}</title>
       <defs>
         <clipPath id="fatigue-plot-clip">
           <rect x={plotLeft} y={plotTop} width={plotWidth} height={plotHeight} />
@@ -250,8 +253,7 @@ function FatiguePlot({
         fontWeight="600"
         fill="var(--ink)"
       >
-        Thermal Cycling Range ΔT (°C) [Log scale]
-      </text>
+        {t("Thermal Cycling Range ΔT (°C) [Log scale]")}</text>
 
       <text
         transform={`rotate(-90 ${16} ${plotTop + plotHeight / 2})`}
@@ -262,8 +264,7 @@ function FatiguePlot({
         fontWeight="600"
         fill="var(--ink)"
       >
-        Cycles to Failure Nf [Log scale]
-      </text>
+        {t("Cycles to Failure Nf [Log scale]")}</text>
 
       {/* Fatigue Line */}
       <path
@@ -303,7 +304,7 @@ function FatiguePlot({
             fontWeight="600"
             fill="var(--ink-soft)"
           >
-            Field (ΔT={fieldDeltaT}°C, Nf≈{fmt(fieldNf)})
+            {t("Field (ΔT=")}{fieldDeltaT}{t("°C, Nf≈")}{fmt(fieldNf)})
           </text>
         </g>
       )}
@@ -337,7 +338,7 @@ function FatiguePlot({
             fontWeight="bold"
             fill="var(--amber)"
           >
-            Test Point (ΔT={testDeltaT}°C, Nf≈{fmt(testNf)})
+            {t("Test Point (ΔT=")}{testDeltaT}{t("°C, Nf≈")}{fmt(testNf)})
           </text>
         </g>
       )}
@@ -346,6 +347,7 @@ function FatiguePlot({
 }
 
 export default function ThermalFatigueCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
@@ -461,11 +463,11 @@ export default function ThermalFatigueCalculator() {
     <div className="calc-grid">
       {/* Inputs Section */}
       <section className="panel">
-        <h2>Thermal Cycling & Packaging Parameters</h2>
+        <h2>{t("Thermal Cycling & Packaging Parameters")}</h2>
 
         {/* Test Condition Preset */}
         <div className="field">
-          <label htmlFor="test-cond-sel">Temperature Cycling Test Preset</label>
+          <label htmlFor="test-cond-sel">{t("Temperature Cycling Test Preset")}</label>
           <select
             id="test-cond-sel"
             value={state.testPresetId}
@@ -476,13 +478,13 @@ export default function ThermalFatigueCalculator() {
                 {tc.name}
               </option>
             ))}
-            <option value="custom">Custom Thermal Cycle</option>
+            <option value="custom">{t("Custom Thermal Cycle")}</option>
           </select>
         </div>
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="t-min">Min Temperature T_min (°C)</label>
+            <label htmlFor="t-min">{t("Min Temperature T_min (°C)")}</label>
             <input
               id="t-min"
               type="number"
@@ -495,7 +497,7 @@ export default function ThermalFatigueCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="t-max">Max Temperature T_max (°C)</label>
+            <label htmlFor="t-max">{t("Max Temperature T_max (°C)")}</label>
             <input
               id="t-max"
               type="number"
@@ -512,7 +514,7 @@ export default function ThermalFatigueCalculator() {
         {/* Die Dimensions & Solder Bump Height */}
         <div className="form-row">
           <div className="field">
-            <label htmlFor="die-w">Die Width (mm)</label>
+            <label htmlFor="die-w">{t("Die Width (mm)")}</label>
             <input
               id="die-w"
               type="number"
@@ -524,7 +526,7 @@ export default function ThermalFatigueCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="die-h">Die Height (mm)</label>
+            <label htmlFor="die-h">{t("Die Height (mm)")}</label>
             <input
               id="die-h"
               type="number"
@@ -538,7 +540,7 @@ export default function ThermalFatigueCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="bump-h">Solder Joint / Bump Height (µm)</label>
+          <label htmlFor="bump-h">{t("Solder Joint / Bump Height (µm)")}</label>
           <input
             id="bump-h"
             type="number"
@@ -553,7 +555,7 @@ export default function ThermalFatigueCalculator() {
         {/* Substrate & Die CTE Presets */}
         <div className="form-row">
           <div className="field">
-            <label htmlFor="sub-sel">Substrate Material</label>
+            <label htmlFor="sub-sel">{t("Substrate Material")}</label>
             <select
               id="sub-sel"
               value={state.substratePresetId}
@@ -561,14 +563,13 @@ export default function ThermalFatigueCalculator() {
             >
               {SUBSTRATE_PRESETS.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} ({s.ctePpm} ppm/°C)
-                </option>
+                  {s.name} ({s.ctePpm} {t("ppm/°C)")}</option>
               ))}
-              <option value="custom">Custom Substrate</option>
+              <option value="custom">{t("Custom Substrate")}</option>
             </select>
           </div>
           <div className="field">
-            <label htmlFor="sub-cte">Substrate CTE (ppm/°C)</label>
+            <label htmlFor="sub-cte">{t("Substrate CTE (ppm/°C)")}</label>
             <input
               id="sub-cte"
               type="number"
@@ -585,7 +586,7 @@ export default function ThermalFatigueCalculator() {
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="die-sel">Die Material</label>
+            <label htmlFor="die-sel">{t("Die Material")}</label>
             <select
               id="die-sel"
               value={state.diePresetId}
@@ -593,14 +594,13 @@ export default function ThermalFatigueCalculator() {
             >
               {DIE_PRESETS.map((d) => (
                 <option key={d.id} value={d.id}>
-                  {d.name} ({d.ctePpm} ppm/°C)
-                </option>
+                  {d.name} ({d.ctePpm} {t("ppm/°C)")}</option>
               ))}
-              <option value="custom">Custom Die</option>
+              <option value="custom">{t("Custom Die")}</option>
             </select>
           </div>
           <div className="field">
-            <label htmlFor="die-cte">Die CTE (ppm/°C)</label>
+            <label htmlFor="die-cte">{t("Die CTE (ppm/°C)")}</label>
             <input
               id="die-cte"
               type="number"
@@ -617,7 +617,7 @@ export default function ThermalFatigueCalculator() {
 
         {/* Solder Alloy Preset */}
         <div className="field">
-          <label htmlFor="alloy-sel">Solder Alloy</label>
+          <label htmlFor="alloy-sel">{t("Solder Alloy")}</label>
           <select
             id="alloy-sel"
             value={state.alloyPresetId}
@@ -625,16 +625,16 @@ export default function ThermalFatigueCalculator() {
           >
             {SOLDER_ALLOY_PRESETS.map((a) => (
               <option key={a.id} value={a.id}>
-                {a.name} (εf={a.epsilonF}, c={a.c})
+                {a.name} {t("(εf=")}{a.epsilonF}{t(", c=")}{a.c})
               </option>
             ))}
-            <option value="custom">Custom Alloy</option>
+            <option value="custom">{t("Custom Alloy")}</option>
           </select>
         </div>
 
         <div className="form-row">
           <div className="field">
-            <label htmlFor="alloy-ef">Ductility ε_f</label>
+            <label htmlFor="alloy-ef">{t("Ductility ε_f")}</label>
             <input
               id="alloy-ef"
               type="number"
@@ -648,7 +648,7 @@ export default function ThermalFatigueCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="alloy-c">Fatigue Exponent c (negative)</label>
+            <label htmlFor="alloy-c">{t("Fatigue Exponent c (negative)")}</label>
             <input
               id="alloy-c"
               type="number"
@@ -666,7 +666,7 @@ export default function ThermalFatigueCalculator() {
         {/* Field Acceleration Inputs */}
         <div className="form-row">
           <div className="field">
-            <label htmlFor="field-dt">Field Cycle Range ΔT_field (°C)</label>
+            <label htmlFor="field-dt">{t("Field Cycle Range ΔT_field (°C)")}</label>
             <input
               id="field-dt"
               type="number"
@@ -678,7 +678,7 @@ export default function ThermalFatigueCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="m-exp">Acceleration Exponent m</label>
+            <label htmlFor="m-exp">{t("Acceleration Exponent m")}</label>
             <input
               id="m-exp"
               type="number"
@@ -690,7 +690,7 @@ export default function ThermalFatigueCalculator() {
             />
           </div>
           <div className="field">
-            <label htmlFor="cpd">Field Cycles / Day</label>
+            <label htmlFor="cpd">{t("Field Cycles / Day")}</label>
             <input
               id="cpd"
               type="number"
@@ -706,18 +706,17 @@ export default function ThermalFatigueCalculator() {
         <div className="action-row">
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
       {/* Results & Plot Section */}
       <section className="panel">
-        <h2>Fatigue Life & Reliability Results</h2>
+        <h2>{t("Fatigue Life & Reliability Results")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -725,7 +724,7 @@ export default function ThermalFatigueCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Mean Cycles to Failure (Nf)</span>
+            <span className="unit">{t("Mean Cycles to Failure (Nf)")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.nf)}
               <span className="result-suffix"> cycles</span>
@@ -733,36 +732,36 @@ export default function ThermalFatigueCalculator() {
 
             <dl className="metric-grid">
               <div>
-                <dt>Shear Strain Range (Δγ)</dt>
+                <dt>{t("Shear Strain Range (Δγ)")}</dt>
                 <dd>{fmt(result.deltaGammaPct)} %</dd>
               </div>
               <div>
-                <dt>Acceleration Factor (AF)</dt>
-                <dd>{fmt(result.af)} &times;</dd>
+                <dt>{t("Acceleration Factor (AF)")}</dt>
+                <dd>{fmt(result.af)} {t("&times;")}</dd>
               </div>
               <div>
-                <dt>Estimated Field Life</dt>
-                <dd>{fmt(result.fieldYears)} Years</dd>
+                <dt>{t("Estimated Field Life")}</dt>
+                <dd>{fmt(result.fieldYears)} {t("Years")}</dd>
               </div>
               <div>
-                <dt>Expected Field Cycles</dt>
+                <dt>{t("Expected Field Cycles")}</dt>
                 <dd>{fmt(result.fieldCycles)} cycles</dd>
               </div>
               <div>
-                <dt>DNP (Distance to Neutral Point)</dt>
+                <dt>{t("DNP (Distance to Neutral Point)")}</dt>
                 <dd>{fmt(result.dnpMm)} mm</dd>
               </div>
               <div>
-                <dt>CTE Mismatch (Δα)</dt>
-                <dd>{fmt(result.deltaAlphaPpm)} ppm/°C</dd>
+                <dt>{t("CTE Mismatch (Δα)")}</dt>
+                <dd>{fmt(result.deltaAlphaPpm)} {t("ppm/°C")}</dd>
               </div>
               <div>
-                <dt>Test Cycle ΔT</dt>
-                <dd>{fmt(result.deltaTTestC)} °C</dd>
+                <dt>{t("Test Cycle ΔT")}</dt>
+                <dd>{fmt(result.deltaTTestC)} {t("°C")}</dd>
               </div>
               <div>
-                <dt>Field Cycle ΔT</dt>
-                <dd>{fmt(result.fieldDeltaTC)} °C</dd>
+                <dt>{t("Field Cycle ΔT")}</dt>
+                <dd>{fmt(result.fieldDeltaTC)} {t("°C")}</dd>
               </div>
             </dl>
 
@@ -787,8 +786,7 @@ export default function ThermalFatigueCalculator() {
                 }}
               >
                 <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
-                  Coffin-Manson Thermal Fatigue Curve (S-N Log-Log)
-                </span>
+                  {t("Coffin-Manson Thermal Fatigue Curve (S-N Log-Log)")}</span>
                 <span className="unit">
                   Δγ = {fmt(result.deltaGammaPct)}%
                 </span>
@@ -815,7 +813,7 @@ export default function ThermalFatigueCalculator() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span style={{ width: '14px', borderTop: '2.5px solid var(--teal)', display: 'inline-block' }} />
-                  <span>Coffin-Manson curve</span>
+                  <span>{t("Coffin-Manson curve")}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span
@@ -827,7 +825,7 @@ export default function ThermalFatigueCalculator() {
                       display: 'inline-block',
                     }}
                   />
-                  <span>Test condition ({result.deltaTTestC}°C, Nf={fmt(result.nf)})</span>
+                  <span>{t("Test condition (")}{result.deltaTTestC}{t("°C, Nf=")}{fmt(result.nf)})</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span
@@ -839,7 +837,7 @@ export default function ThermalFatigueCalculator() {
                       display: 'inline-block',
                     }}
                   />
-                  <span>Field condition ({result.fieldDeltaTC}°C)</span>
+                  <span>{t("Field condition (")}{result.fieldDeltaTC}{t("°C)")}</span>
                 </div>
               </div>
             </div>

@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/temperature-converter';
 
 import { useState } from 'react';
 import UnitConverter from '@/components/tools/UnitConverter';
@@ -20,6 +22,7 @@ const MODE_LABELS: Record<TemperatureMode, string> = {
 };
 
 export default function TemperatureConverter() {
+  const t = useToolCopy(copyResource);
   // One URL-synced object for the whole page: useUrlParamsState rewrites the
   // entire query string, so mode and the converter's value/unit must share a
   // single hook rather than the converter syncing itself with a second one.
@@ -37,7 +40,7 @@ export default function TemperatureConverter() {
 
   return (
     <UnitConverter
-      title="Temperature"
+      title={t("Temperature")}
       resultTitle="Converted temperature"
       units={units}
       headlineUnit="F"
@@ -49,7 +52,7 @@ export default function TemperatureConverter() {
       onUnitChange={(next) => setState((current) => ({ ...current, tempUnit: next }))}
       controls={
         <div className="field">
-          <label htmlFor="temperature-mode">What are you converting?</label>
+          <label htmlFor="temperature-mode">{t("What are you converting?")}</label>
           <select
             id="temperature-mode"
             value={mode}
@@ -78,14 +81,10 @@ export default function TemperatureConverter() {
       note={
         <>
           <p className="note">
-            The offsets are exact: T(K) = T(°C) + 273.15 and T(°F) = T(°C) x 9/5 + 32. That is why the Celsius and
-            Fahrenheit readings meet at exactly -40.
-          </p>
+            {t("The offsets are exact: T(K) = T(°C) + 273.15 and T(°F) = T(°C) x 9/5 + 32. That is why the Celsius and Fahrenheit readings meet at exactly -40.")}</p>
           <p className="note">
-            A difference carries no offset, so it converts differently: a 10 °C rise is an 18 °F rise, while a reading of
-            10 °C is 50 °F. Switch the mode above when you are converting a tolerance or a ramp rather than a reading.
-          </p>
-          <p className="note">Absolute zero is 0 K, which is -273.15 °C and -459.67 °F.</p>
+            {t("A difference carries no offset, so it converts differently: a 10 °C rise is an 18 °F rise, while a reading of 10 °C is 50 °F. Switch the mode above when you are converting a tolerance or a ramp rather than a reading.")}</p>
+          <p className="note">{t("Absolute zero is 0 K, which is -273.15 °C and -459.67 °F.")}</p>
         </>
       }
     />

@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/thickness-converter';
 
 import UnitConverter from '@/components/tools/UnitConverter';
 import { LENGTH_LABELS, LENGTH_UNITS, convertLength, type LengthUnit } from '@/lib/units';
@@ -7,9 +9,10 @@ import { LENGTH_LABELS, LENGTH_UNITS, convertLength, type LengthUnit } from '@/l
 const UNITS = LENGTH_UNITS.map((unit) => ({ id: unit, label: LENGTH_LABELS[unit] }));
 
 export default function ThicknessConverter() {
+  const t = useToolCopy(copyResource);
   return (
     <UnitConverter
-      title="Length or film thickness"
+      title={t("Length or film thickness")}
       resultTitle="Converted length"
       units={UNITS}
       headlineUnit="nm"
@@ -24,13 +27,9 @@ export default function ThicknessConverter() {
       note={
         <>
           <p className="note">
-            1 in is exactly 25.4 mm and 1 mil is exactly 0.001 in, so the inch and mil rows carry no rounding at all. One
-            ångström is exactly 0.1 nm, which is why 1000 Å reads as 100 nm.
-          </p>
+            {t("1 in is exactly 25.4 mm and 1 mil is exactly 0.001 in, so the inch and mil rows carry no rounding at all. One ångström is exactly 0.1 nm, which is why 1000 Å reads as 100 nm.")}</p>
           <p className="note">
-            Thermal oxides are usually quoted in ångström and deposited films in nanometres. A supplier who writes
-            &ldquo;10 kÅ&rdquo; means 1000 nm, and a &ldquo;25 mil&rdquo; wafer is 635 µm thick.
-          </p>
+            {t("Thermal oxides are usually quoted in ångström and deposited films in nanometres. A supplier who writes “10 kÅ” means 1000 nm, and a “25 mil” wafer is 635 µm thick.")}</p>
         </>
       }
     />

@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/bin-yield-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -17,6 +19,7 @@ LEAK 220`;
 const INITIAL = { bins: SAMPLE };
 
 export default function BinYieldCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy: copyResult } = useCopyToClipboard();
@@ -54,9 +57,9 @@ export default function BinYieldCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="bin-list">Bin counts, one per line as &lt;bin&gt; &lt;count&gt;</label>
+          <label htmlFor="bin-list">{t("Bin counts, one per line as <bin> <count>")}</label>
           <textarea
             id="bin-list"
             rows={8}
@@ -66,19 +69,15 @@ export default function BinYieldCalculator() {
           />
         </div>
         <p className="note">
-          Separate the label and the count with a space, a comma or a tab, so a line pasted from a datalog works. Add a
-          * to the pass bin; if no bin is marked, the largest bin is assumed to be the pass bin. Labels that repeat are
-          summed, and lines starting with # are ignored.
-        </p>
+          {t("Separate the label and the count with a space, a comma or a tab, so a line pasted from a datalog works. Add a * to the pass bin; if no bin is marked, the largest bin is assumed to be the pass bin. Labels that repeat are summed, and lines starting with # are ignored.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -92,47 +91,45 @@ export default function BinYieldCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Pass yield</span>
+            <span className="unit">{t("Pass yield")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.rollup.passFraction * 100)}
               <span className="result-suffix"> %</span>
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Total die</dt>
+                <dt>{t("Total die")}</dt>
                 <dd>{fmt(result.rollup.total)}</dd>
               </div>
               <div>
-                <dt>Pass bin</dt>
+                <dt>{t("Pass bin")}</dt>
                 <dd>{result.rollup.passLabel ?? 'n/a'}</dd>
               </div>
               <div>
-                <dt>Pass die</dt>
+                <dt>{t("Pass die")}</dt>
                 <dd>{fmt(result.rollup.passCount)}</dd>
               </div>
               <div>
-                <dt>Fail</dt>
+                <dt>{t("Fail")}</dt>
                 <dd>{fmt(result.rollup.failFraction * 100)} %</dd>
               </div>
               <div>
-                <dt>Defect rate</dt>
+                <dt>{t("Defect rate")}</dt>
                 <dd>{fmt(result.rollup.failDppm)} DPPM</dd>
               </div>
             </dl>
             {!result.rollup.passMarked ? (
               <p className="note">
-                No pass bin was marked with a *, so the largest bin ({result.rollup.passLabel}) is treated as the pass
-                bin. Mark the real pass bin if that is not it.
-              </p>
+                {t("No pass bin was marked with a *, so the largest bin (")}{result.rollup.passLabel}{t(") is treated as the pass bin. Mark the real pass bin if that is not it.")}</p>
             ) : null}
             <div className="table-scroll">
               <table className="model-table">
                 <thead>
                   <tr>
-                    <th scope="col">Bin</th>
-                    <th scope="col">Count</th>
-                    <th scope="col">Share</th>
-                    <th scope="col">Cumulative</th>
+                    <th scope="col">{t("Bin")}</th>
+                    <th scope="col">{t("Count")}</th>
+                    <th scope="col">{t("Share")}</th>
+                    <th scope="col">{t("Cumulative")}</th>
                     <th scope="col">DPPM</th>
                   </tr>
                 </thead>

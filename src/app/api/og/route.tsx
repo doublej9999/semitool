@@ -4,10 +4,19 @@ import { SITE_NAME } from '@/lib/site';
 
 export const dynamic = 'force-static';
 
+const DEFAULT_TITLE = 'Semiconductor Engineering Tools';
+const DEFAULT_TAGLINE = 'Semiconductor engineering tools · runs entirely in your browser';
+
+function queryText(value: string | null, fallback: string, maxLength: number): string {
+  const normalized = value?.trim();
+  return (normalized || fallback).slice(0, maxLength);
+}
+
 export function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const title = (searchParams.get('title') ?? 'Semiconductor Engineering Tools').slice(0, 110);
-  const category = searchParams.get('category');
+  const title = queryText(searchParams.get('title'), DEFAULT_TITLE, 110);
+  const category = queryText(searchParams.get('category'), '', 80) || null;
+  const tagline = queryText(searchParams.get('tagline'), DEFAULT_TAGLINE, 140);
 
   return new ImageResponse(
     (
@@ -62,9 +71,7 @@ export function GET(request: NextRequest) {
           ) : null}
         </div>
 
-        <div style={{ fontSize: 26, color: 'rgba(255,255,255,0.75)' }}>
-          Semiconductor engineering tools · runs entirely in your browser
-        </div>
+        <div style={{ fontSize: 26, color: 'rgba(255,255,255,0.75)' }}>{tagline}</div>
       </div>
     ),
     { width: 1200, height: 630 },

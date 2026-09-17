@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/layout-parasitics-calculator';
 
 import { useId, useMemo, useState } from 'react';
 import { Download } from 'lucide-react';
@@ -64,6 +66,7 @@ function ConductorSelect({ id, value, onChange }: { id: string; value: string; o
 }
 
 export default function LayoutParasiticsCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState<FormState>(INITIAL_STATE);
   const { copied, copy } = useCopyToClipboard();
 
@@ -228,26 +231,26 @@ export default function LayoutParasiticsCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="lp-inputs">
-        <h2 id="lp-inputs">Drawn geometry and stack</h2>
+        <h2 id="lp-inputs">{t("Drawn geometry and stack")}</h2>
 
         <div className="field">
-          <label htmlFor={materialId}>Conductor layer</label>
+          <label htmlFor={materialId}>{t("Conductor layer")}</label>
           <ConductorSelect id={materialId} value={state.materialId} onChange={(v) => update('materialId', v)} />
         </div>
 
         <div className="field">
-          <label htmlFor={dielectricId}>ILD dielectric</label>
+          <label htmlFor={dielectricId}>{t("ILD dielectric")}</label>
           <select id={dielectricId} value={state.dielectricId} onChange={(e) => update('dielectricId', e.target.value)}>
             {DIELECTRICS.map((d) => (
               <option key={d.id} value={d.id}>
-                {d.label} (k ≈ {d.k})
+                {d.label} {t("(k ≈")}{d.k})
               </option>
             ))}
           </select>
         </div>
 
         <div className="field">
-          <label htmlFor={lengthId}>Line length L (µm)</label>
+          <label htmlFor={lengthId}>{t("Line length L (µm)")}</label>
           <input
             id={lengthId}
             type="number"
@@ -259,7 +262,7 @@ export default function LayoutParasiticsCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor={widthId}>Line width W (µm)</label>
+          <label htmlFor={widthId}>{t("Line width W (µm)")}</label>
           <input
             id={widthId}
             type="number"
@@ -271,7 +274,7 @@ export default function LayoutParasiticsCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor={thicknessId}>Metal thickness t (µm)</label>
+          <label htmlFor={thicknessId}>{t("Metal thickness t (µm)")}</label>
           <input
             id={thicknessId}
             type="number"
@@ -280,11 +283,11 @@ export default function LayoutParasiticsCalculator() {
             value={state.thicknessUm}
             onChange={(e) => update('thicknessUm', Number.parseFloat(e.target.value) || 0)}
           />
-          <small>Poly entries are specified by Ω/□ — thickness only feeds the derived resistivity readout.</small>
+          <small>{t("Poly entries are specified by Ω/□ — thickness only feeds the derived resistivity readout.")}</small>
         </div>
 
         <div className="field">
-          <label htmlFor={spacingId}>Neighbour spacing s (µm)</label>
+          <label htmlFor={spacingId}>{t("Neighbour spacing s (µm)")}</label>
           <input
             id={spacingId}
             type="number"
@@ -296,7 +299,7 @@ export default function LayoutParasiticsCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor={ildThicknessId}>ILD height to plane (µm)</label>
+          <label htmlFor={ildThicknessId}>{t("ILD height to plane (µm)")}</label>
           <input
             id={ildThicknessId}
             type="number"
@@ -305,11 +308,11 @@ export default function LayoutParasiticsCalculator() {
             value={state.ildThicknessUm}
             onChange={(e) => update('ildThicknessUm', Number.parseFloat(e.target.value) || 0)}
           />
-          <small>Dielectric height from the line bottom down to the reference plane (substrate or lower metal).</small>
+          <small>{t("Dielectric height from the line bottom down to the reference plane (substrate or lower metal).")}</small>
         </div>
 
         <div className="field">
-          <label htmlFor={temperatureId}>Temperature (°C)</label>
+          <label htmlFor={temperatureId}>{t("Temperature (°C)")}</label>
           <input
             id={temperatureId}
             type="number"
@@ -319,11 +322,11 @@ export default function LayoutParasiticsCalculator() {
             value={state.temperatureC}
             onChange={(e) => update('temperatureC', Number.parseFloat(e.target.value) || 0)}
           />
-          <small>Linear TCR model, validated −55…175 °C (values outside are clamped).</small>
+          <small>{t("Linear TCR model, validated −55…175 °C (values outside are clamped).")}</small>
         </div>
 
         <div className="field">
-          <label htmlFor={currentId}>Line current I (mA)</label>
+          <label htmlFor={currentId}>{t("Line current I (mA)")}</label>
           <input
             id={currentId}
             type="number"
@@ -335,7 +338,7 @@ export default function LayoutParasiticsCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor={vddId}>Supply voltage V<sub>DD</sub> (V)</label>
+          <label htmlFor={vddId}>{t("Supply voltage V")}<sub>DD</sub> {t("(V)")}</label>
           <input
             id={vddId}
             type="number"
@@ -352,21 +355,18 @@ export default function LayoutParasiticsCalculator() {
           </button>
           <button type="button" className="btn btn-secondary" onClick={exportCsvFile}>
             <Download size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
-            Export CSV
-          </button>
+            {t("Export CSV")}</button>
           <button type="button" className="btn btn-secondary" onClick={exportXlsxFile}>
             <Download size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
-            Export XLSX
-          </button>
+            {t("Export XLSX")}</button>
           <button type="button" className="btn btn-secondary" onClick={exportPdfFile}>
             <Download size={14} style={{ verticalAlign: '-2px', marginRight: '4px' }} />
-            Export PDF
-          </button>
+            {t("Export PDF")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="lp-results">
-        <h2 id="lp-results">Estimated parasitics</h2>
+        <h2 id="lp-results">{t("Estimated parasitics")}</h2>
 
         {warnings.length > 0 && (
           <div className="physics-alert">
@@ -378,24 +378,24 @@ export default function LayoutParasiticsCalculator() {
 
         <div className="metric-grid">
           <div className="metric-card">
-            <span className="metric-label">Line resistance R = ρ·L/(W·t)</span>
+            <span className="metric-label">{t("Line resistance R = ρ·L/(W·t)")}</span>
             <span className="metric-value">{fmt(results.resistance.resistanceOhm)} Ω</span>
             <span className="metric-label">
-              Rs = {fmt(results.resistance.sheetResistanceOhmSq)} Ω/□ · {fmt(results.resistance.squares)} squares
+              {t("Rs =")}{fmt(results.resistance.sheetResistanceOhmSq)} Ω/□ · {fmt(results.resistance.squares)} squares
             </span>
           </div>
 
           <div className="metric-card highlight">
-            <span className="metric-label">Line capacitance C (plate + fringe)</span>
+            <span className="metric-label">{t("Line capacitance C (plate + fringe)")}</span>
             <span className="metric-value">{fmt(results.capacitance.capacitanceFf)} fF</span>
             <span className="metric-label">
-              plate {fmt(results.capacitance.plateCapacitanceF * 1e15)} · fringe{' '}
-              {fmt(results.capacitance.fringeCapacitanceF * 1e15)} fF ({fmt(results.capacitance.fringeFraction * 100)}%)
+              plate {fmt(results.capacitance.plateCapacitanceF * 1e15)} {t("· fringe")}{' '}
+              {fmt(results.capacitance.fringeCapacitanceF * 1e15)} {t("fF (")}{fmt(results.capacitance.fringeFraction * 100)}%)
             </span>
           </div>
 
           <div className="metric-card">
-            <span className="metric-label">IR drop V = I·R</span>
+            <span className="metric-label">{t("IR drop V = I·R")}</span>
             <span className="metric-value" style={{ color: dropTone }}>
               {fmt(results.irDrop.voltageDropMv)} mV
             </span>
@@ -405,28 +405,28 @@ export default function LayoutParasiticsCalculator() {
           </div>
 
           <div className="metric-card">
-            <span className="metric-label">RC delay (single pole)</span>
+            <span className="metric-label">{t("RC delay (single pole)")}</span>
             <span className="metric-value">{fmt(results.rcDelay.propDelay50Ps)} ps</span>
             <span className="metric-label">
-              t_p,50% = 0.69·RC · t_r,10–90% = 0.35·RC = {fmt(results.rcDelay.riseTime10To90Ps)} ps
+              {t("t_p,50% = 0.69·RC · t_r,10–90% = 0.35·RC =")}{fmt(results.rcDelay.riseTime10To90Ps)} ps
             </span>
           </div>
         </div>
 
         <div className="metric-grid" style={{ marginTop: '12px' }}>
           <div className="metric-card">
-            <span className="metric-label">Effective resistivity ρ_eff(T)</span>
+            <span className="metric-label">{t("Effective resistivity ρ_eff(T)")}</span>
             <span className="metric-value">
               {results.resistance.effectiveResistivityUohmCm !== null
                 ? `${fmt(results.resistance.effectiveResistivityUohmCm)} µΩ·cm`
                 : 'N/A (Rs entry)'}
             </span>
-            <span className="metric-label">T factor ×{results.resistance.temperatureFactor.toFixed(4)} at {results.resistance.temperatureC} °C</span>
+            <span className="metric-label">{t("T factor ×")}{results.resistance.temperatureFactor.toFixed(4)} at {results.resistance.temperatureC} {t("°C")}</span>
           </div>
           <div className="metric-card">
-            <span className="metric-label">RC time constant R·C</span>
+            <span className="metric-label">{t("RC time constant R·C")}</span>
             <span className="metric-value">{fmt(results.rcDelay.rcTimeConstantS * 1e12)} ps</span>
-            <span className="metric-label">R = {fmt(results.resistance.resistanceOhm)} Ω · C = {fmt(results.capacitance.capacitanceFf)} fF</span>
+            <span className="metric-label">{t("R =")}{fmt(results.resistance.resistanceOhm)} {t("Ω · C =")}{fmt(results.capacitance.capacitanceFf)} fF</span>
           </div>
         </div>
 
@@ -442,17 +442,16 @@ export default function LayoutParasiticsCalculator() {
               justifyContent: 'center',
             }}
           >
-            <svg viewBox="0 0 560 250" style={{ width: '100%', maxWidth: '560px', height: 'auto', display: 'block' }} role="img" aria-label="Cross-section of a metal line over a substrate reference plane">
+            <svg viewBox="0 0 560 250" style={{ width: '100%', maxWidth: '560px', height: 'auto', display: 'block' }} role="img" aria-label={t("Cross-section of a metal line over a substrate reference plane")}>
               {/* Si substrate (reference plane) */}
               <rect x="20" y="195" width="520" height="40" rx="3" fill="#3b4d61" />
               <text x="280" y="220" fill="#ffffff" fontSize="11.5" fontWeight="600" textAnchor="middle" opacity="0.9">
-                Si substrate / reference plane (grounded)
-              </text>
+                {t("Si substrate / reference plane (grounded)")}</text>
 
               {/* ILD dielectric */}
               <rect x="20" y="95" width="520" height="100" fill="#cbd5e1" />
               <text x="80" y="115" fill="#475569" fontSize="11.5" fontWeight="600">
-                {dielectric.label}, k ≈ {dielectric.k}
+                {dielectric.label}{t(", k ≈")}{dielectric.k}
               </text>
 
               {/* Neighbour metal line */}
@@ -464,45 +463,39 @@ export default function LayoutParasiticsCalculator() {
               {/* Main metal line */}
               <rect x="200" y="125" width="110" height="30" fill="#b45309" stroke="#7c2d12" />
               <text x="255" y="145" fill="#ffffff" fontSize="11" fontWeight="700" textAnchor="middle">
-                {results.resistance.materialKind === 'poly' ? 'poly' : 'metal'} W × t
-              </text>
+                {results.resistance.materialKind === 'poly' ? 'poly' : 'metal'} {t("W × t")}</text>
 
               {/* Metal thickness dimension */}
               <line x1="188" y1="125" x2="188" y2="155" stroke="#0f172a" strokeWidth="1.2" />
               <line x1="183" y1="125" x2="193" y2="125" stroke="#0f172a" strokeWidth="1.2" />
               <line x1="183" y1="155" x2="193" y2="155" stroke="#0f172a" strokeWidth="1.2" />
               <text x="180" y="144" fill="#0f172a" fontSize="10.5" textAnchor="end">
-                t = {state.thicknessUm} µm
-              </text>
+                {t("t =")}{state.thicknessUm} {t("µm")}</text>
 
               {/* Width dimension */}
               <line x1="200" y1="185" x2="310" y2="185" stroke="#0f172a" strokeWidth="1.2" />
               <line x1="200" y1="180" x2="200" y2="190" stroke="#0f172a" strokeWidth="1.2" />
               <line x1="310" y1="180" x2="310" y2="190" stroke="#0f172a" strokeWidth="1.2" />
               <text x="255" y="180" fill="#0f172a" fontSize="10.5" textAnchor="middle">
-                W = {state.widthUm} µm
-              </text>
+                {t("W =")}{state.widthUm} {t("µm")}</text>
 
               {/* Spacing dimension */}
               <line x1="310" y1="140" x2="360" y2="140" stroke="#7c2d12" strokeWidth="1.4" />
               <line x1="310" y1="135" x2="310" y2="145" stroke="#7c2d12" strokeWidth="1.4" />
               <line x1="360" y1="135" x2="360" y2="145" stroke="#7c2d12" strokeWidth="1.4" />
               <text x="335" y="132" fill="#7c2d12" fontSize="10.5" fontWeight="600" textAnchor="middle">
-                s = {state.spacingUm} µm
-              </text>
+                {t("s =")}{state.spacingUm} {t("µm")}</text>
 
               {/* Plate path (ILD height) dimension */}
               <line x1="255" y1="155" x2="255" y2="195" stroke="#0d7c82" strokeWidth="1.4" strokeDasharray="4 3" />
               <line x1="250" y1="155" x2="260" y2="155" stroke="#0d7c82" strokeWidth="1.4" />
               <line x1="250" y1="195" x2="260" y2="195" stroke="#0d7c82" strokeWidth="1.4" />
               <text x="268" y="178" fill="#0d7c82" fontSize="10.5" fontWeight="600">
-                t_ILD = {results.capacitance.dielectricThicknessUm} µm (plate path W·L/t)
-              </text>
+                {t("t_ILD =")}{results.capacitance.dielectricThicknessUm} {t("µm (plate path W·L/t)")}</text>
 
               {/* Length note */}
               <text x="280" y="248" fill="#475569" fontSize="10.5" textAnchor="middle">
-                L = {state.lengthUm} µm into the page · schematic not to scale
-              </text>
+                {t("L =")}{state.lengthUm} {t("µm into the page · schematic not to scale")}</text>
             </svg>
           </div>
         </div>

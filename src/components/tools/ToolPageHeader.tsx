@@ -20,7 +20,7 @@ export default function ToolPageHeader({ toolPath }: { toolPath: string }) {
   return (
     <header className="tool-page-header">
       <p className="eyebrow">
-        {translateCategory(tool.category, locale)} / {tool.isNew ? (t.newBadge || 'NEW') : (t.toolBadge || 'TOOL')}
+        {translateCategory(tool.category, locale)} / {tool.isNew ? t.newBadge : t.toolBadge}
       </p>
       <h1>{translated.name}</h1>
       <span className="tool-page-separator" aria-hidden="true" />

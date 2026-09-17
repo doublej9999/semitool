@@ -143,7 +143,7 @@ export default function PwaStatusIndicator() {
           type="button"
           className="button primary pwa-update-btn"
           onClick={handleUpdateClick}
-          title="A new version of SemiTools is ready. Click to reload and apply."
+          title={t.updateReadyTitle}
           style={{
             padding: '0.25rem 0.6rem',
             fontSize: '0.72rem',
@@ -158,7 +158,7 @@ export default function PwaStatusIndicator() {
           }}
         >
           <RefreshCw size={12} className="spin-slow" />
-          <span>Update Ready</span>
+          <span>{t.updateReady}</span>
         </button>
       )}
 

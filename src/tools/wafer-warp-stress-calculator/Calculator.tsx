@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/wafer-warp-stress-calculator';
 
 import { useMemo, useState } from 'react';
 import {
@@ -74,6 +76,7 @@ const INITIAL_STATE: CalculatorState = {
 };
 
 export default function WaferWarpStressCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState<CalculatorState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
 
@@ -305,8 +308,7 @@ export default function WaferWarpStressCalculator() {
       <section className="panel" aria-labelledby="wafer-inputs-title">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h2 id="wafer-inputs-title" style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
-            Wafer & Film Specifications
-          </h2>
+            {t("Wafer & Film Specifications")}</h2>
           <button
             type="button"
             className="btn btn-secondary btn-sm"
@@ -314,15 +316,13 @@ export default function WaferWarpStressCalculator() {
             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}
           >
             <RotateCcw size={13} />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
 
         {/* Substrate Section */}
         <div style={{ marginBottom: '18px' }}>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginBottom: '6px' }}>
-            Substrate Material & Crystal Orientation
-          </label>
+            {t("Substrate Material & Crystal Orientation")}</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '10px' }}>
             {SUBSTRATE_PRESETS.map((sub) => {
               const selected = state.substrateId === sub.id;
@@ -346,8 +346,7 @@ export default function WaferWarpStressCalculator() {
                 >
                   <div style={{ fontWeight: 600 }}>{sub.name}</div>
                   <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
-                    M: {sub.biaxialModulusGPa} GPa
-                  </div>
+                    {t("M:")}{sub.biaxialModulusGPa} {t("GPa")}</div>
                 </button>
               );
             })}
@@ -356,7 +355,7 @@ export default function WaferWarpStressCalculator() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div className="field">
               <label htmlFor="biaxial-modulus">
-                Biaxial Modulus <span className="unit">GPa</span>
+                {t("Biaxial Modulus")}<span className="unit">{t("GPa")}</span>
               </label>
               <input
                 id="biaxial-modulus"
@@ -375,7 +374,7 @@ export default function WaferWarpStressCalculator() {
             </div>
             <div className="field">
               <label htmlFor="substrate-cte">
-                Substrate CTE (α<sub>s</sub>) <span className="unit">ppm/°C</span>
+                {t("Substrate CTE (α")}<sub>s</sub>) <span className="unit">{t("ppm/°C")}</span>
               </label>
               <input
                 id="substrate-cte"
@@ -400,7 +399,7 @@ export default function WaferWarpStressCalculator() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div className="field">
               <label htmlFor="wafer-diameter">
-                Wafer Diameter <span className="unit">mm</span>
+                {t("Wafer Diameter")}<span className="unit">mm</span>
               </label>
               <select
                 id="wafer-diameter"
@@ -424,7 +423,7 @@ export default function WaferWarpStressCalculator() {
 
             <div className="field">
               <label htmlFor="substrate-thickness">
-                Substrate Thickness (t<sub>s</sub>) <span className="unit">µm</span>
+                {t("Substrate Thickness (t")}<sub>s</sub>) <span className="unit">{t("µm")}</span>
               </label>
               <input
                 id="substrate-thickness"
@@ -446,8 +445,7 @@ export default function WaferWarpStressCalculator() {
         {/* Thin Film Section */}
         <div style={{ marginBottom: '18px' }}>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginBottom: '6px' }}>
-            Thin Film Material
-          </label>
+            {t("Thin Film Material")}</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '10px' }}>
             {FILM_PRESETS.map((film) => {
               const selected = state.filmId === film.id;
@@ -482,7 +480,7 @@ export default function WaferWarpStressCalculator() {
                     <span style={{ fontWeight: 600 }}>{film.name}</span>
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
-                    E: {film.youngsModulusGPa} GPa, ν: {film.poissonRatio}
+                    {t("E:")}{film.youngsModulusGPa} {t("GPa, ν:")}{film.poissonRatio}
                   </div>
                 </button>
               );
@@ -492,7 +490,7 @@ export default function WaferWarpStressCalculator() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
             <div className="field">
               <label htmlFor="film-thickness">
-                Film Thickness (t<sub>f</sub>) <span className="unit">nm</span>
+                {t("Film Thickness (t")}<sub>f</sub>) <span className="unit">nm</span>
               </label>
               <input
                 id="film-thickness"
@@ -510,7 +508,7 @@ export default function WaferWarpStressCalculator() {
             </div>
             <div className="field">
               <label htmlFor="film-modulus">
-                Young Modulus (E<sub>f</sub>) <span className="unit">GPa</span>
+                {t("Young Modulus (E")}<sub>f</sub>) <span className="unit">{t("GPa")}</span>
               </label>
               <input
                 id="film-modulus"
@@ -532,7 +530,7 @@ export default function WaferWarpStressCalculator() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
             <div className="field">
               <label htmlFor="film-poisson">
-                Poisson Ratio (ν<sub>f</sub>)
+                {t("Poisson Ratio (ν")}<sub>f</sub>)
               </label>
               <input
                 id="film-poisson"
@@ -552,7 +550,7 @@ export default function WaferWarpStressCalculator() {
             </div>
             <div className="field">
               <label htmlFor="film-cte">
-                Film CTE (α<sub>f</sub>) <span className="unit">ppm/°C</span>
+                {t("Film CTE (α")}<sub>f</sub>) <span className="unit">{t("ppm/°C")}</span>
               </label>
               <input
                 id="film-cte"
@@ -571,7 +569,7 @@ export default function WaferWarpStressCalculator() {
             </div>
             <div className="field">
               <label htmlFor="fracture-toughness">
-                Fracture Toughness (Γ) <span className="unit">J/m²</span>
+                {t("Fracture Toughness (Γ)")}<span className="unit">{t("J/m²")}</span>
               </label>
               <input
                 id="fracture-toughness"
@@ -594,8 +592,7 @@ export default function WaferWarpStressCalculator() {
         <div style={{ marginBottom: '18px', padding: '14px', border: '1px solid var(--line)', borderRadius: '8px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
-              Metrology Curvature Input Mode
-            </label>
+              {t("Metrology Curvature Input Mode")}</label>
             <div style={{ display: 'inline-flex', borderRadius: '6px', border: '1px solid var(--line)', overflow: 'hidden' }}>
               <button
                 type="button"
@@ -610,8 +607,7 @@ export default function WaferWarpStressCalculator() {
                   cursor: 'pointer',
                 }}
               >
-                Wafer Bow (µm)
-              </button>
+                {t("Wafer Bow (µm)")}</button>
               <button
                 type="button"
                 onClick={() => setState((p) => ({ ...p, curvatureMode: 'radius' }))}
@@ -625,8 +621,7 @@ export default function WaferWarpStressCalculator() {
                   cursor: 'pointer',
                 }}
               >
-                Curvature Radius R (m)
-              </button>
+                {t("Curvature Radius R (m)")}</button>
             </div>
           </div>
 
@@ -634,7 +629,7 @@ export default function WaferWarpStressCalculator() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div className="field">
                 <label htmlFor="bow-pre">
-                  Pre-Deposition Bow <span className="unit">µm</span>
+                  {t("Pre-Deposition Bow")}<span className="unit">{t("µm")}</span>
                 </label>
                 <input
                   id="bow-pre"
@@ -644,12 +639,11 @@ export default function WaferWarpStressCalculator() {
                   onChange={(e) => setState((p) => ({ ...p, bowPreUm: Number(e.target.value) || 0 }))}
                 />
                 <span style={{ fontSize: '11px', color: 'var(--muted)', display: 'block', marginTop: '3px' }}>
-                  (+) Concave / smile, (−) Convex / frown
-                </span>
+                  {t("(+) Concave / smile, (−) Convex / frown")}</span>
               </div>
               <div className="field">
                 <label htmlFor="bow-post">
-                  Post-Deposition Bow <span className="unit">µm</span>
+                  {t("Post-Deposition Bow")}<span className="unit">{t("µm")}</span>
                 </label>
                 <input
                   id="bow-post"
@@ -659,7 +653,7 @@ export default function WaferWarpStressCalculator() {
                   onChange={(e) => setState((p) => ({ ...p, bowPostUm: Number(e.target.value) || 0 }))}
                 />
                 <span style={{ fontSize: '11px', color: 'var(--muted)', display: 'block', marginTop: '3px' }}>
-                  Equivalent Radius: {fmt(bowToRadius(state.bowPostUm, state.waferDiameterMm), 2)} m
+                  {t("Equivalent Radius:")}{fmt(bowToRadius(state.bowPostUm, state.waferDiameterMm), 2)} m
                 </span>
               </div>
             </div>
@@ -667,7 +661,7 @@ export default function WaferWarpStressCalculator() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div className="field">
                 <label htmlFor="radius-pre">
-                  Pre-Deposition Radius (R<sub>pre</sub>) <span className="unit">m</span>
+                  {t("Pre-Deposition Radius (R")}<sub>pre</sub>) <span className="unit">m</span>
                 </label>
                 <input
                   id="radius-pre"
@@ -677,12 +671,11 @@ export default function WaferWarpStressCalculator() {
                   onChange={(e) => setState((p) => ({ ...p, radiusPreM: Number(e.target.value) || 0 }))}
                 />
                 <span style={{ fontSize: '11px', color: 'var(--muted)', display: 'block', marginTop: '3px' }}>
-                  Use 10000 or ±∞ for flat bare wafer
-                </span>
+                  {t("Use 10000 or ±∞ for flat bare wafer")}</span>
               </div>
               <div className="field">
                 <label htmlFor="radius-post">
-                  Post-Deposition Radius (R<sub>post</sub>) <span className="unit">m</span>
+                  {t("Post-Deposition Radius (R")}<sub>post</sub>) <span className="unit">m</span>
                 </label>
                 <input
                   id="radius-post"
@@ -692,8 +685,7 @@ export default function WaferWarpStressCalculator() {
                   onChange={(e) => setState((p) => ({ ...p, radiusPostM: Number(e.target.value) || 0 }))}
                 />
                 <span style={{ fontSize: '11px', color: 'var(--muted)', display: 'block', marginTop: '3px' }}>
-                  Equivalent Bow: {fmt(radiusToBow(state.radiusPostM, state.waferDiameterMm), 1)} µm
-                </span>
+                  {t("Equivalent Bow:")}{fmt(radiusToBow(state.radiusPostM, state.waferDiameterMm), 1)} {t("µm")}</span>
               </div>
             </div>
           )}
@@ -703,7 +695,7 @@ export default function WaferWarpStressCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           <div className="field">
             <label htmlFor="temp-dep">
-              Deposition Temp (T<sub>dep</sub>) <span className="unit">°C</span>
+              {t("Deposition Temp (T")}<sub>dep</sub>) <span className="unit">{t("°C")}</span>
             </label>
             <input
               id="temp-dep"
@@ -715,7 +707,7 @@ export default function WaferWarpStressCalculator() {
           </div>
           <div className="field">
             <label htmlFor="temp-meas">
-              Measurement Temp (T<sub>room</sub>) <span className="unit">°C</span>
+              {t("Measurement Temp (T")}<sub>room</sub>) <span className="unit">{t("°C")}</span>
             </label>
             <input
               id="temp-meas"
@@ -776,8 +768,7 @@ export default function WaferWarpStressCalculator() {
       <section className="panel" aria-labelledby="stress-results-title">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h2 id="stress-results-title" style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
-            Residual Stress & Wafer Distortion
-          </h2>
+            {t("Residual Stress & Wafer Distortion")}</h2>
           {result.ok && (
             <span
               style={{
@@ -804,8 +795,7 @@ export default function WaferWarpStressCalculator() {
             >
               {result.stressType === 'tensile' && <ArrowUpRight size={14} />}
               {result.stressType === 'compressive' && <ArrowDownRight size={14} />}
-              {result.stressType.toUpperCase()} STRESS
-            </span>
+              {result.stressType.toUpperCase()} {t("STRESS")}</span>
           )}
         </div>
 
@@ -832,15 +822,14 @@ export default function WaferWarpStressCalculator() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <div>
               <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ink-soft)' }}>
-                Total Film Residual Stress (Stoney)
-              </span>
+                {t("Total Film Residual Stress (Stoney)")}</span>
               <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--ink)', lineHeight: 1.2, marginTop: '4px' }}>
                 {result.ok ? fmt(result.totalStressMPa, 2) : '—'}{' '}
-                <span style={{ fontSize: '16px', fontWeight: 500, color: 'var(--muted)' }}>MPa</span>
+                <span style={{ fontSize: '16px', fontWeight: 500, color: 'var(--muted)' }}>{t("MPa")}</span>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '12px', color: 'var(--muted)' }}>Thickness Ratio (t<sub>f</sub>/t<sub>s</sub>)</div>
+              <div style={{ fontSize: '12px', color: 'var(--muted)' }}>{t("Thickness Ratio (t")}<sub>f</sub>{t("/t")}<sub>s</sub>)</div>
               <div style={{ fontSize: '15px', fontWeight: 600, color: result.isThicknessRatioValid ? 'var(--teal)' : 'var(--amber)' }}>
                 {result.ok ? `${(result.thicknessRatio * 100).toFixed(3)}%` : '—'}
               </div>
@@ -860,15 +849,14 @@ export default function WaferWarpStressCalculator() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: 'var(--muted)' }}>
               <Sparkles size={14} style={{ color: 'var(--teal)' }} />
-              Thermal Mismatch (σ<sub>th</sub>)
+              {t("Thermal Mismatch (σ")}<sub>th</sub>)
             </div>
             <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--ink)', marginTop: '4px' }}>
               {result.ok ? fmt(result.thermalStressMPa, 2) : '—'}{' '}
-              <span style={{ fontSize: '13px', fontWeight: 400, color: 'var(--muted)' }}>MPa</span>
+              <span style={{ fontSize: '13px', fontWeight: 400, color: 'var(--muted)' }}>{t("MPa")}</span>
             </div>
             <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
-              Δα: {(state.thermalExpansionSubstratePpm - state.thermalExpansionFilmPpm).toFixed(2)} ppm/°C
-            </div>
+              Δα: {(state.thermalExpansionSubstratePpm - state.thermalExpansionFilmPpm).toFixed(2)} {t("ppm/°C")}</div>
           </div>
 
           <div
@@ -881,11 +869,11 @@ export default function WaferWarpStressCalculator() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: 'var(--muted)' }}>
               <Layers size={14} style={{ color: 'var(--amber)' }} />
-              Intrinsic Deposition (σ<sub>int</sub>)
+              {t("Intrinsic Deposition (σ")}<sub>int</sub>)
             </div>
             <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--ink)', marginTop: '4px' }}>
               {result.ok ? fmt(result.intrinsicStressMPa, 2) : '—'}{' '}
-              <span style={{ fontSize: '13px', fontWeight: 400, color: 'var(--muted)' }}>MPa</span>
+              <span style={{ fontSize: '13px', fontWeight: 400, color: 'var(--muted)' }}>{t("MPa")}</span>
             </div>
             <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
               σ<sub>total</sub> − σ<sub>th</sub>
@@ -896,21 +884,21 @@ export default function WaferWarpStressCalculator() {
         {/* Wafer Distortion Metrics: Bow Delta & Warp */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '20px' }}>
           <div style={{ padding: '12px', borderRadius: '8px', background: 'var(--paper)' }}>
-            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Wafer Bow Delta (ΔBow)</span>
+            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{t("Wafer Bow Delta (ΔBow)")}</span>
             <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)', marginTop: '2px' }}>
               {result.ok ? fmt(result.bowDeltaUm, 1) : '—'}{' '}
-              <span style={{ fontSize: '12px', fontWeight: 400 }}>µm</span>
+              <span style={{ fontSize: '12px', fontWeight: 400 }}>{t("µm")}</span>
             </div>
           </div>
           <div style={{ padding: '12px', borderRadius: '8px', background: 'var(--paper)' }}>
-            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Post Warp Estimate</span>
+            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{t("Post Warp Estimate")}</span>
             <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)', marginTop: '2px' }}>
               {result.ok ? fmt(result.warpPostUm, 1) : '—'}{' '}
-              <span style={{ fontSize: '12px', fontWeight: 400 }}>µm</span>
+              <span style={{ fontSize: '12px', fontWeight: 400 }}>{t("µm")}</span>
             </div>
           </div>
           <div style={{ padding: '12px', borderRadius: '8px', background: 'var(--paper)' }}>
-            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Critical Thickness (h<sub>c</sub>)</span>
+            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{t("Critical Thickness (h")}<sub>c</sub>)</span>
             <div
               style={{
                 fontSize: '18px',
@@ -937,8 +925,7 @@ export default function WaferWarpStressCalculator() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)' }}>
-              Wafer Bending Profile Cross-Section
-            </span>
+              {t("Wafer Bending Profile Cross-Section")}</span>
             <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
               {result.stressType === 'tensile'
                 ? 'Concave Up (Smiling) · Film in Tension'
@@ -953,7 +940,7 @@ export default function WaferWarpStressCalculator() {
               viewBox="0 0 560 180"
               style={{ width: '100%', height: 'auto', display: 'block', maxHeight: '180px' }}
               role="img"
-              aria-label="Wafer cross section bending diagram"
+              aria-label={t("Wafer cross section bending diagram")}
             >
               <defs>
                 {/* Linear gradient for substrate */}
@@ -984,8 +971,7 @@ export default function WaferWarpStressCalculator() {
                 strokeDasharray="4 4"
               />
               <text x="45" y="85" fill="#94a3b8" fontSize="10" fontFamily="sans-serif">
-                Zero Deflection Reference
-              </text>
+                {t("Zero Deflection Reference")}</text>
 
               {/* Substrate Ribbon Body */}
               <path
@@ -1026,8 +1012,7 @@ export default function WaferWarpStressCalculator() {
                     markerEnd="url(#stressArrowRight)"
                   />
                   <text x="280" y="45" textAnchor="middle" fill="#dc2626" fontSize="11" fontWeight="600">
-                    Contraction / Tensile Stress (Pulling Inward)
-                  </text>
+                    {t("Contraction / Tensile Stress (Pulling Inward)")}</text>
                 </g>
               )}
 
@@ -1053,8 +1038,7 @@ export default function WaferWarpStressCalculator() {
                     markerEnd="url(#stressArrowRight)"
                   />
                   <text x="280" y="45" textAnchor="middle" fill="#1d4ed8" fontSize="11" fontWeight="600">
-                    Expansion / Compressive Stress (Pushing Outward)
-                  </text>
+                    {t("Expansion / Compressive Stress (Pushing Outward)")}</text>
                 </g>
               )}
 
@@ -1078,20 +1062,17 @@ export default function WaferWarpStressCalculator() {
                     fontWeight="600"
                     fontFamily="monospace"
                   >
-                    Bow: {result.bowPostUm > 0 ? `+${fmt(result.bowPostUm, 1)}` : fmt(result.bowPostUm, 1)} µm
-                  </text>
+                    {t("Bow:")}{result.bowPostUm > 0 ? `+${fmt(result.bowPostUm, 1)}` : fmt(result.bowPostUm, 1)} {t("µm")}</text>
                 </g>
               )}
 
               {/* Wafer labels */}
               <text x="60" y="165" fill="#64748b" fontSize="11" fontWeight="500">
-                Wafer Edge ({state.waferDiameterMm} mm)
-              </text>
+                {t("Wafer Edge (")}{state.waferDiameterMm} {t("mm)")}</text>
               <g transform="translate(380, 155)">
                 <rect x="0" y="0" width="12" height="10" fill={filmColor} rx="2" />
                 <text x="18" y="9" fill="var(--ink)" fontSize="11">
-                  Film Layer ({state.filmThicknessNm} nm)
-                </text>
+                  {t("Film Layer (")}{state.filmThicknessNm} {t("nm)")}</text>
               </g>
             </svg>
           </div>
@@ -1110,8 +1091,7 @@ export default function WaferWarpStressCalculator() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#92400e', fontWeight: 600, fontSize: '13px', marginBottom: '6px' }}>
               <AlertTriangle size={16} />
-              Process & Chucking Warnings
-            </div>
+              {t("Process & Chucking Warnings")}</div>
             <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '12px', color: '#78350f', lineHeight: 1.5 }}>
               {result.warnings.map((w, idx) => (
                 <li key={idx}>{w}</li>
@@ -1123,8 +1103,7 @@ export default function WaferWarpStressCalculator() {
         {/* Quick Recipe Scenarios */}
         <div>
           <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Quick Recipe Presets
-          </span>
+            {t("Quick Recipe Presets")}</span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
             <button
               type="button"
@@ -1151,8 +1130,7 @@ export default function WaferWarpStressCalculator() {
                 }));
               }}
             >
-              Thermal Oxide on 300mm Si
-            </button>
+              {t("Thermal Oxide on 300mm Si")}</button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
@@ -1178,8 +1156,7 @@ export default function WaferWarpStressCalculator() {
                 }));
               }}
             >
-              PECVD Nitride Passivation
-            </button>
+              {t("PECVD Nitride Passivation")}</button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
@@ -1205,8 +1182,7 @@ export default function WaferWarpStressCalculator() {
                 }));
               }}
             >
-              Sputtered Cu Metallization
-            </button>
+              {t("Sputtered Cu Metallization")}</button>
           </div>
         </div>
       </section>

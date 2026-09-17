@@ -116,7 +116,8 @@ export interface Translations {
   offlineReady: string;
   offlineTooltip: string;
   onlineReadyTooltip: string;
-
+  updateReady: string;
+  updateReadyTitle: string;
   // CSV Batch Upload
   csvDropPrompt: string;
   csvLoadedSuccess: string;
@@ -336,10 +337,150 @@ export interface Translations {
   genealogyInvalidSlots: string;
   genealogyWafersUnit: string;
 
-  // Theme toggle
+  // Public shell, status and data privacy
+  languagePickerLabel: string;
+  languagePickerTitle: string;
+  offlineEyebrow: string;
+  offlineHeading: string;
+  offlineLead: string;
+  offlineHomeBtn: string;
+  offlineBrowseBtn: string;
+  errorHeading: string;
+  errorLead: string;
+  errorId: string;
+  errorTryAgain: string;
+  errorGoHome: string;
+  toolsErrorHeading: string;
+  toolsErrorLead: string;
+  toolFinderTitle: string;
+  toolFinderLead: string;
+  toolFinderLabel: string;
+  toolFinderPlaceholder: string;
+  toolFinderSubmit: string;
+  privacyDataHeading: string;
+  privacyDataLead: string;
+  privacyStored: string;
+  privacyEmpty: string;
+  privacyCachedStdf: string;
+  privacyContent: string;
+  privacyAnalytics: string;
+  privacyAnalyticsActive: string;
+  privacyAnalyticsInactive: string;
+  privacyExportAll: string;
+  privacyClear: string;
+  privacyClearConfirm: string;
+
   themeLight: string;
   themeDark: string;
   themeSystem: string;
+  cancel: string;
+  moveUp: string;
+  moveDown: string;
+  remove: string;
+
+  // Additional handbook keys
+  handbookVariables: string;
+  handbookFabApp: string;
+  handbookCleanroomIntro: string;
+  handbookIsoClass: string;
+  handbookFedStd: string;
+  handbookMax01: string;
+  handbookMax05: string;
+  handbookApplication: string;
+
+  // Additional traveler keys
+  travelerArchiveTitle: string;
+  travelerHistoryTitle: string;
+  travelerHistoryCount: string;
+  travelerExportMesJson: string;
+  travelerExportCsv: string;
+  travelerExportPdf: string;
+  travelerArchivedTitle: string;
+  travelerNoArchived: string;
+  travelerRestore: string;
+  travelerHeaderTitle: string;
+  travelerHeaderSub: string;
+  travelerDate: string;
+  travelerRev: string;
+  travelerStatus: string;
+  travelerAuthorized: string;
+  travelerLotNum: string;
+  travelerWaferSlots: string;
+  travelerProcessRecipe: string;
+  travelerChamberTool: string;
+  travelerRespEng: string;
+  travelerOpStep: string;
+  travelerStepTag: string;
+  travelerParam: string;
+  travelerNominal: string;
+  travelerTolerance: string;
+  travelerActual: string;
+  travelerVerification: string;
+  travelerPassOos: string;
+  travelerProcessTempPower: string;
+  travelerStdRecipeSetpoint: string;
+  travelerMetrologyOutput: string;
+  travelerTheoreticalVal: string;
+  travelerMeasuredAvg: string;
+  travelerTargetThickRateYield: string;
+  travelerReferActiveMetrology: string;
+  travelerChamberVacuum: string;
+  travelerParticleMonitor: string;
+  travelerOperatorSign: string;
+  travelerRecipeAlarm: string;
+  travelerWafersUnloaded: string;
+  travelerShiftHandover: string;
+  travelerDisposition: string;
+  travelerDevReport: string;
+  travelerFabEngSign: string;
+  travelerGeneratedNotice: string;
+  travelerAuditNotice: string;
+
+  // Metrology Batch Modal
+  metrologyModalTitle: string;
+  metrologyModalSub: string;
+  metrologyPresets: string;
+  metrologyBrowseCsv: string;
+  metrologyDropPlaceholder: string;
+  metrologyOutlierScreening: string;
+  metrologyTukey: string;
+  metrologyThreeSigma: string;
+  metrologyOutlierNone: string;
+  metrologyExcludeOutliers: string;
+  metrologySubgroupSize: string;
+  metrologyFormat: string;
+  metrologyTotalReadings: string;
+  metrologySubgroupsCount: string;
+  metrologyOutliersFlagged: string;
+  metrologyProcessMean: string;
+  metrologyRaw: string;
+  metrologySampleSigma: string;
+  metrologyMedianIqr: string;
+  metrologyIqr: string;
+  metrologyMinMaxRange: string;
+  metrologyRange: string;
+  metrologySpecLimits: string;
+  metrologyTarget: string;
+  metrologyOpenSpc: string;
+  metrologyRunMonteCarlo: string;
+  metrologyExportCleaned: string;
+  metrologyEmptyPrompt: string;
+  metrologyApplyActive: string;
+
+  // User Data Keys
+  userDataKeyLocale: string;
+  userDataKeyTheme: string;
+  userDataKeyCollapsed: string;
+  userDataKeyRail: string;
+  userDataKeyGlove: string;
+  userDataKeyFavorites: string;
+  userDataKeyScratchpad: string;
+  userDataKeyTravelerHistory: string;
+  userDataKeyFabSession: string;
+  userDataKeyLegacyWorkspace: string;
+  userDataKeyLegacyGenealogy: string;
+  userDataKindContent: string;
+  userDataKindPreference: string;
 }
 
 export interface ToolTranslation {

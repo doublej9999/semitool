@@ -1,5 +1,8 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/arrhenius-calculator';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -9,8 +12,8 @@ import { useUrlParamsState } from '@/lib/use-url-state';
 import { useGlossary } from '@/lib/i18n/glossary';
 
 const MODES = [
-  { id: 'predict', label: 'Predict a rate at a temperature' },
-  { id: 'extract', label: 'Extract Ea from two points' },
+  { id: 'predict', label: msg('Predict a rate at a temperature') },
+  { id: 'extract', label: msg('Extract Ea from two points') },
 ];
 
 const INITIAL = {
@@ -26,6 +29,7 @@ const INITIAL = {
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function ArrheniusCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
@@ -98,13 +102,13 @@ export default function ArrheniusCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="arr-mode">Mode</label>
+          <label htmlFor="arr-mode">{t("Mode")}</label>
           <select id="arr-mode" value={state.mode} onChange={(event) => update('mode', event.target.value)}>
             {MODES.map((mode) => (
               <option key={mode.id} value={mode.id}>
-                {mode.label}
+                {t(mode.label)}
               </option>
             ))}
           </select>
@@ -113,7 +117,7 @@ export default function ArrheniusCalculator() {
         {state.mode === 'predict' ? (
           <>
             <div className="field">
-              <label htmlFor="arr-prefactor">Prefactor D0 (units of the rate)</label>
+              <label htmlFor="arr-prefactor">{t("Prefactor D0 (units of the rate)")}</label>
               <input
                 id="arr-prefactor"
                 type="number"
@@ -123,7 +127,7 @@ export default function ArrheniusCalculator() {
               />
             </div>
             <div className="field">
-              <label htmlFor="arr-ea">Activation energy (eV)</label>
+              <label htmlFor="arr-ea">{t("Activation energy (eV)")}</label>
               <input
                 id="arr-ea"
                 type="number"
@@ -134,7 +138,7 @@ export default function ArrheniusCalculator() {
             </div>
             <div className="form-row">
               <div className="field">
-                <label htmlFor="arr-t1">Temperature 1 (C)</label>
+                <label htmlFor="arr-t1">{t("Temperature 1 (C)")}</label>
                 <input
                   id="arr-t1"
                   type="number"
@@ -144,7 +148,7 @@ export default function ArrheniusCalculator() {
                 />
               </div>
               <div className="field">
-                <label htmlFor="arr-t2">Temperature 2 (C)</label>
+                <label htmlFor="arr-t2">{t("Temperature 2 (C)")}</label>
                 <input
                   id="arr-t2"
                   type="number"
@@ -159,7 +163,7 @@ export default function ArrheniusCalculator() {
           <>
             <div className="form-row">
               <div className="field">
-                <label htmlFor="arr-t1">Temperature 1 (C)</label>
+                <label htmlFor="arr-t1">{t("Temperature 1 (C)")}</label>
                 <input
                   id="arr-t1"
                   type="number"
@@ -169,7 +173,7 @@ export default function ArrheniusCalculator() {
                 />
               </div>
               <div className="field">
-                <label htmlFor="arr-rate1">Rate 1</label>
+                <label htmlFor="arr-rate1">{t("Rate 1")}</label>
                 <input
                   id="arr-rate1"
                   type="number"
@@ -181,7 +185,7 @@ export default function ArrheniusCalculator() {
             </div>
             <div className="form-row">
               <div className="field">
-                <label htmlFor="arr-t2">Temperature 2 (C)</label>
+                <label htmlFor="arr-t2">{t("Temperature 2 (C)")}</label>
                 <input
                   id="arr-t2"
                   type="number"
@@ -191,7 +195,7 @@ export default function ArrheniusCalculator() {
                 />
               </div>
               <div className="field">
-                <label htmlFor="arr-rate2">Rate 2</label>
+                <label htmlFor="arr-rate2">{t("Rate 2")}</label>
                 <input
                   id="arr-rate2"
                   type="number"
@@ -205,18 +209,15 @@ export default function ArrheniusCalculator() {
         )}
 
         <p className="note">
-          The prefactor and the rates keep whatever unit you give them. Only the ratios and the
-          activation energy are unit independent.
-        </p>
+          {t("The prefactor and the rates keep whatever unit you give them. Only the ratios and the activation energy are unit independent.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={copy} disabled={!active.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -231,27 +232,27 @@ export default function ArrheniusCalculator() {
             </div>
           ) : (
             <>
-              <span className="unit">Rate at {fmt(predict.temperatureK)} K</span>
+              <span className="unit">{t("Rate at")}{fmt(predict.temperatureK)} K</span>
               <div className="result-value" aria-live="polite">
                 {fmt(predict.rate)}
               </div>
               <dl className="metric-grid">
                 <div>
-                  <dt>Rate at temperature 2</dt>
+                  <dt>{t("Rate at temperature 2")}</dt>
                   <dd>{predictSecond.ok ? fmt(predictSecond.rate) : 'check input'}</dd>
                 </div>
                 <div>
-                  <dt>Ratio of the two rates</dt>
+                  <dt>{t("Ratio of the two rates")}</dt>
                   <dd>
                     {predictSecond.ok ? fmt(predictSecond.rate / predict.rate) : 'check input'}
                   </dd>
                 </div>
                 <div>
-                  <dt>Thermal energy kT</dt>
+                  <dt>{t("Thermal energy kT")}</dt>
                   <dd>{fmt(predict.thermalEnergyEv)} eV</dd>
                 </div>
                 <div>
-                  <dt>Exponent -Ea / kT</dt>
+                  <dt>{t("Exponent -Ea / kT")}</dt>
                   <dd>{fmt(predict.exponent)}</dd>
                 </div>
               </dl>
@@ -265,26 +266,26 @@ export default function ArrheniusCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Activation energy</span>
+            <span className="unit">{t("Activation energy")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(extract.activationEnergyEv)}
               <span className="result-suffix"> eV</span>
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Prefactor D0</dt>
+                <dt>{t("Prefactor D0")}</dt>
                 <dd>{fmt(extract.prefactor)}</dd>
               </div>
               <div>
-                <dt>Rate ratio r2 / r1</dt>
+                <dt>{t("Rate ratio r2 / r1")}</dt>
                 <dd>{fmt(extract.rateRatio)}</dd>
               </div>
               <div>
-                <dt>Temperature 1</dt>
+                <dt>{t("Temperature 1")}</dt>
                 <dd>{fmt(extract.temperature1K)} K</dd>
               </div>
               <div>
-                <dt>Temperature 2</dt>
+                <dt>{t("Temperature 2")}</dt>
                 <dd>{fmt(extract.temperature2K)} K</dd>
               </div>
             </dl>

@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/sheet-resistance-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -121,6 +123,7 @@ function Measurement<T extends string>({
 }
 
 export default function SheetResistanceCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [modeState, setModeState] = useState({ mode: 'probe' as Mode });
   useUrlParamsState(modeState, setModeState);
@@ -191,13 +194,13 @@ export default function SheetResistanceCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="sheet-inputs">
-        <h2 id="sheet-inputs">Measurement</h2>
+        <h2 id="sheet-inputs">{t("Measurement")}</h2>
 
         <div className="field">
-          <label htmlFor="sheet-mode">Mode</label>
+          <label htmlFor="sheet-mode">{t("Mode")}</label>
           <select id="sheet-mode" value={mode} onChange={(event) => setMode(event.target.value as Mode)}>
-            <option value="probe">Four-point probe measurement</option>
-            <option value="convert">Sheet resistance to resistivity</option>
+            <option value="probe">{t("Four-point probe measurement")}</option>
+            <option value="convert">{t("Sheet resistance to resistivity")}</option>
           </select>
         </div>
 
@@ -242,16 +245,14 @@ export default function SheetResistanceCalculator() {
               onUnit={(unit) => setProbe((previous) => ({ ...previous, thicknessUnit: unit }))}
             />
             <p className="note">
-              Enter the current you forced through the outer probes and the voltage you measured across the inner pair.
-              The spacing is used to check whether the film is thin enough for the relation being used.
-            </p>
+              {t("Enter the current you forced through the outer probes and the voltage you measured across the inner pair. The spacing is used to check whether the film is thin enough for the relation being used.")}</p>
           </>
         ) : (
           <>
             <div className="form-row">
               <div className="field">
                 <label htmlFor="convert-sheet">
-                  {g('sheetResistance')}<span className="unit">Ω/sq</span>
+                  {g('sheetResistance')}<span className="unit">{t("Ω/sq")}</span>
                 </label>
                 <input
                   id="convert-sheet"
@@ -264,7 +265,7 @@ export default function SheetResistanceCalculator() {
               </div>
               <div className="field">
                 <label htmlFor="convert-rho">
-                  {g('resistivityLabel')}<span className="unit">Ω·cm</span>
+                  {g('resistivityLabel')}<span className="unit">{t("Ω·cm")}</span>
                 </label>
                 <input
                   id="convert-rho"
@@ -285,7 +286,7 @@ export default function SheetResistanceCalculator() {
               onValue={(value) => setConvert((previous) => ({ ...previous, thickness: value }))}
               onUnit={(unit) => setConvert((previous) => ({ ...previous, thicknessUnit: unit }))}
             />
-            <p className="note">Fill in exactly one of the two values; the other one is derived from the thickness.</p>
+            <p className="note">{t("Fill in exactly one of the two values; the other one is derived from the thickness.")}</p>
           </>
         )}
 
@@ -298,8 +299,7 @@ export default function SheetResistanceCalculator() {
               setConvert(INITIAL_CONVERT);
             }}
           >
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
@@ -318,44 +318,39 @@ export default function SheetResistanceCalculator() {
               <span className="unit">{g('sheetResistance')}</span>
               <div className="result-value" aria-live="polite">
                 {fmt(probeResult.sheetResistance)}
-                <span className="result-suffix"> Ω/sq</span>
+                <span className="result-suffix"> {t("Ω/sq")}</span>
               </div>
 
               <div className="metric-grid">
                 <div className="metric">
                   <span>{g('resistivityLabel')}</span>
-                  <strong>{fmt(probeResult.resistivity)} Ω·cm</strong>
+                  <strong>{fmt(probeResult.resistivity)} {t("Ω·cm")}</strong>
                 </div>
                 <div className="metric">
-                  <span>Conductivity</span>
-                  <strong>{fmt(probeResult.conductivity)} S/cm</strong>
+                  <span>{t("Conductivity")}</span>
+                  <strong>{fmt(probeResult.conductivity)} {t("S/cm")}</strong>
                 </div>
                 <div className="metric">
-                  <span>Thickness / spacing</span>
+                  <span>{t("Thickness / spacing")}</span>
                   <strong>{fmt(probeResult.thicknessOverSpacing)}</strong>
                 </div>
                 <div className="metric">
-                  <span>Thin-film check</span>
+                  <span>{t("Thin-film check")}</span>
                   <strong>{probeResult.thinFilmValid ? 'inside limit' : 'outside limit'}</strong>
                 </div>
               </div>
 
               {probeResult.thinFilmValid ? (
                 <p className="note">
-                  Thickness / spacing is {fmt(probeResult.thicknessOverSpacing)}, inside the thin-film limit of 0.5, so the
-                  two-dimensional relation π / ln 2 × V / I applies.
-                </p>
+                  {t("Thickness / spacing is")}{fmt(probeResult.thicknessOverSpacing)}{t(", inside the thin-film limit of 0.5, so the two-dimensional relation π / ln 2 × V / I applies.")}</p>
               ) : (
                 <p className="note">
-                  Thickness / spacing is {fmt(probeResult.thicknessOverSpacing)}, above the thin-film limit of 0.5. The
-                  relation used here is not valid for a film that thick, so treat this number as indicative and apply a
-                  thickness correction before relying on it.
-                </p>
+                  {t("Thickness / spacing is")}{fmt(probeResult.thicknessOverSpacing)}{t(", above the thin-film limit of 0.5. The relation used here is not valid for a film that thick, so treat this number as indicative and apply a thickness correction before relying on it.")}</p>
               )}
 
               <div className="action-row">
                 <button className="button primary" type="button" onClick={copyResult}>
-                  <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                  <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
                 </button>
               </div>
             </>
@@ -371,32 +366,30 @@ export default function SheetResistanceCalculator() {
             <span className="unit">{g('resistivityLabel')}</span>
             <div className="result-value" aria-live="polite">
               {fmt(convertResult.resistivity)}
-              <span className="result-suffix"> Ω·cm</span>
+              <span className="result-suffix"> {t("Ω·cm")}</span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
                 <span>{g('sheetResistance')}</span>
-                <strong>{fmt(convertResult.sheetResistance)} Ω/sq</strong>
+                <strong>{fmt(convertResult.sheetResistance)} {t("Ω/sq")}</strong>
               </div>
               <div className="metric">
-                <span>Thickness</span>
+                <span>{t("Thickness")}</span>
                 <strong>{fmt(convertResult.thicknessCm, 3)} cm</strong>
               </div>
               <div className="metric">
-                <span>Conductivity</span>
-                <strong>{fmt(convertResult.conductivity)} S/cm</strong>
+                <span>{t("Conductivity")}</span>
+                <strong>{fmt(convertResult.conductivity)} {t("S/cm")}</strong>
               </div>
             </div>
 
             <p className="note">
-              Resistivity is the sheet resistance multiplied by the thickness, converted to centimetres so the answer is
-              in ohm-centimetres.
-            </p>
+              {t("Resistivity is the sheet resistance multiplied by the thickness, converted to centimetres so the answer is in ohm-centimetres.")}</p>
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

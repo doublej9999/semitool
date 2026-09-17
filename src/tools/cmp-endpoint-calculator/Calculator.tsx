@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/cmp-endpoint-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw, Download, Info, AlertTriangle } from 'lucide-react';
@@ -45,6 +47,7 @@ const INITIAL_STATE: CmpState = {
 };
 
 export default function CmpEndpointCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState<CmpState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
 
@@ -243,7 +246,7 @@ export default function CmpEndpointCalculator() {
     <div className="calc-grid">
       {/* Left Column: Process & Hardware Inputs */}
       <section className="panel" aria-labelledby="cmp-inputs">
-        <h2 id="cmp-inputs">CMP Endpoint & Pad Parameters</h2>
+        <h2 id="cmp-inputs">{t("CMP Endpoint & Pad Parameters")}</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="field">
@@ -262,7 +265,7 @@ export default function CmpEndpointCalculator() {
 
           <div className="field">
             <label htmlFor="removal-rate">
-              {g('removalRate')}<span className="unit">nm/min</span>
+              {g('removalRate')}<span className="unit">{t("nm/min")}</span>
             </label>
             <input
               id="removal-rate"
@@ -278,7 +281,7 @@ export default function CmpEndpointCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="overpolish">
-              Overpolish<span className="unit">%</span>
+              {t("Overpolish")}<span className="unit">%</span>
             </label>
             <input
               id="overpolish"
@@ -293,7 +296,7 @@ export default function CmpEndpointCalculator() {
 
           <div className="field">
             <label htmlFor="transition-delay">
-              Underlayer Delay<span className="unit">s</span>
+              {t("Underlayer Delay")}<span className="unit">s</span>
             </label>
             <input
               id="transition-delay"
@@ -309,7 +312,7 @@ export default function CmpEndpointCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="wavelength">
-              Laser Wavelength (λ)<span className="unit">nm</span>
+              {t("Laser Wavelength (λ)")}<span className="unit">nm</span>
             </label>
             <input
               id="wavelength"
@@ -327,8 +330,7 @@ export default function CmpEndpointCalculator() {
                 style={{ fontSize: '11px', textDecoration: 'underline', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer' }}
                 onClick={() => setState((p) => ({ ...p, wavelengthNm: 633, refractiveIndex: 1.46 }))}
               >
-                HeNe (633nm / SiO₂)
-              </button>
+                {t("HeNe (633nm / SiO₂)")}</button>
               <span>·</span>
               <button
                 type="button"
@@ -336,15 +338,13 @@ export default function CmpEndpointCalculator() {
                 style={{ fontSize: '11px', textDecoration: 'underline', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer' }}
                 onClick={() => setState((p) => ({ ...p, wavelengthNm: 670, refractiveIndex: 2.0 }))}
               >
-                Diode (670nm / SiN)
-              </button>
+                {t("Diode (670nm / SiN)")}</button>
             </div>
           </div>
 
           <div className="field">
             <label htmlFor="refractive-idx">
-              {g('refractiveIndex')} (n)
-            </label>
+              {g('refractiveIndex')} {t("(n)")}</label>
             <input
               id="refractive-idx"
               type="number"
@@ -358,14 +358,12 @@ export default function CmpEndpointCalculator() {
         </div>
 
         <h3 style={{ fontSize: '14px', marginTop: '16px', marginBottom: '8px', color: 'var(--ink)' }}>
-          Pad Conditioning & Groove Wear
-        </h3>
+          {t("Pad Conditioning & Groove Wear")}</h3>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="current-wafers">
-              Current Wafers on Pad
-            </label>
+              {t("Current Wafers on Pad")}</label>
             <input
               id="current-wafers"
               type="number"
@@ -378,7 +376,7 @@ export default function CmpEndpointCalculator() {
 
           <div className="field">
             <label htmlFor="max-pad-life">
-              Max Pad Life<span className="unit">wafers</span>
+              {t("Max Pad Life")}<span className="unit">wafers</span>
             </label>
             <input
               id="max-pad-life"
@@ -393,7 +391,7 @@ export default function CmpEndpointCalculator() {
 
         <div className="field">
           <label htmlFor="cut-rate">
-            Conditioning Cut Rate<span className="unit">μm/hour</span>
+            {t("Conditioning Cut Rate")}<span className="unit">{t("μm/hour")}</span>
           </label>
           <input
             id="cut-rate"
@@ -408,7 +406,7 @@ export default function CmpEndpointCalculator() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div className="field">
             <label htmlFor="init-groove">
-              Initial Groove Depth<span className="unit">mm</span>
+              {t("Initial Groove Depth")}<span className="unit">mm</span>
             </label>
             <input
               id="init-groove"
@@ -422,7 +420,7 @@ export default function CmpEndpointCalculator() {
 
           <div className="field">
             <label htmlFor="min-groove">
-              Min Allowed Groove<span className="unit">mm</span>
+              {t("Min Allowed Groove")}<span className="unit">mm</span>
             </label>
             <input
               id="min-groove"
@@ -438,14 +436,13 @@ export default function CmpEndpointCalculator() {
         <div className="action-row" style={{ marginTop: '16px' }}>
           <button className="button secondary" type="button" onClick={handleReset}>
             <RotateCcw size={15} />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
       {/* Right Column: Timing, Optical Fringes & Pad Health */}
       <section className="panel" aria-labelledby="cmp-results">
-        <h2 id="cmp-results">Endpoint Timing & Pad Life Status</h2>
+        <h2 id="cmp-results">{t("Endpoint Timing & Pad Life Status")}</h2>
 
         {results ? (
           <>
@@ -465,57 +462,55 @@ export default function CmpEndpointCalculator() {
                 }}
               >
                 <AlertTriangle size={18} />
-                <strong>Pad Expired!</strong> Pad has reached its {results.padLife.limitingFactor === 'groove_wear' ? 'minimum groove depth transport limit' : 'maximum qualified wafer capacity'}. Pad change required.
-              </div>
+                <strong>{t("Pad Expired!")}</strong> {t("Pad has reached its")}{results.padLife.limitingFactor === 'groove_wear' ? 'minimum groove depth transport limit' : 'maximum qualified wafer capacity'}{t(". Pad change required.")}</div>
             )}
 
             <div className="highlight-metric">
-              <div className="highlight-label">Total Polish Recipe Duration</div>
+              <div className="highlight-label">{t("Total Polish Recipe Duration")}</div>
               <div className="highlight-value" style={{ fontSize: '28px', color: 'var(--primary)' }}>
                 {fmt(results.endpoint.totalTimeSec, 1)}{' '}
                 <span style={{ fontSize: '16px', fontWeight: 400 }}>seconds</span>
                 <span style={{ fontSize: '16px', fontWeight: 400, color: 'var(--ink-soft)', marginLeft: '6px' }}>
-                  ({fmt(results.endpoint.totalTimeMin, 2)} min)
-                </span>
+                  ({fmt(results.endpoint.totalTimeMin, 2)} {t("min)")}</span>
               </div>
               <div style={{ fontSize: '12px', color: 'var(--ink-soft)', marginTop: '4px' }}>
-                Time to endpoint interface: {fmt(results.endpoint.timeToInterfaceSec, 1)} s · Overpolish: {fmt(results.endpoint.overpolishDurationSec, 1)} s
+                {t("Time to endpoint interface:")}{fmt(results.endpoint.timeToInterfaceSec, 1)} {t("s · Overpolish:")}{fmt(results.endpoint.overpolishDurationSec, 1)} s
               </div>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Time to Endpoint</span>
+                <span>{t("Time to Endpoint")}</span>
                 <strong>{fmt(results.endpoint.timeToInterfaceSec, 1)} s</strong>
               </div>
               <div className="metric">
-                <span>Overpolish Time</span>
+                <span>{t("Overpolish Time")}</span>
                 <strong>{fmt(results.endpoint.overpolishDurationSec, 1)} s</strong>
               </div>
               <div className="metric">
-                <span>Fringe Period (T)</span>
+                <span>{t("Fringe Period (T)")}</span>
                 <strong>{fmt(results.optical.oscillationPeriodSec, 1)} s</strong>
               </div>
               <div className="metric">
-                <span>Expected Fringes</span>
+                <span>{t("Expected Fringes")}</span>
                 <strong>{fmt(results.optical.expectedFringes ?? 0, 2)}</strong>
               </div>
               <div className="metric">
-                <span>Thickness / Fringe</span>
+                <span>{t("Thickness / Fringe")}</span>
                 <strong>{fmt(results.optical.thicknessPerCycleNm, 1)} nm</strong>
               </div>
               <div className="metric">
-                <span>Remaining Wafers</span>
+                <span>{t("Remaining Wafers")}</span>
                 <strong style={{ color: results.padLife.remainingWafers < 100 ? '#ef4444' : 'inherit' }}>
                   {results.padLife.remainingWafers}
                 </strong>
               </div>
               <div className="metric">
-                <span>Remaining Pad Life</span>
+                <span>{t("Remaining Pad Life")}</span>
                 <strong>{fmt(results.remainingPolishHours, 1)} hrs</strong>
               </div>
               <div className="metric">
-                <span>Current Groove Depth</span>
+                <span>{t("Current Groove Depth")}</span>
                 <strong style={{ color: results.padLife.grooveDepthRemainingMm < 0.1 ? '#ef4444' : 'inherit' }}>
                   {fmt(results.padLife.currentGrooveDepthMm, 3)} mm
                 </strong>
@@ -525,8 +520,7 @@ export default function CmpEndpointCalculator() {
             {/* Visual SVG Diagram: Film Stack & Optical Reflectometry */}
             <div style={{ marginTop: '20px' }}>
               <h3 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--ink-soft)' }}>
-                Film Stack Interface & Optical Reflectance Fringes
-              </h3>
+                {t("Film Stack Interface & Optical Reflectance Fringes")}</h3>
               <CmpEndpointDiagram
                 filmThicknessNm={state.filmThickness}
                 removalRateNmMin={state.removalRate}
@@ -555,22 +549,18 @@ export default function CmpEndpointCalculator() {
               </button>
               <button className="button secondary" type="button" onClick={handleExportCsv}>
                 <Download size={15} />
-                Export to CSV
-              </button>
+                {t("Export to CSV")}</button>
               <button className="button secondary" type="button" onClick={handleExportXlsx}>
                 <Download size={15} />
-                Export to XLSX
-              </button>
+                {t("Export to XLSX")}</button>
               <button className="button secondary" type="button" onClick={handleExportPdf}>
                 <Download size={15} />
-                Export to PDF
-              </button>
+                {t("Export to PDF")}</button>
             </div>
           </>
         ) : (
           <div style={{ color: 'var(--ink-soft)', padding: '24px 0' }}>
-            Please enter positive values for film thickness, removal rate, wavelength, and valid groove depth.
-          </div>
+            {t("Please enter positive values for film thickness, removal rate, wavelength, and valid groove depth.")}</div>
         )}
       </section>
 
@@ -578,27 +568,26 @@ export default function CmpEndpointCalculator() {
       <section className="panel" style={{ gridColumn: '1 / -1' }} aria-labelledby="cmp-formula-reference">
         <h2 id="cmp-formula-reference" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Info size={18} />
-          CMP Physics & Endpoint Model References
-        </h2>
+          {t("CMP Physics & Endpoint Model References")}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginTop: '12px' }}>
           <MathFormula
             block
-            label="Motor Current / Friction Endpoint & Overpolish"
+            label={t("Motor Current / Friction Endpoint & Overpolish")}
             math="t_{\text{endpoint}} = \frac{d_0}{\text{RR}} \times 60\,\text{s}, \quad t_{\text{total}} = t_{\text{endpoint}} + t_{\text{delay}} + t_{\text{endpoint}} \left(\frac{\text{OP}\%}{100}\right)"
           />
           <MathFormula
             block
-            label="Optical Reflectometry Fringe Thickness"
+            label={t("Optical Reflectometry Fringe Thickness")}
             math="\Delta d = \frac{\lambda}{2n}, \quad T_{\text{fringe}} = \frac{\lambda}{2n \cdot \text{RR}} \times 60\,\text{s}, \quad N_{\text{fringes}} = \frac{d_0}{\Delta d}"
           />
           <MathFormula
             block
-            label="Diamond Conditioning Pad Wear per Wafer"
+            label={t("Diamond Conditioning Pad Wear per Wafer")}
             math="w_{\text{wafer}} = \text{CutRate} \times \left(\frac{t_{\text{cond}}}{3600}\right) \,[\mu\text{m/wafer}]"
           />
           <MathFormula
             block
-            label="Pad Groove Depth Decay & Slurry Transport Limit"
+            label={t("Pad Groove Depth Decay & Slurry Transport Limit")}
             math="d_{\text{groove}}(N) = d_{\text{initial}} - N \cdot w_{\text{wafer}} \ge d_{\text{min}}"
           />
         </div>
@@ -634,6 +623,7 @@ function CmpEndpointDiagram({
   minGrooveDepthMm,
   percentLifeUsed,
 }: CmpEndpointDiagramProps) {
+  const t = useToolCopy(copyResource);
   // SVG ViewBox: 440 wide, 240 high
   const svgWidth = 440;
   const svgHeight = 240;
@@ -702,7 +692,7 @@ function CmpEndpointDiagram({
       <svg
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         style={{ width: '100%', maxWidth: '440px', height: 'auto', display: 'block' }}
-        aria-label="CMP optical reflectometry fringes and film stack profile"
+        aria-label={t("CMP optical reflectometry fringes and film stack profile")}
       >
         <defs>
           <linearGradient id="traceGrad" x1="0" y1="0" x2="1" y2="0">
@@ -738,13 +728,11 @@ function CmpEndpointDiagram({
 
         {/* Header label inside oscilloscope */}
         <text x="32" y="27" fill="var(--ink-soft)" fontSize="10" fontWeight="600">
-          In Situ Optical Reflectance Signal (λ = {wavelengthNm} nm)
-        </text>
+          {t("In Situ Optical Reflectance Signal (λ =")}{wavelengthNm} {t("nm)")}</text>
 
         {/* Endpoint interface label */}
         <text x={endpointX + 4} y="27" fill="#ef4444" fontSize="9.5" fontWeight="600">
-          Interface Endpoint ({timeToEndpointSec.toFixed(0)}s)
-        </text>
+          {t("Interface Endpoint (")}{timeToEndpointSec.toFixed(0)}{t("s)")}</text>
 
         {/* Fringes Curve */}
         <polyline
@@ -773,7 +761,7 @@ function CmpEndpointDiagram({
               textAnchor="middle"
               fontWeight="600"
             >
-              T = {fringePeriodSec.toFixed(1)}s
+              {t("T =")}{fringePeriodSec.toFixed(1)}s
             </text>
           </g>
         )}
@@ -796,8 +784,7 @@ function CmpEndpointDiagram({
           fontWeight="600"
           textAnchor="middle"
         >
-          Overpolish Region
-        </text>
+          {t("Overpolish Region")}</text>
 
         {/* --- SECTION 2: CMP Film Stack & Pad Groove Gauge --- */}
         {/* Left Side: Film Stack */}
@@ -805,28 +792,24 @@ function CmpEndpointDiagram({
           {/* Silicon Substrate */}
           <rect x="0" y="52" width="180" height="26" fill="var(--line)" stroke="var(--ink)" strokeWidth="1" rx="2" />
           <text x="90" y="68" fill="var(--ink)" fontSize="9" fontWeight="600" textAnchor="middle">
-            Silicon Substrate
-          </text>
+            {t("Silicon Substrate")}</text>
 
           {/* Underlayer / Barrier (e.g. SiN, TaN) */}
           <rect x="0" y="42" width="180" height="10" fill="#f59e0b" fillOpacity="0.6" stroke="#d97706" strokeWidth="0.8" />
           <text x="90" y="50" fill="#78350f" fontSize="8" fontWeight="600" textAnchor="middle">
-            Barrier Layer
-          </text>
+            {t("Barrier Layer")}</text>
 
           {/* Target Film (SiO2) being thinned */}
           <rect x="0" y="16" width="180" height="26" fill="#38bdf8" fillOpacity="0.35" stroke="#0284c7" strokeWidth="1" />
           <text x="90" y="32" fill="#0369a1" fontSize="9" fontWeight="600" textAnchor="middle">
-            Film ({filmThicknessNm} nm)
-          </text>
+            {t("Film (")}{filmThicknessNm} {t("nm)")}</text>
 
           {/* Optical Probe Laser Beam pointing up through substrate window */}
           <line x1="45" y1="88" x2="45" y2="42" stroke={laserColor} strokeWidth="1.5" strokeDasharray="3 2" />
           <line x1="50" y1="42" x2="50" y2="88" stroke={laserColor} strokeWidth="1" strokeOpacity="0.7" />
           <polygon points="45,42 42,47 48,47" fill={laserColor} />
           <text x="47" y="93" fill={laserColor} fontSize="8" fontWeight="600" textAnchor="middle">
-            Laser Beam
-          </text>
+            {t("Laser Beam")}</text>
         </g>
 
         {/* Right Side: Pad Groove Wear Life Meter */}
@@ -834,14 +817,13 @@ function CmpEndpointDiagram({
           <rect x="0" y="0" width="195" height="88" rx="6" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
 
           <text x="12" y="18" fill="var(--ink)" fontSize="10.5" fontWeight="600">
-            Pad Groove Life Status
-          </text>
+            {t("Pad Groove Life Status")}</text>
 
           <text x="12" y="35" fill="var(--ink-soft)" fontSize="9.5">
-            Current Depth: <strong style={{ color: 'var(--ink)' }}>{currentGrooveDepthMm.toFixed(2)} mm</strong>
+            {t("Current Depth:")}<strong style={{ color: 'var(--ink)' }}>{currentGrooveDepthMm.toFixed(2)} mm</strong>
           </text>
           <text x="12" y="49" fill="var(--ink-soft)" fontSize="9.5">
-            Initial: {initialGrooveDepthMm.toFixed(2)} mm · Min Limit: {minGrooveDepthMm.toFixed(2)} mm
+            {t("Initial:")}{initialGrooveDepthMm.toFixed(2)} {t("mm · Min Limit:")}{minGrooveDepthMm.toFixed(2)} mm
           </text>
 
           {/* Progress bar container */}
@@ -857,11 +839,10 @@ function CmpEndpointDiagram({
           />
 
           <text x="12" y="80" fill="var(--ink-soft)" fontSize="9">
-            Pad Life Used: {percentLifeUsed.toFixed(0)}%
+            {t("Pad Life Used:")}{percentLifeUsed.toFixed(0)}%
           </text>
           <text x="182" y="80" fill="var(--ink-soft)" fontSize="9" textAnchor="end">
-            {(grooveFraction * 100).toFixed(0)}% groove left
-          </text>
+            {(grooveFraction * 100).toFixed(0)}{t("% groove left")}</text>
         </g>
       </svg>
     </div>

@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/diffusion-length-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -20,6 +22,7 @@ const INITIAL = { diffusivity: '1e-13', time: '3600', timeUnit: 's' };
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function DiffusionLengthCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy: copyResult } = useCopyToClipboard();
@@ -56,9 +59,9 @@ export default function DiffusionLengthCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="diff-d">Diffusivity D (cm2/s)</label>
+          <label htmlFor="diff-d">{t("Diffusivity D (cm2/s)")}</label>
           <input
             id="diff-d"
             type="number"
@@ -94,18 +97,15 @@ export default function DiffusionLengthCalculator() {
           </div>
         </div>
         <p className="note">
-          The diffusivity is the value at the process temperature. Use the Arrhenius calculator to
-          get it from a prefactor and an activation energy.
-        </p>
+          {t("The diffusivity is the value at the process temperature. Use the Arrhenius calculator to get it from a prefactor and an activation energy.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -119,34 +119,34 @@ export default function DiffusionLengthCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Characteristic diffusion length sqrt(D t)</span>
+            <span className="unit">{t("Characteristic diffusion length sqrt(D t)")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.characteristicLengthUm)}
               <span className="result-suffix"> um</span>
             </div>
             <dl className="metric-grid">
               <div>
-                <dt>Characteristic length sqrt(D t)</dt>
+                <dt>{t("Characteristic length sqrt(D t)")}</dt>
                 <dd>{fmt(result.characteristicLengthUm * 1000)} nm</dd>
               </div>
               <div>
-                <dt>erfc length 2 sqrt(D t)</dt>
+                <dt>{t("erfc length 2 sqrt(D t)")}</dt>
                 <dd>{fmt(result.erfcLengthUm)} um</dd>
               </div>
               <div>
-                <dt>Gaussian sigma sqrt(2 D t)</dt>
+                <dt>{t("Gaussian sigma sqrt(2 D t)")}</dt>
                 <dd>{fmt(result.gaussianSigmaUm)} um</dd>
               </div>
               <div>
-                <dt>Thermal budget D t</dt>
+                <dt>{t("Thermal budget D t")}</dt>
                 <dd>{fmt(result.budgetCm2)} cm2</dd>
               </div>
               <div>
-                <dt>Same budget</dt>
+                <dt>{t("Same budget")}</dt>
                 <dd>{fmt(result.budgetUm2)} um2</dd>
               </div>
               <div>
-                <dt>Same budget</dt>
+                <dt>{t("Same budget")}</dt>
                 <dd>{fmt(result.budgetNm2)} nm2</dd>
               </div>
             </dl>

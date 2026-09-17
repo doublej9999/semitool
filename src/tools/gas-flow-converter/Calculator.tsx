@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/gas-flow-converter';
 
 import { useState } from 'react';
 import UnitConverter from '@/components/tools/UnitConverter';
@@ -22,6 +24,7 @@ const UNITS = GAS_FLOW_UNITS.map((unit) => ({ id: unit, label: GAS_FLOW_LABELS[u
 const fmt = (value: number) => Number(value.toPrecision(6)).toString();
 
 export default function GasFlowConverter() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   // One URL-synced object for the whole page: useUrlParamsState rewrites the
   // entire query string, so gas/reference and the converter's value/unit must
@@ -40,7 +43,7 @@ export default function GasFlowConverter() {
 
   return (
     <UnitConverter
-      title="Gas flow"
+      title={t("Gas flow")}
       resultTitle="Converted flow"
       units={UNITS}
       headlineUnit="slm"
@@ -93,20 +96,12 @@ export default function GasFlowConverter() {
       note={
         <>
           <p className="note">
-            sccm and slm only mean something together with a reference, so the standard is an input here. At{' '}
-            {REFERENCE_LABELS[temperature]} and 1 atm, one mole of ideal gas occupies {fmt(molarVolume)} cm³, which puts 1
-            sccm at {fmt(1e6 / molarVolume)} µmol/min.
-          </p>
+            {t("sccm and slm only mean something together with a reference, so the standard is an input here. At")}{' '}
+            {REFERENCE_LABELS[temperature]} {t("and 1 atm, one mole of ideal gas occupies")}{fmt(molarVolume)} {t("cm³, which puts 1 sccm at")}{fmt(1e6 / molarVolume)} {t("µmol/min.")}</p>
           <p className="note">
-            Every volumetric row is referenced to that standard, not to your chamber. For the actual flow at process
-            pressure P and temperature T, multiply the standard flow by (1 atm / P) x (T / 273.15 K or 298.15 K to match
-            the reference you chose).
-          </p>
+            {t("Every volumetric row is referenced to that standard, not to your chamber. For the actual flow at process pressure P and temperature T, multiply the standard flow by (1 atm / P) x (T / 273.15 K or 298.15 K to match the reference you chose).")}</p>
           <p className="note">
-            The g/min row uses {gas.name} at {fmt(gas.molarMass)} g/mol, built from IUPAC conventional atomic weights.
-            Molar flow comes from the ideal gas law, which is within a few parts in a thousand of real-gas behaviour at
-            1 atm.
-          </p>
+            {t("The g/min row uses")}{gas.name} at {fmt(gas.molarMass)} {t("g/mol, built from IUPAC conventional atomic weights. Molar flow comes from the ideal gas law, which is within a few parts in a thousand of real-gas behaviour at 1 atm.")}</p>
         </>
       }
     />

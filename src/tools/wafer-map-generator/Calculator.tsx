@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/wafer-map-generator';
 
 import dynamic from 'next/dynamic';
 import { useMemo, useRef, useState } from 'react';
@@ -16,8 +18,9 @@ import type { WaferImportPayload } from './WaferImportPanel';
  * Native fab format import UI (SEMI G85 / STDF V4 / KLARF) is code-split out
  * of the route bundle; its parsers are only fetched when the drawer opens.
  */
-const WaferImportPanel = dynamic(() => import('./WaferImportPanel'), {
-  loading: () => (
+function WaferImportLoadingFallback() {
+  const t = useToolCopy(copyResource);
+  return (
     <div
       style={{
         marginTop: '16px',
@@ -27,11 +30,13 @@ const WaferImportPanel = dynamic(() => import('./WaferImportPanel'), {
         border: '1px solid var(--border)',
       }}
     >
-      <p className="note" style={{ margin: 0 }}>
-        Loading import panel…
-      </p>
+      <p className="note" style={{ margin: 0 }}>{t("Loading import panel…")}</p>
     </div>
-  ),
+  );
+}
+
+const WaferImportPanel = dynamic(() => import('./WaferImportPanel'), {
+  loading: () => <WaferImportLoadingFallback />,
 });
 
 const INITIAL = { diameter: 300, edge: 3, width: 10, height: 10, xPitch: 10.1, yPitch: 10.1, xOffset: 0, yOffset: 0 };
@@ -56,6 +61,7 @@ function download(filename: string, content: string | Uint8Array, type: string) 
 }
 
 export default function WaferMapGenerator() {
+  const t = useToolCopy(copyResource);
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const [dies, setDies] = useState<Die[]>([]);
@@ -161,7 +167,7 @@ export default function WaferMapGenerator() {
   return (
     <div className="layout-two-column">
       <section className="panel" aria-labelledby="map-inputs">
-        <h2 id="map-inputs">Wafer geometry</h2>
+        <h2 id="map-inputs">{t("Wafer geometry")}</h2>
 
         <div className="grid">
           <Num label={g('waferDiameter')} value={values.diameter} unit="mm" onChange={(val) => update('diameter', val)} min={25} />
@@ -174,13 +180,13 @@ export default function WaferMapGenerator() {
         </div>
 
         <div className="grid">
-          <Num label="Pitch X" value={values.xPitch} unit="mm" onChange={(val) => update('xPitch', val)} min={0.1} />
-          <Num label="Pitch Y" value={values.yPitch} unit="mm" onChange={(val) => update('yPitch', val)} min={0.1} />
+          <Num label={t("Pitch X")} value={values.xPitch} unit="mm" onChange={(val) => update('xPitch', val)} min={0.1} />
+          <Num label={t("Pitch Y")} value={values.yPitch} unit="mm" onChange={(val) => update('yPitch', val)} min={0.1} />
         </div>
 
         <div className="grid">
-          <Num label="Offset X" value={values.xOffset} unit="mm" onChange={(val) => update('xOffset', val)} />
-          <Num label="Offset Y" value={values.yOffset} unit="mm" onChange={(val) => update('yOffset', val)} />
+          <Num label={t("Offset X")} value={values.xOffset} unit="mm" onChange={(val) => update('xOffset', val)} />
+          <Num label={t("Offset Y")} value={values.yOffset} unit="mm" onChange={(val) => update('yOffset', val)} />
         </div>
 
         {errors.length > 0 ? (
@@ -193,18 +199,15 @@ export default function WaferMapGenerator() {
 
         <div className="action-row">
           <button className="button primary" type="button" onClick={generate} disabled={errors.length > 0}>
-            Generate Wafer Map
-          </button>
+            {t("Generate Wafer Map")}</button>
           <button className="button secondary" type="button" onClick={reset}>
-            <RotateCcw size={16} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={16} aria-hidden="true" /> {t("Reset")}</button>
           <button
             className="button secondary"
             type="button"
             onClick={() => setShowImportDrawer(!showImportDrawer)}
           >
-            <Upload size={14} aria-hidden="true" /> Native Fab Import
-          </button>
+            <Upload size={14} aria-hidden="true" /> {t("Native Fab Import")}</button>
         </div>
 
         {/* Native Fab Format Import Panel (SEMI G85 / STDF V4 / KLARF) — lazily loaded */}
@@ -221,7 +224,7 @@ export default function WaferMapGenerator() {
         <hr className="divider" />
 
         <div className="field">
-          <label htmlFor="map-lookup">Select die by number</label>
+          <label htmlFor="map-lookup">{t("Select die by number")}</label>
           <div className="input-with-button">
             <input
               id="map-lookup"
@@ -229,20 +232,18 @@ export default function WaferMapGenerator() {
               min="1"
               value={lookup}
               onChange={(event) => setLookup(event.target.value)}
-              placeholder="e.g. 1"
+              placeholder={t("e.g. 1")}
             />
             <button className="button secondary" type="button" onClick={selectByNumber}>
-              Find
-            </button>
+              {t("Find")}</button>
           </div>
         </div>
 
         {selected ? (
           <div className="selected-die-panel">
-            <h3>Die #{selected.dieNumber}</h3>
+            <h3>{t("Die #")}{selected.dieNumber}</h3>
             <p className="note">
-              Position: ({selected.x}, {selected.y}) · Centre: ({selected.centerX.toFixed(2)}, {selected.centerY.toFixed(2)}) mm
-            </p>
+              {t("Position: (")}{selected.x}, {selected.y}{t(") · Centre: (")}{selected.centerX.toFixed(2)}, {selected.centerY.toFixed(2)}{t(") mm")}</p>
             <div className="status-buttons">
               {STATUSES.map((status) => (
                 <button
@@ -259,12 +260,12 @@ export default function WaferMapGenerator() {
             </div>
           </div>
         ) : (
-          <p className="note">Click a die on the map or type its number above to change its status.</p>
+          <p className="note">{t("Click a die on the map or type its number above to change its status.")}</p>
         )}
       </section>
 
       <section className="panel" aria-labelledby="map-preview">
-        <h2 id="map-preview">Wafer map</h2>
+        <h2 id="map-preview">{t("Wafer map")}</h2>
 
         {/* STDF Metadata Banner */}
         {stdfSummary && (
@@ -279,15 +280,15 @@ export default function WaferMapGenerator() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <strong>STDF V4 ATE Lot: {stdfSummary.mir?.lotId || 'N/A'}</strong>
+              <strong>{t("STDF V4 ATE Lot:")}{stdfSummary.mir?.lotId || 'N/A'}</strong>
               <span style={{ color: 'var(--teal-dark)', fontWeight: '600' }}>
-                Wafer ID: {stdfSummary.wrr?.waferId || 'N/A'}
+                {t("Wafer ID:")}{stdfSummary.wrr?.waferId || 'N/A'}
               </span>
             </div>
             <div style={{ display: 'flex', gap: '16px', color: 'var(--ink-soft)' }}>
-              <span>Total Tested: <strong>{stdfSummary.totalParts}</strong></span>
-              <span>Yield: <strong style={{ color: stdfSummary.yieldPercent > 80 ? '#1b806a' : '#b0413a' }}>{stdfSummary.yieldPercent.toFixed(1)}%</strong></span>
-              <span>Tester: <strong>{stdfSummary.mir?.testerType || 'ATE'}</strong></span>
+              <span>{t("Total Tested:")}<strong>{stdfSummary.totalParts}</strong></span>
+              <span>{t("Yield:")}<strong style={{ color: stdfSummary.yieldPercent > 80 ? '#1b806a' : '#b0413a' }}>{stdfSummary.yieldPercent.toFixed(1)}%</strong></span>
+              <span>{t("Tester:")}<strong>{stdfSummary.mir?.testerType || 'ATE'}</strong></span>
             </div>
           </div>
         )}
@@ -307,23 +308,23 @@ export default function WaferMapGenerator() {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
               <strong style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {klarfSummary.hasScratches && <AlertTriangle size={14} color="#d1625a" />}
-                KLARF Defect Inspection: {klarfSummary.header.lotId || 'N/A'} ({klarfSummary.header.waferId || 'W01'})
+                {t("KLARF Defect Inspection:")}{klarfSummary.header.lotId || 'N/A'} ({klarfSummary.header.waferId || 'W01'})
               </strong>
               <span style={{ fontWeight: '600', color: klarfSummary.hasScratches ? '#b0413a' : '#915a13' }}>
                 {klarfSummary.hasScratches ? 'MECHANICAL SCRATCH DETECTED' : 'DEFECT CLUSTERS DETECTED'}
               </span>
             </div>
             <div style={{ display: 'flex', gap: '16px', color: 'var(--ink-soft)' }}>
-              <span>Total Defects: <strong>{klarfSummary.totalDefects}</strong></span>
-              <span>Density: <strong>{klarfSummary.defectDensityPerCm2} defects/cm²</strong></span>
-              <span>Clusters: <strong>{klarfSummary.clusterCount}</strong></span>
-              <span>Tool: <strong>{klarfSummary.header.inspectionStationId || 'Optical'}</strong></span>
+              <span>{t("Total Defects:")}<strong>{klarfSummary.totalDefects}</strong></span>
+              <span>{t("Density:")}<strong>{klarfSummary.defectDensityPerCm2} {t("defects/cm²")}</strong></span>
+              <span>{t("Clusters:")}<strong>{klarfSummary.clusterCount}</strong></span>
+              <span>{t("Tool:")}<strong>{klarfSummary.header.inspectionStationId || 'Optical'}</strong></span>
             </div>
           </div>
         )}
 
         {dies.length === 0 ? (
-          <p className="note">Set geometry inputs on the left or load a native fab file to begin.</p>
+          <p className="note">{t("Set geometry inputs on the left or load a native fab file to begin.")}</p>
         ) : (
           <>
             <div className="map-wrapper">
@@ -334,10 +335,10 @@ export default function WaferMapGenerator() {
                 width="100%"
                 height="100%"
                 role="img"
-                aria-label="Interactive wafer die map"
+                aria-label={t("Interactive wafer die map")}
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <title>Wafer die map</title>
+                <title>{t("Wafer die map")}</title>
                 <circle cx="250" cy="250" r="235" fill="var(--chart-bg)" stroke="var(--chart-axis)" strokeWidth="2" />
                 <circle
                   cx="250"
@@ -378,7 +379,7 @@ export default function WaferMapGenerator() {
 
             <div className="metric-grid" style={{ marginTop: '16px' }}>
               <div className="metric">
-                <span>Total dies</span>
+                <span>{t("Total dies")}</span>
                 <strong>{dies.length}</strong>
               </div>
               {STATUSES.map((status) => (
@@ -402,8 +403,7 @@ export default function WaferMapGenerator() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--ink)' }}>
-                    Defect Spatial Pattern Analysis
-                  </span>
+                    {t("Defect Spatial Pattern Analysis")}</span>
                   <span
                     style={{
                       fontSize: '11px',
@@ -424,31 +424,30 @@ export default function WaferMapGenerator() {
                             : '#0d7c82',
                     }}
                   >
-                    {defectAnalysis.patternType.toUpperCase()} PATTERN
-                  </span>
+                    {defectAnalysis.patternType.toUpperCase()} {t("PATTERN")}</span>
                 </div>
 
                 <div className="metric-grid" style={{ marginBottom: '8px' }}>
                   <div className="metric">
-                    <span>Clusters</span>
+                    <span>{t("Clusters")}</span>
                     <strong>{defectAnalysis.clusterCount}</strong>
                   </div>
                   <div className="metric">
-                    <span>Max Cluster Size</span>
+                    <span>{t("Max Cluster Size")}</span>
                     <strong>{defectAnalysis.largestClusterSize} dies</strong>
                   </div>
                   <div className="metric">
-                    <span>Isolated Defects</span>
+                    <span>{t("Isolated Defects")}</span>
                     <strong>{defectAnalysis.isolatedDefectCount}</strong>
                   </div>
                   <div className="metric">
-                    <span>Clustered Fraction</span>
+                    <span>{t("Clustered Fraction")}</span>
                     <strong>{defectAnalysis.clusterFractionPercent.toFixed(1)}%</strong>
                   </div>
                 </div>
 
                 <p className="note" style={{ margin: 0, color: 'var(--ink-soft)' }}>
-                  <strong>Fab Root-Cause Diagnosis:</strong> {defectAnalysis.diagnosis}
+                  <strong>{t("Fab Root-Cause Diagnosis:")}</strong> {defectAnalysis.diagnosis}
                 </p>
               </div>
             )}
@@ -459,17 +458,13 @@ export default function WaferMapGenerator() {
                 type="button"
                 onClick={() => svgRef.current && downloadSvg(svgRef.current, 'wafer-map.svg')}
               >
-                <Download size={14} aria-hidden="true" /> Save SVG
-              </button>
+                <Download size={14} aria-hidden="true" /> {t("Save SVG")}</button>
               <button className="button secondary" type="button" onClick={exportSemiG85Text}>
-                <FileText size={14} aria-hidden="true" /> Export SEMI G85
-              </button>
+                <FileText size={14} aria-hidden="true" /> {t("Export SEMI G85")}</button>
               <button className="button secondary" type="button" onClick={exportCsv}>
-                <Download size={14} aria-hidden="true" /> Export CSV
-              </button>
+                <Download size={14} aria-hidden="true" /> {t("Export CSV")}</button>
               <button className="button secondary" type="button" onClick={exportJson}>
-                <Download size={14} aria-hidden="true" /> Export JSON
-              </button>
+                <Download size={14} aria-hidden="true" /> {t("Export JSON")}</button>
               <button
                 className="button secondary"
                 type="button"
@@ -477,13 +472,11 @@ export default function WaferMapGenerator() {
                   setDies((previous) => previous.map((die) => (die.status === 'Edge' ? die : { ...die, status: 'Good' })))
                 }
               >
-                <Trash2 size={14} aria-hidden="true" /> Clear Defects
-              </button>
+                <Trash2 size={14} aria-hidden="true" /> {t("Clear Defects")}</button>
             </div>
 
             <p className="note">
-              Supported industry formats: SEMI G85 ASCII map, ATE Binary STDF V4 (.std/.stdf), and KLA Defect Inspection (.klarf/.001).
-            </p>
+              {t("Supported industry formats: SEMI G85 ASCII map, ATE Binary STDF V4 (.std/.stdf), and KLA Defect Inspection (.klarf/.001).")}</p>
           </>
         )}
       </section>

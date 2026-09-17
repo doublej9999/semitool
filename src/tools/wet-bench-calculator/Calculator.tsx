@@ -1,4 +1,7 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/wet-bench-calculator';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useMemo, useState, useRef } from 'react';
 import {
@@ -57,14 +60,15 @@ const INITIAL_STATE: WetBenchState = {
 };
 
 const SELECTABLE_RECIPES = [
-  { id: 'sc-1', label: 'SC-1 (NH₄OH:H₂O₂:H₂O)' },
-  { id: 'sc-2', label: 'SC-2 (HCl:H₂O₂:H₂O)' },
-  { id: 'spm', label: 'SPM Piranha (H₂SO₄:H₂O₂)' },
-  { id: 'boe-6-1', label: 'BOE 6:1 (NH₄F:HF)' },
-  { id: 'dhf-50-1', label: 'dHF 50:1 (Dilute HF)' },
+  { id: 'sc-1', label: msg('SC-1 (NH₄OH:H₂O₂:H₂O)') },
+  { id: 'sc-2', label: msg('SC-2 (HCl:H₂O₂:H₂O)') },
+  { id: 'spm', label: msg('SPM Piranha (H₂SO₄:H₂O₂)') },
+  { id: 'boe-6-1', label: msg('BOE 6:1 (NH₄F:HF)') },
+  { id: 'dhf-50-1', label: msg('dHF 50:1 (Dilute HF)') },
 ];
 
 export default function WetBenchCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState<WetBenchState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -177,8 +181,8 @@ export default function WetBenchCalculator() {
     if (state.recipeId === 'spm' && state.bathTempC > 120) {
       list.push({
         level: 'danger',
-        title: 'SPM Chemical Exotherm Hazard (> 120°C)',
-        message: `SPM Piranha bath is operating at ${state.bathTempC}°C. High-temperature piranha undergoes rapid self-accelerating H₂O₂ thermal decomposition. If heavy organic photoresist is introduced, violent boiling or tank rupture risk increases. Ensure acid vapor scrubbing and temperature trip interlocks are active.`,
+        title: t('SPM Chemical Exotherm Hazard (> 120°C)'),
+        message: t('SPM Piranha bath is operating at {temp}°C. High-temperature piranha undergoes rapid self-accelerating H₂O₂ thermal decomposition. If heavy organic photoresist is introduced, violent boiling or tank rupture risk increases. Ensure acid vapor scrubbing and temperature trip interlocks are active.', { temp: state.bathTempC }),
       });
     }
 
@@ -186,14 +190,14 @@ export default function WetBenchCalculator() {
     if (calculations.loadingSaturationRatio >= 85) {
       list.push({
         level: 'danger',
-        title: 'Bath Loading Saturation Critical (> 85%)',
-        message: `Dissolved silicon/oxide loading has reached ${calculations.loadingSaturationRatio.toFixed(1)}% of saturation capacity (${state.dissolvedSiliconGL} g/L of ${state.maxLoadingGL} g/L). Severe etch rate loss (>50%) and insoluble precipitate redeposition onto wafers will occur. Full tank drain, rinse, and recharge is strongly recommended.`,
+        title: t('Bath Loading Saturation Critical (> 85%)'),
+        message: t('Dissolved silicon/oxide loading has reached {ratio}% of saturation capacity ({current} g/L of {max} g/L). Severe etch rate loss (>50%) and insoluble precipitate redeposition onto wafers will occur. Full tank drain, rinse, and recharge is strongly recommended.', { ratio: calculations.loadingSaturationRatio.toFixed(1), current: state.dissolvedSiliconGL, max: state.maxLoadingGL }),
       });
     } else if (calculations.loadingSaturationRatio >= 60) {
       list.push({
         level: 'warning',
-        title: 'Elevated Bath Dissolved Loading',
-        message: `Dissolved solids are at ${calculations.loadingSaturationRatio.toFixed(1)}% of maximum capacity. Etch rate is depressed by ${calculations.degradation ? calculations.degradation.etchRateReductionPercent.toFixed(1) : '0'}%. Prepare chemical recharge cycle.`,
+        title: t('Elevated Bath Dissolved Loading'),
+        message: t('Dissolved solids are at {ratio}% of maximum capacity. Etch rate is depressed by {reduction}%. Prepare chemical recharge cycle.', { ratio: calculations.loadingSaturationRatio.toFixed(1), reduction: calculations.degradation ? calculations.degradation.etchRateReductionPercent.toFixed(1) : '0' }),
       });
     }
 
@@ -201,8 +205,8 @@ export default function WetBenchCalculator() {
     if (state.runHours >= state.bathLifeHours) {
       list.push({
         level: 'danger',
-        title: 'Bath Qualified Lifetime Expired',
-        message: `Operating time (${state.runHours} h) has reached or exceeded the qualified chemical lifetime (${state.bathLifeHours} h). Chemical bath must be retired to prevent defectivity and micro-roughness.`,
+        title: t('Bath Qualified Lifetime Expired'),
+        message: t('Operating time ({hours} h) has reached or exceeded the qualified chemical lifetime ({life} h). Chemical bath must be retired to prevent defectivity and micro-roughness.', { hours: state.runHours, life: state.bathLifeHours }),
       });
     }
 
@@ -210,21 +214,21 @@ export default function WetBenchCalculator() {
     if (state.currentConc > state.targetConc) {
       list.push({
         level: 'warning',
-        title: 'Current Concentration Exceeds Target',
-        message: `Current chemical concentration (${state.currentConc}%) is above target (${state.targetConc}%). Do not spike concentrated chemical; bath requires DI water top-off or standard bath replacement.`,
+        title: t('Current Concentration Exceeds Target'),
+        message: t('Current chemical concentration ({current}%) is above target ({target}%). Do not spike concentrated chemical; bath requires DI water top-off or standard bath replacement.', { current: state.currentConc, target: state.targetConc }),
       });
     }
 
     if (state.sourceConc <= state.targetConc) {
       list.push({
         level: 'danger',
-        title: 'Physical Infeasibility: Source Conc ≤ Target Conc',
-        message: `Source chemical (${state.sourceConc}%) is not concentrated enough to raise bath to target (${state.targetConc}%). Spiking requires a higher concentration stock source.`,
+        title: t('Physical Infeasibility: Source Conc ≤ Target Conc'),
+        message: t('Source chemical ({source}%) is not concentrated enough to raise bath to target ({target}%). Spiking requires a higher concentration stock source.', { source: state.sourceConc, target: state.targetConc }),
       });
     }
 
     return list;
-  }, [state, calculations]);
+  }, [state, calculations, t]);
 
   const handleCopySummary = async () => {
     const lines = [
@@ -429,22 +433,20 @@ export default function WetBenchCalculator() {
         <div className="panel">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h2 style={{ fontSize: 16, fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Waves size={18} /> Wet Bench Chemical Setup
-            </h2>
+              <Waves size={18} /> {t("Wet Bench Chemical Setup")}</h2>
             <button
               type="button"
               className="button secondary sm"
               onClick={handleReset}
-              title="Reset parameters to recipe defaults"
+              title={t("Reset parameters to recipe defaults")}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
-              <RotateCcw size={14} /> Reset
-            </button>
+              <RotateCcw size={14} /> {t("Reset")}</button>
           </div>
 
           {/* Chemical Recipe Selector */}
           <div className="field" style={{ marginBottom: 16 }}>
-            <label htmlFor="recipe-selector" style={{ fontWeight: 600 }}>Chemical Bath Selection</label>
+            <label htmlFor="recipe-selector" style={{ fontWeight: 600 }}>{t("Chemical Bath Selection")}</label>
             <div
               style={{
                 display: 'grid',
@@ -466,12 +468,12 @@ export default function WetBenchCalculator() {
                     fontWeight: state.recipeId === item.id ? 600 : 400,
                   }}
                 >
-                  {item.label}
+                  {t(item.label)}
                 </button>
               ))}
             </div>
             <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 6 }}>
-              Formula: <strong>{selectedRecipe.ratioDescription}</strong>
+              {t("Formula:")}<strong>{selectedRecipe.ratioDescription}</strong>
             </div>
           </div>
 
@@ -479,7 +481,7 @@ export default function WetBenchCalculator() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div className="field">
               <label htmlFor="bath-volume">
-                Bath Volume <span className="unit">(L)</span>
+                {t("Bath Volume")}<span className="unit">{t("(L)")}</span>
               </label>
               <input
                 id="bath-volume"
@@ -494,7 +496,7 @@ export default function WetBenchCalculator() {
 
             <div className="field">
               <label htmlFor="bath-temp">
-                Bath Operating Temp <span className="unit">(°C)</span>
+                {t("Bath Operating Temp")}<span className="unit">{t("(°C)")}</span>
               </label>
               <input
                 id="bath-temp"
@@ -509,13 +511,12 @@ export default function WetBenchCalculator() {
           </div>
 
           <h3 style={{ fontSize: 14, marginTop: 18, marginBottom: 10, fontWeight: 600 }}>
-            Chemical Concentrations & Spiking
-          </h3>
+            {t("Chemical Concentrations & Spiking")}</h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
             <div className="field">
               <label htmlFor="current-conc">
-                Current Conc <span className="unit">(%)</span>
+                {t("Current Conc")}<span className="unit">(%)</span>
               </label>
               <input
                 id="current-conc"
@@ -527,13 +528,13 @@ export default function WetBenchCalculator() {
                 onChange={(e) => setState((p) => ({ ...p, currentConc: Math.max(0, Number(e.target.value) || 0) }))}
               />
               <span style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
-                Target: {selectedRecipe.targetChemical}
+                {t("Target:")}{selectedRecipe.targetChemical}
               </span>
             </div>
 
             <div className="field">
               <label htmlFor="target-conc">
-                Target Conc <span className="unit">(%)</span>
+                {t("Target Conc")}<span className="unit">(%)</span>
               </label>
               <input
                 id="target-conc"
@@ -548,7 +549,7 @@ export default function WetBenchCalculator() {
 
             <div className="field">
               <label htmlFor="source-conc">
-                Source Chemical <span className="unit">(%)</span>
+                {t("Source Chemical")}<span className="unit">(%)</span>
               </label>
               <input
                 id="source-conc"
@@ -563,13 +564,12 @@ export default function WetBenchCalculator() {
           </div>
 
           <h3 style={{ fontSize: 14, marginTop: 18, marginBottom: 10, fontWeight: 600 }}>
-            Lifetime & Mass Loading Decay
-          </h3>
+            {t("Lifetime & Mass Loading Decay")}</h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div className="field">
               <label htmlFor="run-hours">
-                Run Time <span className="unit">(hours)</span>
+                {t("Run Time")}<span className="unit">{t("(hours)")}</span>
               </label>
               <input
                 id="run-hours"
@@ -584,7 +584,7 @@ export default function WetBenchCalculator() {
 
             <div className="field">
               <label htmlFor="bath-life">
-                Max Bath Life <span className="unit">(hours)</span>
+                {t("Max Bath Life")}<span className="unit">{t("(hours)")}</span>
               </label>
               <input
                 id="bath-life"
@@ -601,7 +601,7 @@ export default function WetBenchCalculator() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
             <div className="field">
               <label htmlFor="dissolved-loading">
-                Dissolved Loading <span className="unit">(g/L)</span>
+                {t("Dissolved Loading")}<span className="unit">{t("(g/L)")}</span>
               </label>
               <input
                 id="dissolved-loading"
@@ -616,7 +616,7 @@ export default function WetBenchCalculator() {
 
             <div className="field">
               <label htmlFor="max-loading">
-                Max Loading Limit <span className="unit">(g/L)</span>
+                {t("Max Loading Limit")}<span className="unit">{t("(g/L)")}</span>
               </label>
               <input
                 id="max-loading"
@@ -633,7 +633,7 @@ export default function WetBenchCalculator() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
             <div className="field">
               <label htmlFor="initial-etch-rate">
-                Initial Etch Rate (ER₀) <span className="unit">(nm/min)</span>
+                {t("Initial Etch Rate (ER₀)")}<span className="unit">{t("(nm/min)")}</span>
               </label>
               <input
                 id="initial-etch-rate"
@@ -649,7 +649,7 @@ export default function WetBenchCalculator() {
             {state.recipeId === 'sc-1' ? (
               <div className="field">
                 <label htmlFor="megasonic-power">
-                  Megasonic Power <span className="unit">(W)</span>
+                  {t("Megasonic Power")}<span className="unit">{t("(W)")}</span>
                 </label>
                 <input
                   id="megasonic-power"
@@ -663,7 +663,7 @@ export default function WetBenchCalculator() {
               </div>
             ) : (
               <div className="field" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <span style={{ fontSize: 12, color: 'var(--ink-soft)' }}>Recipe Chemistry:</span>
+                <span style={{ fontSize: 12, color: 'var(--ink-soft)' }}>{t("Recipe Chemistry:")}</span>
                 <span style={{ fontSize: 12, fontWeight: 500 }}>{selectedRecipe.chemicalSystem}</span>
               </div>
             )}
@@ -692,13 +692,12 @@ export default function WetBenchCalculator() {
         {/* 4 Required Primary Metric Cards */}
         <div className="panel" style={{ marginBottom: 16 }}>
           <h2 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Activity size={18} /> Process Status & Replenishment Metrics
-          </h2>
+            <Activity size={18} /> {t("Process Status & Replenishment Metrics")}</h2>
 
           <div className="metric-grid">
             {/* Metric 1: Required Spike Volume */}
             <div className="metric">
-              <span>Required Spike Volume</span>
+              <span>{t("Required Spike Volume")}</span>
               <strong style={{ color: calculations.spikeError ? '#ef4444' : 'var(--primary)' }}>
                 {calculations.spikeError
                   ? 'Infeasible'
@@ -715,7 +714,7 @@ export default function WetBenchCalculator() {
 
             {/* Metric 2: Current Etch Rate */}
             <div className="metric">
-              <span>Current Etch Rate</span>
+              <span>{t("Current Etch Rate")}</span>
               <strong>
                 {calculations.degradation
                   ? `${fmt(calculations.degradation.currentEtchRateNmMin, 2)} nm/min`
@@ -730,7 +729,7 @@ export default function WetBenchCalculator() {
 
             {/* Metric 3: Remaining Bath Life */}
             <div className="metric">
-              <span>Remaining Bath Life</span>
+              <span>{t("Remaining Bath Life")}</span>
               <strong style={{ color: calculations.degradation?.isExpired ? '#ef4444' : 'inherit' }}>
                 {calculations.degradation
                   ? `${fmt(calculations.degradation.remainingLifeHours, 1)} h`
@@ -745,13 +744,12 @@ export default function WetBenchCalculator() {
 
             {/* Metric 4: Loading Saturation Ratio */}
             <div className="metric">
-              <span>Loading Saturation</span>
+              <span>{t("Loading Saturation")}</span>
               <strong style={{ color: calculations.loadingSaturationRatio >= 85 ? '#ef4444' : calculations.loadingSaturationRatio >= 60 ? '#f59e0b' : 'inherit' }}>
                 {fmt(calculations.loadingSaturationRatio, 1)}%
               </strong>
               <span style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
-                {state.dissolvedSiliconGL} of {state.maxLoadingGL} g/L limit
-              </span>
+                {state.dissolvedSiliconGL} of {state.maxLoadingGL} {t("g/L limit")}</span>
             </div>
           </div>
 
@@ -767,7 +765,7 @@ export default function WetBenchCalculator() {
             }}
           >
             <div style={{ fontSize: 12 }}>
-              <span style={{ color: 'var(--ink-soft)', display: 'block' }}>Water Evaporation Rate</span>
+              <span style={{ color: 'var(--ink-soft)', display: 'block' }}>{t("Water Evaporation Rate")}</span>
               <strong>{calculations.degradation ? `${fmt(calculations.degradation.waterEvaporationLossRateLPerHour, 3)} L/h` : 'N/A'}</strong>
               <span style={{ color: 'var(--ink-soft)', fontSize: 10, marginLeft: 4 }}>
                 ({calculations.degradation ? `${fmt(calculations.degradation.vaporPressureKPa, 1)} kPa` : ''})
@@ -775,22 +773,20 @@ export default function WetBenchCalculator() {
             </div>
 
             <div style={{ fontSize: 12 }}>
-              <span style={{ color: 'var(--ink-soft)', display: 'block' }}>Etch Rate Retention</span>
+              <span style={{ color: 'var(--ink-soft)', display: 'block' }}>{t("Etch Rate Retention")}</span>
               <strong>
                 {calculations.degradation ? `${fmt(calculations.degradation.etchRateFactor * 100, 1)}%` : 'N/A'}
               </strong>
               <span style={{ color: 'var(--ink-soft)', fontSize: 10, marginLeft: 4 }}>
-                (Loading exponent 1.5)
-              </span>
+                {t("(Loading exponent 1.5)")}</span>
             </div>
 
             {state.recipeId === 'sc-1' && calculations.rcaClean && (
               <div style={{ fontSize: 12 }}>
-                <span style={{ color: 'var(--ink-soft)', display: 'block' }}>Particle Clean Eff (PRE)</span>
+                <span style={{ color: 'var(--ink-soft)', display: 'block' }}>{t("Particle Clean Eff (PRE)")}</span>
                 <strong>{fmt(calculations.rcaClean.prePercent, 1)}%</strong>
                 <span style={{ color: 'var(--ink-soft)', fontSize: 10, marginLeft: 4 }}>
-                  (ΔRa: +{fmt(calculations.rcaClean.roughnessDeltaRaNm, 3)} nm)
-                </span>
+                  {t("(ΔRa: +")}{fmt(calculations.rcaClean.roughnessDeltaRaNm, 3)} {t("nm)")}</span>
               </div>
             )}
           </div>
@@ -800,21 +796,17 @@ export default function WetBenchCalculator() {
         <div className="panel" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <h3 style={{ fontSize: 14, fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Timer size={16} /> Etch Rate & Chemical Concentration Decay Profile
-            </h3>
+              <Timer size={16} /> {t("Etch Rate & Chemical Concentration Decay Profile")}</h3>
             <div style={{ display: 'flex', gap: 12, fontSize: 11 }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 10, height: 3, backgroundColor: '#0284c7', display: 'inline-block' }} />
-                Etch Rate (nm/min)
-              </span>
+                {t("Etch Rate (nm/min)")}</span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 10, height: 3, backgroundColor: '#f59e0b', display: 'inline-block' }} />
-                Conc (%)
-              </span>
+                {t("Conc (%)")}</span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 10, height: 1, borderTop: '2px dashed #ef4444', display: 'inline-block' }} />
-                Replenish Trigger
-              </span>
+                {t("Replenish Trigger")}</span>
             </div>
           </div>
 
@@ -850,24 +842,21 @@ export default function WetBenchCalculator() {
             onClick={handleExportCsv}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
           >
-            <Download size={16} /> Export CSV Report
-          </button>
+            <Download size={16} /> {t("Export CSV Report")}</button>
           <button
             type="button"
             className="button secondary"
             onClick={handleExportXlsx}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
           >
-            <Download size={16} /> Export XLSX Report
-          </button>
+            <Download size={16} /> {t("Export XLSX Report")}</button>
           <button
             type="button"
             className="button secondary"
             onClick={handleExportPdf}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
           >
-            <Download size={16} /> Export PDF Report
-          </button>
+            <Download size={16} /> {t("Export PDF Report")}</button>
         </div>
       </div>
     </div>
@@ -895,6 +884,7 @@ function WetBenchSvgChart({
   hoveredHour,
   onHoverHour,
 }: SvgChartProps) {
+  const t = useToolCopy(copyResource);
   const { points, maxH, maxRate, maxConc, replenishThresholdConc } = chartData;
 
   const width = 560;
@@ -1014,7 +1004,7 @@ function WetBenchSvgChart({
             textAnchor="end"
             fontWeight="bold"
           >
-            Spike Replenish Threshold ({replenishThresholdConc.toFixed(2)}%)
+            {t("Spike Replenish Threshold (")}{replenishThresholdConc.toFixed(2)}%)
           </text>
         </g>
       )}
@@ -1038,8 +1028,7 @@ function WetBenchSvgChart({
             fontSize="9"
             fontWeight="500"
           >
-            Max Life ({bathLifeHours}h)
-          </text>
+            {t("Max Life (")}{bathLifeHours}{t("h)")}</text>
         </g>
       )}
 
@@ -1096,8 +1085,7 @@ function WetBenchSvgChart({
             textAnchor="middle"
             fontWeight="600"
           >
-            {runHours}h (Now)
-          </text>
+            {runHours}{t("h (Now)")}</text>
         </g>
       )}
 
@@ -1130,8 +1118,7 @@ function WetBenchSvgChart({
         transform={`rotate(-90 12 ${padTop + plotH / 2})`}
         fontWeight="500"
       >
-        Etch Rate (nm/min)
-      </text>
+        {t("Etch Rate (nm/min)")}</text>
 
       {/* Right Axis: Chemical Concentration */}
       <text
@@ -1162,8 +1149,7 @@ function WetBenchSvgChart({
         transform={`rotate(90 ${width - 10} ${padTop + plotH / 2})`}
         fontWeight="500"
       >
-        Concentration (%)
-      </text>
+        {t("Concentration (%)")}</text>
 
       {/* Bottom Axis: Hours */}
       <text
@@ -1173,8 +1159,7 @@ function WetBenchSvgChart({
         fontSize="10"
         textAnchor="start"
       >
-        0h
-      </text>
+        {t("0h")}</text>
       <text
         x={padLeft + plotW}
         y={padTop + plotH + 15}
@@ -1192,8 +1177,7 @@ function WetBenchSvgChart({
         textAnchor="middle"
         fontWeight="500"
       >
-        Bath Operating Hours (h)
-      </text>
+        {t("Bath Operating Hours (h)")}</text>
 
       {/* Hover Tooltip Box */}
       {hoveredHour !== null && (
@@ -1208,17 +1192,15 @@ function WetBenchSvgChart({
             opacity="0.95"
           />
           <text x="8" y="14" fill="#ffffff" fontSize="10" fontWeight="bold">
-            T = {nearestPoint.h.toFixed(1)} hours
+            {t("T =")}{nearestPoint.h.toFixed(1)} hours
           </text>
           <text x="8" y="28" fill="#38bdf8" fontSize="9">
-            ER: {nearestPoint.etchRate.toFixed(2)} nm/min
-          </text>
+            {t("ER:")}{nearestPoint.etchRate.toFixed(2)} {t("nm/min")}</text>
           <text x="8" y="40" fill="#fbbf24" fontSize="9">
-            Conc: {nearestPoint.conc.toFixed(2)}%
+            {t("Conc:")}{nearestPoint.conc.toFixed(2)}%
           </text>
           <text x="8" y="50" fill="#cbd5e1" fontSize="8">
-            Loading: {nearestPoint.loading.toFixed(2)} g/L
-          </text>
+            {t("Loading:")}{nearestPoint.loading.toFixed(2)} {t("g/L")}</text>
         </g>
       )}
     </svg>

@@ -206,7 +206,7 @@ export default function CommandPalettePanel({ open, onClose }: CommandPalettePan
           </button>
         </div>
 
-        <ul id="palette-results" role="listbox" aria-label="Search results" ref={listRef} className="palette-list">
+        <ul id="palette-results" role="listbox" aria-label={t.cmdTools} ref={listRef} className="palette-list">
           {entries.length === 0 ? (
             <li className="palette-empty">{t.cmdNoResults} “{query}”.</li>
           ) : (

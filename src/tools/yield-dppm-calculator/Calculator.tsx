@@ -1,5 +1,7 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/yield-dppm-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -22,6 +24,7 @@ const INITIAL = { mode: 'yield' as Mode, value: '99.865' };
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function YieldDppmCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy } = useCopyToClipboard();
@@ -69,9 +72,9 @@ export default function YieldDppmCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="dppm-mode">What do you have?</label>
+          <label htmlFor="dppm-mode">{t("What do you have?")}</label>
           <select id="dppm-mode" value={state.mode} onChange={(event) => update('mode', event.target.value as Mode)}>
             {(Object.keys(MODE_LABELS) as Mode[]).map((entry) => (
               <option key={entry} value={entry}>
@@ -91,18 +94,15 @@ export default function YieldDppmCalculator() {
           />
         </div>
         <p className="note">
-          The sigma column is a one-sided normal equivalent, so 3 sigma is 99.865% yield and 1350 DPPM. It is a
-          convenience figure, not a claim that the distribution is normal or that the parts are centred.
-        </p>
+          {t("The sigma column is a one-sided normal equivalent, so 3 sigma is 99.865% yield and 1350 DPPM. It is a convenience figure, not a claim that the distribution is normal or that the parts are centred.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -127,27 +127,24 @@ export default function YieldDppmCalculator() {
                 <dd>{fmt(result.yieldPercent)} %</dd>
               </div>
               <div>
-                <dt>Defect rate</dt>
+                <dt>{t("Defect rate")}</dt>
                 <dd>{fmt(result.dppm)} DPPM</dd>
               </div>
               <div>
-                <dt>Defect rate</dt>
+                <dt>{t("Defect rate")}</dt>
                 <dd>{fmt(result.dpb)} DPB</dd>
               </div>
               <div>
-                <dt>Equivalent sigma</dt>
+                <dt>{t("Equivalent sigma")}</dt>
                 <dd>{result.sigma === null ? '—' : fmt(result.sigma)}</dd>
               </div>
               <div>
-                <dt>Cpk equivalent</dt>
+                <dt>{t("Cpk equivalent")}</dt>
                 <dd>{result.cpkEquivalent === null ? '—' : fmt(result.cpkEquivalent)}</dd>
               </div>
             </dl>
             <p className="note">
-              Yield and DPPM are the same statement in two units: DPPM = (1 − yield fraction) × 1e6. This tool converts
-              the figure you already have; the process capability calculator goes the other way, from limits and a
-              distribution to the out-of-spec rate.
-            </p>
+              {t("Yield and DPPM are the same statement in two units: DPPM = (1 − yield fraction) × 1e6. This tool converts the figure you already have; the process capability calculator goes the other way, from limits and a distribution to the out-of-spec rate.")}</p>
           </>
         )}
       </section>

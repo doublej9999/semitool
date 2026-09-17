@@ -1,4 +1,7 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/wafer-mark-calculator';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useMemo, useState } from 'react';
 import { Copy, Eraser, RotateCcw } from 'lucide-react';
@@ -21,14 +24,15 @@ const INITIAL = {
 const EMPTY = { ...INITIAL, lotId: '', waferNumber: '', productId: '', layer: '' };
 
 const TEXT_FIELDS: { key: 'lotId' | 'waferNumber' | 'productId' | 'layer' | 'date'; label: string; type: string }[] = [
-  { key: 'lotId', label: 'Lot ID', type: 'text' },
-  { key: 'waferNumber', label: 'Wafer number', type: 'text' },
-  { key: 'productId', label: 'Product ID', type: 'text' },
-  { key: 'layer', label: 'Layer', type: 'text' },
-  { key: 'date', label: 'Date', type: 'date' },
+  { key: 'lotId', label: msg('Lot ID'), type: 'text' },
+  { key: 'waferNumber', label: msg('Wafer number'), type: 'text' },
+  { key: 'productId', label: msg('Product ID'), type: 'text' },
+  { key: 'layer', label: msg('Layer'), type: 'text' },
+  { key: 'date', label: msg('Date'), type: 'date' },
 ];
 
 export default function WaferMarkCalculator() {
+  const t = useToolCopy(copyResource);
   const [values, setValues] = useState(INITIAL);
   useUrlParamsState(values, setValues);
   const { copied, copy } = useCopyToClipboard();
@@ -40,11 +44,11 @@ export default function WaferMarkCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="mark-inputs">
-        <h2 id="mark-inputs">Mark inputs</h2>
+        <h2 id="mark-inputs">{t("Mark inputs")}</h2>
 
         {TEXT_FIELDS.map(({ key, label, type }) => (
           <div className="field" key={key}>
-            <label htmlFor={`mark-${key}`}>{label}</label>
+            <label htmlFor={`mark-${key}`}>{t(label)}</label>
             <input
               id={`mark-${key}`}
               type={type}
@@ -54,12 +58,12 @@ export default function WaferMarkCalculator() {
           </div>
         ))}
 
-        <h2>Format</h2>
+        <h2>{t("Format")}</h2>
 
         <div className="form-row">
           <div className="field">
             <label htmlFor="mark-digits">
-              Wafer number digits<span className="unit">1–6</span>
+              {t("Wafer number digits")}<span className="unit">1–6</span>
             </label>
             <input
               id="mark-digits"
@@ -73,7 +77,7 @@ export default function WaferMarkCalculator() {
 
           <div className="field">
             <label htmlFor="mark-separator">
-              Separator<span className="unit">characters</span>
+              {t("Separator")}<span className="unit">characters</span>
             </label>
             <input
               id="mark-separator"
@@ -85,15 +89,15 @@ export default function WaferMarkCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="mark-date-format">Date format</label>
+          <label htmlFor="mark-date-format">{t("Date format")}</label>
           <select
             id="mark-date-format"
             value={values.dateFormat}
             onChange={(event) => update('dateFormat', event.target.value as DateFormat)}
           >
-            <option value="YYMMDD">YYMMDD (e.g. 260910)</option>
-            <option value="YYMM">YYMM (e.g. 2609)</option>
-            <option value="YYYYMMDD">YYYYMMDD (e.g. 20260910)</option>
+            <option value="YYMMDD">{t("YYMMDD (e.g. 260910)")}</option>
+            <option value="YYMM">{t("YYMM (e.g. 2609)")}</option>
+            <option value="YYYYMMDD">{t("YYYYMMDD (e.g. 20260910)")}</option>
           </select>
         </div>
 
@@ -104,21 +108,19 @@ export default function WaferMarkCalculator() {
             checked={values.uppercase}
             onChange={(event) => update('uppercase', event.target.checked)}
           />
-          <label htmlFor="mark-uppercase">Uppercase output</label>
+          <label htmlFor="mark-uppercase">{t("Uppercase output")}</label>
         </div>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setValues(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
           <button className="button secondary" type="button" onClick={() => setValues(EMPTY)}>
-            <Eraser size={14} aria-hidden="true" /> Clear
-          </button>
+            <Eraser size={14} aria-hidden="true" /> {t("Clear")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="mark-result">
-        <h2 id="mark-result">Generated mark</h2>
+        <h2 id="mark-result">{t("Generated mark")}</h2>
 
         {result.errors.length > 0 ? (
           <div className="error" role="alert">
@@ -128,26 +130,26 @@ export default function WaferMarkCalculator() {
           </div>
         ) : null}
 
-        <span className="unit">Wafer mark</span>
+        <span className="unit">{t("Wafer mark")}</span>
         <div className="result-value" aria-live="polite">
           {result.mark || '—'}
         </div>
 
         <div className="metric-grid">
           <div className="metric">
-            <span>Characters</span>
+            <span>{t("Characters")}</span>
             <strong>{result.characters}</strong>
           </div>
           <div className="metric">
-            <span>Wafer number padded</span>
+            <span>{t("Wafer number padded")}</span>
             <strong>{result.errors.length === 0 ? values.waferNumber.padStart(values.digits, '0') : '—'}</strong>
           </div>
           <div className="metric">
-            <span>Separator</span>
+            <span>{t("Separator")}</span>
             <strong>{values.separator === '' ? '(none)' : `“${values.separator}”`}</strong>
           </div>
           <div className="metric">
-            <span>Date format</span>
+            <span>{t("Date format")}</span>
             <strong>{values.dateFormat}</strong>
           </div>
         </div>

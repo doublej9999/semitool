@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/acceptance-sampling-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -29,6 +31,7 @@ const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value)
 const optionalNum = (value: string) => (value.trim() === '' ? null : Number(value));
 
 export default function AcceptanceSamplingCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const { copied, copy: copyResult } = useCopyToClipboard();
@@ -135,9 +138,9 @@ export default function AcceptanceSamplingCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="as-mode">Direction</label>
+          <label htmlFor="as-mode">{t("Direction")}</label>
           <select
             id="as-mode"
             value={state.mode}
@@ -151,7 +154,7 @@ export default function AcceptanceSamplingCalculator() {
           </select>
         </div>
         <div className="field">
-          <label htmlFor="as-lot">Lot size (blank for an unlimited lot)</label>
+          <label htmlFor="as-lot">{t("Lot size (blank for an unlimited lot)")}</label>
           <input
             id="as-lot"
             type="number"
@@ -173,7 +176,7 @@ export default function AcceptanceSamplingCalculator() {
               />
             </div>
             <div className="field">
-              <label htmlFor="as-c">Acceptance number (accept on this many or fewer)</label>
+              <label htmlFor="as-c">{t("Acceptance number (accept on this many or fewer)")}</label>
               <input
                 id="as-c"
                 type="number"
@@ -183,7 +186,7 @@ export default function AcceptanceSamplingCalculator() {
               />
             </div>
             <div className="field">
-              <label htmlFor="as-p">Defect rate (%)</label>
+              <label htmlFor="as-p">{t("Defect rate (%)")}</label>
               <input
                 id="as-p"
                 type="number"
@@ -196,7 +199,7 @@ export default function AcceptanceSamplingCalculator() {
         ) : (
           <>
             <div className="field">
-              <label htmlFor="as-ltpd">Defect rate to reject (%)</label>
+              <label htmlFor="as-ltpd">{t("Defect rate to reject (%)")}</label>
               <input
                 id="as-ltpd"
                 type="number"
@@ -206,7 +209,7 @@ export default function AcceptanceSamplingCalculator() {
               />
             </div>
             <div className="field">
-              <label htmlFor="as-risk">Consumer risk (%)</label>
+              <label htmlFor="as-risk">{t("Consumer risk (%)")}</label>
               <input
                 id="as-risk"
                 type="number"
@@ -218,18 +221,15 @@ export default function AcceptanceSamplingCalculator() {
           </>
         )}
         <p className="note">
-          The finite lot is accounted for once the sample exceeds a tenth of it, because drawing without
-          replacement is less variable than the binomial assumes; the distribution actually used is reported.
-        </p>
+          {t("The finite lot is accounted for once the sample exceeds a tenth of it, because drawing without replacement is less variable than the binomial assumes; the distribution actually used is reported.")}</p>
         <div className="action-row">
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -253,19 +253,19 @@ export default function AcceptanceSamplingCalculator() {
               {result.mode === 'evaluate' ? (
                 <>
                   <div>
-                    <dt>Distribution used</dt>
+                    <dt>{t("Distribution used")}</dt>
                     <dd>{result.method}</dd>
                   </div>
                   <div>
-                    <dt>Defectives in the lot</dt>
+                    <dt>{t("Defectives in the lot")}</dt>
                     <dd>{result.defectivesInLot === null ? '—' : fmt(result.defectivesInLot)}</dd>
                   </div>
                   <div>
-                    <dt>Expected defectives in the sample</dt>
+                    <dt>{t("Expected defectives in the sample")}</dt>
                     <dd>{fmt(result.expectedDefectives)}</dd>
                   </div>
                   <div>
-                    <dt>Probability of rejecting</dt>
+                    <dt>{t("Probability of rejecting")}</dt>
                     <dd>{fmt(1 - result.probability)}</dd>
                   </div>
                 </>
@@ -276,11 +276,11 @@ export default function AcceptanceSamplingCalculator() {
                     <dd>{fmt(result.sampleSize)}</dd>
                   </div>
                   <div>
-                    <dt>Achieved probability of accepting</dt>
+                    <dt>{t("Achieved probability of accepting")}</dt>
                     <dd>{fmt(result.achievedProbability)}</dd>
                   </div>
                   <div>
-                    <dt>Acceptance number</dt>
+                    <dt>{t("Acceptance number")}</dt>
                     <dd>0</dd>
                   </div>
                 </>
@@ -288,11 +288,11 @@ export default function AcceptanceSamplingCalculator() {
             </dl>
             {result.mode === 'evaluate' ? (
               <table className="model-table">
-                <caption>Operating characteristic around the defect rate</caption>
+                <caption>{t("Operating characteristic around the defect rate")}</caption>
                 <thead>
                   <tr>
-                    <th scope="col">Defect rate</th>
-                    <th scope="col">Probability of accepting</th>
+                    <th scope="col">{t("Defect rate")}</th>
+                    <th scope="col">{t("Probability of accepting")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -306,10 +306,7 @@ export default function AcceptanceSamplingCalculator() {
               </table>
             ) : (
               <p className="note">
-                Zero acceptance plans are the ones that actually drive a defect rate down: they make the producer
-                improve the process rather than rely on the acceptance number. The cost is a larger sample for the
-                same protection.
-              </p>
+                {t("Zero acceptance plans are the ones that actually drive a defect rate down: they make the producer improve the process rather than rely on the acceptance number. The cost is a larger sample for the same protection.")}</p>
             )}
           </>
         )}

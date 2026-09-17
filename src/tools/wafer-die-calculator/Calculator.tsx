@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/wafer-die-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -8,6 +10,7 @@ import { useGlossary } from '@/lib/i18n/glossary';
 const INITIAL = { diameter: 300, width: 10, height: 10, street: 0.1, edge: 3 };
 
 export default function WaferDieCalculator() {
+  const t = useToolCopy(copyResource);
   const [values, setValues] = useState(INITIAL);
   const [copied, setCopied] = useState(false);
   const g = useGlossary();
@@ -50,7 +53,7 @@ export default function WaferDieCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel" aria-labelledby="die-inputs">
-        <h2 id="die-inputs">Wafer and die inputs</h2>
+        <h2 id="die-inputs">{t("Wafer and die inputs")}</h2>
 
         <Num label={g('waferDiameter')} value={values.diameter} unit="mm" onChange={(value) => update('diameter', value)} />
 
@@ -63,19 +66,16 @@ export default function WaferDieCalculator() {
         <Num label={g('edgeExclusion')} value={values.edge} unit="mm" onChange={(value) => update('edge', value)} min={0} />
 
         <p className="note">
-          All lengths use millimetres. Street width is the scribe lane between two dies; the placement pitch is die size
-          plus street width.
-        </p>
+          {t("All lengths use millimetres. Street width is the scribe lane between two dies; the placement pitch is die size plus street width.")}</p>
 
         <div className="action-row">
           <button className="button secondary" type="button" onClick={() => setValues(INITIAL)}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset
-          </button>
+            <RotateCcw size={14} aria-hidden="true" /> {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel" aria-labelledby="die-result">
-        <h2 id="die-result">Estimated result</h2>
+        <h2 id="die-result">{t("Estimated result")}</h2>
 
         {hasErrors ? (
           <div className="error" role="alert">
@@ -85,26 +85,26 @@ export default function WaferDieCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Estimated usable die</span>
+            <span className="unit">{t("Estimated usable die")}</span>
             <div className="result-value" aria-live="polite">
               {result.estimatedUsable?.toLocaleString()}
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>Rectangular grid (reference)</span>
+                <span>{t("Rectangular grid (reference)")}</span>
                 <strong>{result.gross?.toLocaleString()}</strong>
               </div>
               <div className="metric">
-                <span>Die area utilisation</span>
+                <span>{t("Die area utilisation")}</span>
                 <strong>{result.utilization?.toFixed(2)}%</strong>
               </div>
               <div className="metric">
-                <span>Effective radius</span>
+                <span>{t("Effective radius")}</span>
                 <strong>{result.radius?.toFixed(2)} mm</strong>
               </div>
               <div className="metric">
-                <span>Placement pitch</span>
+                <span>{t("Placement pitch")}</span>
                 <strong>
                   {(values.width + values.street).toFixed(2)} × {(values.height + values.street).toFixed(2)} mm
                 </strong>
@@ -113,7 +113,7 @@ export default function WaferDieCalculator() {
 
             <div className="action-row">
               <button className="button primary" type="button" onClick={copyResult}>
-                <Copy size={15} aria-hidden="true" /> {copied ? 'Copied' : 'Copy result'}
+                <Copy size={15} aria-hidden="true" /> {copied ? t("Copied") : t("Copy result")}
               </button>
             </div>
           </>

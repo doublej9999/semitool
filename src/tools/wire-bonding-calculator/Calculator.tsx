@@ -1,4 +1,6 @@
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/wire-bonding-calculator';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -19,6 +21,7 @@ const INITIAL = {
 };
 
 export default function WireBondingCalculator() {
+  const t = useToolCopy(copyResource);
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
   const [copied, setCopied] = useState(false);
@@ -68,10 +71,10 @@ export default function WireBondingCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Wire Geometry & Operating Conditions</h2>
+        <h2>{t("Wire Geometry & Operating Conditions")}</h2>
 
         <div className="field">
-          <label htmlFor="material-sel">Wire Material</label>
+          <label htmlFor="material-sel">{t("Wire Material")}</label>
           <select
             id="material-sel"
             value={state.materialId}
@@ -79,14 +82,13 @@ export default function WireBondingCalculator() {
           >
             {WIRE_MATERIALS.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.name} (ρ = {(m.resistivityOhmM * 1e8).toFixed(2)} µΩ·cm)
-              </option>
+                {m.name} (ρ = {(m.resistivityOhmM * 1e8).toFixed(2)} {t("µΩ·cm)")}</option>
             ))}
           </select>
         </div>
 
         <div className="field">
-          <label htmlFor="wire-len">Wire Length (mm)</label>
+          <label htmlFor="wire-len">{t("Wire Length (mm)")}</label>
           <input
             id="wire-len"
             type="number"
@@ -97,7 +99,7 @@ export default function WireBondingCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="wire-diam">Wire Diameter (µm, 25.4 µm = 1.0 mil)</label>
+          <label htmlFor="wire-diam">{t("Wire Diameter (µm, 25.4 µm = 1.0 mil)")}</label>
           <input
             id="wire-diam"
             type="number"
@@ -108,7 +110,7 @@ export default function WireBondingCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="freq-mhz">Signal Frequency (MHz)</label>
+          <label htmlFor="freq-mhz">{t("Signal Frequency (MHz)")}</label>
           <input
             id="freq-mhz"
             type="number"
@@ -119,7 +121,7 @@ export default function WireBondingCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="curr-a">Operating DC/RMS Current (A)</label>
+          <label htmlFor="curr-a">{t("Operating DC/RMS Current (A)")}</label>
           <input
             id="curr-a"
             type="number"
@@ -132,17 +134,16 @@ export default function WireBondingCalculator() {
         <div className="action-row" style={{ marginTop: '16px' }}>
           <button type="button" className="button primary" onClick={copy} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button type="button" className="button secondary" onClick={() => setState(INITIAL)}>
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
       <section className="panel">
-        <h2>Parasitics & Current Limits</h2>
+        <h2>{t("Parasitics & Current Limits")}</h2>
 
         {!result.ok ? (
           <div className="error" role="alert">
@@ -152,44 +153,44 @@ export default function WireBondingCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Total Self Inductance</span>
+            <span className="unit">{t("Total Self Inductance")}</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.inductanceNh)} <span className="result-suffix">nH</span>
             </div>
 
             <div className="metric-grid">
               <div className="metric">
-                <span>DC Resistance</span>
-                <strong>{fmt(result.dcResistanceMOhm)} mΩ</strong>
+                <span>{t("DC Resistance")}</span>
+                <strong>{fmt(result.dcResistanceMOhm)} {t("mΩ")}</strong>
               </div>
               <div className="metric">
-                <span>AC Resistance (Skin)</span>
-                <strong>{fmt(result.acResistanceMOhm)} mΩ</strong>
+                <span>{t("AC Resistance (Skin)")}</span>
+                <strong>{fmt(result.acResistanceMOhm)} {t("mΩ")}</strong>
               </div>
               <div className="metric">
-                <span>Skin Depth (δ)</span>
-                <strong>{fmt(result.deltaSkinUm)} µm</strong>
+                <span>{t("Skin Depth (δ)")}</span>
+                <strong>{fmt(result.deltaSkinUm)} {t("µm")}</strong>
               </div>
               <div className="metric">
-                <span>Total Impedance |Z|</span>
+                <span>{t("Total Impedance |Z|")}</span>
                 <strong>{fmt(result.impedanceOhm)} Ω</strong>
               </div>
               <div className="metric">
-                <span>Preece Fusing Current</span>
+                <span>{t("Preece Fusing Current")}</span>
                 <strong>{fmt(result.fusingCurrentA)} A</strong>
               </div>
               <div className="metric">
-                <span>JEDEC Safe Current</span>
+                <span>{t("JEDEC Safe Current")}</span>
                 <strong>{fmt(result.safeCurrentA)} A</strong>
               </div>
               <div className="metric">
-                <span>Current Utilization</span>
+                <span>{t("Current Utilization")}</span>
                 <strong style={{ color: result.isCurrentSafe ? 'var(--teal)' : 'var(--red)' }}>
                   {fmt(result.utilizationPct)}%
                 </strong>
               </div>
               <div className="metric">
-                <span>Diameter in Mils</span>
+                <span>{t("Diameter in Mils")}</span>
                 <strong>{result.wireDiameterMils.toFixed(2)} mils</strong>
               </div>
             </div>
@@ -203,33 +204,31 @@ export default function WireBondingCalculator() {
 }
 
 function WireBondDiagram({ result }: { result: ReturnType<typeof calculateWireBonding> & { ok: true } }) {
+  const t = useToolCopy(copyResource);
   const width = 460;
   const height = 150;
 
   return (
     <div style={{ marginTop: '20px' }}>
       <h3 style={{ fontSize: '14px', marginBottom: '6px', color: 'var(--ink)' }}>
-        Bond Wire Interconnect Model
-      </h3>
+        {t("Bond Wire Interconnect Model")}</h3>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         style={{ width: '100%', height: 'auto', background: 'var(--paper)', borderRadius: '6px' }}
         role="img"
-        aria-label="Wire bonding loop diagram"
+        aria-label={t("Wire bonding loop diagram")}
       >
         {/* Silicon Die & Bond Pad */}
         <rect x="30" y="90" width="80" height="40" fill="#cbd5e1" rx="3" />
         <rect x="70" y="85" width="25" height="6" fill="#f59e0b" rx="1" />
         <text x="70" y="120" fontSize="10" fill="#334155" fontWeight="600" textAnchor="middle">
-          Die Pad
-        </text>
+          {t("Die Pad")}</text>
 
         {/* Leadframe / Substrate Pad */}
         <rect x="350" y="90" width="80" height="40" fill="#cbd5e1" rx="3" />
         <rect x="365" y="85" width="25" height="6" fill="#f59e0b" rx="1" />
         <text x="390" y="120" fontSize="10" fill="#334155" fontWeight="600" textAnchor="middle">
-          Leadframe
-        </text>
+          {t("Leadframe")}</text>
 
         {/* Arched Bond Wire Curve */}
         <path
@@ -242,11 +241,9 @@ function WireBondDiagram({ result }: { result: ReturnType<typeof calculateWireBo
 
         {/* Labels on Arch */}
         <text x="230" y="38" fontSize="11" fill="var(--ink)" fontWeight="600" textAnchor="middle">
-          {result.material.name} (L = {result.wireLengthMm} mm)
-        </text>
+          {result.material.name} {t("(L =")}{result.wireLengthMm} {t("mm)")}</text>
         <text x="230" y="55" fontSize="10" fill="var(--teal-dark)" textAnchor="middle">
-          L ≈ {fmt(result.inductanceNh)} nH, Rac ≈ {fmt(result.acResistanceMOhm)} mΩ
-        </text>
+          {t("L ≈")}{fmt(result.inductanceNh)} {t("nH, Rac ≈")}{fmt(result.acResistanceMOhm)} {t("mΩ")}</text>
       </svg>
     </div>
   );

@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronDown, ChevronUp, Plus, Trash2, Workflow, CheckCircle2, Zap } from 'lucide-react';
 import { useLocale } from '@/lib/i18n/context';
-import { getTranslation } from '@/lib/i18n/translations';
-import { translateToolName } from '@/lib/i18n/tool-translations';
+import { getTranslation, translateCategory } from '@/lib/i18n/translations';
+import { getTranslatedTool, translateToolName } from '@/lib/i18n/tool-translations';
 import {
   addCustomFlow,
   removeCustomFlow,
@@ -526,11 +526,15 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
                 )}
               </div>
               <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--ink, #152127)' }}>
-                {translateToolName(nextStep.toolPath, locale) || nextStep.nameEn} {nextStep.stageName ? `(${nextStep.stageName})` : ''}
+                {translateToolName(nextStep.toolPath, locale) || nextStep.nameEn} {nextStep.stageName ? `(${translateCategory(nextStep.stageName, locale)})` : ''}
               </div>
-              {nextStep.description && (
-                <div style={{ fontSize: '0.76rem', color: 'var(--ink-soft, #475569)' }}>{nextStep.description}</div>
-              )}
+              {(() => {
+                const nextToolObj = tools.find((c) => c.path === nextStep.toolPath);
+                const nextDesc = nextToolObj ? getTranslatedTool(nextToolObj, locale).description : nextStep.description;
+                return nextDesc ? (
+                  <div style={{ fontSize: '0.76rem', color: 'var(--ink-soft, #475569)' }}>{nextDesc}</div>
+                ) : null;
+              })()}
             </div>
             <Link
               href={nextStepHref}
@@ -595,7 +599,7 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
                 color: 'var(--teal-dark, #0a5f66)',
                 fontWeight: 600,
               }}
-              title="Parameters currently active on bus"
+              title={t.dataBusActive}
             >
               <Zap size={11} />
               <span>{t.dataBusActive}</span>
@@ -674,16 +678,16 @@ export function ProcessWorkflowBar({ currentToolPath }: ProcessWorkflowBarProps)
                     {translateToolName(toolPath, locale)}
                     {toolPath === currentToolPath ? ' ←' : ''}
                   </span>
-                  <button type="button" onClick={() => movePicked(idx, -1)} disabled={idx === 0} aria-label="Move step up" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem' }}>
+                  <button type="button" onClick={() => movePicked(idx, -1)} disabled={idx === 0} aria-label={t.moveUp || 'Move step up'} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem' }}>
                     <ChevronUp size={14} />
                   </button>
-                  <button type="button" onClick={() => movePicked(idx, 1)} disabled={idx === pickedTools.length - 1} aria-label="Move step down" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem' }}>
+                  <button type="button" onClick={() => movePicked(idx, 1)} disabled={idx === pickedTools.length - 1} aria-label={t.moveDown || 'Move step down'} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.1rem' }}>
                     <ChevronDown size={14} />
                   </button>
                   <button
                     type="button"
                     onClick={() => setPickedTools((prev) => prev.filter((p) => p !== toolPath))}
-                    aria-label="Remove step"
+                    aria-label={t.remove || 'Remove step'}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-soft, #475569)', padding: '0.1rem' }}
                   >
                     <Trash2 size={14} />

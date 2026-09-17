@@ -1,5 +1,8 @@
 
 'use client';
+import { useToolCopy } from '@/lib/i18n/tool-copy';
+import copyResource from '@/lib/i18n/tool-copy/resources/rf-power-calculator';
+import { msg } from '@/lib/i18n/tool-copy/msg';
 
 import { useMemo, useState } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
@@ -28,9 +31,9 @@ const POWER_INPUTS: { id: PowerUnit; label: string }[] = [
 ];
 
 const VOLTAGE_INPUTS = [
-  { id: 'vrms', label: 'V RMS', toRms: (value: number) => value },
-  { id: 'vpeak', label: 'V peak', toRms: (value: number) => value / Math.SQRT2 },
-  { id: 'vpp', label: 'V peak-to-peak', toRms: (value: number) => value / (2 * Math.SQRT2) },
+  { id: 'vrms', label: msg('V RMS'), toRms: (value: number) => value },
+  { id: 'vpeak', label: msg('V peak'), toRms: (value: number) => value / Math.SQRT2 },
+  { id: 'vpp', label: msg('V peak-to-peak'), toRms: (value: number) => value / (2 * Math.SQRT2) },
 ];
 
 const IMPEDANCES = [50, 75, 600];
@@ -40,6 +43,7 @@ const INITIAL = { mode: 'power' as Mode, value: '0', powerUnit: 'dBm' as PowerUn
 const num = (value: string) => (value.trim() === '' ? Number.NaN : Number(value));
 
 export default function RfPowerCalculator() {
+  const t = useToolCopy(copyResource);
   const g = useGlossary();
   const [state, setState] = useState(INITIAL);
   useUrlParamsState(state, setState);
@@ -94,12 +98,12 @@ export default function RfPowerCalculator() {
   return (
     <div className="calc-grid">
       <section className="panel">
-        <h2>Inputs</h2>
+        <h2>{t("Inputs")}</h2>
         <div className="field">
-          <label htmlFor="rf-mode">What do you have?</label>
+          <label htmlFor="rf-mode">{t("What do you have?")}</label>
           <select id="rf-mode" value={state.mode} onChange={(event) => update('mode', event.target.value as Mode)}>
-            <option value="power">A power or level (dBm, dBW, W, mW)</option>
-            <option value="voltage">A voltage into the load (RMS, peak, peak-to-peak)</option>
+            <option value="power">{t("A power or level (dBm, dBW, W, mW)")}</option>
+            <option value="voltage">{t("A voltage into the load (RMS, peak, peak-to-peak)")}</option>
           </select>
         </div>
 
@@ -136,7 +140,7 @@ export default function RfPowerCalculator() {
               >
                 {VOLTAGE_INPUTS.map((entry) => (
                   <option key={entry.id} value={entry.id}>
-                    {entry.label}
+                    {t(entry.label)}
                   </option>
                 ))}
               </select>
@@ -145,7 +149,7 @@ export default function RfPowerCalculator() {
         </div>
 
         <div className="field">
-          <label htmlFor="rf-z">System impedance (Ω)</label>
+          <label htmlFor="rf-z">{t("System impedance (Ω)")}</label>
           <input
             id="rf-z"
             type="number"
@@ -155,13 +159,12 @@ export default function RfPowerCalculator() {
           />
         </div>
         <p className="note">
-          Common systems: {IMPEDANCES.join(' Ω, ')} Ω. A 50 Ω system turns 0 dBm (1 mW) into 223.6 mV RMS.
-        </p>
+          {t("Common systems:")}{IMPEDANCES.join(' Ω, ')} {t("Ω. A 50 Ω system turns 0 dBm (1 mW) into 223.6 mV RMS.")}</p>
 
         <div className="action-row">
           <button type="button" className="button primary" onClick={() => void copy(lines.join('\n'))} disabled={!result.ok}>
             <Copy size={16} aria-hidden="true" />
-            {copied ? 'Copied' : 'Copy result'}
+            {copied ? t("Copied") : t("Copy result")}
           </button>
           <button
             type="button"
@@ -169,8 +172,7 @@ export default function RfPowerCalculator() {
             onClick={() => setState({ ...INITIAL, mode: state.mode })}
           >
             <RotateCcw size={16} aria-hidden="true" />
-            Reset
-          </button>
+            {t("Reset")}</button>
         </div>
       </section>
 
@@ -184,7 +186,7 @@ export default function RfPowerCalculator() {
           </div>
         ) : (
           <>
-            <span className="unit">Level into {fmt(result.ohms)} Ω</span>
+            <span className="unit">{t("Level into")}{fmt(result.ohms)} Ω</span>
             <div className="result-value" aria-live="polite">
               {fmt(result.dbm)}
               <span className="result-suffix"> dBm</span>
@@ -199,26 +201,24 @@ export default function RfPowerCalculator() {
                 <dd>{fmt(result.milliwatts)} mW</dd>
               </div>
               <div>
-                <dt>Level dBW</dt>
+                <dt>{t("Level dBW")}</dt>
                 <dd>{fmt(result.dbw)} dBW</dd>
               </div>
               <div>
-                <dt>Voltage RMS</dt>
+                <dt>{t("Voltage RMS")}</dt>
                 <dd>{fmt(result.vrms)} V</dd>
               </div>
               <div>
-                <dt>Voltage peak</dt>
+                <dt>{t("Voltage peak")}</dt>
                 <dd>{fmt(result.vpeak)} V</dd>
               </div>
               <div>
-                <dt>Voltage peak-to-peak</dt>
+                <dt>{t("Voltage peak-to-peak")}</dt>
                 <dd>{fmt(result.vpp)} V</dd>
               </div>
             </dl>
             <p className="note">
-              Sine wave into a real {fmt(result.ohms)} Ω load: V RMS = sqrt(P R), V peak = sqrt(2) x V RMS, V
-              peak-to-peak = 2 sqrt(2) x V RMS. Power alone (W, mW, kW, hp and the rest) is in the power converter.
-            </p>
+              {t("Sine wave into a real")}{fmt(result.ohms)} {t("Ω load: V RMS = sqrt(P R), V peak = sqrt(2) x V RMS, V peak-to-peak = 2 sqrt(2) x V RMS. Power alone (W, mW, kW, hp and the rest) is in the power converter.")}</p>
           </>
         )}
       </section>
